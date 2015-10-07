@@ -1,0 +1,20 @@
+<component-set>
+    <components>
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>iar</role-hint>
+            <implementation>
+                org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+            </implementation>
+            <configuration>
+                <phases>
+                	<initialize>com.axonivy.ivy.ci:project-build-plugin:ensureInstalledEngine</initialize>
+                    <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+                    <package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
+                    <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                    <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+                </phases>
+            </configuration>
+        </component>
+    </components>
+</component-set>

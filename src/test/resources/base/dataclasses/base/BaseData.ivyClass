@@ -1,0 +1,6 @@
+BaseData #class
+base #namespace
+muh String #field
+muh PERSISTENT #fieldModifier
+special ch.testarea.MyType #field
+special PERSISTENT #fieldModifier
