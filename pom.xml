@@ -4,7 +4,7 @@
 	<groupId>com.axonivy.ivy.ci</groupId>
 	<artifactId>project-build-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.4</version>
 
 	<name>Axon.ivy Project Build Plugin</name>
 	<description>Maven plugin for the automated building of Axon.ivy 6.0 projects. Referenced from the pom.xml of Axon.ivy projects.</description>
@@ -42,15 +42,10 @@
 	</properties>
 
 	<distributionManagement>
-		<repository>
-			<id>zugpronexus.releases</id>
-			<name>Internal Plugin Release Repository</name>
-			<url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-releases/</url>
-		</repository>
 		<snapshotRepository>
-			<id>zugpronexus.snapshots</id>
-			<name>Internal Plugin Snapshot Repository</name>
-			<url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-snapshots/</url>
+			<id>ossrh</id>
+			<name>Maven Central Snapshots Repo</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -228,6 +223,17 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+				</configuration>
 			</plugin>
 		</plugins>
 		
