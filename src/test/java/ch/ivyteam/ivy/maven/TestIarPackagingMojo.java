@@ -19,8 +19,10 @@ package ch.ivyteam.ivy.maven;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
@@ -37,7 +39,28 @@ public class TestIarPackagingMojo
   
   @Rule
   public ProjectMojoRule<IarPackagingMojo> rule = 
-    new ProjectMojoRule<>(new File("src/test/resources/base"), IarPackagingMojo.GOAL);
+    new ProjectMojoRule<IarPackagingMojo>(
+            new File("src/test/resources/base"), IarPackagingMojo.GOAL)
+    {
+      @Override
+      protected void before() throws Throwable 
+      {
+        super.before();
+        createEmptySrcDirs();
+      }
+
+      private void createEmptySrcDirs() throws IOException
+      {
+        List<String> emptySrcDirNames = Arrays.asList(
+                "src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
+        for(String emptySrcDirName : emptySrcDirNames)
+        {
+          File srcDir = new File(projectDir, emptySrcDirName);
+          FileUtils.deleteDirectory(srcDir);
+          srcDir.mkdir();
+        }
+      }
+    };
   
   /**
    * Happy path creation tests
@@ -46,7 +69,6 @@ public class TestIarPackagingMojo
   @Test
   public void archiveCreationDefault() throws Exception
   {
-    
     IarPackagingMojo mojo = rule.getMojo();
     File svn = new File(mojo.project.getBasedir(), ".svn/svn.txt");
     FileUtils.write(svn, "svn");

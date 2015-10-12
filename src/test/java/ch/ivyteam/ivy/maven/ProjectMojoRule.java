@@ -35,7 +35,7 @@ import org.apache.maven.project.MavenProject;
  */
 public class ProjectMojoRule<T extends Mojo> extends MojoRule
 {
-  private File projectDir;
+  protected File projectDir;
   private T mojo;
   private String mojoName;
   private File templateProjectDir;
