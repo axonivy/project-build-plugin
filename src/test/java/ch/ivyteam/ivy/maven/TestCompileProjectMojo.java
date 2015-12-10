@@ -111,6 +111,7 @@ public class TestCompileProjectMojo
     	  getMojo().engineListPageUrl = new URL(alternateEngineListPageUrl);
       }
       getMojo().engineCacheDirectory = new File(CACHE_DIR);
+      getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
       deleteOutdatedEngine();
       getMojo().execute();
     }
