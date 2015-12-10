@@ -90,6 +90,7 @@ public class TestIarPackagingMojo
       assertThat(archive.getEntry("target")).as("'target'folder should not be packed").isNull();
       assertThat(archive.getEntry(".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(archive.getEntry(".svn")).as("'target'.svn should not be packed").isNull();
+      assertThat(archive.getEntry("classes/gugus.txt")).as("classes content should be included by default").isNotNull();
     }
   }
   

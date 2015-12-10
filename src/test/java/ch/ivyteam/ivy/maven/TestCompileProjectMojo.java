@@ -70,14 +70,22 @@ public class TestCompileProjectMojo
     File classDir = new File(mojo.project.getBasedir(), "classes");
     FileUtils.cleanDirectory(wsProcDir);
     FileUtils.cleanDirectory(dataClassDir);
-    FileUtils.deleteDirectory(classDir);
     
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication").toFile();
     mojo.execute();
     
     assertThat(findFiles(dataClassDir, "java")).hasSize(2);
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
-    assertThat(findFiles(classDir, "class")).hasSize(5);
+    
+    assertThat(findFiles(classDir, "txt"))
+      .as("classes directory must be cleand by the builder before compilation")
+      .isEmpty();
+    assertThat(findFiles(classDir, "class"))
+      .as("compiled classes must exist")
+      .hasSize(5);
+    assertThat(findFiles(classDir, "xml"))
+      .as("resources from the src folder must be copied to the classes folder")
+      .hasSize(1);
   }
   
   private static Collection<File> findFiles(File dir, String fileExtension)
