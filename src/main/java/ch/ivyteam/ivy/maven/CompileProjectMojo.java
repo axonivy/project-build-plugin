@@ -41,7 +41,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  * Compiles an ivy Project with an ivyEngine.
  * 
  * @author Reguel Wermelinger
- * @since 04.11.2014
+ * @since 6.0.0
  */
 @Mojo(name=CompileProjectMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
 public class CompileProjectMojo extends AbstractEngineMojo

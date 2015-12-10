@@ -27,9 +27,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,11 +36,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+
 /**
  * Downloads the ivy Engine from the NET if does not yet exists in the correct version.
  * 
  * @author Reguel Wermelinger
- * @since 18.09.2014
+ * @since 6.0.0
  */
 @Mojo(name=EnsureInstalledEngineMojo.GOAL, requiresProject=false)
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo

@@ -25,7 +25,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * A MOJO that relies on an unpacked ivy engine.
  * 
  * @author Reguel Wermelinger
- * @since 25.09.2014
+ * @since 6.0.0
  */
 public abstract class AbstractEngineMojo extends AbstractMojo
 {

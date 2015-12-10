@@ -37,7 +37,7 @@ import ch.ivyteam.ivy.maven.conversion.FileSetConverter;
 
 /**
  * @author Reguel Wermelinger
- * @since 03.10.2014
+ * @since 6.0.0
  */
 @Mojo(name = IarPackagingMojo.GOAL)
 public class IarPackagingMojo extends AbstractMojo
