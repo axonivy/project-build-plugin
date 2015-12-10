@@ -3,7 +3,7 @@ Maven plugin for the automated building of Axon.ivy projects. Referenced from th
 
 ## Documentation
 - Get parameter and plugin-goal references at http://axonivy.github.io/project-build-plugin
-- Learn more about Axon.ivy project building in the Designer Guide (Concepts -> Continuous Integration)  http://developer.axonivy.com/doc/latest/DesignerGuideHtml/ivy.concepts.html#ivy-ci-maven-plugin
+- Learn more about Axon.ivy project building in the Designer Guide under [Concepts -> Continuous Integration] (http://developer.axonivy.com/doc/latest/DesignerGuideHtml/ivy.concepts.html#ivy-ci-maven-plugin)
 
 ## License
 The Apache License, Version 2.0
