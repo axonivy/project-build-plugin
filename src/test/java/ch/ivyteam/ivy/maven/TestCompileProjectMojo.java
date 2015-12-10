@@ -43,6 +43,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestCompileProjectMojo
 {
+  private static final String ENGINE_VERSION_TO_TEST = "6.1.0";
   private static final String LOCAL_REPOSITORY = getLocalRepoPath();
   private static final String CACHE_DIR = LOCAL_REPOSITORY + "/.cache/ivy-dev";
   
@@ -159,6 +160,7 @@ public class TestCompileProjectMojo
       
       getMojo().localRepository = provideLocalRepository();
       getMojo().engineCacheDirectory = new File(CACHE_DIR);
+      getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   
     /**
