@@ -29,12 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 
-import mockit.Mock;
-import mockit.MockUp;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.wink.client.MockHttpServer;
@@ -42,6 +36,11 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.EnsureInstalledEngineMojo.EngineDownloader;
+import mockit.Mock;
+import mockit.MockUp;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
 
 public class TestEnsureInstalledEngineMojo
 {
@@ -68,7 +67,7 @@ public class TestEnsureInstalledEngineMojo
       mockServer.startServer();
       String baseUrl = "http://localhost:" + mockServer.getServerPort();
       MockHttpServer.MockHttpServerResponse listPageResponse = new MockHttpServer.MockHttpServerResponse();
-      listPageResponse.setMockResponseContent("<a href=\""+baseUrl+"/AxonIvyEngine6.0.0.46949_Windows_x64.zip\">the engine!</a>");
+      listPageResponse.setMockResponseContent("<a href=\""+baseUrl+"/AxonIvyEngine"+AbstractEngineMojo.DEFAULT_VERSION+".46949_Windows_x64.zip\">the engine!</a>");
       File engineZip = createFakeEngineZip(mojo.ivyVersion);
       MockHttpServer.MockHttpServerResponse engineZipResponse = createFakeZipResponse(engineZip);
       mockServer.setMockHttpServerResponses(listPageResponse, engineZipResponse);
