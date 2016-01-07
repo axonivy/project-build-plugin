@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 AXON IVY AG
+ * Copyright (C) 2016 AXON IVY AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,6 +36,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
+import ch.ivyteam.ivy.maven.engine.ClasspathJar;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
@@ -47,6 +51,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 public class CompileProjectMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "compileProject";
+  public static final String IVY_PROJECT_IAR_DEPENDENCIES_JAR_NAME = "ivy.project.dependency.classpath.jar";
   
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -63,7 +68,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   @Parameter(defaultValue="${localRepository}")
   ArtifactRepository localRepository;
   
-  private static MavenProjectBuilderProxy builder;
+  static MavenProjectBuilderProxy builder;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -77,24 +82,29 @@ public class CompileProjectMojo extends AbstractEngineMojo
     try
     {
       getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), getEngineDirectory().getAbsoluteFile());
+      writeDependencyIarJar();
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
     }
   }
-  
+
   private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
   {
     if (builder == null)
     {
-      MavenContext context = new EngineClassLoaderFactory.MavenContext(repository, localRepository, getLog());
-      EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
-      URLClassLoader classLoader = classLoaderFactory.createEngineClassLoader(getEngineDirectory());
-      builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
-      return builder;
+      builder = new MavenProjectBuilderProxy(getEngineClassloader(), buildApplicationDirectory);
     }
     return builder;
+  }
+
+  URLClassLoader getEngineClassloader() throws IOException
+  {
+    MavenContext context = new EngineClassLoaderFactory.MavenContext(
+            repository, localRepository, project, getLog());
+    EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
+    return classLoaderFactory.createEngineClassLoader(getEngineDirectory());
   }
   
   private List<File> resolveIarDependencies()
@@ -114,6 +124,17 @@ public class CompileProjectMojo extends AbstractEngineMojo
       }
     }
     return dependentIars;
+  }
+
+  private void writeDependencyIarJar() throws IOException
+  {
+    Collection<File> iarJarDepenencies = FileUtils.listFiles(buildApplicationDirectory, new String[]{"jar"}, true);
+    if (iarJarDepenencies == null)
+    { // old engine which does not return it's dependencies
+      return;
+    }
+    File jar = new File(project.getBuild().getDirectory(), IVY_PROJECT_IAR_DEPENDENCIES_JAR_NAME);
+    new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
   }
 
 }

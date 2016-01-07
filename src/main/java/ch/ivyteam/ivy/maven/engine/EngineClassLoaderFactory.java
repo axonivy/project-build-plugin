@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 AXON IVY AG
+ * Copyright (C) 2016 AXON IVY AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
 /**
@@ -39,6 +41,8 @@ import org.apache.maven.repository.RepositorySystem;
  */
 public class EngineClassLoaderFactory
 {
+  public static final String IVY_ENGINE_CLASSPATH_JAR_NAME = "ivy.engine.classpath.jar";
+ 
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "1.7.7";
 
@@ -49,7 +53,6 @@ public class EngineClassLoaderFactory
           "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator
         );
   
-  
   private MavenContext maven;
   
   public EngineClassLoaderFactory(MavenContext mavenContext)
@@ -57,20 +60,13 @@ public class EngineClassLoaderFactory
     this.maven = mavenContext;
   }
   
-  public URLClassLoader createEngineClassLoader(File engineDirectory) throws MalformedURLException
+  public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException
   {
-    return new URLClassLoader(getIvyEngineClassPathUrls(engineDirectory));
-  }
-  
-  private URL[] getIvyEngineClassPathUrls(File engineDirectory) throws MalformedURLException
-  {
-    List<URL> classPathUrls = new ArrayList<>();
     List<File> ivyEngineClassPathFiles = getIvyEngineClassPathFiles(engineDirectory);
-    for(File file : customize(ivyEngineClassPathFiles))
-    {
-      classPathUrls.add(new URL(file.toURI().toASCIIString()));
-    }
-    return classPathUrls.toArray(new URL[classPathUrls.size()]);
+    writeEngineClasspathJar(ivyEngineClassPathFiles);
+    
+    List<File> classPathWithoutLog4j = customize(ivyEngineClassPathFiles);
+    return new URLClassLoader(toUrls(classPathWithoutLog4j));
   }
 
   private static List<File> getIvyEngineClassPathFiles(File engineDirectory)
@@ -86,6 +82,12 @@ public class EngineClassLoaderFactory
       }
     }
     return classPathFiles;
+  }
+
+  private void writeEngineClasspathJar(List<File> ivyEngineClassPathFiles) throws IOException
+  {
+    File classPathJar = new File(maven.project.getBuild().getDirectory(), IVY_ENGINE_CLASSPATH_JAR_NAME);
+    new ClasspathJar(classPathJar).createFileEntries(ivyEngineClassPathFiles);
   }
   
   private List<File> customize(List<File> engineClassPath)
@@ -104,16 +106,28 @@ public class EngineClassLoaderFactory
     return classPathCustomizer.customizeClassPath(engineClassPath);
   }
 
+  private static URL[] toUrls(List<File> ivyEngineClassPathFiles) throws MalformedURLException
+  {
+    List<URL> classPathUrls = new ArrayList<>();
+    for(File file : ivyEngineClassPathFiles)
+    {
+      classPathUrls.add(new URL(file.toURI().toASCIIString()));
+    }
+    return classPathUrls.toArray(new URL[classPathUrls.size()]);
+  }
+
   public static class MavenContext
   {
-    private RepositorySystem repoSystem;
-    private ArtifactRepository localRepository;
-    private Log log;
+    private final RepositorySystem repoSystem;
+    private final ArtifactRepository localRepository;
+    private final MavenProject project;
+    private final Log log;
     
-    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, Log log)
+    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, MavenProject project, Log log)
     {
       this.repoSystem = repoSystem;
       this.localRepository = localRepository;
+      this.project = project;
       this.log = log;
     }
     
