@@ -128,7 +128,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
 
   private void writeDependencyIarJar() throws IOException
   {
-    if (buildApplicationDirectory.isDirectory())
+    if (!buildApplicationDirectory.isDirectory())
     { // project has no dependencies
       return;
     }
