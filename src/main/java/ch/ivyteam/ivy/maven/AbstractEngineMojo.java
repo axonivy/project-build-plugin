@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 public abstract class AbstractEngineMojo extends AbstractMojo
 {
   protected static final String MINIMAL_COMPATIBLE_VERSION = "6.0.0";
-  protected static final String DEFAULT_VERSION = "6.0.1";
+  protected static final String DEFAULT_VERSION = "6.0.2";
   
   /**
    * Location where an unpacked (may pre-configured) ivy Engine in the {@link #ivyVersion required version} exists. 

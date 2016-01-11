@@ -25,6 +25,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+
 public class TestClasspathJar
 {
 

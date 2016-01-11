@@ -27,8 +27,8 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.engine.ClasspathJar;
-import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class TestSetupIvyTestPropertiesMojo
 {
@@ -78,9 +78,7 @@ public class TestSetupIvyTestPropertiesMojo
 
     private void writeTestClasspathJar() throws IOException
     {
-      File classPathJar = new File(
-              getMojo().project.getBuild().getDirectory(), 
-              EngineClassLoaderFactory.IVY_ENGINE_CLASSPATH_JAR_NAME);
+      File classPathJar = new SharedFile(rule.getMojo().project).getEngineClasspathJar();
       new ClasspathJar(classPathJar).createFileEntries(Arrays.asList(
               Files.createTempFile("dummy", ".jar").toFile(),
               Files.createTempFile("dummy2", ".jar").toFile()));

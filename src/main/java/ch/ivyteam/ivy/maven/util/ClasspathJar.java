@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven.engine;
+package ch.ivyteam.ivy.maven.util;
 
 import java.io.EOFException;
 import java.io.File;
@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  * Jar with only a Manifest.MF that defines the classpath.
  * 
  * @author Reguel Wermelinger
- * @since 06.01.2016
+ * @since 6.0.2
  */
 public class ClasspathJar
 {

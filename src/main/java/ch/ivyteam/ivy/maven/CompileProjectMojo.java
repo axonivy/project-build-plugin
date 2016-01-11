@@ -36,10 +36,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
-import ch.ivyteam.ivy.maven.engine.ClasspathJar;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Compiles an ivy Project with an ivyEngine.
@@ -51,7 +52,6 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 public class CompileProjectMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "compileProject";
-  public static final String IVY_PROJECT_IAR_DEPENDENCIES_JAR_NAME = "ivy.project.dependency.classpath.jar";
   
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -128,12 +128,16 @@ public class CompileProjectMojo extends AbstractEngineMojo
 
   private void writeDependencyIarJar() throws IOException
   {
+    if (buildApplicationDirectory.isDirectory())
+    { // project has no dependencies
+      return;
+    }
     Collection<File> iarJarDepenencies = FileUtils.listFiles(buildApplicationDirectory, new String[]{"jar"}, true);
     if (iarJarDepenencies == null)
     { // old engine which does not return it's dependencies
       return;
     }
-    File jar = new File(project.getBuild().getDirectory(), IVY_PROJECT_IAR_DEPENDENCIES_JAR_NAME);
+    File jar = new SharedFile(project).getIarDependencyClasspathJar();
     new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
   }
 

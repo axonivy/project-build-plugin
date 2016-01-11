@@ -32,6 +32,9 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.SharedFile;
+
 /**
  * Factory that provides an {@link URLClassLoader} for ivy Engine class access.
  * This makes invocation of engine parts possible without starting a new java process.
@@ -41,8 +44,6 @@ import org.apache.maven.repository.RepositorySystem;
  */
 public class EngineClassLoaderFactory
 {
-  public static final String IVY_ENGINE_CLASSPATH_JAR_NAME = "ivy.engine.classpath.jar";
- 
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "1.7.7";
 
@@ -86,7 +87,7 @@ public class EngineClassLoaderFactory
 
   private void writeEngineClasspathJar(List<File> ivyEngineClassPathFiles) throws IOException
   {
-    File classPathJar = new File(maven.project.getBuild().getDirectory(), IVY_ENGINE_CLASSPATH_JAR_NAME);
+    File classPathJar = new SharedFile(maven.project).getEngineClasspathJar();
     new ClasspathJar(classPathJar).createFileEntries(ivyEngineClassPathFiles);
   }
   

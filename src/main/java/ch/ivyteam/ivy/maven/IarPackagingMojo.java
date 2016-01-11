@@ -33,7 +33,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.util.AbstractScanner;
 
-import ch.ivyteam.ivy.maven.conversion.FileSetConverter;
+import ch.ivyteam.ivy.maven.util.FileSetConverter;
 
 /**
  * @author Reguel Wermelinger

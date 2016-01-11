@@ -25,8 +25,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.engine.ClasspathJar;
-import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Shares the classpath of the built ivy project and it's engine as public property 
@@ -50,15 +50,15 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    String target = project.getBuild().getDirectory();
+    SharedFile shared = new SharedFile(project);
     
-    File engineCp = new File(target, EngineClassLoaderFactory.IVY_ENGINE_CLASSPATH_JAR_NAME);
+    File engineCp = shared.getEngineClasspathJar();
     if (engineCp.exists())
     {
       setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
     }
     
-    File iarCp = new File(target, CompileProjectMojo.IVY_PROJECT_IAR_DEPENDENCIES_JAR_NAME);
+    File iarCp = shared.getIarDependencyClasspathJar();
     if (iarCp.exists())
     {
       setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
