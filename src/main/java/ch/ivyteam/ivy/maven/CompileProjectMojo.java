@@ -69,6 +69,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   ArtifactRepository localRepository;
   
   static MavenProjectBuilderProxy builder;
+  static File engineAppDirInUse;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -92,9 +93,11 @@ public class CompileProjectMojo extends AbstractEngineMojo
 
   private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
   {
+    URLClassLoader engineClassloader = getEngineClassloader(); // always instantiate -> write classpath jar!
     if (builder == null)
     {
-      builder = new MavenProjectBuilderProxy(getEngineClassloader(), buildApplicationDirectory);
+      builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory);
+      engineAppDirInUse = buildApplicationDirectory;
     }
     return builder;
   }
@@ -128,11 +131,11 @@ public class CompileProjectMojo extends AbstractEngineMojo
 
   private void writeDependencyIarJar() throws IOException
   {
-    if (!buildApplicationDirectory.isDirectory())
+    if (!engineAppDirInUse.isDirectory())
     { // project has no dependencies
       return;
     }
-    Collection<File> iarJarDepenencies = FileUtils.listFiles(buildApplicationDirectory, new String[]{"jar"}, true);
+    Collection<File> iarJarDepenencies = FileUtils.listFiles(engineAppDirInUse, new String[]{"jar"}, true);
     if (iarJarDepenencies == null)
     { // old engine which does not return it's dependencies
       return;
