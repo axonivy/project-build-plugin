@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,12 +39,14 @@ public class MavenProjectBuilderProxy
   private static final String FQ_DELEGATE_CLASS_NAME = "ch.ivyteam.ivy.project.build.MavenProjectBuilder";
   private Object delegate;
   private Class<?> delegateClass;
+  private File baseDirToBuildIn;
 
-  public MavenProjectBuilderProxy(URLClassLoader ivyEngineClassLoader, File workspace) throws Exception
+  public MavenProjectBuilderProxy(URLClassLoader ivyEngineClassLoader, File workspace, File baseDirToBuildIn) throws Exception
   {
     delegateClass = ivyEngineClassLoader.loadClass(FQ_DELEGATE_CLASS_NAME);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class, String.class);
     delegate = constructor.newInstance(workspace, getClassPath(ivyEngineClassLoader));
+    this.baseDirToBuildIn = baseDirToBuildIn;
   }
   
   private static String getClassPath(URLClassLoader classLoader) throws URISyntaxException
@@ -56,18 +59,26 @@ public class MavenProjectBuilderProxy
     return StringUtils.join(pathEntries, File.pathSeparator);
   }
   
-  public void execute(File projectDirToBuild, List<File> iarDependencies, File baseDirToBuildIn) throws Exception
+  public void compile(File projectDirToBuild, List<File> iarDependencies) throws Exception
   {
     Method mainMethod = delegateClass.getDeclaredMethod("execute", File.class, List.class);
+    executeInEngineDir(() -> 
+      mainMethod.invoke(delegate, projectDirToBuild, iarDependencies)
+    );
+  }
+  
+  private <T> T executeInEngineDir(Callable<T> function) throws Exception
+  {
     String originalBaseDirectory = System.getProperty("user.dir");
     System.setProperty("user.dir", baseDirToBuildIn.getAbsolutePath());
     try
     {
-      mainMethod.invoke(delegate, projectDirToBuild, iarDependencies);
+      return function.call();
     }
     finally
     {
       System.setProperty("user.dir", originalBaseDirectory);
     }
   }
+
 }

@@ -82,7 +82,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
-      getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), getEngineDirectory().getAbsoluteFile());
+      getMavenProjectBuilder().compile(project.getBasedir(), resolveIarDependencies());
       writeDependencyIarJar();
     }
     catch (Exception ex)
@@ -96,7 +96,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
     URLClassLoader engineClassloader = getEngineClassloader(); // always instantiate -> write classpath jar!
     if (builder == null)
     {
-      builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory);
+      builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory, getEngineDirectory());
       engineAppDirInUse = buildApplicationDirectory;
     }
     return builder;
