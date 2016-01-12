@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Axon.ivy Project Build Plugin - 
-    project-build:ensureInstalledEngine</title>
+    project-build:test-compile</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -61,22 +61,25 @@
         
   
     <div class="section">
-<h2>project-build:ensureInstalledEngine<a name="project-build:ensureInstalledEngine"></a></h2>
+<h2>project-build:test-compile<a name="project-build:test-compile"></a></h2>
       
 <p><b>Full name</b>:</p>
       
-<p>com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:ensureInstalledEngine</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:test-compile</p>
       
 <p><b>Description</b>:</p>
       
-<div>Downloads the ivy Engine from the NET if does not yet exists in the
-correct version.</div>
+<div>Compiles the test sources.</div>
       
 <p><b>Attributes</b>:</p>
       
 <ul>
         
-<li>Since version: <tt>6.0.0</tt>.</li>
+<li>Requires a Maven project to be executed.</li>
+        
+<li>Requires dependency resolution of artifacts in scope: <tt>test</tt>.</li>
+        
+<li>Since version: <tt>6.1.0</tt>.</li>
       </ul>
       
 <div class="section">
@@ -101,7 +104,7 @@ correct version.</div>
             
 <td><tt>String</tt></td>
             
-<td><tt>6.0.0</tt></td>
+<td><tt>6.1.0</tt></td>
             
 <td>The ivy Engine version that is used. Must be equal or higher than
 <tt>MINIMAL_COMPATIBLE_VERSION</tt><br /><b>Default value is</b>: <tt>6.1.0</tt>.<br /><b>User property is</b>: <tt>ivyVersion</tt>.</td>
@@ -127,17 +130,14 @@ correct version.</div>
           
 <tr class="b">
             
-<td><b><a href="#autoInstallEngine">autoInstallEngine</a></b></td>
+<td><b><a href="#buildApplicationDirectory">buildApplicationDirectory</a></b></td>
             
-<td><tt>boolean</tt></td>
+<td><tt>File</tt></td>
             
-<td><tt>6.0.0</tt></td>
+<td><tt>6.1.0</tt></td>
             
-<td>Enables the automatic installation of an ivy Engine in the
-<tt>engineDirectory</tt>. If there is yet no engine installed,
-or the <tt>ivyVersion</tt> does not match, the engine will be
-downloaded from the <tt>engineDownloadUrl</tt> and unpacked
-into the <tt>engineDirectory</tt>.<br /><b>Default value is</b>: <tt>true</tt>.<br /><b>User property is</b>: <tt>autoInstallEngine</tt>.</td>
+<td>Home application where the project to build and its dependencies
+will be temporary deployed.<br /><b>Default value is</b>: <tt>${project.build.directory}/ivyBuildApp</tt>.<br /></td>
           </tr>
           
 <tr class="a">
@@ -146,7 +146,7 @@ into the <tt>engineDirectory</tt>.<br /><b>Default value is</b>: <tt>true</tt>.<
             
 <td><tt>File</tt></td>
             
-<td><tt>6.0.0</tt></td>
+<td><tt>6.1.0</tt></td>
             
 <td>Location where ivy engines in required version can be extracted to.
 
@@ -161,7 +161,7 @@ downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.c
             
 <td><tt>File</tt></td>
             
-<td><tt>6.0.0</tt></td>
+<td><tt>6.1.0</tt></td>
             
 <td>Location where an unpacked (may pre-configured) ivy Engine in the
 <tt>required version</tt> exists. 
@@ -175,56 +175,13 @@ downloaded.</p><br /><b>User property is</b>: <tt>engineDirectory</tt>.</td>
           
 <tr class="a">
             
-<td><b><a href="#engineDownloadUrl">engineDownloadUrl</a></b></td>
+<td><b><a href="#localRepository">localRepository</a></b></td>
             
-<td><tt>URL</tt></td>
+<td><tt>ArtifactRepository</tt></td>
             
-<td><tt>6.0.0</tt></td>
+<td><tt>6.1.0</tt></td>
             
-<td>URL where a packed ivy Engine can be downloaded. E.g.
-<tt>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</tt><br /><b>User property is</b>: <tt>engineDownloadUrl</tt>.</td>
-          </tr>
-          
-<tr class="b">
-            
-<td><b><a href="#engineListPageUrl">engineListPageUrl</a></b></td>
-            
-<td><tt>URL</tt></td>
-            
-<td><tt>6.0.0</tt></td>
-            
-<td>URL where a link to the ivy Engine in the expected
-<tt>ivyVersion</tt> exists. The URL will be used to download
-the required engine if it does not yet exist. The URL should point
-to a site providing HTML content with a link to the engine <br />
-e.g. <tt>&lt;a
-href=&quot;http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip&quot;&gt;
-the engine&lt;/a&gt;</tt><br /><b>Default value is</b>: <tt>http://developer.axonivy.com/download/maven.html</tt>.<br /><b>User property is</b>: <tt>engineListPageUrl</tt>.</td>
-          </tr>
-          
-<tr class="a">
-            
-<td><b><a href="#osArchitecture">osArchitecture</a></b></td>
-            
-<td><tt>String</tt></td>
-            
-<td><tt>6.0.0</tt></td>
-            
-<td>Engine type that will be downloaded if
-<tt>autoInstallEngine</tt> is set and the engine must be
-retrieved from the <tt>engineListPageUrl</tt>. Possible values
-are: 
-
-<ul>
-
-<li>Linux_x64</li>
-
-<li>Linux_x86</li>
-
-<li>Windows_x64</li>
-
-<li>Windows_x86</li>
-</ul><br /><b>Default value is</b>: <tt>Windows_x64</tt>.<br /><b>User property is</b>: <tt>osArchitecture</tt>.</td>
+<td>(no description)<br /><b>Default value is</b>: <tt>${localRepository}</tt>.<br /></td>
           </tr>
         </table>
       </div>
@@ -232,25 +189,20 @@ are:
 <div class="section">
 <h3>Parameter Details<a name="Parameter_Details"></a></h3>
         
-<p><b><a name="autoInstallEngine">autoInstallEngine</a>:</b></p>
+<p><b><a name="buildApplicationDirectory">buildApplicationDirectory</a>:</b></p>
         
-<div>Enables the automatic installation of an ivy Engine in the
-<tt>engineDirectory</tt>. If there is yet no engine installed,
-or the <tt>ivyVersion</tt> does not match, the engine will be
-downloaded from the <tt>engineDownloadUrl</tt> and unpacked
-into the <tt>engineDirectory</tt>.</div>
+<div>Home application where the project to build and its dependencies
+will be temporary deployed.</div>
         
 <ul>
           
-<li><b>Type</b>: <tt>boolean</tt></li>
+<li><b>Type</b>: <tt>java.io.File</tt></li>
           
-<li><b>Since</b>: <tt>6.0.0</tt></li>
+<li><b>Since</b>: <tt>6.1.0</tt></li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>User Property</b>: <tt>autoInstallEngine</tt></li>
-          
-<li><b>Default</b>: <tt>true</tt></li>
+<li><b>Default</b>: <tt>${project.build.directory}/ivyBuildApp</tt></li>
         </ul><hr />
 <p><b><a name="engineCacheDirectory">engineCacheDirectory</a>:</b></p>
         
@@ -264,7 +216,7 @@ downloaded.</p></div>
           
 <li><b>Type</b>: <tt>java.io.File</tt></li>
           
-<li><b>Since</b>: <tt>6.0.0</tt></li>
+<li><b>Since</b>: <tt>6.1.0</tt></li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
@@ -287,48 +239,11 @@ downloaded.</p></div>
           
 <li><b>Type</b>: <tt>java.io.File</tt></li>
           
-<li><b>Since</b>: <tt>6.0.0</tt></li>
+<li><b>Since</b>: <tt>6.1.0</tt></li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
 <li><b>User Property</b>: <tt>engineDirectory</tt></li>
-        </ul><hr />
-<p><b><a name="engineDownloadUrl">engineDownloadUrl</a>:</b></p>
-        
-<div>URL where a packed ivy Engine can be downloaded. E.g.
-<tt>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</tt></div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>java.net.URL</tt></li>
-          
-<li><b>Since</b>: <tt>6.0.0</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>engineDownloadUrl</tt></li>
-        </ul><hr />
-<p><b><a name="engineListPageUrl">engineListPageUrl</a>:</b></p>
-        
-<div>URL where a link to the ivy Engine in the expected
-<tt>ivyVersion</tt> exists. The URL will be used to download
-the required engine if it does not yet exist. The URL should point
-to a site providing HTML content with a link to the engine <br />
-e.g. <tt>&lt;a
-href=&quot;http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip&quot;&gt;
-the engine&lt;/a&gt;</tt></div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>java.net.URL</tt></li>
-          
-<li><b>Since</b>: <tt>6.0.0</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>engineListPageUrl</tt></li>
-          
-<li><b>Default</b>: <tt>http://developer.axonivy.com/download/maven.html</tt></li>
         </ul><hr />
 <p><b><a name="ivyVersion">ivyVersion</a>:</b></p>
         
@@ -339,7 +254,7 @@ the engine&lt;/a&gt;</tt></div>
           
 <li><b>Type</b>: <tt>java.lang.String</tt></li>
           
-<li><b>Since</b>: <tt>6.0.0</tt></li>
+<li><b>Since</b>: <tt>6.1.0</tt></li>
           
 <li><b>Required</b>: <tt>Yes</tt></li>
           
@@ -347,35 +262,19 @@ the engine&lt;/a&gt;</tt></div>
           
 <li><b>Default</b>: <tt>6.1.0</tt></li>
         </ul><hr />
-<p><b><a name="osArchitecture">osArchitecture</a>:</b></p>
+<p><b><a name="localRepository">localRepository</a>:</b></p>
         
-<div>Engine type that will be downloaded if
-<tt>autoInstallEngine</tt> is set and the engine must be
-retrieved from the <tt>engineListPageUrl</tt>. Possible values
-are: 
-
-<ul>
-
-<li>Linux_x64</li>
-
-<li>Linux_x86</li>
-
-<li>Windows_x64</li>
-
-<li>Windows_x86</li>
-</ul></div>
+<div>(no description)</div>
         
 <ul>
           
-<li><b>Type</b>: <tt>java.lang.String</tt></li>
+<li><b>Type</b>: <tt>org.apache.maven.artifact.repository.ArtifactRepository</tt></li>
           
-<li><b>Since</b>: <tt>6.0.0</tt></li>
+<li><b>Since</b>: <tt>6.1.0</tt></li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>User Property</b>: <tt>osArchitecture</tt></li>
-          
-<li><b>Default</b>: <tt>Windows_x64</tt></li>
+<li><b>Default</b>: <tt>${localRepository}</tt></li>
         </ul>
       </div>
     </div>
