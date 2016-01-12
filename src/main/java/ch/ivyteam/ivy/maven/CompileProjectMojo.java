@@ -22,10 +22,13 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -69,7 +72,6 @@ public class CompileProjectMojo extends AbstractEngineMojo
   ArtifactRepository localRepository;
   
   static MavenProjectBuilderProxy builder;
-  static File engineAppDirInUse;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -82,22 +84,23 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
-      getMavenProjectBuilder().compile(project.getBasedir(), resolveIarDependencies());
-      writeDependencyIarJar();
+      MavenProjectBuilderProxy projectBuilder = getMavenProjectBuilder();
+      List<File> iarJars = projectBuilder.createIarJars(getDependencies("iar"));
+      projectBuilder.compile(project.getBasedir(), iarJars, getOptions());
+      writeDependencyIarJar(iarJars);
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
     }
   }
-
-  private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
+  
+  protected MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
   {
     URLClassLoader engineClassloader = getEngineClassloader(); // always instantiate -> write classpath jar!
     if (builder == null)
     {
       builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory, getEngineDirectory());
-      engineAppDirInUse = buildApplicationDirectory;
     }
     return builder;
   }
@@ -110,7 +113,22 @@ public class CompileProjectMojo extends AbstractEngineMojo
     return classLoaderFactory.createEngineClassLoader(getEngineDirectory());
   }
   
-  private List<File> resolveIarDependencies()
+  protected Map<String, String> getOptions()
+  {
+    Map<String, String> options = new HashMap<>();
+    options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
+    options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
+    return options;
+  }
+
+  private String getDependencyClasspath()
+  {
+    return StringUtils.join(getDependencies("jar").stream()
+            .map(jar -> jar.getAbsolutePath())
+            .collect(Collectors.toList()), File.pathSeparatorChar);
+  }
+
+  private List<File> getDependencies(String type)
   {
     Set<org.apache.maven.artifact.Artifact> dependencies = project.getArtifacts();
     if (dependencies == null)
@@ -121,7 +139,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
     List<File> dependentIars = new ArrayList<>();
     for(org.apache.maven.artifact.Artifact artifact : dependencies)
     {
-      if (artifact.getType().equals("iar"))
+      if (artifact.getType().equals(type))
       {
         dependentIars.add(artifact.getFile());
       }
@@ -129,15 +147,10 @@ public class CompileProjectMojo extends AbstractEngineMojo
     return dependentIars;
   }
 
-  private void writeDependencyIarJar() throws IOException
+  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException
   {
-    if (!engineAppDirInUse.isDirectory())
-    { // project has no dependencies
-      return;
-    }
-    Collection<File> iarJarDepenencies = FileUtils.listFiles(engineAppDirInUse, new String[]{"jar"}, true);
     if (iarJarDepenencies == null)
-    { // old engine which does not return it's dependencies
+    { // no dependencies
       return;
     }
     File jar = new SharedFile(project).getIarDependencyClasspathJar();

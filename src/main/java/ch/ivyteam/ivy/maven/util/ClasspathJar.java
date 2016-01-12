@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -88,20 +89,25 @@ public class ClasspathJar
               .collect(Collectors.toList());
   }
   
-  public String getClasspathFiles()
+  public List<File> getFiles()
   {
     String urlClasspath = getClasspathUrlEntries();
-    if (!urlClasspath.contains(" "))
+    if (StringUtils.isBlank(urlClasspath))
     {
-      return uriToAbsoluteFilePath(urlClasspath);
+      return Collections.emptyList();
     }
     
-    List<String> cp = new ArrayList<>();
+    List<File> files = new ArrayList<>();
     for(String entry : urlClasspath.split(" "))
     {
-      cp.add(uriToAbsoluteFilePath(entry));
+      files.add(new File(uriToAbsoluteFilePath(entry)));
     }
-    return StringUtils.join(cp, ",");
+    return files;
+  }
+  
+  public String getClasspathFiles()
+  {
+    return StringUtils.join(getFiles(), ",");
   }
 
   private static String uriToAbsoluteFilePath(String entry)

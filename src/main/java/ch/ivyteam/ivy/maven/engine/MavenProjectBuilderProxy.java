@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * Provides project build functionality that can only be accessed trough reflection on an ivy Engine classloader.
  * 
  * @author Reguel Wermelinger
- * @since 25.09.2014
+ * @since 6.0.0
  */
 public class MavenProjectBuilderProxy
 {
@@ -59,12 +60,48 @@ public class MavenProjectBuilderProxy
     return StringUtils.join(pathEntries, File.pathSeparator);
   }
   
-  public void compile(File projectDirToBuild, List<File> iarDependencies) throws Exception
+  /**
+   * @param iarDependencies dependencies of type IAR
+   * @return create IAR-JARs
+   * @throws Exception if creation fails
+   */
+  @SuppressWarnings("unchecked")
+  public List<File> createIarJars(List<File> iarDependencies) throws Exception
   {
-    Method mainMethod = delegateClass.getDeclaredMethod("execute", File.class, List.class);
-    executeInEngineDir(() -> 
-      mainMethod.invoke(delegate, projectDirToBuild, iarDependencies)
+    Method iarJarMethod = getMethod("createIarJars", List.class);
+    return (List<File>) executeInEngineDir(() -> 
+      iarJarMethod.invoke(delegate, iarDependencies)
     );
+  }
+  
+  public void compile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  {
+    Method compileMethod = getMethod("compile", File.class, List.class, Map.class);
+    executeInEngineDir(() -> 
+      compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
+    );
+  }
+  
+  public void testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  {
+    Method compileMethod = getMethod("testCompile", File.class, List.class, Map.class);
+    executeInEngineDir(() -> 
+      compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
+    );
+  }
+  
+  private Method getMethod(String name, Class<?>... parameterTypes)
+  {
+    try
+    {
+      return delegateClass.getDeclaredMethod(name, parameterTypes);
+    }
+    catch (NoSuchMethodException ex)
+    {
+      throw new RuntimeException(
+              "Method "+name+"("+parameterTypes+") does not exist in engine '"+baseDirToBuildIn+"'. \n"
+                      + "You might need to configer another version to work with.");
+    }
   }
   
   private <T> T executeInEngineDir(Callable<T> function) throws Exception
@@ -79,6 +116,18 @@ public class MavenProjectBuilderProxy
     {
       System.setProperty("user.dir", originalBaseDirectory);
     }
+  }
+  
+  
+  public static interface Options
+  {
+    String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
+    String COMPILE_CLASSPATH = "maven.dependency.classpath";
+  }
+  
+  public static interface Result
+  {
+    String TEST_OUTPUT_DIR = "ivy.project.test.output.dir";
   }
 
 }

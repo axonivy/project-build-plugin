@@ -11,6 +11,7 @@
 				<phases>
 					<initialize>com.axonivy.ivy.ci:project-build-plugin:ensureInstalledEngine</initialize>
 					<compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+					<test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
 					<test>
 						com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
 						org.apache.maven.plugins:maven-surefire-plugin:test
