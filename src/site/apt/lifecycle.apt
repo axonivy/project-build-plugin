@@ -1,0 +1,18 @@
+IAR Lifecycle
+
+ The project-build-plugin has a custom build lifecycle.
+
+*-----*------*
+ <<phase>> | <<default executions>> 
+*-----*------*
+ initialize | com.axonivy.ivy.ci:project-build-plugin:{{{./ensureInstalledEngine-mojo.html}ensureInstalledEngine}}
+*-----*------*
+ compile | com.axonivy.ivy.ci:project-build-plugin:{{{./compileProject-mojo.html}compileProject}} 
+*-----*------*
+ test | com.axonivy.ivy.ci:project-build-plugin:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
+     | org.apache.maven.plugins:maven-surefire-plugin:test 
+*-----*------*
+ package | com.axonivy.ivy.ci:project-build-plugin:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
+*-----*------*
+ deploy | org.apache.maven.plugins:maven-deploy-plugin:deploy 
+*-----*------*
