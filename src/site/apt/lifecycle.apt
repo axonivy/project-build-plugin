@@ -9,6 +9,8 @@ IAR Lifecycle
 *-----*------*
  compile | com.axonivy.ivy.ci:project-build-plugin:{{{./compileProject-mojo.html}compileProject}} 
 *-----*------*
+ test-compile | com.axonivy.ivy.ci:project-build-plugin:{{{./test-compile-mojo.html}test-compile}} 
+*-----*------*
  test | com.axonivy.ivy.ci:project-build-plugin:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
      | org.apache.maven.plugins:maven-surefire-plugin:test 
 *-----*------*

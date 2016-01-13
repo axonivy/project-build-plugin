@@ -30,7 +30,7 @@ under the License.
     </menu>
     
     <menu name="Development">
-      <item name="Snapshot release" href="../snapshot/plugin-info.html" />
+      <item name="Stable release" href="../release/plugin-info.html" />
     </menu>
   </body>
 </project>
