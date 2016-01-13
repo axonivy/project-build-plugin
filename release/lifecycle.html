@@ -3,8 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Axon.ivy Project Build Plugin - 
-    project-build:ivy-test-properties</title>
+    <title>Axon.ivy Project Build Plugin - </title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -48,8 +47,8 @@
                           <a href="plugin-info.html" title="Goals">Goals</a>
             </li>
                   <li class="none">
-                          <a href="lifecycle.html" title="IAR Lifecycle">IAR Lifecycle</a>
-            </li>
+            <strong>IAR Lifecycle</strong>
+          </li>
                   <li class="none">
                           <a href="examples.html" title="Examples">Examples</a>
             </li>
@@ -69,38 +68,28 @@
     </div>
     <div id="bodyColumn">
       <div id="contentBox">
-        
-  
-    <div class="section">
-<h2>project-build:ivy-test-properties<a name="project-build:ivy-test-properties"></a></h2>
-      
-<p><b>Full name</b>:</p>
-      
-<p>com.axonivy.ivy.ci:project-build-plugin:6.0.2:ivy-test-properties</p>
-      
-<p><b>Description</b>:</p>
-      
-<div>Shares the classpath of the built ivy project and it's engine as
-public property and tries to auto-configure maven-surefire-plugin
-to use this classpath.</div>
-      
-<p><b>Attributes</b>:</p>
-      
-<ul>
-        
-<li>Requires a Maven project to be executed.</li>
-        
-<li>Since version: <tt>6.0.2</tt>.</li>
-      </ul>
-      
-<div class="section">
-<h3>Parameters<a name="Parameters"></a></h3>
-        
-<p>(no parameters)</p>
-      </div>
-    </div>
-  
-
+        <div class="section">
+<h2>IAR Lifecycle<a name="IAR_Lifecycle"></a></h2>
+<p>The project-build-plugin has a custom build lifecycle.</p>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td align="center"><b>phase</b></td>
+<td align="center"><b>default executions</b></td></tr>
+<tr class="b">
+<td align="center">initialize</td>
+<td align="center">com.axonivy.ivy.ci:project-build-plugin:<a href="./ensureInstalledEngine-mojo.html">ensureInstalledEngine</a></td></tr>
+<tr class="a">
+<td align="center">compile</td>
+<td align="center">com.axonivy.ivy.ci:project-build-plugin:<a href="./compileProject-mojo.html">compileProject</a></td></tr>
+<tr class="b">
+<td align="center">test</td>
+<td align="center">com.axonivy.ivy.ci:project-build-plugin:<a href="./ivy-test-properties-mojo.html">ivy-test-properties</a>&#xa0;<br />org.apache.maven.plugins:maven-surefire-plugin:test</td></tr>
+<tr class="a">
+<td align="center">package</td>
+<td align="center">com.axonivy.ivy.ci:project-build-plugin:<a href="./pack-iar-mojo.html">pack-iar-mojo</a></td></tr>
+<tr class="b">
+<td align="center">deploy</td>
+<td align="center">org.apache.maven.plugins:maven-deploy-plugin:deploy</td></tr></table></div>
       </div>
     </div>
     <div class="clear">
