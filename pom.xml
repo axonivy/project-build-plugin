@@ -9,6 +9,9 @@
 	<name>Axon.ivy Project Build Plugin</name>
 	<description>Maven plugin for the automated building of Axon.ivy 6.0 projects. Referenced from the pom.xml of Axon.ivy projects.</description>
 	<url>https://github.com/axonivy/project-build-plugin</url>
+	<prerequisites>
+		<maven>3.1</maven>
+	</prerequisites>
 	<licenses>
 		<license>
 			<name>The Apache License, Version 2.0</name>
@@ -325,6 +328,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
+				<configuration>
+					<requirements>
+					  <others>
+					    <property>
+					      <name>ivy engine</name>
+					      <value>6.0</value>
+					    </property>
+					  </others>
+					</requirements>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
