@@ -8,6 +8,7 @@
 
 	<build>
 		<testSourceDirectory>src_test</testSourceDirectory>
+		<testOutputDirectory>notMyTestClasses</testOutputDirectory>
 		
 		<plugins>
 			<plugin>

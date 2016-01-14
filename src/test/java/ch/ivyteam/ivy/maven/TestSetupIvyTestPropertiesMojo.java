@@ -64,7 +64,7 @@ public class TestSetupIvyTestPropertiesMojo
     
     MavenProject project = rule.getMojo().project;
     assertThat(project.getBuild().getTestOutputDirectory())
-      .isEqualTo("classes-test");
+      .isEqualTo(new File(project.getBasedir(), "classes-test").getAbsolutePath());
     assertThat(project.getProperties().get(SetupIvyTestPropertiesMojo.MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY))
       .isEqualTo("${"+SetupIvyTestPropertiesMojo.IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+SetupIvyTestPropertiesMojo.IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}");
   }
