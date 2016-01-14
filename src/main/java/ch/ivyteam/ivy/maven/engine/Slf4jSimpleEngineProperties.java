@@ -30,7 +30,8 @@ class Slf4jSimpleEngineProperties
   private static final String PROPERTY_PREFIX = "org.slf4j.simpleLogger.";
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
           "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController",
-          "ch.ivyteam.ivy.java.internal.JavaBuilder"
+          "ch.ivyteam.ivy.java.internal.JavaBuilder",
+          "ch.ivyteam.ivy.maven" // my mojo logs
   );
   
   static void install()
@@ -44,6 +45,7 @@ class Slf4jSimpleEngineProperties
     { // pre 31 clients we're not using sfl4j-simple for their own logs
       mavenClientLogLevel = "info";
     }
+    setProperty("log.ch.ivyteam.ivy", "error"); // only log errors from unspecific engine loggers! 
     for(String loggerName : INTERESTING_LOGGERS)
     {
       setProperty("log."+loggerName, mavenClientLogLevel);
