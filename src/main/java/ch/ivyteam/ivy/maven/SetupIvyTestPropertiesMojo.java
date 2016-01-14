@@ -86,7 +86,11 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     try
     {
       String testOutputDirectory = CompilerResult.load(project).getTestOutputDirectory();
-      project.getBuild().setTestOutputDirectory(new File(project.getBasedir(), testOutputDirectory).getAbsolutePath());
+      if (testOutputDirectory != null)
+      {
+        project.getBuild().setTestOutputDirectory(
+                new File(project.getBasedir(), testOutputDirectory).getAbsolutePath());
+      }
     }
     catch (IOException ex)
     {
