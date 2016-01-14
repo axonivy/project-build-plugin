@@ -43,5 +43,10 @@ public class SharedFile
   {
     return new File(targetDir, "ivy.project.dependency.classpath.jar");
   }
+
+  public File getCompileResultProperties()
+  {
+    return new File(targetDir, "ivy.project.compile.result.properties");
+  }
   
 }

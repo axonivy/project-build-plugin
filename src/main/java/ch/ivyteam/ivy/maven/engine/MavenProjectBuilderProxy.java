@@ -74,18 +74,20 @@ public class MavenProjectBuilderProxy
     );
   }
   
-  public void compile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
   {
     Method compileMethod = getMethod("compile", File.class, List.class, Map.class);
-    executeInEngineDir(() -> 
+    return (Map<String, Object>) executeInEngineDir(() -> 
       compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
     );
   }
   
-  public void testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
   {
     Method compileMethod = getMethod("testCompile", File.class, List.class, Map.class);
-    executeInEngineDir(() -> 
+    return (Map<String, Object>) executeInEngineDir(() -> 
       compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
     );
   }

@@ -22,12 +22,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class TestSetupIvyTestPropertiesMojo
@@ -60,7 +64,7 @@ public class TestSetupIvyTestPropertiesMojo
     
     MavenProject project = rule.getMojo().project;
     assertThat(project.getBuild().getTestOutputDirectory())
-      .isEqualTo(new File(project.getBasedir(), "classes").getAbsolutePath());
+      .isEqualTo("classes-test");
     assertThat(project.getProperties().get(SetupIvyTestPropertiesMojo.MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY))
       .isEqualTo("${"+SetupIvyTestPropertiesMojo.IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+SetupIvyTestPropertiesMojo.IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}");
   }
@@ -74,6 +78,7 @@ public class TestSetupIvyTestPropertiesMojo
     {
       super.before();
       writeTestClasspathJar();
+      writeTestCompileResult();
     }
 
     private void writeTestClasspathJar() throws IOException
@@ -82,6 +87,13 @@ public class TestSetupIvyTestPropertiesMojo
       new ClasspathJar(classPathJar).createFileEntries(Arrays.asList(
               Files.createTempFile("dummy", ".jar").toFile(),
               Files.createTempFile("dummy2", ".jar").toFile()));
+    }
+    
+    private void writeTestCompileResult() throws IOException
+    {
+      Map<String, Object> result = new HashMap<>();
+      result.put(MavenProjectBuilderProxy.Result.TEST_OUTPUT_DIR, "classes-test");
+      CompilerResult.store(result, rule.getMojo().project);
     }
   };
 

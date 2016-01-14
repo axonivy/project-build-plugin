@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,6 +28,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -53,7 +55,8 @@ public class CompileTestProjectMojo extends CompileProjectMojo
     try
     {
       MavenProjectBuilderProxy projectBuilder = getMavenProjectBuilder();
-      projectBuilder.testCompile(project.getBasedir(), getIarJars(), getOptions());
+      Map<String, Object> result = projectBuilder.testCompile(project.getBasedir(), getIarJars(), getOptions());
+      CompilerResult.store(result, project);
     }
     catch (Exception ex)
     {

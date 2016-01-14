@@ -17,6 +17,7 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,6 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -81,8 +83,15 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     String surefireClasspath = "${"+IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}";
     setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
     
-    project.getBuild().setTestOutputDirectory(
-            new File(project.getBasedir(), "classes").getAbsolutePath());
+    try
+    {
+      String testOutputDirectory = CompilerResult.load(project).getTestOutputDirectory();
+      project.getBuild().setTestOutputDirectory(testOutputDirectory);
+    }
+    catch (IOException ex)
+    {
+      getLog().warn("Failed to set up ${project.build.testOutputDirectory}", ex);
+    }
   }
 
   private String getClasspath(File jar)
