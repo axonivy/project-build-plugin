@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -71,7 +72,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
 
   private void setMavenProperty(String key, String value)
   {
-    getLog().debug("share property '"+key+"' with value '"+value+"'");
+    getLog().debug("share property '"+key+"' with value '"+StringUtils.abbreviate(value, 500)+"'");
     project.getProperties().put(key, value);
   }
   

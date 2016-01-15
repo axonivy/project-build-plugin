@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.plugin.logging.Log;
+
 /**
  * Changes the default class path of an ivyEngine.
  * 
@@ -32,6 +34,12 @@ class EngineClassPathCustomizer
 {
   private Map<String, File> replacements = new HashMap<>();
   private List<String> filters = new ArrayList<>();
+  private final Log log;
+  
+  EngineClassPathCustomizer(Log log)
+  {
+    this.log = log;
+  }
   
   void registerReplacement(String originalJarNamePrefix, File replacement)
   {
@@ -51,6 +59,7 @@ class EngineClassPathCustomizer
       String fileName = file.getName();
       if (matchesFilter(fileName))
       {
+        log.debug("remove classpath entry '"+fileName+"'");
         continue;
       }
       
@@ -59,6 +68,7 @@ class EngineClassPathCustomizer
         if (fileName.startsWith(replacePrefix))
         {
           file = replacements.get(replacePrefix);
+          log.debug("replacing classpath entry '"+fileName+"' with '"+ file+"'");
         }
       }
   

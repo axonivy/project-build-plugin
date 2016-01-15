@@ -19,55 +19,73 @@ package ch.ivyteam.ivy.maven.engine;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.impl.SimpleLogger;
+
 /**
  * Sets the logging properties for the ivy engine.
  * 
  * @author Reguel Wermelinger
- * @since 11.11.2014
+ * @since 6.0.0
  */
 class Slf4jSimpleEngineProperties
 {
-  private static final String PROPERTY_PREFIX = "org.slf4j.simpleLogger.";
+  private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
-          "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController",
-          "ch.ivyteam.ivy.java.internal.JavaBuilder",
-          "ch.ivyteam.ivy.maven" // my mojo logs
+          "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // engine start/stop
+          "ch.ivyteam.ivy.project.build.MavenProjectBuilder", // maven engine interface
+          "ch.ivyteam.ivy.scripting.dataclass.internal.ProjectDataClassManager", // dataclass source generation
+          "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
+          "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice source generation
   );
   
   static void install()
   {
-    setDefaultProperty("showThreadName", Boolean.FALSE.toString());
-    setDefaultProperty("levelInBrackets", Boolean.TRUE.toString());
+    setDefaultProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, Boolean.FALSE.toString());
+    setDefaultProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, Boolean.TRUE.toString());
+    setDefaultProperty(SimpleLogger.SHOW_LOG_NAME_KEY, Boolean.FALSE.toString());
     
-    String mavenClientLogLevel = getProperty("defaultLogLevel");
+    // apply Maven log level to well known white-listed ivy loggers
+    String mavenClientLogLevel = getDefaultLogLevel();
+    for(String loggerName : INTERESTING_LOGGERS)
+    {
+      System.setProperty(SimpleLogger.LOG_KEY_PREFIX+loggerName, mavenClientLogLevel);
+    }
+    
+    // only log errors from unspecific engine loggers! 
+    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+"ch.ivyteam.ivy", Level.ERROR);
+    
+    // only warnings from any logger used by ivy third parties (e.g. org.apache.myfaces.xxx, org.apache.cxf, ...)
+    System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
+  }
+
+  private static String getDefaultLogLevel()
+  {
+    String mavenClientLogLevel = System.getProperty(DEFAULT_LOG_LEVEL);
     boolean isPreMaven31Client = mavenClientLogLevel == null;
     if (isPreMaven31Client)
     { // pre 31 clients we're not using sfl4j-simple for their own logs
-      mavenClientLogLevel = "info";
+      return Level.INFO;
     }
-    setProperty("log.ch.ivyteam.ivy", "error"); // only log errors from unspecific engine loggers! 
-    for(String loggerName : INTERESTING_LOGGERS)
-    {
-      setProperty("log."+loggerName, mavenClientLogLevel);
-    }
-    setProperty("defaultLogLevel", "warn"); 
+    return mavenClientLogLevel;
   }
   
   private static void setDefaultProperty(String property, String value)
   {
-    if (getProperty(property) == null)
+    if (System.getProperty(property) == null)
     {
-      setProperty(property, value);
+      System.setProperty(property, value);
     }
   }
 
-  private static String getProperty(String property)
+  /**
+   * Valid levels as documented in {@link org.slf4j.impl.SimpleLogger}
+   */
+  static interface Level
   {
-    return System.getProperty(PROPERTY_PREFIX+property);
-  }
-
-  private static void setProperty(String property, String value)
-  {
-    System.setProperty(PROPERTY_PREFIX+property, value);
+    String TRACE = "trace";
+    String DEBUG = "debug";
+    String INFO = "info";
+    String WARNING = "warn";
+    String ERROR = "error";
   }
 }

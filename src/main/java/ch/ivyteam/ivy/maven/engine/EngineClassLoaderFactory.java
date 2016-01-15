@@ -93,7 +93,7 @@ public class EngineClassLoaderFactory
   
   private List<File> customize(List<File> engineClassPath)
   {
-    EngineClassPathCustomizer classPathCustomizer = new EngineClassPathCustomizer();
+    EngineClassPathCustomizer classPathCustomizer = new EngineClassPathCustomizer(maven.log);
     
     // bridge log4j logs to SFL4J
     classPathCustomizer.registerReplacement("log4j-", 
