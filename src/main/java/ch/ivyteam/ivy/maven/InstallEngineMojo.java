@@ -45,10 +45,10 @@ import net.lingala.zip4j.exception.ZipException;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name=EnsureInstalledEngineMojo.GOAL, requiresProject=false)
-public class EnsureInstalledEngineMojo extends AbstractEngineMojo
+@Mojo(name=InstallEngineMojo.GOAL, requiresProject=false)
+public class InstallEngineMojo extends AbstractEngineMojo
 {
-  public static final String GOAL = "ensureInstalledEngine";
+  public static final String GOAL = "installEngine";
   
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.

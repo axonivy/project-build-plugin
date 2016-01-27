@@ -65,8 +65,8 @@ public class BaseCompileProjectMojoTest
   }
 
   @Rule
-  public ProjectMojoRule<EnsureInstalledEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<EnsureInstalledEngineMojo>(
-            new File("src/test/resources/base"), EnsureInstalledEngineMojo.GOAL){
+  public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<InstallEngineMojo>(
+            new File("src/test/resources/base"), InstallEngineMojo.GOAL){
       @Override
       protected void before() throws Throwable {
         super.before();

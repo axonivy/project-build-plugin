@@ -35,26 +35,26 @@ import org.apache.wink.client.MockHttpServer;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.EnsureInstalledEngineMojo.EngineDownloader;
+import ch.ivyteam.ivy.maven.InstallEngineMojo.EngineDownloader;
 import mockit.Mock;
 import mockit.MockUp;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 
-public class TestEnsureInstalledEngineMojo
+public class TestInstallEngineMojo
 {
-  private EnsureInstalledEngineMojo mojo;
+  private InstallEngineMojo mojo;
 
   @Rule
-  public ProjectMojoRule<EnsureInstalledEngineMojo> rule = 
-    new ProjectMojoRule<EnsureInstalledEngineMojo>(new File("src/test/resources/base"), EnsureInstalledEngineMojo.GOAL)
+  public ProjectMojoRule<InstallEngineMojo> rule = 
+    new ProjectMojoRule<InstallEngineMojo>(new File("src/test/resources/base"), InstallEngineMojo.GOAL)
     {
       @Override
       protected void before() throws Throwable 
       {
         super.before();
-        TestEnsureInstalledEngineMojo.this.mojo = getMojo();
+        TestInstallEngineMojo.this.mojo = getMojo();
       }
     };
     

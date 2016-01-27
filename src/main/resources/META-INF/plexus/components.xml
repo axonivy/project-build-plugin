@@ -9,7 +9,7 @@
 			</implementation>
 			<configuration>
 				<phases>
-					<initialize>com.axonivy.ivy.ci:project-build-plugin:ensureInstalledEngine</initialize>
+					<initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
 					<compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
 					<test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
 					<test>
