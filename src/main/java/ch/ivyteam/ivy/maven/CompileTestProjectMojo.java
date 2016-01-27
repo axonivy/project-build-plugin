@@ -27,6 +27,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
@@ -52,6 +53,7 @@ public class CompileTestProjectMojo extends CompileProjectMojo
 
   private void compileTests() throws MojoExecutionException
   {
+    Slf4jSimpleEngineProperties.install();
     try
     {
       MavenProjectBuilderProxy projectBuilder = getMavenProjectBuilder();
@@ -61,6 +63,10 @@ public class CompileTestProjectMojo extends CompileProjectMojo
     catch (Exception ex)
     {
       throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
+    }
+    finally
+    {
+      Slf4jSimpleEngineProperties.reset();
     }
   }
 

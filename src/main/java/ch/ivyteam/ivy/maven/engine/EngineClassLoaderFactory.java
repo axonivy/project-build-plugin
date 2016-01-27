@@ -102,7 +102,6 @@ public class EngineClassLoaderFactory
     // do not bind log4j as implementation of SLF4J but use slf4j-simple
     classPathCustomizer.registerReplacement("slf4j-log4j12", 
             maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
-    Slf4jSimpleEngineProperties.install();
     
     return classPathCustomizer.customizeClassPath(engineClassPath);
   }

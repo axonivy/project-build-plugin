@@ -27,7 +27,7 @@ import org.slf4j.impl.SimpleLogger;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-class Slf4jSimpleEngineProperties
+public class Slf4jSimpleEngineProperties
 {
   private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
@@ -37,8 +37,9 @@ class Slf4jSimpleEngineProperties
           "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
           "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice source generation
   );
+  private static final String IVY_PREFIX = "ch.ivyteam.ivy";
   
-  static void install()
+  public static void install()
   {
     setDefaultProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, Boolean.FALSE.toString());
     setDefaultProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, Boolean.TRUE.toString());
@@ -52,10 +53,19 @@ class Slf4jSimpleEngineProperties
     }
     
     // only log errors from unspecific engine loggers! 
-    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+"ch.ivyteam.ivy", Level.ERROR);
+    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+IVY_PREFIX, Level.ERROR);
     
     // only warnings from any logger used by ivy third parties (e.g. org.apache.myfaces.xxx, org.apache.cxf, ...)
     System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
+  }
+  
+  public static void reset()
+  {
+    for(String loggerName : INTERESTING_LOGGERS)
+    {
+      System.clearProperty(SimpleLogger.LOG_KEY_PREFIX+loggerName);
+    }
+    System.clearProperty(SimpleLogger.LOG_KEY_PREFIX+IVY_PREFIX);
   }
 
   private static String getDefaultLogLevel()
