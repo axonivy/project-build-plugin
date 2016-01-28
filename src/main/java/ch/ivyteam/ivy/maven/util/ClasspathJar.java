@@ -76,12 +76,9 @@ public class ClasspathJar
     {
       manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
       Attributes attrs = new Attributes();
-      //attrs.put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
       manifest.getEntries().put(name, attrs);
     }
-    
     jarStream.putNextEntry(new ZipEntry(MANIFEST_MF));
-
     manifest.write(jarStream);
   }
   
