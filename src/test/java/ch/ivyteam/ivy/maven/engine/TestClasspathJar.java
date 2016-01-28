@@ -19,10 +19,14 @@ package ch.ivyteam.ivy.maven.engine;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
@@ -39,6 +43,14 @@ public class TestClasspathJar
     jar.createFileEntries(Arrays.asList(content));
     
     assertThat(jar.getClasspathFiles()).contains(content.getName());
+    
+    ZipInputStream jarStream = new ZipInputStream(new FileInputStream(jarFile));
+    ZipEntry first = jarStream.getNextEntry();
+    assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");
+    String manifest = IOUtils.toString(jarStream);
+    assertThat(manifest)
+      .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
+      .startsWith("Manifest-Version:");
   }
   
 }

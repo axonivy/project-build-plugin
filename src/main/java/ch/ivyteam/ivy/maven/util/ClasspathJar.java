@@ -71,14 +71,17 @@ public class ClasspathJar
   private void writeManifest(String name, ZipOutputStream jarStream, List<String> classpathEntries) throws IOException
   {
     Manifest manifest = new Manifest();
-    Attributes attributes = new Attributes();
-    attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
     if (!classpathEntries.isEmpty())
     {
-      attributes.put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
+      manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
+      Attributes attrs = new Attributes();
+      //attrs.put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
+      manifest.getEntries().put(name, attrs);
     }
-    manifest.getEntries().put(name, attributes);
+    
     jarStream.putNextEntry(new ZipEntry(MANIFEST_MF));
+
     manifest.write(jarStream);
   }
   
@@ -127,7 +130,7 @@ public class ClasspathJar
     try(ZipInputStream is = new ZipInputStream(new FileInputStream(jar)))
     {
       Manifest manifest = new Manifest(getInputStream(is, MANIFEST_MF));
-      return manifest.getEntries().values().iterator().next().getValue(Attributes.Name.CLASS_PATH);
+      return manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
     }
     catch (IOException ex)
     {
