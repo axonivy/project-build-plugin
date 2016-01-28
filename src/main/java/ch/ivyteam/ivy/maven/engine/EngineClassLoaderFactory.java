@@ -88,7 +88,9 @@ public class EngineClassLoaderFactory
   private void writeEngineClasspathJar(List<File> ivyEngineClassPathFiles) throws IOException
   {
     File classPathJar = new SharedFile(maven.project).getEngineClasspathJar();
-    new ClasspathJar(classPathJar).createFileEntries(ivyEngineClassPathFiles);
+    ClasspathJar jar = new ClasspathJar(classPathJar);
+    jar.setMainClass("ch.ivyteam.ivy.server.ServerLauncher");
+    jar.createFileEntries(ivyEngineClassPathFiles);
   }
   
   private List<File> customize(List<File> engineClassPath)

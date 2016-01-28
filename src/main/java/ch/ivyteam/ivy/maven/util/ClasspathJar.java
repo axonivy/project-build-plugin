@@ -47,10 +47,16 @@ public class ClasspathJar
 {
   private static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
   private final File jar;
+  private String mainClass;
 
   public ClasspathJar(File jar)
   {
     this.jar = jar;
+  }
+  
+  public void setMainClass(String fqClassName)
+  {
+    this.mainClass = fqClassName;
   }
   
   public void create(List<String> classpathEntries) throws IOException
@@ -72,11 +78,14 @@ public class ClasspathJar
   {
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Name", name);
+    if (mainClass != null)
+    {
+      manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, mainClass);
+    }
     if (!classpathEntries.isEmpty())
     {
       manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, StringUtils.join(classpathEntries, " "));
-      Attributes attrs = new Attributes();
-      manifest.getEntries().put(name, attrs);
     }
     jarStream.putNextEntry(new ZipEntry(MANIFEST_MF));
     manifest.write(jarStream);
