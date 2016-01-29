@@ -18,7 +18,6 @@ package ch.ivyteam.ivy.maven.engine.deploy;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -29,10 +28,9 @@ import org.apache.maven.plugin.logging.Log;
 
 public class MarkerFileDeployer implements IvyProjectDeployer
 {
-  private File targetEngineDir;
+  private final File targetEngineDir;
   
   private Log log;
-  private String iarPath;
   private DeploymentMarkerFile markerFile;
 
   public MarkerFileDeployer(File targetEngineDir)
@@ -53,7 +51,6 @@ public class MarkerFileDeployer implements IvyProjectDeployer
     
     this.markerFile = new DeploymentMarkerFile(iar);
     this.log = log;
-    this.iarPath = iarPath;
     
     deployInternal();
   }
@@ -69,7 +66,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
   {
     try
     {
-      log.info("Deploying project "+iarPath);
+      log.info("Deploying project "+markerFile.getDeployCandidate().getName());
       markerFile.doDeploy().createNewFile();
     }
     catch (IOException ex)
@@ -89,7 +86,25 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       throw new MojoExecutionException("Deployment result does not exist", ex);
     }
     
+    failOnError();
+    
     log.info("Deployment finished");
+  }
+
+  private void failOnError() throws MojoExecutionException
+  {
+    if (markerFile.errorLog().exists())
+    {
+      try
+      {
+        log.error(FileUtils.readFileToString(markerFile.errorLog()));
+      }
+      catch (IOException ex)
+      {
+        log.error("Failed to resolve deployment error cause", ex);
+      }
+      throw new MojoExecutionException("Deployment of '"+markerFile.getDeployCandidate().getName()+"' failed!");
+    }
   }
 
   private static void wait(Supplier<Boolean> condition, long duration, TimeUnit unit) throws TimeoutException
@@ -109,39 +124,6 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       }
       catch (InterruptedException ex)
       {
-      }
-    }
-  }
-  
-  /**
-   * Engine status marker files to steer the deployment.
-   */
-  public static class DeploymentMarkerFile
-  {
-    private static final String DO_DEPLOY = ".dodeploy";
-    
-    private File iar;
-    
-    public DeploymentMarkerFile(File iar)
-    {
-      this.iar = iar;
-    }
-
-    public File doDeploy()
-    {
-      return getFile(DO_DEPLOY);
-    }
-
-    private File getFile(String markerExtension)
-    {
-      return new File(iar.getParent(), iar.getName()+markerExtension);
-    }
-    
-    public void clearAll()
-    {
-      for(String markerExtension : Arrays.asList(DO_DEPLOY))
-      {
-        FileUtils.deleteQuietly(getFile(markerExtension));
       }
     }
   }

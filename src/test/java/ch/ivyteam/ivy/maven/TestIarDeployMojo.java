@@ -17,16 +17,20 @@
 package ch.ivyteam.ivy.maven;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFile;
 
 public class TestIarDeployMojo
 {
@@ -39,26 +43,64 @@ public class TestIarDeployMojo
     assertThat(iar).isNotNull();
 
     iar.createNewFile();
-    File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
-    File app = new File(deploy, mojo.deployToEngineApplication);
-    File deployedIar = new File(app, iar.getName());
-    File deployMarkerFile = new MarkerFileDeployer.DeploymentMarkerFile(deployedIar).doDeploy();
+    File deployedIar = getTarget(iar, mojo);
+    File deployMarkerFile = new DeploymentMarkerFile(deployedIar).doDeploy();
     assertThat(deployedIar).doesNotExist();
     assertThat(deployMarkerFile).doesNotExist();
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
-    mockEngineDeployThread.execute(() -> {
-      assertThat(deployMarkerFile).exists(); //start deploying
+    Callable<Void> engineOperation = () -> {
+      assertThat(deployMarkerFile).as("deployment must be initialized").exists();
       deployMarkerFile.delete(); //deployment finished
-    });
-    
+      return null;
+    };
+    mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
-
     mockEngineDeployThread.failOnExecption();
     
     assertThat(deployedIar)
       .as("IAR must exist in engine deploy directory")
       .exists();
+  }
+  
+  @Test
+  public void failOnEngineDeployError() throws Exception
+  {
+    IarDeployMojo mojo = rule.getMojo();
+    mojo.deployEngineDirectory = createEngineDir();
+    mojo.deployIarFile.createNewFile();
+    DeploymentMarkerFile markers = new DeploymentMarkerFile(getTarget(mojo.deployIarFile, mojo));
+    
+    DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
+    Callable<Void> engineOperation = () -> {
+      assertThat(markers.doDeploy()).as("deployment must be initialized").exists();
+      FileUtils.write(markers.errorLog(), "validation errors");
+      markers.doDeploy().delete(); //deployment finished
+      return null;
+    };
+    
+    mockEngineDeployThread.execute(engineOperation);
+    try
+    {
+      mojo.execute();
+      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
+    }
+    catch (MojoExecutionException ex)
+    {
+      assertThat(ex).hasMessageContaining("failed!");
+    }
+    finally
+    {
+      mockEngineDeployThread.failOnExecption();
+    }
+  }
+
+  private static File getTarget(File iar, IarDeployMojo mojo)
+  {
+    File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
+    File app = new File(deploy, mojo.deployToEngineApplication);
+    File deployedIar = new File(app, iar.getName());
+    return deployedIar;
   }
   
   private static File createEngineDir() throws IOException
@@ -84,7 +126,7 @@ public class TestIarDeployMojo
       delayMillis = unit.toMillis(delay);
     }
     
-    public void execute(Runnable delayedFunction)
+    public void execute(Callable<Void> delayedFunction)
     {
       thread = new Thread(){
         @Override
@@ -93,7 +135,7 @@ public class TestIarDeployMojo
           try
           {
             Thread.sleep(delayMillis);
-            delayedFunction.run();
+            delayedFunction.call();
           }
           catch (Exception functionEx)
           {
