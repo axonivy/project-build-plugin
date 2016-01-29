@@ -108,6 +108,8 @@ public class CompileProjectMojo extends AbstractEngineMojo
     {
       builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory, getEngineDirectory());
     }
+    // share engine directory as property for custom follow up plugins:
+    project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, getEngineDirectory().getAbsolutePath()); 
     return builder;
   }
 
