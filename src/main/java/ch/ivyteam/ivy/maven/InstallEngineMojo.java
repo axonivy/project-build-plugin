@@ -40,7 +40,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 /**
- * Downloads the ivy Engine from the NET if does not yet exists in the correct version.
+ * Downloads an AXON.IVY Engine from the NET if it does not yet exists in the correct version.
  * 
  * @author Reguel Wermelinger
  * @since 6.0.0
