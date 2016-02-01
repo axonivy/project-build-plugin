@@ -115,7 +115,7 @@ public class TestIarDeployMojo
       File engine = new File("target/myTestIvyEngine");
       File deploy = new File(engine, "deploy");
       deploy.mkdirs();
-      return engine;
+      return engine.getAbsoluteFile();
     }
     
     @Override
