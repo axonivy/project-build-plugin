@@ -30,7 +30,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFile;
+import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFiles;
 
 public class TestIarDeployMojo
 {
@@ -44,7 +44,7 @@ public class TestIarDeployMojo
 
     iar.createNewFile();
     File deployedIar = getTarget(iar, mojo);
-    File deployMarkerFile = new DeploymentMarkerFile(deployedIar).doDeploy();
+    File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
     assertThat(deployedIar).doesNotExist();
     assertThat(deployMarkerFile).doesNotExist();
     
@@ -69,7 +69,7 @@ public class TestIarDeployMojo
     IarDeployMojo mojo = rule.getMojo();
     mojo.deployEngineDirectory = createEngineDir();
     mojo.deployIarFile.createNewFile();
-    DeploymentMarkerFile markers = new DeploymentMarkerFile(getTarget(mojo.deployIarFile, mojo));
+    DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployIarFile, mojo));
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {

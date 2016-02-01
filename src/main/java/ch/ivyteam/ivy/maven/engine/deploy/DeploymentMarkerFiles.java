@@ -8,14 +8,15 @@ import org.apache.commons.io.FileUtils;
 /**
  * Engine status marker files to steer the deployment.
  */
-public class DeploymentMarkerFile
+public class DeploymentMarkerFiles
 {
   private static final String DO_DEPLOY = ".dodeploy";
+  private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
   
   private File iar;
   
-  public DeploymentMarkerFile(File iar)
+  public DeploymentMarkerFiles(File iar)
   {
     this.iar = iar;
   }
@@ -30,6 +31,11 @@ public class DeploymentMarkerFile
     return getFile(DO_DEPLOY);
   }
   
+  public File log()
+  {
+    return getFile(LOG);
+  }
+  
   public File errorLog()
   {
     return getFile(ERROR_LOG);
@@ -42,7 +48,7 @@ public class DeploymentMarkerFile
   
   public void clearAll()
   {
-    for(String markerExtension : Arrays.asList(DO_DEPLOY, ERROR_LOG))
+    for(String markerExtension : Arrays.asList(DO_DEPLOY, LOG, ERROR_LOG))
     {
       FileUtils.deleteQuietly(getFile(markerExtension));
     }

@@ -31,7 +31,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
   private final File targetEngineDir;
   
   private Log log;
-  private DeploymentMarkerFile markerFile;
+  private DeploymentMarkerFiles markerFile;
 
   public MarkerFileDeployer(File targetEngineDir)
   {
@@ -49,7 +49,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       return;
     }
     
-    this.markerFile = new DeploymentMarkerFile(iar);
+    this.markerFile = new DeploymentMarkerFiles(iar);
     this.log = log;
     
     deployInternal();
@@ -77,20 +77,25 @@ public class MarkerFileDeployer implements IvyProjectDeployer
 
   private void determineDeployResult() throws MojoExecutionException
   {
+    FileLogForwarder logForwarder = new FileLogForwarder(markerFile.log(), log);
     try
     {
+      logForwarder.activate();
       wait(()->!markerFile.doDeploy().exists(), 30, TimeUnit.SECONDS);
     }
     catch (TimeoutException ex)
     {
       throw new MojoExecutionException("Deployment result does not exist", ex);
     }
+    finally
+    {
+      logForwarder.deactivate();
+    }
     
     failOnError();
-    
     log.info("Deployment finished");
   }
-
+  
   private void failOnError() throws MojoExecutionException
   {
     if (markerFile.errorLog().exists())
