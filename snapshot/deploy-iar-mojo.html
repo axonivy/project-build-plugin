@@ -10,7 +10,7 @@
     <meta name="Date-Revision-yyyymmdd" content="20160201" />
     <meta http-equiv="Content-Language" content="en" />
     <title>Axon.ivy Project Build Plugin - 
-    project-build:test-compile</title>
+    project-build:deploy-iar</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.4.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -112,23 +112,29 @@
             
   
     <div class="section">
-<h2>project-build:test-compile<a name="project-build:test-compile"></a></h2>
+<h2>project-build:deploy-iar<a name="project-build:deploy-iar"></a></h2>
       
 <p><b>Full name</b>:</p>
       
-<p>com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:test-compile</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:deploy-iar</p>
       
 <p><b>Description</b>:</p>
       
-<div>Compiles the test sources.</div>
+<div>Deploys an ivy-archive (IAR) to a running AXON.IVY Engine. 
+
+<p>Execution without a maven project is possible. E.g.</p>
+
+<div>
+<pre>
+com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:deploy-iar 
+-DdeployIarFile=myProject.iar 
+-DdeployEngineDirectory=c:/axonviy/engine
+-DdeployToEngineApplication=theApp
+</pre></div></div>
       
 <p><b>Attributes</b>:</p>
       
 <ul>
-        
-<li>Requires a Maven project to be executed.</li>
-        
-<li>Requires dependency resolution of artifacts in scope: <tt>test</tt>.</li>
         
 <li>Since version: <tt>6.1.0</tt>.</li>
       </ul>
@@ -181,17 +187,53 @@
           
 <tr class="b">
             
-<td><b><a href="#buildApplicationDirectory">buildApplicationDirectory</a></b></td>
+<td><b><a href="#deployDirectory">deployDirectory</a></b></td>
+            
+<td><tt>String</tt></td>
+            
+<td><tt>6.1.0</tt></td>
+            
+<td>The auto deployment directory of the engine. Must match the ivy
+engine system property 'deployment.directory'<br /><b>Default value is</b>: <tt>deploy</tt>.<br /><b>User property is</b>: <tt>deployDirectory</tt>.</td>
+          </tr>
+          
+<tr class="a">
+            
+<td><b><a href="#deployEngineDirectory">deployEngineDirectory</a></b></td>
             
 <td><tt>File</tt></td>
             
 <td><tt>6.1.0</tt></td>
             
-<td>Home application where the project to build and its dependencies
-will be temporary deployed.<br /><b>Default value is</b>: <tt>${project.build.directory}/ivyBuildApp</tt>.<br /></td>
+<td>The path to the AXON.IVY Engine to which we deploy the IAR. <br />
+The path can reference a remote engine by using UNC paths e.g.
+<tt>\\myRemoteHost\myEngineShare</tt><br /><b>Default value is</b>: <tt>${engineDirectory}</tt>.<br /><b>User property is</b>: <tt>deployEngineDirectory</tt>.</td>
+          </tr>
+          
+<tr class="b">
+            
+<td><b><a href="#deployIarFile">deployIarFile</a></b></td>
+            
+<td><tt>File</tt></td>
+            
+<td><tt>6.1.0</tt></td>
+            
+<td>The IAR to deploy. By default the packed IAR from the
+<tt>IarPackagingMojo.GOAL</tt> is used.<br /><b>Default value is</b>: <tt>${project.build.directory}/${project.artifactId}-${project.version}.iar</tt>.<br /><b>User property is</b>: <tt>deployIarFile</tt>.</td>
           </tr>
           
 <tr class="a">
+            
+<td><b><a href="#deployToEngineApplication">deployToEngineApplication</a></b></td>
+            
+<td><tt>String</tt></td>
+            
+<td><tt>6.1.0</tt></td>
+            
+<td>The name of an ivy application to which the IAR is deployed.<br /><b>Default value is</b>: <tt>SYSTEM</tt>.<br /><b>User property is</b>: <tt>deployToEngineApplication</tt>.</td>
+          </tr>
+          
+<tr class="b">
             
 <td><b><a href="#engineCacheDirectory">engineCacheDirectory</a></b></td>
             
@@ -206,7 +248,7 @@ will be temporary deployed.<br /><b>Default value is</b>: <tt>${project.build.di
 downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.cache/ivy</tt>.<br /><b>User property is</b>: <tt>engineCacheDirectory</tt>.</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td><b><a href="#engineDirectory">engineDirectory</a></b></td>
             
@@ -223,27 +265,34 @@ downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.c
 <p>If the Engine does not yet exist, it can be automatically
 downloaded.</p><br /><b>User property is</b>: <tt>engineDirectory</tt>.</td>
           </tr>
-          
-<tr class="a">
-            
-<td><b><a href="#localRepository">localRepository</a></b></td>
-            
-<td><tt>ArtifactRepository</tt></td>
-            
-<td><tt>6.1.0</tt></td>
-            
-<td>(no description)<br /><b>Default value is</b>: <tt>${localRepository}</tt>.<br /></td>
-          </tr>
         </table>
       </div>
       
 <div class="section">
 <h3>Parameter Details<a name="Parameter_Details"></a></h3>
         
-<p><b><a name="buildApplicationDirectory">buildApplicationDirectory</a>:</b></p>
+<p><b><a name="deployDirectory">deployDirectory</a>:</b></p>
         
-<div>Home application where the project to build and its dependencies
-will be temporary deployed.</div>
+<div>The auto deployment directory of the engine. Must match the ivy
+engine system property 'deployment.directory'</div>
+        
+<ul>
+          
+<li><b>Type</b>: <tt>java.lang.String</tt></li>
+          
+<li><b>Since</b>: <tt>6.1.0</tt></li>
+          
+<li><b>Required</b>: <tt>No</tt></li>
+          
+<li><b>User Property</b>: <tt>deployDirectory</tt></li>
+          
+<li><b>Default</b>: <tt>deploy</tt></li>
+        </ul><hr />
+<p><b><a name="deployEngineDirectory">deployEngineDirectory</a>:</b></p>
+        
+<div>The path to the AXON.IVY Engine to which we deploy the IAR. <br />
+The path can reference a remote engine by using UNC paths e.g.
+<tt>\\myRemoteHost\myEngineShare</tt></div>
         
 <ul>
           
@@ -253,7 +302,42 @@ will be temporary deployed.</div>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>Default</b>: <tt>${project.build.directory}/ivyBuildApp</tt></li>
+<li><b>User Property</b>: <tt>deployEngineDirectory</tt></li>
+          
+<li><b>Default</b>: <tt>${engineDirectory}</tt></li>
+        </ul><hr />
+<p><b><a name="deployIarFile">deployIarFile</a>:</b></p>
+        
+<div>The IAR to deploy. By default the packed IAR from the
+<tt>IarPackagingMojo.GOAL</tt> is used.</div>
+        
+<ul>
+          
+<li><b>Type</b>: <tt>java.io.File</tt></li>
+          
+<li><b>Since</b>: <tt>6.1.0</tt></li>
+          
+<li><b>Required</b>: <tt>No</tt></li>
+          
+<li><b>User Property</b>: <tt>deployIarFile</tt></li>
+          
+<li><b>Default</b>: <tt>${project.build.directory}/${project.artifactId}-${project.version}.iar</tt></li>
+        </ul><hr />
+<p><b><a name="deployToEngineApplication">deployToEngineApplication</a>:</b></p>
+        
+<div>The name of an ivy application to which the IAR is deployed.</div>
+        
+<ul>
+          
+<li><b>Type</b>: <tt>java.lang.String</tt></li>
+          
+<li><b>Since</b>: <tt>6.1.0</tt></li>
+          
+<li><b>Required</b>: <tt>No</tt></li>
+          
+<li><b>User Property</b>: <tt>deployToEngineApplication</tt></li>
+          
+<li><b>Default</b>: <tt>SYSTEM</tt></li>
         </ul><hr />
 <p><b><a name="engineCacheDirectory">engineCacheDirectory</a>:</b></p>
         
@@ -312,20 +396,6 @@ downloaded.</p></div>
 <li><b>User Property</b>: <tt>ivyVersion</tt></li>
           
 <li><b>Default</b>: <tt>6.1.0</tt></li>
-        </ul><hr />
-<p><b><a name="localRepository">localRepository</a>:</b></p>
-        
-<div>(no description)</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>org.apache.maven.artifact.repository.ArtifactRepository</tt></li>
-          
-<li><b>Since</b>: <tt>6.1.0</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>Default</b>: <tt>${localRepository}</tt></li>
         </ul>
       </div>
     </div>
