@@ -20,8 +20,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +36,6 @@ public class TestIarDeployMojo
   public void deployPackedIar() throws Exception
   {
     IarDeployMojo mojo = rule.getMojo();
-    mojo.deployEngineDirectory = createEngineDir();
     File iar = mojo.deployIarFile;
     assertThat(iar).isNotNull();
 
@@ -67,7 +64,6 @@ public class TestIarDeployMojo
   public void failOnEngineDeployError() throws Exception
   {
     IarDeployMojo mojo = rule.getMojo();
-    mojo.deployEngineDirectory = createEngineDir();
     mojo.deployIarFile.createNewFile();
     DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployIarFile, mojo));
     
@@ -102,18 +98,33 @@ public class TestIarDeployMojo
     File deployedIar = new File(app, iar.getName());
     return deployedIar;
   }
-  
-  private static File createEngineDir() throws IOException
-  {
-    File engine = Files.createTempDirectory("myIvyEngine").toFile();
-    File deploy = new File(engine, "deploy");
-    deploy.mkdir();
-    return engine;
-  }
 
   @Rule
   public ProjectMojoRule<IarDeployMojo> rule = new ProjectMojoRule<IarDeployMojo>(
-          new File("src/test/resources/base"), IarDeployMojo.GOAL);
+          new File("src/test/resources/base"), IarDeployMojo.GOAL)
+  {
+    @Override
+    protected void before() throws Throwable 
+    {
+      super.before();
+      getMojo().deployEngineDirectory = createEngineDir();
+    }
+    
+    private File createEngineDir()
+    {
+      File engine = new File("target/myTestIvyEngine");
+      File deploy = new File(engine, "deploy");
+      deploy.mkdirs();
+      return engine;
+    }
+    
+    @Override
+    protected void after()
+    {
+      super.after();
+      FileUtils.deleteQuietly(getMojo().deployEngineDirectory);
+    }
+  };
 
   private static class DelayedOperation
   {
