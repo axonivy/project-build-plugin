@@ -20,6 +20,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -36,11 +37,8 @@ public class TestIarDeployMojo
   public void deployPackedIar() throws Exception
   {
     IarDeployMojo mojo = rule.getMojo();
-    File iar = mojo.deployIarFile;
-    assertThat(iar).isNotNull();
-
-    iar.createNewFile();
-    File deployedIar = getTarget(iar, mojo);
+    
+    File deployedIar = getTarget(mojo.deployIarFile, mojo);
     File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
     assertThat(deployedIar).doesNotExist();
     assertThat(deployMarkerFile).doesNotExist();
@@ -64,7 +62,6 @@ public class TestIarDeployMojo
   public void failOnEngineDeployError() throws Exception
   {
     IarDeployMojo mojo = rule.getMojo();
-    mojo.deployIarFile.createNewFile();
     DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployIarFile, mojo));
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
@@ -107,7 +104,18 @@ public class TestIarDeployMojo
     protected void before() throws Throwable 
     {
       super.before();
+      
       getMojo().deployEngineDirectory = createEngineDir();
+      
+      try
+      {
+        getMojo().deployIarFile.createNewFile();
+      }
+      catch (IOException ex)
+      {
+        System.err.println("Failed to create IAR @ "+getMojo().deployIarFile.getAbsolutePath());
+        throw ex;
+      }
     }
     
     private File createEngineDir()
