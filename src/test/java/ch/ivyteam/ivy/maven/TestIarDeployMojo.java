@@ -109,7 +109,7 @@ public class TestIarDeployMojo
       
       try
       {
-        getMojo().deployIarFile.mkdirs();
+        getMojo().deployIarFile.getParentFile().mkdir();
         getMojo().deployIarFile.createNewFile();
       }
       catch (IOException ex)
