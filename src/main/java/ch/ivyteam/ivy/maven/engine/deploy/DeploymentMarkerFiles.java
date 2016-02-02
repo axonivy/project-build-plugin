@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class DeploymentMarkerFiles
 {
-  private static final String DO_DEPLOY = ".dodeploy";
+  private static final String DO_DEPLOY = ".doDeploy";
   private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
   
