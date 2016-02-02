@@ -36,6 +36,8 @@ import org.codehaus.plexus.util.AbstractScanner;
 import ch.ivyteam.ivy.maven.util.FileSetConverter;
 
 /**
+ * Packs the compiled project as ivy-archive (IAR).
+ * 
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
