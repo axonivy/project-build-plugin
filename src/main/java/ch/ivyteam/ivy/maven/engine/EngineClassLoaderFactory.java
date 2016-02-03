@@ -48,8 +48,8 @@ public class EngineClassLoaderFactory
   private static final String SLF4J_VERSION = "1.7.7";
 
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-          "lib"+File.separator+"ivy"+File.separator,
           "lib"+File.separator+"patch"+File.separator,
+          "lib"+File.separator+"ivy"+File.separator,
           "lib"+File.separator+"shared"+File.separator,
           "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator
         );
