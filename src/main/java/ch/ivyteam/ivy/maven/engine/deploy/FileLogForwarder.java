@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 AXON IVY AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ch.ivyteam.ivy.maven.engine.deploy;
 
 import java.io.File;
@@ -12,21 +28,31 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
+/**
+ * Detects new log lines in file and forwards them to an {@link LogLineHandler}.
+ * @since 6.1.0
+ */
 class FileLogForwarder
 {
   private final File engineLog;
   private final Log mavenLog;
   
   private FileAlterationMonitor monitor;
+  private LogLineHandler logLineHandler;
 
-  FileLogForwarder(File engineLog, Log mavenLog)
+  /**
+   * @param engineLog the log file to watch for new lines
+   * @param mavenLog the target logger
+   */
+  FileLogForwarder(File engineLog, Log mavenLog, LogLineHandler handler)
   {
     this.engineLog = engineLog;
     this.mavenLog = mavenLog;
+    this.logLineHandler = handler;
   }
 
   public synchronized void activate() throws MojoExecutionException
-  {
+  {   
     IOFileFilter logFilter = FileFilterUtils.and(
             FileFilterUtils.fileFileFilter(),
             FileFilterUtils.nameFileFilter(engineLog.getName()));
@@ -48,7 +74,10 @@ class FileLogForwarder
   {
     try
     {
-      monitor.stop(0);
+      if (monitor != null)
+      {
+        monitor.stop(0);
+      }
     }
     catch (Exception ex)
     {
@@ -62,7 +91,7 @@ class FileLogForwarder
 
   private class LogModificationListener extends FileAlterationListenerAdaptor
   {
-    long lastReadPosition = 0;
+    private long lastReadPosition = 0;
     
     @Override
     public void onFileChange(File log)
@@ -70,7 +99,7 @@ class FileLogForwarder
       try(RandomAccessFile readableLog = new RandomAccessFile(log, "r");)
       {
         readableLog.seek(lastReadPosition);
-        logNewLines(readableLog);
+        readNewLines(readableLog);
         lastReadPosition = readableLog.getFilePointer();
       }
       catch (Exception ex)
@@ -79,14 +108,19 @@ class FileLogForwarder
       }
     }
 
-    private void logNewLines(RandomAccessFile readableLog) throws IOException
+    private void readNewLines(RandomAccessFile readableLog) throws IOException
     {
       String line = null;
       while((line = readableLog.readLine()) != null)
       {
-        mavenLog.info(line);
+        logLineHandler.handleLine(line);
       }
     }
+  }
+  
+  static interface LogLineHandler
+  {
+    void handleLine(String newLogLine);
   }
   
 }

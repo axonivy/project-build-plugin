@@ -36,29 +36,35 @@ public class TestFileLogForwarder
   {
     File fakeEngineLog = Files.createTempFile("myProject.iar", ".deploymentLog").toFile();
     LogCollector mavenLog = new LogCollector();
-    FileLogForwarder logForwarder = new FileLogForwarder(fakeEngineLog, mavenLog);
+    FileLogForwarder logForwarder = new FileLogForwarder(fakeEngineLog, mavenLog, new EngineLogLineHandler(mavenLog));
     
     try
     {
       logForwarder.activate();
       
-      logAndWait(fakeEngineLog, "[INFO] starting");
-      assertThat(mavenLog.getInfos()).hasSize(1);
-      LogEntry firstEntry = mavenLog.getInfos().get(mavenLog.getInfos().size()-1);
-      assertThat(firstEntry.toString()).isEqualTo("[INFO] starting");
+      logAndWait(fakeEngineLog, "WARNING: starting");
+      assertThat(mavenLog.getWarnings()).hasSize(1);
+      LogEntry firstEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size()-1);
+      assertThat(firstEntry.toString()).isEqualTo(" ENGINE: starting");
       
-      logAndWait(fakeEngineLog, "[INFO] finished");
-      assertThat(mavenLog.getInfos()).hasSize(2);
-      LogEntry lastEntry = mavenLog.getInfos().get(mavenLog.getInfos().size()-1);
-      assertThat(lastEntry.toString()).isEqualTo("[INFO] finished");
+      logAndWait(fakeEngineLog, "WARNING: finished");
+      assertThat(mavenLog.getWarnings()).hasSize(2);
+      LogEntry lastEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size()-1);
+      assertThat(lastEntry.toString()).isEqualTo(" ENGINE: finished");
+      
+      logAndWait(fakeEngineLog, "INFO: hi");
+      assertThat(mavenLog.getDebug()).hasSize(1);
+      LogEntry debugEntry = mavenLog.getDebug().get(mavenLog.getDebug().size()-1);
+      assertThat(debugEntry.toString()).isEqualTo(" ENGINE: hi");
+      
     }
     finally
     {
       logForwarder.deactivate();
     }
     
-    logAndWait(fakeEngineLog, "[INFO] illegal");
-    assertThat(mavenLog.getInfos()).hasSize(2);
+    logAndWait(fakeEngineLog, "WARNING: illegal");
+    assertThat(mavenLog.getWarnings()).hasSize(2);
   }
 
   private static void logAndWait(File fakeEngineLog, String log) throws IOException, InterruptedException

@@ -79,7 +79,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
 
   private void determineDeployResult() throws MojoExecutionException
   {
-    FileLogForwarder logForwarder = new FileLogForwarder(markerFile.log(), log);
+    FileLogForwarder logForwarder = new FileLogForwarder(markerFile.log(), log, new EngineLogLineHandler(log));
     try
     {
       logForwarder.activate();
