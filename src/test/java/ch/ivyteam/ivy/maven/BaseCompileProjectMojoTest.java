@@ -71,7 +71,7 @@ public class BaseCompileProjectMojoTest
       protected void before() throws Throwable {
         super.before();
         
-        String alternateEngineListPageUrl = System.getProperty("engineListPageUrl");
+        String alternateEngineListPageUrl = System.getProperty(InstallEngineMojo.ENGINE_LIST_URL_PROPERTY);
         if (alternateEngineListPageUrl != null)
         {
       	  getMojo().engineListPageUrl = new URL(alternateEngineListPageUrl);

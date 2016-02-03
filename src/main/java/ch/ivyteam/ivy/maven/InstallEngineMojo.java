@@ -49,6 +49,7 @@ import net.lingala.zip4j.exception.ZipException;
 public class InstallEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "installEngine";
+  public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
   
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.
@@ -63,7 +64,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property="ivy.engine.list.url")
+  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
   URL engineListPageUrl;
   
   /** 
