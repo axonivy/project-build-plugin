@@ -54,7 +54,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * URL where a packed ivy Engine can be downloaded. E.g.
    * <code>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</code>
    */
-  @Parameter(property="engineDownloadUrl")
+  @Parameter(property="ivy.engine.download.url")
   URL engineDownloadUrl;
   
   /** 
@@ -63,7 +63,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property="engineListPageUrl")
+  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property="ivy.engine.list.url")
   URL engineListPageUrl;
   
   /** 
@@ -77,7 +77,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    *    <li>Windows_x86</li>
    * </ul>
    */
-  @Parameter(defaultValue="Windows_x64", property="osArchitecture")
+  @Parameter(defaultValue="Windows_x64", property="ivy.engine.os.arch")
   String osArchitecture;
   
   /** 
@@ -86,7 +86,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * engine will be downloaded from the {@link #engineDownloadUrl} and unpacked into the
    * {@link #engineDirectory}.
    */
-  @Parameter(defaultValue="true", property="autoInstallEngine") 
+  @Parameter(defaultValue="true", property="ivy.engine.auto.install") 
   boolean autoInstallEngine;
 
   @Override

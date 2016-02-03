@@ -32,11 +32,11 @@ import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 /**
  * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
  * 
- * <p>Execution without a maven project is possible. E.g.</p>
- * <pre>com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:deploy-iar 
- * -DdeployIarFile=myProject.iar 
- * -DdeployEngineDirectory=c:/axonviy/engine
- * -DdeployToEngineApplication=theApp</pre>
+ * <p>Command line invocation is supported. E.g.</p>
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:deploy-iar 
+ * -Divy.deploy.iarFile=myProject.iar 
+ * -Divy.deploy.engine.dir=c:/axonviy/engine
+ * -Divy.deploy.engine.app=Portal</pre>
  * 
  * 
  * @since 6.1.0
@@ -47,24 +47,24 @@ public class IarDeployMojo extends AbstractEngineMojo
   public static final String GOAL = "deploy-iar";
   
   /** The IAR to deploy. By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
-  @Parameter(property="deployIarFile", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
+  @Parameter(property="ivy.deploy.iarFile", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployIarFile;
   
   /** The path to the AXON.IVY Engine to which we deploy the IAR. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
-  @Parameter(property="deployEngineDirectory", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
+  @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
   
   /** The name of an ivy application to which the IAR is deployed. */
-  @Parameter(property="deployToEngineApplication", defaultValue="SYSTEM")
+  @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
   String deployToEngineApplication;
   
   /** The auto deployment directory of the engine. Must match the ivy engine system property 'deployment.directory' */
-  @Parameter(property="deployDirectory", defaultValue="deploy")
+  @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
   String deployDirectory;
   
   /** The maximum amount of seconds that we wait for a deployment result from the engine */
-  @Parameter(property="deployTimeoutInSeconds", defaultValue="30")
+  @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
   Integer deployTimeoutInSeconds;
   
   @Override

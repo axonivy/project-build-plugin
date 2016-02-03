@@ -33,7 +33,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   protected static final String MINIMAL_COMPATIBLE_VERSION = "6.1.0";
   protected static final String DEFAULT_VERSION = "6.1.0";
   
-  protected static final String ENGINE_DIRECTORY_PROPERTY = "engineDirectory";
+  protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
   
   /**
    * Location where an unpacked (may pre-configured) ivy Engine in the {@link #ivyVersion required version} exists. 
@@ -48,13 +48,13 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * Location where ivy engines in required version can be extracted to. 
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
-  @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="engineCacheDirectory")
+  @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="ivy.engine.cache.directory")
   protected File engineCacheDirectory;
   
   /**
    * The ivy Engine version that is used. Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
    */
-  @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivyVersion")
+  @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivy.engine.version")
   protected String ivyVersion;
 
   public AbstractEngineMojo()
