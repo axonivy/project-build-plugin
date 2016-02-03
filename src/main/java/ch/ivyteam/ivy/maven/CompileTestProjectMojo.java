@@ -21,13 +21,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
-import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
@@ -39,41 +37,31 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @since 6.1.0
  */
 @Mojo(name=CompileTestProjectMojo.GOAL, requiresDependencyResolution=ResolutionScope.TEST)
-public class CompileTestProjectMojo extends CompileProjectMojo
+public class CompileTestProjectMojo extends AbstractProjectCompileMojo
 {
-  @SuppressWarnings("hiding")
   public static final String GOAL = "test-compile";
   
+  /** Set to <code>true</code> to bypass the compilation of test sources. */
+  @Parameter(defaultValue="false", property="maven.test.skip")
+  boolean skipTest;
+  
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
+  protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
+    if (skipTest)
+    {
+      return;
+    }
+    
     getLog().info("Compiling test sources...");
-    compileTests();
-  }
-
-  private void compileTests() throws MojoExecutionException
-  {
-    Slf4jSimpleEngineProperties.install();
-    try
-    {
-      MavenProjectBuilderProxy projectBuilder = getMavenProjectBuilder();
-      Map<String, Object> result = projectBuilder.testCompile(project.getBasedir(), getIarJars(), getOptions());
-      CompilerResult.store(result, project);
-    }
-    catch (Exception ex)
-    {
-      throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
-    }
-    finally
-    {
-      Slf4jSimpleEngineProperties.reset();
-    }
+    Map<String, Object> result = projectBuilder.testCompile(project.getBasedir(), getDependencyIarJars(), getOptions());
+    CompilerResult.store(result, project);
   }
 
   /**
    * @return persistent IAR-JARs from {@link CompileProjectMojo}.
    */
-  private List<File> getIarJars()
+  private List<File> getDependencyIarJars()
   {
     File iarJarClasspath = new SharedFile(project).getIarDependencyClasspathJar();
     if (!iarJarClasspath.exists())

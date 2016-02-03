@@ -49,10 +49,22 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
+  
+  /** 
+   * Set to <code>true</code> to bypass property set-up. 
+   * @since 6.1.0
+   */
+  @Parameter(defaultValue="false", property="maven.test.skip")
+  boolean skipTest;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+    if (skipTest)
+    {
+      return;
+    }
+    
     SharedFile shared = new SharedFile(project);
     
     File engineCp = shared.getEngineClasspathJar();
