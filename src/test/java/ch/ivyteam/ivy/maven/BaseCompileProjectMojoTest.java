@@ -118,7 +118,7 @@ public class BaseCompileProjectMojoTest
       }
     };
     
-  protected static class CompileMojoRule<T extends CompileProjectMojo> extends ProjectMojoRule<T>
+  protected static class CompileMojoRule<T extends AbstractProjectCompileMojo> extends ProjectMojoRule<T>
   {
     protected CompileMojoRule(String mojoName)
     {
@@ -131,7 +131,7 @@ public class BaseCompileProjectMojoTest
       configureMojo(getMojo());
     }
 
-    protected void configureMojo(T newMojo) throws IllegalAccessException
+    protected void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
     {
       newMojo.localRepository = provideLocalRepository();
       newMojo.engineCacheDirectory = new File(CACHE_DIR);
