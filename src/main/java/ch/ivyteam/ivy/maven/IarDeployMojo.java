@@ -63,6 +63,10 @@ public class IarDeployMojo extends AbstractEngineMojo
   @Parameter(property="deployDirectory", defaultValue="deploy")
   String deployDirectory;
   
+  /** The maximum amount of seconds that we wait for a deployment result from the engine */
+  @Parameter(property="deployTimeoutInSeconds", defaultValue="30")
+  Integer deployTimeoutInSeconds;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -81,7 +85,7 @@ public class IarDeployMojo extends AbstractEngineMojo
     File uploadedIar = copyIarToEngine(deployDir);
     
     String iarPath = deployEngineDirectory.toPath().relativize(uploadedIar.toPath()).toString();
-    IvyProjectDeployer deployer = new MarkerFileDeployer(deployEngineDirectory);
+    IvyProjectDeployer deployer = new MarkerFileDeployer(deployEngineDirectory, deployTimeoutInSeconds);
     deployer.deployIar(iarPath, getLog());
   }
 

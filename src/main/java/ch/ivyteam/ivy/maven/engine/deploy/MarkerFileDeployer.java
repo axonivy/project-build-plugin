@@ -29,13 +29,15 @@ import org.apache.maven.plugin.logging.Log;
 public class MarkerFileDeployer implements IvyProjectDeployer
 {
   private final File targetEngineDir;
+  private final Integer timeoutInSeconds;
   
   private Log log;
   private DeploymentMarkerFiles markerFile;
 
-  public MarkerFileDeployer(File targetEngineDir)
+  public MarkerFileDeployer(File targetEngineDir, Integer deployTimeoutInSeconds)
   {
     this.targetEngineDir = targetEngineDir;
+    this.timeoutInSeconds = deployTimeoutInSeconds;
   }
 
   @Override
@@ -81,7 +83,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
     try
     {
       logForwarder.activate();
-      wait(()->!markerFile.doDeploy().exists(), 30, TimeUnit.SECONDS);
+      wait(()->!markerFile.doDeploy().exists(), timeoutInSeconds, TimeUnit.SECONDS);
     }
     catch (TimeoutException ex)
     {
