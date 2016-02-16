@@ -42,6 +42,13 @@ import net.lingala.zip4j.exception.ZipException;
 /**
  * Downloads an AXON.IVY Engine from the NET if it does not yet exists in the correct version.
  * 
+ * 
+ * <p>Command line invocation is supported. E.g.</p>
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:installEngine
+ * -Divy.engine.directory=c:/axonviy/engine
+ * -Divy.engine.version=6.1.0
+ * -Divy.engine.os.arch=Linux_x64</pre>
+ * 
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
