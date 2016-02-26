@@ -256,6 +256,21 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.10</version>
+				<executions>
+					<execution>
+						<id>parse.version.property</id>
+						<goals><goal>parse-version</goal></goals>
+						<phase>pre-site</phase>
+						<configuration>
+							<propertyPrefix>pluginVersion</propertyPrefix>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>1.6.6</version>
@@ -279,7 +294,7 @@
 			                <server>github</server>
 			                <message>update maven plugin mojo description</message>
 			                <merge>true</merge>
-			                <path>${site.path}</path>
+			                <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
 			            </configuration>
 			        </execution>
 			    </executions>
@@ -304,6 +319,17 @@
 										<goals>
 											<goal>descriptor</goal>
 											<goal>helpmojo</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action><ignore></ignore></action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>build-helper-maven-plugin</artifactId>
+										<versionRange>[1.10,)</versionRange>
+										<goals>
+											<goal>parse-version</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action><ignore></ignore></action>
