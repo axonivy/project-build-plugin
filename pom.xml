@@ -4,10 +4,10 @@
 	<groupId>com.axonivy.ivy.ci</groupId>
 	<artifactId>project-build-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>6.1.0-SNAPSHOT</version>
+	<version>6.1.0</version>
 
 	<name>Axon.ivy Project Build Plugin</name>
-	<description>Maven plugin for the automated building of Axon.ivy 6.0 projects. Referenced from the pom.xml of Axon.ivy projects.</description>
+	<description>Maven plugin for the automated building of Axon.ivy projects. Referenced from the pom.xml of Axon.ivy projects.</description>
 	<url>https://github.com/axonivy/project-build-plugin</url>
 	<prerequisites>
 		<maven>3.1</maven>
