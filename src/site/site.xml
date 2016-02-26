@@ -30,7 +30,7 @@ under the License.
     </menu>
     
     <menu name="Development">
-      <item name="Stable release" href="../../release" />
+      <item name="Snapshot release" href="../../snapshot" />
     </menu>
   </body>
   
