@@ -71,7 +71,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
+  @Parameter(defaultValue="http://download.axonivy.com/maven.html", property=ENGINE_LIST_URL_PROPERTY)
   URL engineListPageUrl;
   
   /** 
@@ -80,7 +80,6 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * Possible values are:
    * <ul>
    *    <li>Linux_x64</li>
-   *    <li>Linux_x86</li>
    *    <li>Windows_x64</li>
    *    <li>Windows_x86</li>
    * </ul>
@@ -238,6 +237,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
     
     URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
     {
+    
       Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+ivyVersion+"[^_]*_"+osArchitecture+"\\.zip");
       try(Scanner scanner = new Scanner(htmlStream))
       {
@@ -277,6 +277,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
                 + getEngineDirectory() + "'", ex);
       }
     }
+   
   }
 
 }
