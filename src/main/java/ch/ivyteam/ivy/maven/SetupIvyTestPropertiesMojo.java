@@ -19,7 +19,6 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,6 +26,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.engine.MavenProperties;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
@@ -49,7 +49,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
-  
+
   /** 
    * Set to <code>true</code> to bypass property set-up. 
    * @since 6.1.0
@@ -68,24 +68,21 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     SharedFile shared = new SharedFile(project);
     
     File engineCp = shared.getEngineClasspathJar();
+    
+    MavenProperties properties = new MavenProperties(project, getLog());
+    
     if (engineCp.exists())
     {
-      setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
+      properties.setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
     }
-    
+
     File iarCp = shared.getIarDependencyClasspathJar();
     if (iarCp.exists())
     {
-      setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
+      properties.setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
     }
     
     configureMavenTestProperties();
-  }
-
-  private void setMavenProperty(String key, String value)
-  {
-    getLog().debug("share property '"+key+"' with value '"+StringUtils.abbreviate(value, 500)+"'");
-    project.getProperties().put(key, value);
   }
   
   /**
@@ -94,7 +91,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   private void configureMavenTestProperties()
   {
     String surefireClasspath = "${"+IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}";
-    setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
+    new MavenProperties(project, getLog()).setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
     
     try
     {

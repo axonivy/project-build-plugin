@@ -70,7 +70,7 @@ public class EngineClassLoaderFactory
     return new URLClassLoader(toUrls(classPathWithoutLog4j));
   }
 
-  private static List<File> getIvyEngineClassPathFiles(File engineDirectory)
+  public static List<File> getIvyEngineClassPathFiles(File engineDirectory)
   {
     List<File> classPathFiles = new ArrayList<>();
     for(String engineLibDirectory : ENGINE_LIB_DIRECTORIES)
