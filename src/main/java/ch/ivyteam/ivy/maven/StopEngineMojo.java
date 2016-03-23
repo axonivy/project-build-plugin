@@ -29,7 +29,7 @@ import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
 import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
- * Stops the Axon.ivy Engine for integration testing
+ * Stops the Axon.ivy Engine after integration testing
  * @since 6.1.1
  */
 @Mojo(name = StopEngineMojo.GOAL)

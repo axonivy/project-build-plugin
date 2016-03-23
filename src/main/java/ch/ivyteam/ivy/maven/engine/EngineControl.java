@@ -74,7 +74,7 @@ public class EngineControl
       builder.redirectErrorStream(true);
       builder.redirectOutput(context.engineLogFile);
       context.properties.setMavenProperty("test.engine.log", context.engineLogFile.getAbsolutePath());
-      context.log.info("-> Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
+      context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
       builder.start();
 
       if (command == Command.start)
@@ -108,7 +108,7 @@ public class EngineControl
       }
     }
     url = "http://" + url + "/ivy/";
-    context.log.info("Found URL : " + url);
+    context.log.info("Axon.ivy Engine runs on : " + url);
 
     context.properties.setMavenProperty("test.engine.url", url);
   }
