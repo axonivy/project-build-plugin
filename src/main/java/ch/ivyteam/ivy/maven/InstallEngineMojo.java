@@ -71,7 +71,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://download.axonivy.com/maven.html", property=ENGINE_LIST_URL_PROPERTY)
+  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
   URL engineListPageUrl;
   
   /** 
