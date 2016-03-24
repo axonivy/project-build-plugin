@@ -52,13 +52,17 @@ public class StartEngineMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
   File engineLogFile;
   
+  /** The maximum amount of seconds that we wait for a engine to start */
+  @Parameter(property="ivy.engine.start.timeout.seconds", defaultValue="30")
+  Integer startTimeoutInSeconds;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     try
     {
       EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions));
+      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
       engineControl.start();
     }
     catch (Exception ex)

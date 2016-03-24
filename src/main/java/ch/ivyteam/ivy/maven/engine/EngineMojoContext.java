@@ -32,14 +32,16 @@ public class EngineMojoContext
   public final String engineClasspathJar;
   public final MavenProperties properties;
   public final File engineLogFile;
+  public final Integer timeoutInSeconds;
 
-  public EngineMojoContext(File engineDirectory, MavenProject project, Log log, File engineLogFile, EngineVmOptions vmOptions)
+  public EngineMojoContext(File engineDirectory, MavenProject project, Log log, File engineLogFile, EngineVmOptions vmOptions, Integer timeoutInSeconds)
   {
     this.engineDirectory = engineDirectory;
     this.project = project;
     this.log = log;
     this.engineLogFile = engineLogFile;
     this.vmOptions = vmOptions;
+    this.timeoutInSeconds = timeoutInSeconds;
 
     this.engineClasspathJar = new SharedFile(project).getEngineClasspathJar().getAbsolutePath();
     this.properties = new MavenProperties(project, log);

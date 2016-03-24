@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,21 +43,19 @@ public class EngineControl
 
   }
 
-  public void start()
+  public void start() throws Exception
   {
     executeCommand(Command.start);
+    waitForEngineStart();
   }
 
-  public void stop()
+  public void stop() throws Exception
   {
     executeCommand(Command.stop);
   }
 
-  public void executeCommand(Command command)
+  public void executeCommand(Command command) throws IOException
   {
-    try
-    {
-      
       String classpath = context.engineClasspathJar;
       if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
       {
@@ -76,24 +75,12 @@ public class EngineControl
       context.properties.setMavenProperty("test.engine.log", context.engineLogFile.getAbsolutePath());
       context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
       builder.start();
-
-      if (command == Command.start)
-      {
-        waitForEngineStart();
-      }
-
-    }
-    catch (Exception ex)
-    {
-      throw new RuntimeException("Cannot start engine", ex);
-    }
-
   }
 
   /*
    * Preliminary implementation
    */
-  private void waitForEngineStart() throws InterruptedException
+  private void waitForEngineStart() throws Exception
   {
     String url;
     int i = 0;
@@ -101,10 +88,9 @@ public class EngineControl
     {
       Thread.sleep(1000);
       i++;
-      if (i > 30)
+      if (i > context.timeoutInSeconds)
       {
-        context.log.error("Timeout while starting engine");
-        break;
+        throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s]");
       }
     }
     url = "http://" + url + "/ivy/";

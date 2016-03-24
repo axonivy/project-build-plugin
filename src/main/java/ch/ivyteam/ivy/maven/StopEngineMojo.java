@@ -51,6 +51,10 @@ public class StopEngineMojo extends AbstractEngineMojo
   
   @Parameter(property = "ivy.engine.stop.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
   File engineLogFile;
+  
+  /** The maximum amount of seconds that we wait for a engine to stop */
+  @Parameter(property="ivy.engine.stop.timeout.seconds", defaultValue="30")
+  Integer stopTimeoutInSeconds;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -58,7 +62,7 @@ public class StopEngineMojo extends AbstractEngineMojo
     try
     {
       EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions));
+      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, stopTimeoutInSeconds));
       engineControl.stop();
     }
     catch (Exception ex)
