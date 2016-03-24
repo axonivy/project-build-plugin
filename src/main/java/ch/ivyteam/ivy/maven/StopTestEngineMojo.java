@@ -29,47 +29,54 @@ import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
 import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
- * Starts the Axon.ivy Engine for integration testing
+ * Stops the Axon.ivy Engine after integration testing
  * @since 6.1.1
  */
-@Mojo(name = StartEngineMojo.GOAL)
-public class StartEngineMojo extends AbstractEngineMojo
+@Mojo(name = StopTestEngineMojo.GOAL)
+public class StopTestEngineMojo extends AbstractEngineMojo
 {
-  public static final String GOAL = "start-engine";
+  public static final String GOAL = "stop-test-engine";
   
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
-  
-  @Parameter(property = "ivy.engine.start.maxmem", required = false, defaultValue = "2048m")
+
+  @Parameter(property = "ivy.engine.stop.maxmem", required = false, defaultValue = "128m")
   String maxmem;
   
-  @Parameter(property = "ivy.engine.start.additional.classpath", required = false, defaultValue = "")
+  @Parameter(property = "ivy.engine.stop.additional.classpath", required = false, defaultValue = "")
   String additionalClasspath;
   
-  @Parameter(property = "ivy.engine.start.additional.vmoptions", required = false, defaultValue = "")
+  @Parameter(property = "ivy.engine.stop.additional.vmoptions", required = false, defaultValue = "")
   String additionalVmOptions;
   
-  @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
+  @Parameter(property = "ivy.engine.stop.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
   File engineLogFile;
   
-  /** The maximum amount of seconds that we wait for a engine to start */
-  @Parameter(property="ivy.engine.start.timeout.seconds", defaultValue="30")
-  Integer startTimeoutInSeconds;
+  /** The maximum amount of seconds that we wait for a engine to stop */
+  @Parameter(property="ivy.engine.stop.timeout.seconds", defaultValue="30")
+  Integer stopTimeoutInSeconds;
   
+  /** Set to <code>true</code> to skip the engine stop. */
+  @Parameter(defaultValue="false", property="maven.test.skip")
+  boolean skipTest;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+    if (skipTest)
+    {
+      return;
+    }
+    
     try
     {
       EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
-      engineControl.start();
+      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, stopTimeoutInSeconds));
+      engineControl.stop();
     }
     catch (Exception ex)
     {
-      throw new MojoExecutionException("Cannot start engine", ex);
+      throw new MojoExecutionException("Cannot Stop engine", ex);
     }
   }
-
-
 }
