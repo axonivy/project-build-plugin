@@ -10,7 +10,7 @@
     <meta name="Date-Revision-yyyymmdd" content="20160330" />
     <meta http-equiv="Content-Language" content="en" />
     <title>
-    project-build:compileProject</title>
+    project-build:stop-test-engine</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.4.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -111,16 +111,15 @@
                                   
             
   
-    <div class="section"><h2>project-build:compileProject<a name="project-build:compileProject"></a></h2>
+    <div class="section"><h2>project-build:stop-test-engine<a name="project-build:stop-test-engine"></a></h2>
       <p><b>Full name</b>:</p>
-      <p>com.axonivy.ivy.ci:project-build-plugin:6.1.1-SNAPSHOT:compileProject</p>
+      <p>com.axonivy.ivy.ci:project-build-plugin:6.1.1-SNAPSHOT:stop-test-engine</p>
       <p><b>Description</b>:</p>
-      <div>Compiles an ivy Project with an ivyEngine.</div>
+      <div>Stops the Axon.ivy Engine after integration testing</div>
       <p><b>Attributes</b>:</p>
       <ul>
         <li>Requires a Maven project to be executed.</li>
-        <li>Requires dependency resolution of artifacts in scope: <tt>compile</tt>.</li>
-        <li>Since version: <tt>6.0.0</tt>.</li>
+        <li>Since version: <tt>6.1.1</tt>.</li>
       </ul>
       <div class="section"><h3>Required Parameters<a name="Required_Parameters"></a></h3>
         <table class="table table-striped" border="0">
@@ -133,7 +132,7 @@
           <tr class="b">
             <td><b><a href="#ivyVersion">ivyVersion</a></b></td>
             <td><tt>String</tt></td>
-            <td><tt>6.0.0</tt></td>
+            <td><tt>6.1.1</tt></td>
             <td>The ivy Engine version that is used. Must be equal or higher than
 <tt>MINIMAL_COMPATIBLE_VERSION</tt><br /><b>Default value is</b>: <tt>6.1.1</tt>.<br /><b>User property is</b>: <tt>ivy.engine.version</tt>.</td>
           </tr>
@@ -148,25 +147,30 @@
             <th>Description</th>
           </tr>
           <tr class="b">
-            <td><b><a href="#buildApplicationDirectory">buildApplicationDirectory</a></b></td>
-            <td><tt>File</tt></td>
-            <td><tt>6.0.0</tt></td>
-            <td>Home application where the project to build and its dependencies
-will be temporary deployed.<br /><b>Default value is</b>: <tt>${project.build.directory}/ivyBuildApp</tt>.<br /></td>
+            <td><b><a href="#additionalClasspath">additionalClasspath</a></b></td>
+            <td><tt>String</tt></td>
+            <td><tt>6.1.1</tt></td>
+            <td>(no description)<br /><b>User property is</b>: <tt>ivy.engine.stop.additional.classpath</tt>.</td>
           </tr>
           <tr class="a">
+            <td><b><a href="#additionalVmOptions">additionalVmOptions</a></b></td>
+            <td><tt>String</tt></td>
+            <td><tt>6.1.1</tt></td>
+            <td>(no description)<br /><b>User property is</b>: <tt>ivy.engine.stop.additional.vmoptions</tt>.</td>
+          </tr>
+          <tr class="b">
             <td><b><a href="#engineCacheDirectory">engineCacheDirectory</a></b></td>
             <td><tt>File</tt></td>
-            <td><tt>6.0.0</tt></td>
+            <td><tt>6.1.1</tt></td>
             <td>Location where ivy engines in required version can be extracted to.
 
 <p>If the Engine does not yet exist, it can be automatically
 downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.cache/ivy</tt>.<br /><b>User property is</b>: <tt>ivy.engine.cache.directory</tt>.</td>
           </tr>
-          <tr class="b">
+          <tr class="a">
             <td><b><a href="#engineDirectory">engineDirectory</a></b></td>
             <td><tt>File</tt></td>
-            <td><tt>6.0.0</tt></td>
+            <td><tt>6.1.1</tt></td>
             <td>Location where an unpacked (may pre-configured) ivy Engine in the
 <tt>required version</tt> exists. 
 <p>If parameter is not set it will be a sub-directory of the
@@ -174,31 +178,47 @@ downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.c
 <p>If the Engine does not yet exist, it can be automatically
 downloaded.</p><br /><b>User property is</b>: <tt>ivy.engine.directory</tt>.</td>
           </tr>
+          <tr class="b">
+            <td><b><a href="#engineLogFile">engineLogFile</a></b></td>
+            <td><tt>File</tt></td>
+            <td><tt>6.1.1</tt></td>
+            <td>(no description)<br /><b>Default value is</b>: <tt>${project.build.directory}/testEngineOut.log</tt>.<br /><b>User property is</b>: <tt>ivy.engine.stop.log</tt>.</td>
+          </tr>
           <tr class="a">
-            <td><b><a href="#localRepository">localRepository</a></b></td>
-            <td><tt>ArtifactRepository</tt></td>
-            <td><tt>6.0.0</tt></td>
-            <td>(no description)<br /><b>Default value is</b>: <tt>${localRepository}</tt>.<br /></td>
+            <td><b><a href="#maxmem">maxmem</a></b></td>
+            <td><tt>String</tt></td>
+            <td><tt>6.1.1</tt></td>
+            <td>(no description)<br /><b>Default value is</b>: <tt>128m</tt>.<br /><b>User property is</b>: <tt>ivy.engine.stop.maxmem</tt>.</td>
           </tr>
           <tr class="b">
-            <td><b><a href="#skipCompilation">skipCompilation</a></b></td>
+            <td><b><a href="#skipTest">skipTest</a></b></td>
             <td><tt>boolean</tt></td>
-            <td><tt>6.1.0</tt></td>
-            <td>Set to <tt>true</tt> to bypass the generation of <b>ivy data
-classes</b>+<b>webservice processes</b> and compilation of <b>java
-sources</b>.<br /><b>Default value is</b>: <tt>false</tt>.<br /><b>User property is</b>: <tt>ivy.compiler.skip</tt>.</td>
+            <td><tt>6.1.1</tt></td>
+            <td>Set to <tt>true</tt> to skip the engine stop.<br /><b>Default value is</b>: <tt>false</tt>.<br /><b>User property is</b>: <tt>maven.test.skip</tt>.</td>
+          </tr>
+          <tr class="a">
+            <td><b><a href="#stopTimeoutInSeconds">stopTimeoutInSeconds</a></b></td>
+            <td><tt>Integer</tt></td>
+            <td><tt>6.1.1</tt></td>
+            <td>The maximum amount of seconds that we wait for a engine to stop<br /><b>Default value is</b>: <tt>30</tt>.<br /><b>User property is</b>: <tt>ivy.engine.stop.timeout.seconds</tt>.</td>
           </tr>
         </table>
       </div>
       <div class="section"><h3>Parameter Details<a name="Parameter_Details"></a></h3>
-        <p><b><a name="buildApplicationDirectory">buildApplicationDirectory</a>:</b></p>
-        <div>Home application where the project to build and its dependencies
-will be temporary deployed.</div>
+        <p><b><a name="additionalClasspath">additionalClasspath</a>:</b></p>
+        <div>(no description)</div>
         <ul>
-          <li><b>Type</b>: <tt>java.io.File</tt></li>
-          <li><b>Since</b>: <tt>6.0.0</tt></li>
+          <li><b>Type</b>: <tt>java.lang.String</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
-          <li><b>Default</b>: <tt>${project.build.directory}/ivyBuildApp</tt></li>
+          <li><b>User Property</b>: <tt>ivy.engine.stop.additional.classpath</tt></li>
+        </ul><hr /><p><b><a name="additionalVmOptions">additionalVmOptions</a>:</b></p>
+        <div>(no description)</div>
+        <ul>
+          <li><b>Type</b>: <tt>java.lang.String</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
+          <li><b>Required</b>: <tt>No</tt></li>
+          <li><b>User Property</b>: <tt>ivy.engine.stop.additional.vmoptions</tt></li>
         </ul><hr /><p><b><a name="engineCacheDirectory">engineCacheDirectory</a>:</b></p>
         <div>Location where ivy engines in required version can be extracted to.
 
@@ -206,7 +226,7 @@ will be temporary deployed.</div>
 downloaded.</p></div>
         <ul>
           <li><b>Type</b>: <tt>java.io.File</tt></li>
-          <li><b>Since</b>: <tt>6.0.0</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.cache.directory</tt></li>
           <li><b>Default</b>: <tt>${settings.localRepository}/.cache/ivy</tt></li>
@@ -219,35 +239,50 @@ downloaded.</p></div>
 downloaded.</p></div>
         <ul>
           <li><b>Type</b>: <tt>java.io.File</tt></li>
-          <li><b>Since</b>: <tt>6.0.0</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.directory</tt></li>
+        </ul><hr /><p><b><a name="engineLogFile">engineLogFile</a>:</b></p>
+        <div>(no description)</div>
+        <ul>
+          <li><b>Type</b>: <tt>java.io.File</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
+          <li><b>Required</b>: <tt>No</tt></li>
+          <li><b>User Property</b>: <tt>ivy.engine.stop.log</tt></li>
+          <li><b>Default</b>: <tt>${project.build.directory}/testEngineOut.log</tt></li>
         </ul><hr /><p><b><a name="ivyVersion">ivyVersion</a>:</b></p>
         <div>The ivy Engine version that is used. Must be equal or higher than
 <tt>MINIMAL_COMPATIBLE_VERSION</tt></div>
         <ul>
           <li><b>Type</b>: <tt>java.lang.String</tt></li>
-          <li><b>Since</b>: <tt>6.0.0</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>Yes</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.version</tt></li>
           <li><b>Default</b>: <tt>6.1.1</tt></li>
-        </ul><hr /><p><b><a name="localRepository">localRepository</a>:</b></p>
+        </ul><hr /><p><b><a name="maxmem">maxmem</a>:</b></p>
         <div>(no description)</div>
         <ul>
-          <li><b>Type</b>: <tt>org.apache.maven.artifact.repository.ArtifactRepository</tt></li>
-          <li><b>Since</b>: <tt>6.0.0</tt></li>
+          <li><b>Type</b>: <tt>java.lang.String</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
-          <li><b>Default</b>: <tt>${localRepository}</tt></li>
-        </ul><hr /><p><b><a name="skipCompilation">skipCompilation</a>:</b></p>
-        <div>Set to <tt>true</tt> to bypass the generation of <b>ivy data
-classes</b>+<b>webservice processes</b> and compilation of <b>java
-sources</b>.</div>
+          <li><b>User Property</b>: <tt>ivy.engine.stop.maxmem</tt></li>
+          <li><b>Default</b>: <tt>128m</tt></li>
+        </ul><hr /><p><b><a name="skipTest">skipTest</a>:</b></p>
+        <div>Set to <tt>true</tt> to skip the engine stop.</div>
         <ul>
           <li><b>Type</b>: <tt>boolean</tt></li>
-          <li><b>Since</b>: <tt>6.1.0</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
-          <li><b>User Property</b>: <tt>ivy.compiler.skip</tt></li>
+          <li><b>User Property</b>: <tt>maven.test.skip</tt></li>
           <li><b>Default</b>: <tt>false</tt></li>
+        </ul><hr /><p><b><a name="stopTimeoutInSeconds">stopTimeoutInSeconds</a>:</b></p>
+        <div>The maximum amount of seconds that we wait for a engine to stop</div>
+        <ul>
+          <li><b>Type</b>: <tt>java.lang.Integer</tt></li>
+          <li><b>Since</b>: <tt>6.1.1</tt></li>
+          <li><b>Required</b>: <tt>No</tt></li>
+          <li><b>User Property</b>: <tt>ivy.engine.stop.timeout.seconds</tt></li>
+          <li><b>Default</b>: <tt>30</tt></li>
         </ul>
       </div>
     </div>
