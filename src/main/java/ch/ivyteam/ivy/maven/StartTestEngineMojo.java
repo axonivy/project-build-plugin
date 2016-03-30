@@ -40,15 +40,19 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
   
+  /** The maximum heap (-Xmx) that is used for starting and running the Engine **/
   @Parameter(property = "ivy.engine.start.maxmem", required = false, defaultValue = "2048m")
   String maxmem;
   
+  /** Additional classpath entries for the JVM that runs the Engine **/
   @Parameter(property = "ivy.engine.start.additional.classpath", required = false, defaultValue = "")
   String additionalClasspath;
   
+  /** Additional options for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties. **/
   @Parameter(property = "ivy.engine.start.additional.vmoptions", required = false, defaultValue = "")
   String additionalVmOptions;
   
+  /** The file where the engine start is logged **/
   @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
   File engineLogFile;
   
