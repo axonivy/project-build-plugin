@@ -150,13 +150,14 @@
             <td><b><a href="#additionalClasspath">additionalClasspath</a></b></td>
             <td><tt>String</tt></td>
             <td><tt>6.1.1</tt></td>
-            <td>(no description)<br /><b>User property is</b>: <tt>ivy.engine.start.additional.classpath</tt>.</td>
+            <td>Additional classpath entries for the JVM that runs the Engine *<br /><b>User property is</b>: <tt>ivy.engine.start.additional.classpath</tt>.</td>
           </tr>
           <tr class="a">
             <td><b><a href="#additionalVmOptions">additionalVmOptions</a></b></td>
             <td><tt>String</tt></td>
             <td><tt>6.1.1</tt></td>
-            <td>(no description)<br /><b>User property is</b>: <tt>ivy.engine.start.additional.vmoptions</tt>.</td>
+            <td>Additional options for the JVM that runs the Engine. To modify the
+classpath or the max heap use the provided properties.<br /><b>User property is</b>: <tt>ivy.engine.start.additional.vmoptions</tt>.</td>
           </tr>
           <tr class="b">
             <td><b><a href="#engineCacheDirectory">engineCacheDirectory</a></b></td>
@@ -182,13 +183,14 @@ downloaded.</p><br /><b>User property is</b>: <tt>ivy.engine.directory</tt>.</td
             <td><b><a href="#engineLogFile">engineLogFile</a></b></td>
             <td><tt>File</tt></td>
             <td><tt>6.1.1</tt></td>
-            <td>(no description)<br /><b>Default value is</b>: <tt>${project.build.directory}/testEngineOut.log</tt>.<br /><b>User property is</b>: <tt>ivy.engine.start.log</tt>.</td>
+            <td>The file where the engine start is logged *<br /><b>Default value is</b>: <tt>${project.build.directory}/testEngineOut.log</tt>.<br /><b>User property is</b>: <tt>ivy.engine.start.log</tt>.</td>
           </tr>
           <tr class="a">
             <td><b><a href="#maxmem">maxmem</a></b></td>
             <td><tt>String</tt></td>
             <td><tt>6.1.1</tt></td>
-            <td>(no description)<br /><b>Default value is</b>: <tt>2048m</tt>.<br /><b>User property is</b>: <tt>ivy.engine.start.maxmem</tt>.</td>
+            <td>The maximum heap (-Xmx) that is used for starting and running the
+Engine<br /><b>Default value is</b>: <tt>2048m</tt>.<br /><b>User property is</b>: <tt>ivy.engine.start.maxmem</tt>.</td>
           </tr>
           <tr class="b">
             <td><b><a href="#skipTest">skipTest</a></b></td>
@@ -206,14 +208,15 @@ downloaded.</p><br /><b>User property is</b>: <tt>ivy.engine.directory</tt>.</td
       </div>
       <div class="section"><h3>Parameter Details<a name="Parameter_Details"></a></h3>
         <p><b><a name="additionalClasspath">additionalClasspath</a>:</b></p>
-        <div>(no description)</div>
+        <div>Additional classpath entries for the JVM that runs the Engine *</div>
         <ul>
           <li><b>Type</b>: <tt>java.lang.String</tt></li>
           <li><b>Since</b>: <tt>6.1.1</tt></li>
           <li><b>Required</b>: <tt>No</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.start.additional.classpath</tt></li>
         </ul><hr /><p><b><a name="additionalVmOptions">additionalVmOptions</a>:</b></p>
-        <div>(no description)</div>
+        <div>Additional options for the JVM that runs the Engine. To modify the
+classpath or the max heap use the provided properties.</div>
         <ul>
           <li><b>Type</b>: <tt>java.lang.String</tt></li>
           <li><b>Since</b>: <tt>6.1.1</tt></li>
@@ -243,7 +246,7 @@ downloaded.</p></div>
           <li><b>Required</b>: <tt>No</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.directory</tt></li>
         </ul><hr /><p><b><a name="engineLogFile">engineLogFile</a>:</b></p>
-        <div>(no description)</div>
+        <div>The file where the engine start is logged *</div>
         <ul>
           <li><b>Type</b>: <tt>java.io.File</tt></li>
           <li><b>Since</b>: <tt>6.1.1</tt></li>
@@ -260,7 +263,8 @@ downloaded.</p></div>
           <li><b>User Property</b>: <tt>ivy.engine.version</tt></li>
           <li><b>Default</b>: <tt>6.1.1</tt></li>
         </ul><hr /><p><b><a name="maxmem">maxmem</a>:</b></p>
-        <div>(no description)</div>
+        <div>The maximum heap (-Xmx) that is used for starting and running the
+Engine</div>
         <ul>
           <li><b>Type</b>: <tt>java.lang.String</tt></li>
           <li><b>Since</b>: <tt>6.1.1</tt></li>
