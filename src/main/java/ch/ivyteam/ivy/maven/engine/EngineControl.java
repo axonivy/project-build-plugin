@@ -62,7 +62,7 @@ public class EngineControl
         classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
       }
       
-      ProcessBuilder builder = new ProcessBuilder("java", "-classpath", classpath, "-Xmx" + context.vmOptions.maxmem, SERVER_MAIN_CLASS, command.toString());
+      ProcessBuilder builder = new ProcessBuilder(getJavaExec(), "-classpath", classpath, "-Xmx" + context.vmOptions.maxmem, SERVER_MAIN_CLASS, command.toString());
       
       if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
       {
@@ -119,5 +119,12 @@ public class EngineControl
     }
 
     return null;
+  }
+
+  private String getJavaExec()
+  {
+    String javaExec = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+    context.log.debug("Using Java exec from path: " + javaExec);
+    return javaExec;
   }
 }

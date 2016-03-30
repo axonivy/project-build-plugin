@@ -53,7 +53,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   File engineLogFile;
   
   /** The maximum amount of seconds that we wait for a engine to start */
-  @Parameter(property="ivy.engine.start.timeout.seconds", defaultValue="30")
+  @Parameter(property="ivy.engine.start.timeout.seconds", defaultValue="60")
   Integer startTimeoutInSeconds;
   
   /** Set to <code>true</code> to skip the engine start. */
