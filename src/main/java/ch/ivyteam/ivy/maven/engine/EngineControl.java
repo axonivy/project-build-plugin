@@ -93,6 +93,7 @@ public class EngineControl
         throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s]");
       }
     }
+    context.log.info("Engine started after " + i + " [s]");
     url = "http://" + url + "/ivy/";
     context.log.info("Axon.ivy Engine runs on : " + url);
 
