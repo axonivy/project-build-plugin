@@ -37,7 +37,7 @@ import org.junit.Rule;
 
 public class BaseCompileProjectMojoTest
 {
-  protected static final String ENGINE_VERSION_TO_TEST = "6.1.1";
+  protected static final String ENGINE_VERSION_TO_TEST = "6.1.0";
   protected static final String LOCAL_REPOSITORY = getLocalRepoPath();
   protected static final String CACHE_DIR = LOCAL_REPOSITORY + "/.cache/ivy-dev";
 
