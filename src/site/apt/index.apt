@@ -1,0 +1,17 @@
+Introduction
+
+ The project-build-plugin is a Maven plugin that can build Ivy Projects on a developer machine or on a continuous integration server. The plugin provides the following main features:
+
+    * <<Compilation>> of Ivy Projects
+    
+    * <<Testing>> of unit and integration-tests against an Ivy Project or the Ivy core classes
+    
+    * <<Packaging>> of built Ivy Projects as IAR (ivy archive) artifacts
+	
+    * <<Installation>> of IAR artifacts into the local Maven repository
+	
+    * <<Deployment>> of IAR artifacts to an Axon.ivy Engine
+    
+
+ Ivy Documentation
+   {{http://developer.axonivy.com/doc/latest/DesignerGuideHtml/ivy.concepts.html#ivy-ci}}

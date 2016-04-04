@@ -24,12 +24,14 @@ under the License.
     xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
   <body>
     <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="IAR Lifecycle" href="lifecycle.html"/>
       <item name="Examples" href="examples.html"/>
     </menu>
     
     <menu name="Development">
+      <item name="Source Code" href="http://github.com/axonivy/project-build-plugin" />
       <item name="Snapshot release" href="../../snapshot" />
     </menu>
   </body>
