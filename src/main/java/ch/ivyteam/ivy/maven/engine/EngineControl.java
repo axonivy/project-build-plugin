@@ -16,13 +16,26 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.ExecuteResultHandler;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.lang3.StringUtils;
+
+import ch.ivyteam.ivy.maven.StartTestEngineMojo;
+import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
 
 /**
  * Sends commands like start, stop to the ivy Engine
@@ -37,6 +50,7 @@ public class EngineControl
   
   private static final String SERVER_MAIN_CLASS = "ch.ivyteam.ivy.server.ServerLauncher";
   private EngineMojoContext context;
+  private AtomicBoolean engineStarted = new AtomicBoolean(false);
 
   public enum Command
   {
@@ -49,88 +63,115 @@ public class EngineControl
 
   }
 
-  public Process start() throws Exception
+  public Executor start() throws Exception
   {
-    Process engineProc = executeCommand(Command.start);
-    waitForEngineStart(engineProc);
-    return engineProc;
+    Executor executor = executeCommand(Command.start);
+    waitForEngineStart(executor);
+    return executor;
   }
 
   public void stop() throws Exception
   {
     executeCommand(Command.stop);
   }
-
-  Process executeCommand(Command command) throws IOException
+  
+  Executor executeCommand(Command command) throws IOException
   {
-      String classpath = context.engineClasspathJar;
-      if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
-      {
-        classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
-      }
-      
-      ProcessBuilder builder = new ProcessBuilder(getJavaExec(), "-classpath", classpath, "-Xmx" + context.vmOptions.maxmem, SERVER_MAIN_CLASS, command.toString());
-      
-      if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
-      {
-        builder.command().add(context.vmOptions.additionalVmOptions);
-      }
-      
-      builder.directory(context.engineDirectory);
-      builder.redirectErrorStream(true);
-      builder.redirectOutput(context.engineLogFile);
-      context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
-      context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
-      return builder.start();
+    CommandLine cli = toEngineCommand(command);
+    context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
+  
+    DefaultExecutor executor = new DefaultExecutor();
+    executor.setWorkingDirectory(context.engineDirectory);
+    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT)); 
+    executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
+    executor.setStreamHandler(getEngineLogStreamForwarder());
+    executor.execute(cli, asynchExecutionHandler());
+    return executor;
+  }
+  
+  private CommandLine toEngineCommand(Command command)
+  {
+    String classpath = context.engineClasspathJar;
+    if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
+    {
+      classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
+    }
+    
+    CommandLine cli = new CommandLine(new File(getJavaExec()))
+            .addArgument("-classpath").addArgument(classpath)
+            .addArgument(SERVER_MAIN_CLASS)
+            .addArgument(command.toString());
+    if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
+    {
+      cli.addArgument(context.vmOptions.additionalVmOptions);
+    }
+    
+    return cli;
   }
 
-  /*
-   * Preliminary implementation
-   */
-  private void waitForEngineStart(Process engineProc) throws Exception
+  private PumpStreamHandler getEngineLogStreamForwarder() throws FileNotFoundException
   {
-    String url;
-    int i = 0;
-    while ((url = checkForText()) == null)
+    context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
+    context.log.info("Forwarding engine logs to: "+context.engineLogFile.getAbsolutePath());
+    
+    OutputStream fileLogStream = new FileOutputStream(context.engineLogFile.getAbsolutePath());
+    OutputStream engineLogStream = new LineOrientedOutputStreamRedirector(fileLogStream)
     {
-      Thread.sleep(1000);
-      i++;
-      if (!engineProc.isAlive())
+      @Override
+      protected void processLine(byte[] b) throws IOException
       {
-        throw new RuntimeException("Engine start failed with exit code: "+engineProc.exitValue());
+          super.processLine(b); // write file log
+          handleEngineLogLine(new String(b));
+      }
+    };
+    PumpStreamHandler streamHandler = new PumpStreamHandler(engineLogStream, System.err)
+    {
+      @Override
+      public void stop() throws IOException
+      {
+        super.stop();
+        engineLogStream.close(); // we opened the stream - we're responsible to close it!
+      }
+    };
+    return streamHandler;
+  }
+  
+  private void handleEngineLogLine(String newLine)
+  {
+    context.log.debug("engine: "+newLine);
+    findStartEngineUrl(newLine);
+  }
+
+  private void findStartEngineUrl(String newLine)
+  {
+    if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
+    {
+      String url = StringUtils.substringBetween(newLine, "http://", "/");
+      url = "http://" + url + "/ivy/";
+      context.log.info("Axon.ivy Engine runs on : " + url);
+      context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
+      engineStarted.set(true);
+    }
+  }
+
+  private void waitForEngineStart(Executor executor) throws Exception
+  {
+    int i = 0;
+    while (!engineStarted.get() && executor.getWatchdog().isWatching())
+    {
+      Thread.sleep(1_000);
+      i++;
+      if (!executor.getWatchdog().isWatching())
+      {
+        throw new RuntimeException("Engine start failed unexpected.");
       }
       if (i > context.timeoutInSeconds)
       {
-        throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s]");
+        throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s].\n"
+                + "Check the engine log for details or increase the timeout property '"+StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS+"'");
       }
     }
     context.log.info("Engine started after " + i + " [s]");
-    url = "http://" + url + "/ivy/";
-    context.log.info("Axon.ivy Engine runs on : " + url);
-
-    context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
-  }
-  
-  private String checkForText()
-  {
-    try (BufferedReader br = new BufferedReader(new FileReader(context.engineLogFile)))
-    {
-      String line;
-      while ((line = br.readLine()) != null)
-      {
-        if (line.contains("info page of Axon.ivy Engine"))
-        {
-          String url = StringUtils.substringBetween(line, "http://", "/");
-          return url;
-        }
-      }
-    }
-    catch (IOException ex)
-    {
-      throw new RuntimeException("Cannot read log file: " + context.engineLogFile, ex);
-    }
-
-    return null;
   }
 
   private String getJavaExec()
@@ -138,5 +179,22 @@ public class EngineControl
     String javaExec = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     context.log.debug("Using Java exec from path: " + javaExec);
     return javaExec;
+  }
+  
+  private static ExecuteResultHandler asynchExecutionHandler()
+  {
+    return new ExecuteResultHandler()
+      {
+        @Override
+        public void onProcessFailed(ExecuteException ex)
+        {
+          throw new RuntimeException("Engine start failed.", ex);
+        }
+        
+        @Override
+        public void onProcessComplete(int exitValue)
+        {
+        }
+      };
   }
 }

@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.lang3.time.StopWatch;
 import org.fest.assertions.api.Assertions;
 import org.junit.Rule;
@@ -45,12 +47,10 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).isNull();
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_LOG)).isNull();
     
-    Process startedProcess = null;
+    Executor startedProcess = null;
     try
     {
       startedProcess = mojo.startEngine();
-      assertThat(startedProcess.isAlive()).isTrue();
-      
       assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://");
       assertThat(new File(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     }
@@ -58,7 +58,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     {
       if (startedProcess != null)
       {
-        startedProcess.destroy();
+        startedProcess.getWatchdog().destroyProcess();
       }
     }
   }
@@ -74,7 +74,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    Process startedProcess = null;
+    Executor startedProcess = null;
     try
     {
       startedProcess = mojo.startEngine();
@@ -93,11 +93,34 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
       tmpConfigDir.renameTo(configDir);
       if (startedProcess != null)
       {
-        startedProcess.destroy();
+        startedProcess.getWatchdog().destroyProcess();
       }
     }
   }
 
+  @Test
+  public void testKillEngineOnVmExit() throws Exception
+  {
+    StartTestEngineMojo mojo = rule.getMojo();
+    Executor startedProcess = null;
+    try
+    {
+      startedProcess = mojo.startEngine();
+      assertThat(startedProcess.getProcessDestroyer()).isInstanceOf(ShutdownHookProcessDestroyer.class);
+      ShutdownHookProcessDestroyer jvmShutdownHoock = (ShutdownHookProcessDestroyer) startedProcess.getProcessDestroyer();
+      assertThat(jvmShutdownHoock.size())
+        .as("One started engine process must be killed on VM end.")
+        .isEqualTo(1);
+    }
+    finally
+    {
+      if (startedProcess != null)
+      {
+        startedProcess.getWatchdog().destroyProcess();
+      }
+    }
+  }
+  
   private String getProperty(String name)
   {
     return (String)rule.project.getProperties().get(name);
@@ -111,6 +134,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     protected void before() throws Throwable
     {
       super.before();
+      rule.getMojo().maxmem = "2048m";
       provideClasspathJar();
     }
     
@@ -119,6 +143,26 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
       File cpJar = new SharedFile(rule.project).getEngineClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
               .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getEngineDirectory()));
+    }
+    
+    @Override
+    protected void after() 
+    {  // give time to close output stream before we delete the project;
+      sleep(1, TimeUnit.SECONDS);
+      // will delete the maven project under test + logs
+      super.after();
+    }
+
+    private void sleep(long duration, TimeUnit unit)
+    {
+      try
+      {
+        Thread.sleep(unit.toMillis(duration));
+      }
+      catch (InterruptedException ex)
+      {
+        throw new RuntimeException(ex);
+      }
     }
   };
 
