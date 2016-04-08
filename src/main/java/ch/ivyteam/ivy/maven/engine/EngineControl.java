@@ -29,6 +29,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class EngineControl
 {
+  public static interface Property
+  {
+    public static final String TEST_ENGINE_URL = "test.engine.url";
+    public static final String TEST_ENGINE_LOG = "test.engine.log";
+  }
+  
   private static final String SERVER_MAIN_CLASS = "ch.ivyteam.ivy.server.ServerLauncher";
   private EngineMojoContext context;
 
@@ -43,10 +49,11 @@ public class EngineControl
 
   }
 
-  public void start() throws Exception
+  public Process start() throws Exception
   {
-    executeCommand(Command.start);
-    waitForEngineStart();
+    Process engineProc = executeCommand(Command.start);
+    waitForEngineStart(engineProc);
+    return engineProc;
   }
 
   public void stop() throws Exception
@@ -54,7 +61,7 @@ public class EngineControl
     executeCommand(Command.stop);
   }
 
-  public void executeCommand(Command command) throws IOException
+  Process executeCommand(Command command) throws IOException
   {
       String classpath = context.engineClasspathJar;
       if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
@@ -72,15 +79,15 @@ public class EngineControl
       builder.directory(context.engineDirectory);
       builder.redirectErrorStream(true);
       builder.redirectOutput(context.engineLogFile);
-      context.properties.setMavenProperty("test.engine.log", context.engineLogFile.getAbsolutePath());
+      context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
       context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
-      builder.start();
+      return builder.start();
   }
 
   /*
    * Preliminary implementation
    */
-  private void waitForEngineStart() throws Exception
+  private void waitForEngineStart(Process engineProc) throws Exception
   {
     String url;
     int i = 0;
@@ -88,6 +95,10 @@ public class EngineControl
     {
       Thread.sleep(1000);
       i++;
+      if (!engineProc.isAlive())
+      {
+        throw new RuntimeException("Engine start failed with exit code: "+engineProc.exitValue());
+      }
       if (i > context.timeoutInSeconds)
       {
         throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s]");
@@ -97,7 +108,7 @@ public class EngineControl
     url = "http://" + url + "/ivy/";
     context.log.info("Axon.ivy Engine runs on : " + url);
 
-    context.properties.setMavenProperty("test.engine.url", url);
+    context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
   }
   
   private String checkForText()

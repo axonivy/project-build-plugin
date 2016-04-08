@@ -75,8 +75,11 @@ public class EngineClassLoaderFactory
     List<File> classPathFiles = new ArrayList<>();
     for(String engineLibDirectory : ENGINE_LIB_DIRECTORIES)
     {
-      
       File jarDir = new File(engineDirectory, engineLibDirectory);
+      if (!jarDir.exists())
+      { // jar dir 'patch' is optional: avoid illegalArgumentEx during FileUtils.listFiles(..)
+        continue;
+      }
       for(File jar : FileUtils.listFiles(jarDir, new String[]{"jar"}, false))
       {
         classPathFiles.add(jar);

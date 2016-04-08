@@ -39,6 +39,7 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule
   private T mojo;
   private String mojoName;
   private File templateProjectDir;
+  protected MavenProject project;
   
   public ProjectMojoRule(File srcDir, String mojoName)
   {
@@ -52,7 +53,7 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule
   {
     projectDir = Files.createTempDirectory("MyBaseProject").toFile();
     FileUtils.copyDirectory(templateProjectDir, projectDir);
-    MavenProject project = readMavenProject(projectDir);
+    project = readMavenProject(projectDir);
     mojo = (T) lookupConfiguredMojo(project, mojoName);
   }
   

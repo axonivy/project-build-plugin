@@ -22,11 +22,10 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestCompileProjectMojo extends BaseCompileProjectMojoTest
+public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
 {
   private CompileTestProjectMojo testMojo;
 
@@ -38,7 +37,6 @@ public class TestCompileProjectMojo extends BaseCompileProjectMojoTest
     {
       super.before();
       // use same project as first rule/mojo
-      MavenProject project = readMavenProject(projectDir);
       testMojo = (CompileTestProjectMojo) lookupConfiguredMojo(project, CompileTestProjectMojo.GOAL);
       configureMojo(testMojo);
     }

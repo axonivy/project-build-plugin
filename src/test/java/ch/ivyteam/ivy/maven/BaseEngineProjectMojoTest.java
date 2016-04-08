@@ -35,7 +35,7 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.internal.DefaultLegacySupport;
 import org.junit.Rule;
 
-public class BaseCompileProjectMojoTest
+public class BaseEngineProjectMojoTest
 {
   protected static final String ENGINE_VERSION_TO_TEST = "6.1.0";
   protected static final String LOCAL_REPOSITORY = getLocalRepoPath();
@@ -118,11 +118,32 @@ public class BaseCompileProjectMojoTest
       }
     };
     
-  protected static class CompileMojoRule<T extends AbstractProjectCompileMojo> extends ProjectMojoRule<T>
+    
+  protected static class EngineMojoRule<T extends AbstractEngineMojo> extends ProjectMojoRule<T>
+  {
+    protected EngineMojoRule(String mojoName)
+    {
+      super(new File("src/test/resources/base"), mojoName);
+    }
+  
+    @Override
+    protected void before() throws Throwable {
+      super.before();
+      configureMojo(getMojo());
+    }
+
+    protected void configureMojo(AbstractEngineMojo newMojo)
+    {
+      newMojo.engineCacheDirectory = new File(CACHE_DIR);
+      newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
+    }
+  }
+    
+  protected static class CompileMojoRule<T extends AbstractProjectCompileMojo> extends EngineMojoRule<T>
   {
     protected CompileMojoRule(String mojoName)
     {
-      super(new File("src/test/resources/base"), mojoName);
+      super(mojoName);
     }
   
     @Override
@@ -134,8 +155,6 @@ public class BaseCompileProjectMojoTest
     protected void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
     {
       newMojo.localRepository = provideLocalRepository();
-      newMojo.engineCacheDirectory = new File(CACHE_DIR);
-      newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   
     /**

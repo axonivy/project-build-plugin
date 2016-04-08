@@ -74,9 +74,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
     
     try
     {
-      EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
-      engineControl.start();
+      startEngine();
     }
     catch (Exception ex)
     {
@@ -84,5 +82,11 @@ public class StartTestEngineMojo extends AbstractEngineMojo
     }
   }
 
+  Process startEngine() throws Exception
+  {
+    EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
+    EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
+    return engineControl.start();
+  }
 
 }
