@@ -16,8 +16,6 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -52,12 +50,8 @@ public class StopTestEngineMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.engine.stop.additional.vmoptions", required = false, defaultValue = "")
   String additionalVmOptions;
   
-  /** The file where the engine stop is logged **/
-  @Parameter(property = "ivy.engine.stop.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
-  File engineLogFile;
-  
   /** The maximum amount of seconds that we wait for a engine to stop */
-  @Parameter(property="ivy.engine.stop.timeout.seconds", defaultValue="30")
+  @Parameter(property="ivy.engine.stop.timeout.seconds", defaultValue="45")
   Integer stopTimeoutInSeconds;
   
   /** Set to <code>true</code> to skip the engine stop. */
@@ -74,13 +68,19 @@ public class StopTestEngineMojo extends AbstractEngineMojo
     
     try
     {
-      EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-      EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, stopTimeoutInSeconds));
-      engineControl.stop();
+      createEngineController().stop();
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException("Cannot Stop engine", ex);
     }
   }
+
+  public EngineControl createEngineController()
+  {
+    EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
+    EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
+    return engineControl;
+  }
+  
 }

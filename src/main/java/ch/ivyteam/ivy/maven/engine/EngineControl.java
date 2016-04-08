@@ -16,13 +16,32 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.ExecuteResultHandler;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
+
+import ch.ivyteam.ivy.maven.StartTestEngineMojo;
+import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
 
 /**
  * Sends commands like start, stop to the ivy Engine
@@ -35,102 +54,129 @@ public class EngineControl
     public static final String TEST_ENGINE_LOG = "test.engine.log";
   }
   
+  /**
+   * mvn-plugin implementation of: ch.ivyteam.server.ServerState
+   */
+  public static enum EngineState
+  {
+    STOPPED,
+    STARTING,
+    RUNNING,
+    STOPPING,
+    UNREGISTERED,
+    FAILED;
+  }
+  
   private static final String SERVER_MAIN_CLASS = "ch.ivyteam.ivy.server.ServerLauncher";
   private EngineMojoContext context;
+  private AtomicBoolean engineStarted = new AtomicBoolean(false);
 
-  public enum Command
+  private enum Command
   {
-    start, stop
+    start, stop, status
   }
 
   public EngineControl(EngineMojoContext context)
   {
     this.context = context;
-
   }
 
-  public Process start() throws Exception
+  public Executor start() throws Exception
   {
-    Process engineProc = executeCommand(Command.start);
-    waitForEngineStart(engineProc);
-    return engineProc;
+    CommandLine startCmd = toEngineCommand(Command.start);
+    context.log.info("Start Axon.ivy Engine in folder: " + context.engineDirectory);
+    
+    Executor executor = createEngineExecutor();
+    executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
+    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT)); 
+    executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
+    executor.execute(startCmd, asynchExecutionHandler());
+    waitForEngineStart(executor);
+    return executor;
   }
 
   public void stop() throws Exception
   {
-    executeCommand(Command.stop);
-  }
-
-  Process executeCommand(Command command) throws IOException
-  {
-      String classpath = context.engineClasspathJar;
-      if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
-      {
-        classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
-      }
-      
-      ProcessBuilder builder = new ProcessBuilder(getJavaExec(), "-classpath", classpath, "-Xmx" + context.vmOptions.maxmem, SERVER_MAIN_CLASS, command.toString());
-      
-      if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
-      {
-        builder.command().add(context.vmOptions.additionalVmOptions);
-      }
-      
-      builder.directory(context.engineDirectory);
-      builder.redirectErrorStream(true);
-      builder.redirectOutput(context.engineLogFile);
-      context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
-      context.log.info("Executing command " + command + " against Axon.ivy Engine in folder: " + context.engineDirectory);
-      return builder.start();
-  }
-
-  /*
-   * Preliminary implementation
-   */
-  private void waitForEngineStart(Process engineProc) throws Exception
-  {
-    String url;
-    int i = 0;
-    while ((url = checkForText()) == null)
-    {
-      Thread.sleep(1000);
-      i++;
-      if (!engineProc.isAlive())
-      {
-        throw new RuntimeException("Engine start failed with exit code: "+engineProc.exitValue());
-      }
-      if (i > context.timeoutInSeconds)
-      {
-        throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s]");
-      }
-    }
-    context.log.info("Engine started after " + i + " [s]");
-    url = "http://" + url + "/ivy/";
-    context.log.info("Axon.ivy Engine runs on : " + url);
-
-    context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
+    CommandLine stopCmd = toEngineCommand(Command.stop);
+    context.log.info("Stopping Axon.ivy Engine in folder: " + context.engineDirectory);
+    
+    executeSynch(stopCmd);
+    waitFor(()->EngineState.STOPPED == state(), context.timeoutInSeconds, TimeUnit.SECONDS);
   }
   
-  private String checkForText()
+  EngineState state() 
   {
-    try (BufferedReader br = new BufferedReader(new FileReader(context.engineLogFile)))
-    {
-      String line;
-      while ((line = br.readLine()) != null)
-      {
-        if (line.contains("info page of Axon.ivy Engine"))
-        {
-          String url = StringUtils.substringBetween(line, "http://", "/");
-          return url;
-        }
-      }
-    }
-    catch (IOException ex)
-    {
-      throw new RuntimeException("Cannot read log file: " + context.engineLogFile, ex);
-    }
+    CommandLine statusCmd = toEngineCommand(Command.status);
+    String engineOutput = executeSynch(statusCmd);
+    return parseState(engineOutput);
+  }
 
-    return null;
+  private CommandLine toEngineCommand(Command command)
+  {
+    String classpath = context.engineClasspathJar;
+    if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
+    {
+      classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
+    }
+    
+    CommandLine cli = new CommandLine(new File(getJavaExec()))
+            .addArgument("-classpath").addArgument(classpath)
+            .addArgument(SERVER_MAIN_CLASS)
+            .addArgument(command.toString());
+    if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
+    {
+      cli.addArgument(context.vmOptions.additionalVmOptions);
+    }
+    return cli;
+  }
+  
+  private Executor createEngineExecutor()
+  {
+    DefaultExecutor executor = new DefaultExecutor();
+    executor.setWorkingDirectory(context.engineDirectory);
+    return executor;
+  }
+
+  private PumpStreamHandler createEngineLogStreamForwarder(Consumer<String> logLineHandler) throws FileNotFoundException
+  {
+    OutputStream output = getEngineLogTarget();
+    OutputStream engineLogStream = new LineOrientedOutputStreamRedirector(output)
+    {
+      @Override
+      protected void processLine(byte[] b) throws IOException
+      {
+          super.processLine(b); // write file log
+          String line = new String(b);
+          context.log.debug("engine: "+line);
+          if (logLineHandler != null)
+          {
+            logLineHandler.accept(line);
+          }
+      }
+    };
+    PumpStreamHandler streamHandler = new PumpStreamHandler(engineLogStream, System.err)
+    {
+      @Override
+      public void stop() throws IOException
+      {
+        super.stop();
+        engineLogStream.close(); // we opened the stream - we're responsible to close it!
+      }
+    };
+    return streamHandler;
+  }
+
+  private OutputStream getEngineLogTarget() throws FileNotFoundException
+  {
+    if (context.engineLogFile == null)
+    {
+      context.log.info("Do not forward engine output to a persistent location");
+      return new ByteArrayOutputStream(); 
+    }
+    
+    context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
+    context.log.info("Forwarding engine logs to: "+context.engineLogFile.getAbsolutePath());
+    return new FileOutputStream(context.engineLogFile.getAbsolutePath());
   }
 
   private String getJavaExec()
@@ -139,4 +185,118 @@ public class EngineControl
     context.log.debug("Using Java exec from path: " + javaExec);
     return javaExec;
   }
+  
+  private void findStartEngineUrl(String newLine)
+  {
+    if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
+    {
+      String url = StringUtils.substringBetween(newLine, "http://", "/");
+      url = "http://" + url + "/ivy/";
+      context.log.info("Axon.ivy Engine runs on : " + url);
+      context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
+      engineStarted.set(true);
+    }
+  }
+  
+  private void waitForEngineStart(Executor executor) throws Exception
+  {
+    int i = 0;
+    while (!engineStarted.get())
+    {
+      Thread.sleep(1_000);
+      i++;
+      if (!executor.getWatchdog().isWatching())
+      {
+        throw new RuntimeException("Engine start failed unexpected.");
+      }
+      if (i > context.timeoutInSeconds)
+      {
+        throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s].\n"
+                + "Check the engine log for details or increase the timeout property '"+StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS+"'");
+      }
+    }
+    context.log.info("Engine started after " + i + " [s]");
+  }
+  
+  private ExecuteResultHandler asynchExecutionHandler()
+  {
+    return new ExecuteResultHandler()
+      {
+        @Override
+        public void onProcessFailed(ExecuteException ex)
+        {
+          throw new RuntimeException("Engine operation failed.", ex);
+        }
+        
+        @Override
+        public void onProcessComplete(int exitValue)
+        {
+          context.log.info("Engine process stopped.");
+        }
+      };
+  }
+  
+  /**
+   * Run a short living engine command where we expect a process failure as the engine invokes <code>System.exit(-1)</code>.
+   * @param statusCmd 
+   * @return the output of the engine command.
+   */
+  private String executeSynch(CommandLine statusCmd)
+  {
+    String engineOutput = null;
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, System.err);
+    Executor executor = createEngineExecutor();
+    executor.setStreamHandler(streamHandler);
+    executor.setExitValue(-1);
+    try
+    {
+      executor.execute(statusCmd);
+    }
+    catch (IOException ex)
+    { // expected!
+    }
+    finally
+    {
+      engineOutput = outputStream.toString();
+      IOUtils.closeQuietly(outputStream);
+    }
+    return engineOutput;
+  }
+  
+  private EngineState parseState(String engineOut)
+  {
+    for(String line : StringUtils.split(engineOut, '\n'))
+    {
+      try
+      {
+        line = StringUtils.strip(line, "\r");
+        return EngineState.valueOf(line);
+      }
+      catch(Exception ex)
+      { // output can contain log4j configuration outputs -> ignore them!
+      }
+    }
+    context.log.error("Failed to evaluate engine state of engine in directory "+context.engineDirectory);
+    return null;
+  }
+  
+  private static long waitFor(Supplier<Boolean> condition, long duration, TimeUnit unit) throws Exception
+  {
+    StopWatch watch = new StopWatch();
+    watch.start();
+    long timeout = unit.toMillis(duration);
+    
+    while (!condition.get())
+    {
+      Thread.sleep(1_000);
+      if (watch.getTime() > timeout)
+      {
+        throw new TimeoutException("Condition not reached in "+duration+" "+unit);
+      }
+    }
+    
+    return watch.getTime();
+  }
+  
 }

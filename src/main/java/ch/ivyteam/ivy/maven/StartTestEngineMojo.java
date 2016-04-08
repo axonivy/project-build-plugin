@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 
+import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -36,6 +37,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 public class StartTestEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "start-test-engine";
+  public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
   
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -57,7 +59,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   File engineLogFile;
   
   /** The maximum amount of seconds that we wait for a engine to start */
-  @Parameter(property="ivy.engine.start.timeout.seconds", defaultValue="60")
+  @Parameter(property=IVY_ENGINE_START_TIMEOUT_SECONDS, defaultValue="60")
   Integer startTimeoutInSeconds;
   
   /** Set to <code>true</code> to skip the engine start. */
@@ -82,7 +84,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
     }
   }
 
-  Process startEngine() throws Exception
+  Executor startEngine() throws Exception
   {
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
     EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
