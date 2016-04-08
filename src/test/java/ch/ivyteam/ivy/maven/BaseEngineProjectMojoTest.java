@@ -37,9 +37,14 @@ import org.junit.Rule;
 
 public class BaseEngineProjectMojoTest
 {
-  protected static final String ENGINE_VERSION_TO_TEST = "6.1.0";
+  protected static final String ENGINE_VERSION_TO_TEST = getTestEngineVersion();
   protected static final String LOCAL_REPOSITORY = getLocalRepoPath();
   protected static final String CACHE_DIR = LOCAL_REPOSITORY + "/.cache/ivy-dev";
+
+  private static String getTestEngineVersion()
+  {
+    return System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION);
+  }
 
   private static String getLocalRepoPath()
   {
