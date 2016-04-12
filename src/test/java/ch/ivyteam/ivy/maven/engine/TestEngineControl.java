@@ -22,7 +22,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.RunnableEngineMojoRule;
 import ch.ivyteam.ivy.maven.StopTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl.EngineState;
 import ch.ivyteam.ivy.maven.log.LogCollector;

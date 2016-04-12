@@ -24,6 +24,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -34,6 +35,10 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.internal.DefaultLegacySupport;
 import org.junit.Rule;
+
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class BaseEngineProjectMojoTest
 {
@@ -181,6 +186,49 @@ public class BaseEngineProjectMojoTest
       setVariableValueToObject(localRepository, "basedir", LOCAL_REPOSITORY);
       
       return localRepository;
+    }
+  }
+  
+  protected class RunnableEngineMojoRule<T extends AbstractEngineMojo> extends EngineMojoRule<T>
+  {
+
+    public RunnableEngineMojoRule(String mojoName)
+    {
+      super(mojoName);
+    }
+    
+    @Override
+    protected void before() throws Throwable
+    {
+      super.before();
+      provideClasspathJar();
+    }
+    
+    private void provideClasspathJar() throws IOException
+    {
+      File cpJar = new SharedFile(project).getEngineClasspathJar();
+      new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
+              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getEngineDirectory()));
+    }
+    
+    @Override
+    protected void after() 
+    {  // give time to close output stream before we delete the project;
+      sleep(1, TimeUnit.SECONDS);
+      // will delete the maven project under test + logs
+      super.after();
+    }
+
+    private void sleep(long duration, TimeUnit unit)
+    {
+      try
+      {
+        Thread.sleep(unit.toMillis(duration));
+      }
+      catch (InterruptedException ex)
+      {
+        throw new RuntimeException(ex);
+      }
     }
   }
 
