@@ -71,12 +71,12 @@ public class IarDeployMojo extends AbstractEngineMojo
    * @since 6.1.1
    */
   @Parameter(defaultValue="false", property="ivy.deploy.skip")
-  boolean skipDeployment;
+  boolean skipDeploy;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    if (skipDeployment)
+    if (skipDeploy)
     {
       getLog().info("Skipping deployment of project.");
       return;
