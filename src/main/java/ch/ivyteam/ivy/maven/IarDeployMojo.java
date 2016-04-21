@@ -67,9 +67,21 @@ public class IarDeployMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
   Integer deployTimeoutInSeconds;
   
+  /** Set to <code>true</code> to skip the deployment to the engine.
+   * @since 6.1.1
+   */
+  @Parameter(defaultValue="false", property="ivy.deploy.skip")
+  boolean skipDeployment;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+    if (skipDeployment)
+    {
+      getLog().info("Skipping deployment of project.");
+      return;
+    }
+    
     if (!deployIarFile.exists())
     {
       getLog().warn("Skipping IAR deployment of '"+deployIarFile+"'. The file does not exist.");
