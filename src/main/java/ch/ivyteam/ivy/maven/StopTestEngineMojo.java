@@ -63,6 +63,7 @@ public class StopTestEngineMojo extends AbstractEngineMojo
   {
     if (skipTest)
     {
+      getLog().info("Skipping stop of engine.");
       return;
     }
     

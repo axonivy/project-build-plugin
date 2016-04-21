@@ -71,6 +71,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   {
     if (skipTest)
     {
+      getLog().info("Skipping start of engine.");
       return;
     }
     
