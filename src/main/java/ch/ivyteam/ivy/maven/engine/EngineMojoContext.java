@@ -21,6 +21,7 @@ import java.io.File;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class EngineMojoContext
@@ -29,7 +30,7 @@ public class EngineMojoContext
   public final MavenProject project;
   public final Log log;
   public final EngineVmOptions vmOptions;
-  public final String engineClasspathJar;
+  public final String engineClasspathJarPath;
   public final MavenProperties properties;
   public final File engineLogFile;
   public final Integer timeoutInSeconds;
@@ -42,17 +43,38 @@ public class EngineMojoContext
     this.engineLogFile = engineLogFile;
     this.vmOptions = vmOptions;
     this.timeoutInSeconds = timeoutInSeconds;
-
-    this.engineClasspathJar = new SharedFile(project).getEngineClasspathJar().getAbsolutePath();
+    
     this.properties = new MavenProperties(project, log);
+    this.engineClasspathJarPath = setupEngineClasspathJarIfNotExists();
 
-    if (!(new File(engineClasspathJar).exists()))
+    if (!(new File(engineClasspathJarPath).exists()))
     {
-      throw new RuntimeException("Engine ClasspathJar " + engineClasspathJar + " does not exist.");
+      throw new RuntimeException("Engine ClasspathJar " + engineClasspathJarPath + " does not exist.");
     }
     if (!(engineDirectory.exists()))
     {
       throw new RuntimeException("Engine Directory " + engineDirectory + " does not exist.");
     }
+  }
+  
+  private String setupEngineClasspathJarIfNotExists()
+  {
+    File classpathJar = new SharedFile(project).getEngineClasspathJar();
+    
+    if (!classpathJar.exists())
+    {
+      try
+      {
+        log.info("Creating a classpath jar for starting the engine");
+        new ClasspathJar(classpathJar).createFileEntries(EngineClassLoaderFactory.getIvyEngineClassPathFiles(engineDirectory));
+      }
+      catch (Exception ex)
+      {
+        throw new RuntimeException(
+                "Could not create engine classpath jar: '" + classpathJar.getAbsolutePath() + "'", ex);
+      }
+    }
+    
+    return classpathJar.getAbsolutePath();
   }
 }

@@ -113,7 +113,7 @@ public class EngineControl
 
   private CommandLine toEngineCommand(Command command)
   {
-    String classpath = context.engineClasspathJar;
+    String classpath = context.engineClasspathJarPath;
     if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath))
     {
       classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
