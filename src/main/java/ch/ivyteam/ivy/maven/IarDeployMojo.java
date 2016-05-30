@@ -96,8 +96,8 @@ public class IarDeployMojo extends AbstractEngineMojo
     
     File uploadedIar = copyIarToEngine(deployDir);
     
-    String iarPath = deployEngineDirectory.toPath().relativize(uploadedIar.toPath()).toString();
-    IvyProjectDeployer deployer = new MarkerFileDeployer(deployEngineDirectory, deployTimeoutInSeconds);
+    String iarPath = deployDir.toPath().relativize(uploadedIar.toPath()).toString();
+    IvyProjectDeployer deployer = new MarkerFileDeployer(deployDir, deployTimeoutInSeconds);
     deployer.deployIar(iarPath, getLog());
   }
 

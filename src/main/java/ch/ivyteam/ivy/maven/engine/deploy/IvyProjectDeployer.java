@@ -27,7 +27,7 @@ import org.apache.maven.plugin.logging.Log;
 public interface IvyProjectDeployer
 {
   /**
-   * @param iarPath the path to the deployable (uploaded) iar. Must be relative the engines root directory.
+   * @param iarPath the path to the deployable (uploaded) iar. Must be relative the engines deploy directory.
    * @param log mojo log
    * @throws MojoExecutionException if deployment fails
    */

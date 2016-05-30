@@ -28,26 +28,26 @@ import org.apache.maven.plugin.logging.Log;
 
 public class MarkerFileDeployer implements IvyProjectDeployer
 {
-  private final File targetEngineDir;
+  private final File deployDir;
   private final Integer timeoutInSeconds;
   
   private Log log;
   private DeploymentMarkerFiles markerFile;
 
-  public MarkerFileDeployer(File targetEngineDir, Integer deployTimeoutInSeconds)
+  public MarkerFileDeployer(File deployDir, Integer deployTimeoutInSeconds)
   {
-    this.targetEngineDir = targetEngineDir;
+    this.deployDir = deployDir;
     this.timeoutInSeconds = deployTimeoutInSeconds;
   }
 
   @Override
   @SuppressWarnings("hiding")
-  public void deployIar(String iarPath, Log log) throws MojoExecutionException
+  public void deployIar(String iarFilePath, Log log) throws MojoExecutionException
   {
-    File iar = new File(targetEngineDir, iarPath);
+    File iar = new File(deployDir, iarFilePath);
     if (!iar.exists() || !iar.isFile())
     {
-      log.warn("Skipping deployment of '"+iarPath+"'. The IAR '"+iar+"' does not exist.");
+      log.warn("Skipping deployment of '"+iarFilePath+"'. The IAR '"+iar+"' does not exist.");
       return;
     }
     
