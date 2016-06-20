@@ -30,7 +30,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
   private CompileTestProjectMojo testMojo;
 
   @Rule
-  public ProjectMojoRule<CompileProjectMojo> compile = new CompileMojoRule<CompileProjectMojo>(CompileProjectMojo.GOAL)
+  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<CompileProjectMojo>(CompileProjectMojo.GOAL)
   {
     @Override
     protected void before() throws Throwable 

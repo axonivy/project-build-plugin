@@ -18,7 +18,14 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
@@ -52,7 +59,14 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   protected File engineCacheDirectory;
   
   /**
-   * The ivy Engine version that is used. Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
+   * The ivy Engine version or version-range that must be used. 
+   * Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
+   * Examples: <br/>
+   * <ul>
+   * <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
+   * <li>"<code>[6.1.0,7.0.0)</code>" means 6.1.0 &lt;= ivyVersion &lt; 7.0.0</li>
+   * <li>"<code>(6.0.0,]</code>" means ivyVersion &gt; 6.0.0</li>
+   * </ul>
    */
   @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivy.engine.version")
   protected String ivyVersion;
@@ -64,11 +78,93 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   
   protected final File getEngineDirectory()
   {
-    if (engineDirectory == null)
+    return engineDirectory;
+  }
+
+  protected final File identifyAndGetEngineDirectory() throws MojoExecutionException
+  {
+    if (!isEngineDirectoryIdentified())
     {
-      return new File(engineCacheDirectory, ivyVersion);
+      engineDirectory = findMatchingEngineInCacheDirectory();
     }
     return engineDirectory;
+  }
+  
+  protected final boolean isEngineDirectoryIdentified()
+  {
+    return engineDirectory != null;
+  }
+  
+  protected final File findMatchingEngineInCacheDirectory() throws MojoExecutionException
+  {
+    if (engineCacheDirectory == null || !engineCacheDirectory.exists())
+    {
+      return null;
+    }
+    
+    File engineDirToTake = null;
+    ArtifactVersion versionOfEngineToTake = null;
+    for (File engineDirCandidate : engineCacheDirectory.listFiles())
+    {
+      if (!engineDirCandidate.isDirectory())
+      {
+        continue;
+      }
+      
+      ArtifactVersion candidateVersion = getInstalledEngineVersion(engineDirCandidate);
+      if (candidateVersion == null || !getIvyVersionRange().containsVersion(candidateVersion))
+      {
+        continue;
+      }
+      if (versionOfEngineToTake == null || versionOfEngineToTake.compareTo(candidateVersion) < 0)
+      {
+        engineDirToTake = engineDirCandidate;
+        versionOfEngineToTake = candidateVersion;
+      }
+    }
+    return engineDirToTake;
+  }
+  
+  protected final ArtifactVersion getInstalledEngineVersion(File engineDir)
+  {
+    File ivyLibs = new File(engineDir, "lib/ivy");
+    if (ivyLibs.exists())
+    {
+      String[] libraryNames = ivyLibs.list();
+      if (!ArrayUtils.isEmpty(libraryNames))
+      {
+        String firstLibrary = libraryNames[0];
+        String version = StringUtils.substringBetween(firstLibrary, "-", "-");
+        return new DefaultArtifactVersion(version);
+      }
+    }
+    return null;
+  }
+  
+  protected final VersionRange getIvyVersionRange() throws MojoExecutionException
+  {
+    try
+    {
+      VersionRange minimalCompatibleVersionRange = VersionRange.createFromVersionSpec("[" + AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION + ",)");
+      VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(ivyVersion);
+      
+      if (ivyVersionRange.getRecommendedVersion() != null)
+      {
+        ivyVersionRange = VersionRange.createFromVersionSpec("["+ivyVersion+"]");
+      }
+      
+      VersionRange restrictedIvyVersionRange = ivyVersionRange.restrict(minimalCompatibleVersionRange);
+      if (!restrictedIvyVersionRange.hasRestrictions())
+      {
+        throw new MojoExecutionException("The ivyVersion '"+ivyVersion+"' is lower than the minimal compatible version"
+              + " '"+MINIMAL_COMPATIBLE_VERSION+"'.");
+      }
+      return restrictedIvyVersionRange;
+    }
+    catch (InvalidVersionSpecificationException ex)
+    {
+      throw new MojoExecutionException("Invalid ivyVersion '"+ivyVersion+"'.", ex);
+    }
   }
 
 }

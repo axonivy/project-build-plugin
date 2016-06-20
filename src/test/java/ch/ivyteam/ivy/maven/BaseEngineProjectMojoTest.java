@@ -77,6 +77,9 @@ public class BaseEngineProjectMojoTest
   @Rule
   public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<InstallEngineMojo>(
             new File("src/test/resources/base"), InstallEngineMojo.GOAL){
+      
+      private static final String TIMESTAMP_FILE_NAME = "downloadtimestamp";
+    
       @Override
       protected void before() throws Throwable {
         super.before();
@@ -88,32 +91,38 @@ public class BaseEngineProjectMojoTest
         }
         getMojo().engineCacheDirectory = new File(CACHE_DIR);
         getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
+        getMojo().engineDirectory = new File(getMojo().engineCacheDirectory, "AxonIvyEngine" + ENGINE_VERSION_TO_TEST);
         deleteOutdatedEngine();
         getMojo().execute();
+        addTimestampToDownloadedEngine();
       }
     
       private void deleteOutdatedEngine() throws IOException
       {
         File engineDir = getMojo().getEngineDirectory();
-        getMojo().engineDirectory = engineDir;
-        if (!engineDir.exists())
+        if (engineDir == null || !engineDir.exists())
         {
           return;
         }
         
-        File releaseNotes = new File(engineDir, "ReleaseNotes.txt");
-        if (isOlderThan24h(releaseNotes))
+        File timestampFile = new File(engineDir, TIMESTAMP_FILE_NAME);
+        if (isOlderThan24h(timestampFile))
         {
           System.out.println("Deleting cached outdated engine.");
           FileUtils.deleteDirectory(engineDir);
         }
       }
   
-      private boolean isOlderThan24h(File releaseNotes)
+      private boolean isOlderThan24h(File timestampFile)
       {
+        if (!timestampFile.exists())
+        {
+          return true;
+        }
+        
         try
         {
-          BasicFileAttributes attr = Files.readAttributes(releaseNotes.toPath(), BasicFileAttributes.class);
+          BasicFileAttributes attr = Files.readAttributes(timestampFile.toPath(), BasicFileAttributes.class);
           long createTimeMillis = attr.creationTime().toMillis();
           Calendar cal = Calendar.getInstance();
           cal.add(Calendar.DAY_OF_YEAR, -1);
@@ -122,9 +131,20 @@ public class BaseEngineProjectMojoTest
           return cachedEngineIsOlderThan24h;
         }
         catch(IOException ex)
-        { // corrupt state: previous build did not finish or completely unpack
+        { // corrupt state - trigger re-download
           return true;
         }
+      }
+      
+      private void addTimestampToDownloadedEngine() throws IOException
+      {
+        File engineDir = getMojo().getEngineDirectory();
+        if (engineDir == null || !engineDir.exists())
+        {
+          return;
+        }
+        File timestampFile = new File(engineDir, TIMESTAMP_FILE_NAME);
+        timestampFile.createNewFile();
       }
     };
     
@@ -145,6 +165,7 @@ public class BaseEngineProjectMojoTest
     protected void configureMojo(AbstractEngineMojo newMojo)
     {
       newMojo.engineCacheDirectory = new File(CACHE_DIR);
+      newMojo.engineDirectory = new File(getMojo().engineCacheDirectory, "AxonIvyEngine" + ENGINE_VERSION_TO_TEST);
       newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   }
@@ -162,7 +183,7 @@ public class BaseEngineProjectMojoTest
       configureMojo(getMojo());
     }
 
-    protected void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
+    public void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
     {
       newMojo.localRepository = provideLocalRepository();
     }

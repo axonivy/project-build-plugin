@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -100,50 +101,70 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public void execute() throws MojoExecutionException
   {
     getLog().info("Compiling project for ivy version " + ivyVersion);
-    validateVersion();
     ensureEngineIsInstalled();
-  }
-
-  private void validateVersion() throws MojoExecutionException
-  {
-    ArtifactVersion minimalCompatibleVersion = new DefaultArtifactVersion(AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION);
-    ArtifactVersion currentArtifactVersion = new DefaultArtifactVersion(ivyVersion);
-    if (minimalCompatibleVersion.compareTo(currentArtifactVersion) > 0)
-    {
-      throw new MojoExecutionException("The ivyVersion '"+ivyVersion+"' is lower than the minimal compatible version"
-              + " '"+MINIMAL_COMPATIBLE_VERSION+"'.");
-    }
   }
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
   {
-    if (engineDirectoryIsEmpty())
+    if (identifyAndGetEngineDirectory() == null)
     {
-      getEngineDirectory().mkdirs();
+      handleNoInstalledEngine();
     }
-    
-    String installedEngineVersion = getInstalledEngineVersion();
-    if (!ivyVersion.equals(installedEngineVersion))
+    else
     {
-      handleWrongIvyVersion(installedEngineVersion);
+      if (engineDirectoryIsEmpty())
+      {
+        getEngineDirectory().mkdirs();
+      }
+      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getEngineDirectory());
+      
+      if (installedEngineVersion == null || 
+              !getIvyVersionRange().containsVersion(installedEngineVersion))
+      {
+        handleWrongIvyVersion(installedEngineVersion);
+      }
+      
     }
+      
   }
 
-  private void handleWrongIvyVersion(String installedEngineVersion) throws MojoExecutionException
+  private void handleNoInstalledEngine() throws MojoExecutionException
+  {
+    getLog().info("No installed engine found for version '"+ivyVersion+"'");
+    boolean cleanEngineDir = false;
+    downloadAndInstallEngine(cleanEngineDir);
+  }
+  
+  private void handleWrongIvyVersion(ArtifactVersion installedEngineVersion) throws MojoExecutionException
   {
     getLog().info("Installed engine has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
+    boolean cleanEngineDir = installedEngineVersion != null;
+    downloadAndInstallEngine(cleanEngineDir);
+  }
+
+  private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
+  {
     if (autoInstallEngine)
     {
-      File downloadZip = new EngineDownloader().downloadEngine();
-      if (installedEngineVersion != null)
+      getLog().info("Will automatically download Engine now.");
+      EngineDownloader engineDownloader = new EngineDownloader();
+      File downloadZip = engineDownloader.downloadEngine();
+      if (cleanEngineDir)
       {
         removeOldEngineContent();
+      }
+      if (!isEngineDirectoryIdentified())
+      {
+        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadUrl();
+        String engineDirName = StringUtils.removeEnd(engineZipFileName, ".zip");
+        engineDirectory = new File(engineCacheDirectory, engineDirName);
+        engineDirectory.mkdirs();
       }
       unpackEngine(downloadZip);
       downloadZip.delete();
       
-      installedEngineVersion = getInstalledEngineVersion();
-      if (!ivyVersion.equals(installedEngineVersion))
+      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getEngineDirectory());
+      if (!getIvyVersionRange().containsVersion(installedEngineVersion))
       {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
                 + "Downloaded version is '"+installedEngineVersion+"' but expecting '"+ivyVersion+"'.");
@@ -168,22 +189,6 @@ public class InstallEngineMojo extends AbstractEngineMojo
     }
   }
 
-  private String getInstalledEngineVersion()
-  {
-    File ivyLibs = new File(getEngineDirectory(), "lib/ivy");
-    if (ivyLibs.exists())
-    {
-      String[] libraryNames = ivyLibs.list();
-      if (!ArrayUtils.isEmpty(libraryNames))
-      {
-        String firstLibrary = libraryNames[0];
-        String version = StringUtils.substringBetween(firstLibrary, "-", "-");
-        return version;
-      }
-    }
-    return null;
-  }
-
   private boolean engineDirectoryIsEmpty()
   {
     return !getEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getEngineDirectory().listFiles());
@@ -193,34 +198,30 @@ public class InstallEngineMojo extends AbstractEngineMojo
   {
     try
     {
-      String targetLocation = downloadZip.getParent();
-      getLog().info("Unpacking engine "+downloadZip.getName()+" to "+targetLocation);
+      String targetLocation = getEngineDirectory().getAbsolutePath();
+      getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
       ZipFile engineZip = new ZipFile(downloadZip);
       engineZip.extractAll(targetLocation);
     }
     catch (ZipException ex)
     {
-      throw new MojoExecutionException("Failed to unpack downloaded engine '"+ downloadZip + "'.", ex);
+      throw new MojoExecutionException("Failed to unpack downloaded engine '" + downloadZip + "'.", ex);
     }
+  }
+  
+  File getDownloadDirectory()
+  {
+    return SystemUtils.getJavaIoTmpDir(); 
   }
 
   class EngineDownloader
   {
+    private String zipFileName = null;
     
     private File downloadEngine() throws MojoExecutionException
     {
-      try
-      {
-        if (engineDownloadUrl != null)
-        { 
-          return downloadEngineFromUrl(engineDownloadUrl);
-        }
-      }
-      catch(MojoExecutionException ex)
-      {
-        getLog().warn("Failed to download engine from "+engineDownloadUrl);
-      }
-      return downloadEngineFromUrl(findEngineDownloadUrlFromListPage());
+      URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl : findEngineDownloadUrlFromListPage();
+      return downloadEngineFromUrl(downloadUrlToUse);
     }
   
     private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
@@ -237,15 +238,26 @@ public class InstallEngineMojo extends AbstractEngineMojo
     
     URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
     {
-    
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+ivyVersion+"[^_]*_"+osArchitecture+"\\.zip");
+      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+"[^.]+?\\.[^.]+?\\."+"[^_]*?_"+osArchitecture+"\\.zip"+"[\"|']");
       try(Scanner scanner = new Scanner(htmlStream))
       {
-        String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
-        String engineLink = StringUtils.substring(engineLinkMatch, "href='".length());
-        if (engineLink == null)
+        String engineLink = null;
+        while (StringUtils.isBlank(engineLink))
         {
-          throw new MojoExecutionException("Could not find a link to engine in version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
+          String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
+          if (engineLinkMatch == null)
+          {
+            throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
+          }
+          String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
+          String[] versionStrings = StringUtils.split(versionString, ".");
+          versionString = StringUtils.join(versionStrings, ".", 0, Math.min(versionStrings.length-1, 3)); 
+          ArtifactVersion version = new DefaultArtifactVersion(versionString);
+          if (getIvyVersionRange().containsVersion(version))
+          {
+            engineLink = StringUtils.replace(engineLink, "\"", "'");
+            engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
+          }
         }
         return toAbsoluteLink(engineListPageUrl, engineLink);
       }
@@ -265,8 +277,14 @@ public class InstallEngineMojo extends AbstractEngineMojo
     {
       try
       {
-        String zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
-        File downloadZip = new File(getEngineDirectory(), zipFileName);
+        zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
+        File downloadZip = new File(getDownloadDirectory(), zipFileName);
+        int tempFileSuffix = 0;
+        while (downloadZip.exists())
+        {
+          String suffixedZipFileName = zipFileName + "." + tempFileSuffix;  
+          downloadZip = new File(getDownloadDirectory(), suffixedZipFileName);
+        }
         getLog().info("Starting engine download from "+engineUrl);
         Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return downloadZip;
@@ -274,8 +292,28 @@ public class InstallEngineMojo extends AbstractEngineMojo
       catch (IOException ex)
       {
         throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-                + getEngineDirectory() + "'", ex);
+                + getDownloadDirectory() + "'", ex);
       }
+    }
+
+    /**
+     * Extracts the name of the engine zip-file from the url used to download the engine.
+     * <br/>
+     * The zip-file name is only known <i>after</i> downloading the engine. Since the download-url might
+     * be extracted from an engine list-page. 
+     * <br/>
+     * The returned zip-file name is not necessarily equal to the name of the downloaded zip-file, since the 
+     * downloaded file could have been renamed to avoid name conflicts.
+     *     
+     * @return engine zip file-name
+     */
+    private String getZipFileNameFromDownloadUrl()
+    {
+      if (zipFileName == null)
+      {
+        throw new IllegalStateException("Engine zip file name is not set up.");
+      }
+      return zipFileName;
     }
    
   }
