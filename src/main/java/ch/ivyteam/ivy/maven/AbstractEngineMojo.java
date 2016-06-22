@@ -61,7 +61,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   /**
    * The ivy Engine version or version-range that must be used. 
    * Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
-   * Examples: <br/>
+   * Examples: <br>
    * <ul>
    * <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
    * <li>"<code>[6.1.0,7.0.0)</code>" means 6.1.0 &lt;= ivyVersion &lt; 7.0.0</li>

@@ -255,7 +255,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
           ArtifactVersion version = new DefaultArtifactVersion(versionString);
           if (getIvyVersionRange().containsVersion(version))
           {
-            engineLink = StringUtils.replace(engineLink, "\"", "'");
+            engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
             engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
           }
         }
