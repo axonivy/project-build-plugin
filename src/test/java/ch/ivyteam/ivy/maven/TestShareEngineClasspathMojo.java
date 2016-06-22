@@ -20,8 +20,10 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -56,19 +58,26 @@ public class TestShareEngineClasspathMojo
       protected void before() throws Throwable
       {
         super.before();
+        configureMojo(getMojo());
         writeEngineLibDir();
       }
 
+      protected void configureMojo(AbstractEngineMojo newMojo) throws IOException
+      {
+        File engineDir = Files.createTempDirectory("tmpEngineDir").toFile();
+        newMojo.engineDirectory = engineDir;
+      }
+      
       private void writeEngineLibDir()
       {
-        File engineDirectory = rule.getMojo().getEngineDirectory();
         try
         {
+          File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
           FileUtils.touch(new File(engineDirectory, "lib/shared/dummy-shared.jar"));
-          FileUtils.touch(new File(engineDirectory, "/lib/patch/dummy-patch.jar"));
-          FileUtils.touch(new File(engineDirectory, "/lib/ivy/dummy-ivy.jar"));
+          FileUtils.touch(new File(engineDirectory, "lib/patch/dummy-patch.jar"));
+          FileUtils.touch(new File(engineDirectory, "lib/ivy/dummy-ivy.jar"));
         }
-        catch (IOException ex)
+        catch (IOException | MojoExecutionException ex)
         {
           throw new RuntimeException("Cannot create server jars", ex);
         }
