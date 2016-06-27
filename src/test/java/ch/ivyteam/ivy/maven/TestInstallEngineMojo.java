@@ -77,7 +77,7 @@ public class TestInstallEngineMojo
       mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo").toFile(); 
       mojo.engineListPageUrl = new URL(baseUrl + "/listPageUrl.html");
       
-      File defaultEngineDir = new File(mojo.engineCacheDirectory, defaultEngineName);
+      File defaultEngineDir = new File(mojo.engineCacheDirectory, AbstractEngineMojo.DEFAULT_VERSION);
       assertThat(defaultEngineDir).doesNotExist();
       assertThat(mojo.engineDownloadUrl).as("Default config should favour to download an engine from the 'list page url'.").isNull();
       assertThat(mojo.autoInstallEngine).isTrue();
