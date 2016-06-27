@@ -101,7 +101,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   @Override
   public void execute() throws MojoExecutionException
   {
-    getLog().info("Compiling project for ivy version " + ivyVersion);
+    getLog().info("Provide engine for ivy version " + ivyVersion);
     ensureEngineIsInstalled();
   }
 
