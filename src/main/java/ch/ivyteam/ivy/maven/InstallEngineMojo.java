@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -156,8 +157,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
       if (!isEngineDirectoryIdentified())
       {
         String engineZipFileName = engineDownloader.getZipFileNameFromDownloadUrl();
-        String engineDirName = StringUtils.removeEnd(engineZipFileName, ".zip");
-        engineDirectory = new File(engineCacheDirectory, engineDirName);
+        engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
         engineDirectory.mkdirs();
       }
       unpackEngine(downloadZip);
@@ -177,6 +177,30 @@ public class InstallEngineMojo extends AbstractEngineMojo
     }
   }
 
+  static String ivyEngineVersionOfZip(String engineZipFileName)
+  {
+    Matcher matcher = Pattern.compile("[a-zA-Z]*(([\\d]+\\.?)+)*").matcher(engineZipFileName);
+    if (matcher.find())
+    {
+      String version = matcher.group(1);
+      if (version != null)
+      {
+        return toReleaseVersion(matcher.group(1));
+      }
+    }
+    return engineZipFileName; // fallback: no version in file name
+  }
+
+  private static String toReleaseVersion(String version)
+  { // 6.1.0.51869 -> 6.1.0
+    String[] versionParts = StringUtils.split(version, ".");
+    if (ArrayUtils.isEmpty(versionParts))
+    {
+      return null;
+    }
+    return StringUtils.join(versionParts, ".", 0, Math.min(versionParts.length, 3));
+  }
+  
   private void removeOldEngineContent() throws MojoExecutionException
   {
     try
@@ -238,7 +262,8 @@ public class InstallEngineMojo extends AbstractEngineMojo
     
     URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
     {
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+"[^.]+?\\.[^.]+?\\."+"[^_]*?_"+osArchitecture+"\\.zip"+"[\"|']");
+      String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_"+osArchitecture+"\\.zip";
+      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?"+engineFileNameRegex+"[\"|']");
       try(Scanner scanner = new Scanner(htmlStream))
       {
         String engineLink = null;
@@ -250,9 +275,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
             throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
           }
           String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
-          String[] versionStrings = StringUtils.split(versionString, ".");
-          versionString = StringUtils.join(versionStrings, ".", 0, Math.min(versionStrings.length-1, 3)); 
-          ArtifactVersion version = new DefaultArtifactVersion(versionString);
+          ArtifactVersion version = new DefaultArtifactVersion(toReleaseVersion(versionString));
           if (getIvyVersionRange().containsVersion(version))
           {
             engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");

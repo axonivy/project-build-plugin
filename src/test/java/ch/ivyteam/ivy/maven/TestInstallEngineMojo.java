@@ -384,4 +384,17 @@ public class TestInstallEngineMojo
     }
   }
   
+  @Test
+  public void testZipFileEngineVersionParser()
+  {
+    assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.1.1.51869_Linux_x64.zip"))
+      .isEqualTo("6.1.1");
+    assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.2_Windows_x64.zip"))
+      .isEqualTo("6.2");
+    assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyDesigner6.1.1-SNAPSHOT.51869-win32.win32.x86_64.zip"))
+      .isEqualTo("6.1.1");
+    assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine_Linux_x64.zip"))
+      .isEqualTo("AxonIvyEngine_Linux_x64.zip"); // do not return null!
+  }
+  
 }
