@@ -16,7 +16,8 @@
 
 package ch.ivyteam.ivy.maven;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.lang3.time.StopWatch;
-import org.fest.assertions.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -71,7 +71,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     try
     {
       startedProcess = mojo.startEngine();
-      Assertions.fail("Engine start should fail as no configuration directory exists.");
+      fail("Engine start should fail as no configuration directory exists.");
     }
     catch (RuntimeException ex)
     {
