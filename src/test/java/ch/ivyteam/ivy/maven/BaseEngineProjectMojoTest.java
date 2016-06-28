@@ -91,7 +91,7 @@ public class BaseEngineProjectMojoTest
         }
         getMojo().engineCacheDirectory = new File(CACHE_DIR);
         getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
-        getMojo().engineDirectory = new File(getMojo().engineCacheDirectory, "AxonIvyEngine" + ENGINE_VERSION_TO_TEST);
+        getMojo().engineDirectory = new File(getMojo().engineCacheDirectory, ENGINE_VERSION_TO_TEST);
         deleteOutdatedEngine();
         getMojo().execute();
         addTimestampToDownloadedEngine();
@@ -165,7 +165,7 @@ public class BaseEngineProjectMojoTest
     protected void configureMojo(AbstractEngineMojo newMojo)
     {
       newMojo.engineCacheDirectory = new File(CACHE_DIR);
-      newMojo.engineDirectory = new File(getMojo().engineCacheDirectory, "AxonIvyEngine" + ENGINE_VERSION_TO_TEST);
+      newMojo.engineDirectory = new File(getMojo().engineCacheDirectory, ENGINE_VERSION_TO_TEST);
       newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   }
