@@ -32,7 +32,7 @@ under the License.
     
     <menu name="Development">
       <item name="Source Code" href="http://github.com/axonivy/project-build-plugin" />
-      <item name="Stable release" href="../../release" />
+      <item name="${other.site.name} release" href="../../${other.site.path}" />
     </menu>
   </body>
   
