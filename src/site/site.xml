@@ -41,4 +41,15 @@ under the License.
     <artifactId>maven-fluido-skin</artifactId>
     <version>1.4</version>
   </skin>
+  
+  <custom>
+	<fluidoSkin>
+		<gitHub>
+			<projectId>axonivy/project-build-plugin</projectId>
+			<ribbonOrientation>right</ribbonOrientation>
+			<ribbonColor>black</ribbonColor>
+		</gitHub>
+	</fluidoSkin>
+  </custom>
+  
 </project>
