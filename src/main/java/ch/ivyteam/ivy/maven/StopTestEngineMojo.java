@@ -28,7 +28,8 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Stops the Axon.ivy Engine after integration testing
- * @since 6.1.1
+ * 
+ * @since 6.2.0
  */
 @Mojo(name = StopTestEngineMojo.GOAL)
 public class StopTestEngineMojo extends AbstractEngineMojo

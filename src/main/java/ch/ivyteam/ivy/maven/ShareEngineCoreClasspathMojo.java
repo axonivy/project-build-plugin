@@ -31,7 +31,8 @@ import ch.ivyteam.ivy.maven.engine.MavenProperties;
 
 /**
  * Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.
- * @since 6.1.1
+ * 
+ * @since 6.2.0
  */
 @Mojo(name = ShareEngineCoreClasspathMojo.GOAL)
 public class ShareEngineCoreClasspathMojo extends AbstractEngineMojo

@@ -31,7 +31,8 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Starts the Axon.ivy Engine for integration testing.
- * @since 6.1.1
+ * 
+ * @since 6.2.0
  */
 @Mojo(name = StartTestEngineMojo.GOAL)
 public class StartTestEngineMojo extends AbstractEngineMojo

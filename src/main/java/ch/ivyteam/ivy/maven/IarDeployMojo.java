@@ -33,11 +33,10 @@ import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
  * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
  * 
  * <p>Command line invocation is supported. E.g.</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.1.0-SNAPSHOT:deploy-iar 
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.2.0:deploy-iar 
  * -Divy.deploy.iarFile=myProject.iar 
  * -Divy.deploy.engine.dir=c:/axonviy/engine
  * -Divy.deploy.engine.app=Portal</pre>
- * 
  * 
  * @since 6.1.0
  */
