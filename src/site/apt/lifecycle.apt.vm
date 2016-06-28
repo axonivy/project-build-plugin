@@ -1,0 +1,20 @@
+IAR Lifecycle
+
+ The project-build-plugin has a custom build lifecycle.
+
+*-----*------*
+ <<phase>>    | <<default executions>> 
+*-----*------*
+ initialize   | ${project.groupId}:${project.artifactId}:{{{./ensureInstalledEngine-mojo.html}ensureInstalledEngine}}
+*-----*------*
+ compile      | ${project.groupId}:${project.artifactId}:{{{./compileProject-mojo.html}compileProject}} 
+*-----*------*
+ test-compile | ${project.groupId}:${project.artifactId}:{{{./test-compile-mojo.html}test-compile}} 
+*-----*------*
+ test         | ${project.groupId}:${project.artifactId}:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
+              | org.apache.maven.plugins:maven-surefire-plugin:test 
+*-----*------*
+ package      | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
+*-----*------*
+ deploy       | org.apache.maven.plugins:maven-deploy-plugin:deploy 
+*-----*------*
