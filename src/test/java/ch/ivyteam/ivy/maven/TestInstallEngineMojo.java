@@ -36,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.InstallEngineMojo.EngineDownloader;
+import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import mockit.Mock;
 import mockit.MockUp;
 import net.lingala.zip4j.core.ZipFile;
@@ -119,7 +120,7 @@ public class TestInstallEngineMojo
   private static File createFakeEngineDir(String ivyVersion) throws IOException
   {
     File fakeDir = createTempDir("fake");
-    File fakeLibToDeclareVersion = new File(fakeDir, "lib/ivy/ch.ivyteam.fake-"+ivyVersion+"-server.jar");
+    File fakeLibToDeclareVersion = new File(fakeDir, getFakeLibraryPath(ivyVersion));
     fakeLibToDeclareVersion.getParentFile().mkdirs();
     fakeLibToDeclareVersion.createNewFile();
     return fakeDir;
@@ -138,7 +139,7 @@ public class TestInstallEngineMojo
     final String version = "7.1.0";
     mojo.engineDirectory = createFakeEngineDir(version);
     assertThat(mojo.engineDirectory).isDirectory();
-    assertThat(new File(mojo.engineDirectory, "lib/ivy/ch.ivyteam.fake-" + version + "-server.jar")).exists();
+    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(version))).exists();
 
     mojo.ivyVersion = "[7.0.0,8.0.0)";
     mojo.autoInstallEngine = true;
@@ -159,16 +160,16 @@ public class TestInstallEngineMojo
 
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
-    assertThat(new File(mojo.engineDirectory, "lib/ivy/ch.ivyteam.fake-" + version + "-server.jar")).exists();
+    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(version))).exists();
   }
-  
+
   @Test
   public void testEngineDownload_alreadyInstalledVersionTooOld() throws Exception
   {
     final String outdatedVersion = "6.1.0";
     mojo.engineDirectory = createFakeEngineDir(outdatedVersion);
     assertThat(mojo.engineDirectory).isDirectory();
-    assertThat(new File(mojo.engineDirectory, "lib/ivy/ch.ivyteam.fake-"+outdatedVersion+"-server.jar")).exists();
+    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
     
     mojo.ivyVersion = "[7.0.0,8.0.0)";
     mojo.autoInstallEngine = true;
@@ -177,8 +178,8 @@ public class TestInstallEngineMojo
     
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
-    assertThat(new File(mojo.engineDirectory, "lib/ivy/ch.ivyteam.fake-"+outdatedVersion+"-server.jar")).doesNotExist();
-    assertThat(new File(mojo.engineDirectory, "lib/ivy/ch.ivyteam.fake-"+downloadVersion+"-server.jar")).exists();
+    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).doesNotExist();
+    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(downloadVersion))).exists();
   }
 
   @Test
@@ -396,5 +397,11 @@ public class TestInstallEngineMojo
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine_Linux_x64.zip"))
       .isEqualTo("AxonIvyEngine_Linux_x64.zip"); // do not return null!
   }
+  
+  private static String getFakeLibraryPath(final String version)
+  {
+    return "lib/ivy/"+EngineVersionEvaluator.LIBRARY_ID+"-" + version + "-server.jar";
+  }
+
   
 }
