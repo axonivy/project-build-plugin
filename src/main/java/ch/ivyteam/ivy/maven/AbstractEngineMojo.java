@@ -18,15 +18,14 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 
 /**
  * A MOJO that relies on an unpacked ivy engine.
@@ -127,18 +126,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   
   protected final ArtifactVersion getInstalledEngineVersion(File engineDir)
   {
-    File ivyLibs = new File(engineDir, "lib/ivy");
-    if (ivyLibs.exists())
-    {
-      String[] libraryNames = ivyLibs.list();
-      if (!ArrayUtils.isEmpty(libraryNames))
-      {
-        String firstLibrary = libraryNames[0];
-        String version = StringUtils.substringBetween(firstLibrary, "-", "-");
-        return new DefaultArtifactVersion(version);
-      }
-    }
-    return null;
+    return new EngineVersionEvaluator(engineDir).evaluateVersion();
   }
   
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException
