@@ -299,14 +299,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
     {
       try
       {
-        zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
-        File downloadZip = new File(getDownloadDirectory(), zipFileName);
-        int tempFileSuffix = 0;
-        while (downloadZip.exists())
-        {
-          String suffixedZipFileName = zipFileName + "." + tempFileSuffix;  
-          downloadZip = new File(getDownloadDirectory(), suffixedZipFileName);
-        }
+        File downloadZip = evaluateTargetFile(engineUrl);
         getLog().info("Starting engine download from "+engineUrl);
         Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return downloadZip;
@@ -316,6 +309,20 @@ public class InstallEngineMojo extends AbstractEngineMojo
         throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
                 + getDownloadDirectory() + "'", ex);
       }
+    }
+
+    private File evaluateTargetFile(URL engineUrl)
+    {
+      zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
+      File downloadZip = new File(getDownloadDirectory(), zipFileName);
+      int tempFileSuffix = 0;
+      while (downloadZip.exists())
+      {
+        String suffixedZipFileName = zipFileName + "." + tempFileSuffix;  
+        downloadZip = new File(getDownloadDirectory(), suffixedZipFileName);
+        tempFileSuffix++;
+      }
+      return downloadZip;
     }
 
     /**
