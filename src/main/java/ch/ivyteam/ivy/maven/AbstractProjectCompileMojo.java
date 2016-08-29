@@ -18,7 +18,6 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,11 +81,16 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 
   private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
   {
-    URLClassLoader engineClassloader = getEngineClassloader(); // always instantiate -> write classpath jar!
+    EngineClassLoaderFactory classLoaderFactory = getEngineClassloader();
+    
     File engineDir = identifyAndGetEngineDirectory();
     if (builder == null)
     {
-      builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory, engineDir);
+      builder = new MavenProjectBuilderProxy(
+              classLoaderFactory.createEngineClassLoader(engineDir), 
+              buildApplicationDirectory, 
+              engineDir,
+              classLoaderFactory.getEngineJars(engineDir));
     }
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null)
@@ -96,12 +100,13 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     return builder;
   }
 
-  private URLClassLoader getEngineClassloader() throws IOException, MojoExecutionException
+  private EngineClassLoaderFactory getEngineClassloader() throws IOException, MojoExecutionException
   {
     MavenContext context = new EngineClassLoaderFactory.MavenContext(
             repository, localRepository, project, getLog());
-    EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
-    return classLoaderFactory.createEngineClassLoader(identifyAndGetEngineDirectory());
+    return new EngineClassLoaderFactory(context);
+//    File actualEngineDir = identifyAndGetEngineDirectory();
+//    return classLoaderFactory.createEngineClassLoader(actualEngineDir);
   }
 
   protected Map<String, String> getOptions()

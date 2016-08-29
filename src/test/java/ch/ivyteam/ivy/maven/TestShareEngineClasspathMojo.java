@@ -73,9 +73,7 @@ public class TestShareEngineClasspathMojo
         try
         {
           File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
-          FileUtils.touch(new File(engineDirectory, "lib/shared/dummy-shared.jar"));
-          FileUtils.touch(new File(engineDirectory, "lib/patch/dummy-patch.jar"));
-          FileUtils.touch(new File(engineDirectory, "lib/ivy/dummy-ivy.jar"));
+          FileUtils.touch(new File(engineDirectory, "plugins/dummy-shared.jar"));
         }
         catch (IOException | MojoExecutionException ex)
         {

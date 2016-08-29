@@ -18,16 +18,14 @@ package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.stream.Collectors;
 
 /**
  * Provides project build functionality that can only be accessed trough reflection on an ivy Engine classloader.
@@ -42,24 +40,88 @@ public class MavenProjectBuilderProxy
   private Class<?> delegateClass;
   private File baseDirToBuildIn;
 
-  public MavenProjectBuilderProxy(URLClassLoader ivyEngineClassLoader, File workspace, File baseDirToBuildIn) throws Exception
+  public MavenProjectBuilderProxy(URLClassLoader ivyEngineClassLoader, File workspace, File baseDirToBuildIn, List<File> engineJars) throws Exception
   {
-    delegateClass = ivyEngineClassLoader.loadClass(FQ_DELEGATE_CLASS_NAME);
-    Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class, String.class);
-    delegate = constructor.newInstance(workspace, getClassPath(ivyEngineClassLoader));
     this.baseDirToBuildIn = baseDirToBuildIn;
+    
+    delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader);
+    Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class, String.class);
+    
+    delegate = constructor.newInstance(workspace, getEngineClasspath(engineJars));
   }
-  
-  private static String getClassPath(URLClassLoader classLoader) throws URISyntaxException
+
+  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
+          NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
   {
-    List<String> pathEntries = new ArrayList<>();
-    for(URL url : classLoader.getURLs())
-    {
-      pathEntries.add(url.toURI().getSchemeSpecificPart());
-    }
-    return StringUtils.join(pathEntries, File.pathSeparator);
+    Object bundleContext = startEclipseOsgiImpl(ivyEngineClassLoader);
+    installSlf4j(bundleContext);
+    Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
+    return (Class<?>) buildBundle.getClass().getDeclaredMethod("loadClass", String.class)
+            .invoke(buildBundle, FQ_DELEGATE_CLASS_NAME);
+  }
+
+  private void installSlf4j(Object bundleContext) throws IllegalAccessException, InvocationTargetException,
+          NoSuchMethodException, MalformedURLException
+  {
+    Object slf4j_api = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar");
+    Object slf4j_simple = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/slf4j-simple/1.7.7/slf4j-simple-1.7.7.jar");
+    Object slf4j_brige_log4j = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/log4j-over-slf4j/1.7.7/log4j-over-slf4j-1.7.7.jar");
+    startBundle(slf4j_api);
+    startBundle(slf4j_brige_log4j);
+  }
+
+  private Object installBundle(Object bundleContext, String path) throws IllegalAccessException, InvocationTargetException,
+          NoSuchMethodException, MalformedURLException
+  {
+    return bundleContext.getClass().getDeclaredMethod("installBundle", String.class)
+            .invoke(bundleContext, uriOf(path));
+  }
+
+  private static Object startBundle(Object bundle)
+          throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  {
+    return bundle.getClass().getMethod("start").invoke(bundle);
+  }
+
+  private static String uriOf(String fileAbsolute) throws MalformedURLException
+  {
+    File file = new File(fileAbsolute);
+    return file.toURI().toASCIIString();
   }
   
+  private Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
+          NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
+  {
+    Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
+    Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
+    String[] args = new String[]{"-debug"};
+    executeInEngineDir(() -> mainMethod.invoke(null, (Object)args));
+    Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
+    return bundleContext;
+  }
+
+  private static Object findBundle(Object bundleContext, String symbolicName)
+          throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  {
+    Object[] bundles = (Object[]) bundleContext.getClass().getDeclaredMethod("getBundles").invoke(bundleContext);
+    for(Object bundleObj : bundles)
+    {
+      Object bundleSymbolicName = bundleObj.getClass().getMethod("getSymbolicName").invoke(bundleObj);
+      if (symbolicName.equals(bundleSymbolicName))
+      {
+        return bundleObj;
+      }
+    }
+    return null;
+  }
+  
+  private static String getEngineClasspath(List<File> jars)
+  {
+    return jars.stream()
+            .map(file -> file.getAbsolutePath())
+            .collect(Collectors.joining(File.pathSeparator));
+  }
+
   /**
    * @param iarDependencies dependencies of type IAR
    * @return create IAR-JARs

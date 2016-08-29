@@ -48,7 +48,7 @@ public class BaseEngineProjectMojoTest
 
   private static String getTestEngineVersion()
   {
-    return System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION);
+    return System.getProperty("ivy.engine.version", "6.2.1");
   }
 
   private static String getLocalRepoPath()
@@ -92,7 +92,7 @@ public class BaseEngineProjectMojoTest
         getMojo().engineCacheDirectory = new File(CACHE_DIR);
         getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
         getMojo().engineDirectory = new File(getMojo().engineCacheDirectory, ENGINE_VERSION_TO_TEST);
-        deleteOutdatedEngine();
+        //deleteOutdatedEngine(); temporary disabled to use a stored patched OSGI frankenstein engine
         getMojo().execute();
         addTimestampToDownloadedEngine();
       }
@@ -229,7 +229,7 @@ public class BaseEngineProjectMojoTest
     {
       File cpJar = new SharedFile(project).getEngineClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
-              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getEngineDirectory()));
+              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getEngineDirectory()));
     }
     
     @Override

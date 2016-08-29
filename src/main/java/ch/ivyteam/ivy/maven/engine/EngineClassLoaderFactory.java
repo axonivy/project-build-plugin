@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -48,11 +49,10 @@ public class EngineClassLoaderFactory
   private static final String SLF4J_VERSION = "1.7.7";
 
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-          "lib"+File.separator+"patch"+File.separator,
-          "lib"+File.separator+"ivy"+File.separator,
-          "lib"+File.separator+"shared"+File.separator,
-          "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator
-        );
+    "plugins"+File.separator,
+    "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator,
+    "configuration"+File.separator+"org.eclipse.osgi"+File.separator // unpacked jars from OSGI bundles
+  );
   
   private MavenContext maven;
   
@@ -63,24 +63,48 @@ public class EngineClassLoaderFactory
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException
   {
-    List<File> ivyEngineClassPathFiles = getIvyEngineClassPathFiles(engineDirectory);
+    List<File> ivyEngineClassPathFiles = getEngineClasspathFiles(engineDirectory);
     writeEngineClasspathJar(ivyEngineClassPathFiles);
     
-    List<File> classPathWithoutLog4j = customize(ivyEngineClassPathFiles);
-    return new URLClassLoader(toUrls(classPathWithoutLog4j));
+    //List<File> classPathWithoutLog4j = customize(ivyEngineClassPathFiles);
+    List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
+    osgiClasspath.add(maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+    osgiClasspath.add(maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
+    return new URLClassLoader(toUrls(osgiClasspath));
   }
 
-  public static List<File> getIvyEngineClassPathFiles(File engineDirectory)
+  public static List<File> getOsgiBootstrapClasspath(File engineDirectory)
   {
     List<File> classPathFiles = new ArrayList<>();
-    for(String engineLibDirectory : ENGINE_LIB_DIRECTORIES)
+    File jarDir = engineDirectory;
+    if (jarDir == null || !jarDir.isDirectory())
     {
-      File jarDir = new File(engineDirectory, engineLibDirectory);
-      if (!jarDir.exists())
-      { // jar dir 'patch' is optional: avoid illegalArgumentEx during FileUtils.listFiles(..)
+      return Collections.emptyList();
+    }
+    for(File jar : FileUtils.listFiles(jarDir, new String[]{"jar"}, false))
+    {
+      classPathFiles.add(jar);
+    }
+    return classPathFiles;
+  }
+  
+  public List<File> getEngineJars(File engineDirectory)
+  {
+    List<File> jars = getEngineClasspathFiles(engineDirectory);
+    return customize(jars);
+  }
+  
+  public static List<File> getEngineClasspathFiles(File engineDirectory)
+  {
+    List<File> classPathFiles = new ArrayList<>();
+    for(String libDirPath : ENGINE_LIB_DIRECTORIES)
+    {
+      File jarDir = new File(engineDirectory, libDirPath);
+      if (!jarDir.isDirectory())
+      {
         continue;
       }
-      for(File jar : FileUtils.listFiles(jarDir, new String[]{"jar"}, false))
+      for(File jar : FileUtils.listFiles(jarDir, new String[]{"jar"}, true))
       {
         classPathFiles.add(jar);
       }

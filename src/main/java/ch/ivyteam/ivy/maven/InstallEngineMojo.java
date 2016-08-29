@@ -38,6 +38,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -184,22 +185,12 @@ public class InstallEngineMojo extends AbstractEngineMojo
       String version = matcher.group(1);
       if (version != null)
       {
-        return toReleaseVersion(matcher.group(1));
+        return EngineVersionEvaluator.toReleaseVersion(matcher.group(1));
       }
     }
     return engineZipFileName; // fallback: no version in file name
   }
 
-  private static String toReleaseVersion(String version)
-  { // 6.1.0.51869 -> 6.1.0
-    String[] versionParts = StringUtils.split(version, ".");
-    if (ArrayUtils.isEmpty(versionParts))
-    {
-      return null;
-    }
-    return StringUtils.join(versionParts, ".", 0, Math.min(versionParts.length, 3));
-  }
-  
   private void removeOldEngineContent() throws MojoExecutionException
   {
     try
@@ -274,7 +265,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
             throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
           }
           String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
-          ArtifactVersion version = new DefaultArtifactVersion(toReleaseVersion(versionString));
+          ArtifactVersion version = new DefaultArtifactVersion(EngineVersionEvaluator.toReleaseVersion(versionString));
           if (getIvyVersionRange().containsVersion(version))
           {
             engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
