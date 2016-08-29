@@ -82,6 +82,9 @@
 			        <artifactId>maven-release-plugin</artifactId>
 			        <version>2.5.3</version>
 			        <configuration>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+						<releaseProfiles>release</releaseProfiles>
+						<goals>deploy deploy-site</goals>
 			        </configuration>
 			      </plugin>
 	        	</plugins>
