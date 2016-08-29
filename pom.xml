@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.axonivy.ivy.ci</groupId>
 	<artifactId>project-build-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>6.2.1-SNAPSHOT</version>
+	<version>6.2.1</version>
 
 	<name>Axon.ivy Project Build Plugin</name>
 	<description>Maven plugin for the automated building of Axon.ivy projects. Referenced from the pom.xml of Axon.ivy projects.</description>
@@ -30,7 +29,8 @@
 		<connection>scm:git:git@github.com:axonivy/project-build-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:axonivy/project-build-plugin.git</developerConnection>
 		<url>git@github.com:axonivy/project-build-plugin.git</url>
-	</scm>
+	  <tag>v6.2.1</tag>
+  </scm>
 
 	<organization>
 		<name>AXON IVY AG</name>
@@ -330,7 +330,7 @@
 											<goal>helpmojo</goal>
 										</goals>
 									</pluginExecutionFilter>
-									<action><ignore></ignore></action>
+									<action><ignore /></action>
 								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
@@ -341,7 +341,7 @@
 											<goal>parse-version</goal>
 										</goals>
 									</pluginExecutionFilter>
-									<action><ignore></ignore></action>
+									<action><ignore /></action>
 								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
