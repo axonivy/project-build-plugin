@@ -85,7 +85,7 @@
 			        <configuration>
 						<tagNameFormat>v@{project.version}</tagNameFormat>
 						<releaseProfiles>release</releaseProfiles>
-						<goals>deploy deploy-site</goals>
+						<goals>deploy site-deploy</goals>
 			        </configuration>
 			      </plugin>
 	        	</plugins>
