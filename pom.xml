@@ -233,6 +233,7 @@
 					<excludes>
 						<exclude>base/**/*</exclude>
 					</excludes>
+					<argLine>-Dskip.public.download.test=${skip.public.download.test}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
