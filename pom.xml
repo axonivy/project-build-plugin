@@ -74,6 +74,7 @@
 	            <site.path>release</site.path>
 	            <other.site.name>Snapshot</other.site.name>
 				<other.site.path>snapshot</other.site.path>
+				<skip.public.download.test>true</skip.public.download.test>
 	        </properties>
 	        <build>
 	        	<plugins>

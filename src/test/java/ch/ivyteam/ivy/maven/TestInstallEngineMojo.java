@@ -362,6 +362,12 @@ public class TestInstallEngineMojo
   @Test
   public void testDefaultListPage_isAvailable() throws Exception
   {
+    if (Boolean.parseBoolean(System.getProperty("skip.public.download.test", Boolean.FALSE.toString())))
+    {
+      mojo.getLog().warn("SKIPPING test 'testDefaultListPage_isAvailable'. As property 'skip.public.download.test' is set.");
+      return;
+    }
+    
     EngineDownloader engineDownloader = mojo.new EngineDownloader();
     String engineUrl = engineDownloader.findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
