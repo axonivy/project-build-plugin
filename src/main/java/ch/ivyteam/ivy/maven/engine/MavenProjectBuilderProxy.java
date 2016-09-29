@@ -125,6 +125,7 @@ public class MavenProjectBuilderProxy
   {
     String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
     String COMPILE_CLASSPATH = "maven.dependency.classpath";
+    String SOURCE_ENCODING = "project.source.encoding";
   }
   
   public static interface Result

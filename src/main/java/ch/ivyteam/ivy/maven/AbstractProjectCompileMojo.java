@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,14 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    */
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
   protected File buildApplicationDirectory;
+  
+  /** 
+   * Specifies the default encoding for all source files. By default this is the charset of the JVM according to {@link Charset#defaultCharset()}.
+   * You may set it to another value like 'UTF-8'.
+   * @since 6.3.1
+   */
+  @Parameter(property="ivy.compiler.encoding")
+  private String encoding;
   
   @Component
   private RepositorySystem repository;
@@ -109,6 +118,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     Map<String, String> options = new HashMap<>();
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
+    options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
     return options;
   }
 
