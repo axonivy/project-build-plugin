@@ -60,7 +60,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
   public void engineStartCanFailFast() throws Exception
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    File engineDir = installUpToDateEngineRule.getMojo().getEngineDirectory();
+    File engineDir = installUpToDateEngineRule.getMojo().getRawEngineDirectory();
     File configDir = new File(engineDir, "configuration");
     File tmpConfigDir = new File(engineDir, "config.bkp");
     configDir.renameTo(tmpConfigDir);

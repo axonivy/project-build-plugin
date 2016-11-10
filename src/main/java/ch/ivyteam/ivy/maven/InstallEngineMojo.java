@@ -114,18 +114,16 @@ public class InstallEngineMojo extends AbstractEngineMojo
     {
       if (engineDirectoryIsEmpty())
       {
-        getEngineDirectory().mkdirs();
+        getRawEngineDirectory().mkdirs();
       }
-      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getEngineDirectory());
+      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       
       if (installedEngineVersion == null || 
               !getIvyVersionRange().containsVersion(installedEngineVersion))
       {
         handleWrongIvyVersion(installedEngineVersion);
       }
-      
     }
-      
   }
 
   private void handleNoInstalledEngine() throws MojoExecutionException
@@ -162,7 +160,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
       unpackEngine(downloadZip);
       downloadZip.delete();
       
-      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getEngineDirectory());
+      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       if (!getIvyVersionRange().containsVersion(installedEngineVersion))
       {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
@@ -204,24 +202,24 @@ public class InstallEngineMojo extends AbstractEngineMojo
   {
     try
     {
-      FileUtils.cleanDirectory(getEngineDirectory());
+      FileUtils.cleanDirectory(getRawEngineDirectory());
     }
     catch (IOException ex)
     {
-      throw new MojoExecutionException("Failed to clean outdated ivy Engine directory '"+getEngineDirectory()+"'.", ex);
+      throw new MojoExecutionException("Failed to clean outdated ivy Engine directory '"+getRawEngineDirectory()+"'.", ex);
     }
   }
 
   private boolean engineDirectoryIsEmpty()
   {
-    return !getEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getEngineDirectory().listFiles());
+    return !getRawEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getRawEngineDirectory().listFiles());
   }
 
   private void unpackEngine(File downloadZip) throws MojoExecutionException
   {
     try
     {
-      String targetLocation = getEngineDirectory().getAbsolutePath();
+      String targetLocation = getRawEngineDirectory().getAbsolutePath();
       getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
       ZipFile engineZip = new ZipFile(downloadZip);
       engineZip.extractAll(targetLocation);

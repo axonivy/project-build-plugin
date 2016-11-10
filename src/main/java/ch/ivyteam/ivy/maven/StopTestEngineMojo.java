@@ -78,10 +78,11 @@ public class StopTestEngineMojo extends AbstractEngineMojo
     }
   }
 
-  public EngineControl createEngineController()
+  public EngineControl createEngineController() throws MojoExecutionException
   {
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-    EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
+    EngineControl engineControl = new EngineControl(new EngineMojoContext(
+            identifyAndGetEngineDirectory(), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
     return engineControl;
   }
   

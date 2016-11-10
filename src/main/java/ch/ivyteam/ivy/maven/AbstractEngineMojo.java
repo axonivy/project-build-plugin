@@ -75,7 +75,11 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     super();
   }
   
-  protected final File getEngineDirectory()
+  /**
+   * <b style="color:red">Caution</b>: normally you should favor {@link #identifyAndGetEngineDirectory()}. 
+   * Otherwise the returned 'directory' could be yet invalid!
+   */
+  protected final File getRawEngineDirectory()
   {
     return engineDirectory;
   }

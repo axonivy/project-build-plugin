@@ -89,7 +89,8 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   Executor startEngine() throws Exception
   {
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-    EngineControl engineControl = new EngineControl(new EngineMojoContext(getEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
+    EngineControl engineControl = new EngineControl(new EngineMojoContext(
+            identifyAndGetEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
     return engineControl.start();
   }
 

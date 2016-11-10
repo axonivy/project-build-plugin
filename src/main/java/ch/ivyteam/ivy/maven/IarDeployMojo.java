@@ -100,11 +100,11 @@ public class IarDeployMojo extends AbstractEngineMojo
     deployer.deployIar(iarPath, getLog());
   }
 
-  private File getDeployDirectory()
+  private File getDeployDirectory() throws MojoExecutionException
   {
     if (deployEngineDirectory == null)
     { // re-use engine used to build
-      deployEngineDirectory = getEngineDirectory();
+      deployEngineDirectory = identifyAndGetEngineDirectory();
     }
     if (Paths.get(deployDirectory).isAbsolute())
     {

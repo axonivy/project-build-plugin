@@ -47,7 +47,7 @@ public class ShareEngineCoreClasspathMojo extends AbstractEngineMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    List<File> ivyEngineClassPathFiles = EngineClassLoaderFactory.getIvyEngineClassPathFiles(getEngineDirectory());
+    List<File> ivyEngineClassPathFiles = EngineClassLoaderFactory.getIvyEngineClassPathFiles(identifyAndGetEngineDirectory());
     String propertyValue = StringUtils.join(ivyEngineClassPathFiles, ",");
     
     MavenProperties properties = new MavenProperties(project, getLog());

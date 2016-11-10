@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class TestEngineControl extends BaseEngineProjectMojoTest
   public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<StopTestEngineMojo>(StopTestEngineMojo.GOAL);
   
   @Test
-  public void resolveEngineState()
+  public void resolveEngineState() throws MojoExecutionException
   {
     EngineControl controller = rule.getMojo().createEngineController();
     assertThat(controller.state()).isNotNull();

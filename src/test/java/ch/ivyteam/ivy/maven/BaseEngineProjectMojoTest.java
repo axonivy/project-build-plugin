@@ -99,7 +99,7 @@ public class BaseEngineProjectMojoTest
     
       private void deleteOutdatedEngine() throws IOException
       {
-        File engineDir = getMojo().getEngineDirectory();
+        File engineDir = getMojo().getRawEngineDirectory();
         if (engineDir == null || !engineDir.exists())
         {
           return;
@@ -138,7 +138,7 @@ public class BaseEngineProjectMojoTest
       
       private void addTimestampToDownloadedEngine() throws IOException
       {
-        File engineDir = getMojo().getEngineDirectory();
+        File engineDir = getMojo().getRawEngineDirectory();
         if (engineDir == null || !engineDir.exists())
         {
           return;
@@ -229,7 +229,7 @@ public class BaseEngineProjectMojoTest
     {
       File cpJar = new SharedFile(project).getEngineClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
-              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getEngineDirectory()));
+              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
     
     @Override
