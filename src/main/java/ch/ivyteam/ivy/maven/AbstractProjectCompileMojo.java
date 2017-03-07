@@ -18,7 +18,6 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,27 +45,27 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 {
   @Parameter(property = "project", required = true, readonly = true)
   protected MavenProject project;
-  
+
   /**
-   * Home application where the project to build and its dependencies will be temporary deployed. 
+   * Home application where the project to build and its dependencies will be temporary deployed.
    */
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
   protected File buildApplicationDirectory;
-  
-  /** 
+
+  /**
    * Specifies the default encoding for all source files. By default this is the charset of the JVM according to {@link Charset#defaultCharset()}.
    * You may set it to another value like 'UTF-8'.
    * @since 6.3.1
    */
   @Parameter(property="ivy.compiler.encoding")
   private String encoding;
-  
+
   @Component
   private RepositorySystem repository;
-  
+
   @Parameter(defaultValue = "${localRepository}")
   protected ArtifactRepository localRepository;
-  
+
   private static MavenProjectBuilderProxy builder;
 
   @Override
@@ -86,16 +85,21 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
       Slf4jSimpleEngineProperties.reset();
     }
   }
-  
+
   protected abstract void compile(MavenProjectBuilderProxy projectBuilder) throws Exception;
 
   private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
   {
-    URLClassLoader engineClassloader = getEngineClassloader(); // always instantiate -> write classpath jar!
+    EngineClassLoaderFactory classLoaderFactory = getEngineClassloader();
+
     File engineDir = identifyAndGetEngineDirectory();
     if (builder == null)
     {
-      builder = new MavenProjectBuilderProxy(engineClassloader, buildApplicationDirectory, engineDir);
+      builder = new MavenProjectBuilderProxy(
+              classLoaderFactory.createEngineClassLoader(engineDir),
+              buildApplicationDirectory,
+              engineDir,
+              classLoaderFactory.getEngineJars(engineDir));
     }
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null)
@@ -105,12 +109,13 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     return builder;
   }
 
-  private URLClassLoader getEngineClassloader() throws IOException, MojoExecutionException
+  private EngineClassLoaderFactory getEngineClassloader() throws IOException, MojoExecutionException
   {
     MavenContext context = new EngineClassLoaderFactory.MavenContext(
             repository, localRepository, project, getLog());
-    EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
-    return classLoaderFactory.createEngineClassLoader(identifyAndGetEngineDirectory());
+    return new EngineClassLoaderFactory(context);
+//    File actualEngineDir = identifyAndGetEngineDirectory();
+//    return classLoaderFactory.createEngineClassLoader(actualEngineDir);
   }
 
   protected Map<String, String> getOptions()
@@ -136,7 +141,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     {
       return Collections.emptyList();
     }
-    
+
     List<File> dependentIars = new ArrayList<>();
     for(org.apache.maven.artifact.Artifact artifact : dependencies)
     {

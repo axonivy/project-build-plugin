@@ -31,7 +31,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProperties;
 
 /**
  * Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.
- * 
+ *
  * @since 6.2.0
  */
 @Mojo(name = ShareEngineCoreClasspathMojo.GOAL)
@@ -40,16 +40,16 @@ public class ShareEngineCoreClasspathMojo extends AbstractEngineMojo
   public static final String GOAL = "share-engine-core-classpath";
 
   public static final String IVY_ENGINE_CORE_CLASSPATH_PROPERTY = "ivy.engine.core.classpath"; //Duplicated for the comment, JavaDoc value didn't work.
-  
+
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    List<File> ivyEngineClassPathFiles = EngineClassLoaderFactory.getIvyEngineClassPathFiles(identifyAndGetEngineDirectory());
+    List<File> ivyEngineClassPathFiles = EngineClassLoaderFactory.getEngineClasspathFiles(identifyAndGetEngineDirectory());
     String propertyValue = StringUtils.join(ivyEngineClassPathFiles, ",");
-    
+
     MavenProperties properties = new MavenProperties(project, getLog());
     properties.setMavenProperty(IVY_ENGINE_CORE_CLASSPATH_PROPERTY, propertyValue);
   }

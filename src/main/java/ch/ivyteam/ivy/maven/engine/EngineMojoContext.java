@@ -66,7 +66,7 @@ public class EngineMojoContext
       try
       {
         log.info("Creating a classpath jar for starting the engine");
-        new ClasspathJar(classpathJar).createFileEntries(EngineClassLoaderFactory.getIvyEngineClassPathFiles(engineDirectory));
+        new ClasspathJar(classpathJar).createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
       }
       catch (Exception ex)
       {
