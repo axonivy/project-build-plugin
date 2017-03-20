@@ -20,12 +20,19 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URLClassLoader;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Provides project build functionality that can only be accessed trough reflection on an ivy Engine classloader.
@@ -39,54 +46,29 @@ public class MavenProjectBuilderProxy
   private Object delegate;
   private Class<?> delegateClass;
   private File baseDirToBuildIn;
+  private String engineClasspath;
 
-  public MavenProjectBuilderProxy(URLClassLoader ivyEngineClassLoader, File workspace, File baseDirToBuildIn, List<File> engineJars) throws Exception
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn) throws Exception
   {
     this.baseDirToBuildIn = baseDirToBuildIn;
     
+    URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader);
-    Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class, String.class);
+    Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
     
-    delegate = constructor.newInstance(workspace, getEngineClasspath(engineJars));
+    delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
+
+    List<File> engineJars = classLoaderFactory.getEngineJars(baseDirToBuildIn);
+    engineClasspath = getEngineClasspath(engineJars);
   }
 
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
           NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
-  {
+  { 
     Object bundleContext = startEclipseOsgiImpl(ivyEngineClassLoader);
-    installSlf4j(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
     return (Class<?>) buildBundle.getClass().getDeclaredMethod("loadClass", String.class)
             .invoke(buildBundle, FQ_DELEGATE_CLASS_NAME);
-  }
-
-  private void installSlf4j(Object bundleContext) throws IllegalAccessException, InvocationTargetException,
-          NoSuchMethodException, MalformedURLException
-  {
-    Object slf4j_api = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar");
-    Object slf4j_simple = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/slf4j-simple/1.7.7/slf4j-simple-1.7.7.jar");
-    Object slf4j_brige_log4j = installBundle(bundleContext, "C:/Users/rew.SORECO/.m2/repository/org/slf4j/log4j-over-slf4j/1.7.7/log4j-over-slf4j-1.7.7.jar");
-    startBundle(slf4j_api);
-    startBundle(slf4j_brige_log4j);
-  }
-
-  private Object installBundle(Object bundleContext, String path) throws IllegalAccessException, InvocationTargetException,
-          NoSuchMethodException, MalformedURLException
-  {
-    return bundleContext.getClass().getDeclaredMethod("installBundle", String.class)
-            .invoke(bundleContext, uriOf(path));
-  }
-
-  private static Object startBundle(Object bundle)
-          throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
-  {
-    return bundle.getClass().getMethod("start").invoke(bundle);
-  }
-
-  private static String uriOf(String fileAbsolute) throws MalformedURLException
-  {
-    File file = new File(fileAbsolute);
-    return file.toURI().toASCIIString();
   }
   
   private Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
@@ -94,8 +76,8 @@ public class MavenProjectBuilderProxy
   {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
     Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
-    String[] args = new String[]{"-debug"};
-    executeInEngineDir(() -> mainMethod.invoke(null, (Object)args));
+    String[] args = new String[]{"-application", "ch.ivyteam.ivy.server.exec.engine.maven"};
+    startWithOsgiProperties(() -> mainMethod.invoke(null, (Object)args));
     Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
     return bundleContext;
   }
@@ -139,18 +121,18 @@ public class MavenProjectBuilderProxy
   @SuppressWarnings("unchecked")
   public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
   {
-    Method compileMethod = getMethod("compile", File.class, List.class, Map.class);
+    Method compileMethod = getMethod("compile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
-      compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
+      compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options)
     );
   }
   
   @SuppressWarnings("unchecked")
   public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
   {
-    Method compileMethod = getMethod("testCompile", File.class, List.class, Map.class);
+    Method compileMethod = getMethod("testCompile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
-      compileMethod.invoke(delegate, projectDirToBuild, iarJars, options)
+      compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options)
     );
   }
   
@@ -166,6 +148,59 @@ public class MavenProjectBuilderProxy
               "Method "+name+"("+parameterTypes+") does not exist in engine '"+baseDirToBuildIn+"'. \n"
                       + "You might need to configer another version to work with.");
     }
+  }
+  
+  private void startWithOsgiProperties(Callable<?> function) throws Exception
+  {
+    Map<String, String> properties = new LinkedHashMap<>();
+    properties.put("user.dir", baseDirToBuildIn.getAbsolutePath());
+    properties.put("osgi.install.area", baseDirToBuildIn.getAbsolutePath());
+    properties.put("org.osgi.framework.bundle.parent", "framework");
+    properties.put("org.osgi.framework.bootdelegation",
+            "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
+            + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add log4j
+            + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi"); // add slf4j
+
+    Map<String, String> oldProperties = setSystemProperties(properties);
+    try
+    {
+      ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Init Engine Thread").build();
+      ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor(threadFactory);
+      Future<?> result = singleThreadExecutor.submit(function);
+      try
+      {
+        result.get(60, TimeUnit.SECONDS);
+      }
+      catch (Exception ex)
+      {
+        throw new Exception("Could not initialize engine", ex);
+      }
+    }
+    finally
+    {
+      setSystemProperties(oldProperties);
+    }
+  }
+  
+  private Map<String, String> setSystemProperties(Map<String, String> properties)
+  {
+    Map<String, String> oldProperties = new LinkedHashMap<>();
+    for (Map.Entry<String, String> entry : properties.entrySet())
+    {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      String oldValue;
+      if (value == null)
+      {
+        oldValue = System.clearProperty(key);
+      }
+      else
+      {
+        oldValue = System.setProperty(key, value);
+      }
+      oldProperties.put(key, oldValue);
+    }
+    return oldProperties;
   }
   
   private <T> T executeInEngineDir(Callable<T> function) throws Exception

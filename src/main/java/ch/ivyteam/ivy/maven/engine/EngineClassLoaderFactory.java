@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.logging.Log;
@@ -49,9 +52,10 @@ public class EngineClassLoaderFactory
   private static final String SLF4J_VERSION = "1.7.7";
 
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-    "plugins"+File.separator,
-    "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator,
-    "configuration"+File.separator+"org.eclipse.osgi"+File.separator // unpacked jars from OSGI bundles
+    "lib"+File.separator+"boot",
+    "plugins",
+    "configuration"+File.separator+"org.eclipse.osgi", // unpacked jars from OSGI bundles
+    "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"
   );
   
   private MavenContext maven;
@@ -63,43 +67,52 @@ public class EngineClassLoaderFactory
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException
   {
-    List<File> ivyEngineClassPathFiles = getEngineClasspathFiles(engineDirectory);
-    writeEngineClasspathJar(ivyEngineClassPathFiles);
     
-    //List<File> classPathWithoutLog4j = customize(ivyEngineClassPathFiles);
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
-    osgiClasspath.add(maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
-    osgiClasspath.add(maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
+    osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION));
+    osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
+    osgiClasspath.add(0, maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
     return new URLClassLoader(toUrls(osgiClasspath));
   }
 
   public static List<File> getOsgiBootstrapClasspath(File engineDirectory)
   {
-    List<File> classPathFiles = new ArrayList<>();
-    File jarDir = engineDirectory;
-    if (jarDir == null || !jarDir.isDirectory())
+    if (engineDirectory == null || !engineDirectory.isDirectory())
     {
       return Collections.emptyList();
     }
-    for(File jar : FileUtils.listFiles(jarDir, new String[]{"jar"}, false))
-    {
-      classPathFiles.add(jar);
-    }
+
+    List<File> classPathFiles = new ArrayList<>();
+    addToClassPath(classPathFiles, new File(engineDirectory, "lib/boot"), new SuffixFileFilter(".jar"));
+    addToClassPath(classPathFiles, new File(engineDirectory, "plugins"),
+            new WildcardFileFilter("org.eclipse.osgi_*.jar"));
     return classPathFiles;
   }
-  
-  public List<File> getEngineJars(File engineDirectory)
+
+  private static void addToClassPath(List<File> classPathFiles, File dir, IOFileFilter fileFilter)
   {
-    List<File> jars = getEngineClasspathFiles(engineDirectory);
-    return customize(jars);
+    if (dir.isDirectory())
+    {
+      for (File jar : FileUtils.listFiles(dir, fileFilter, null))
+      {
+        classPathFiles.add(jar);
+      }
+    }
   }
   
-  public static List<File> getEngineClasspathFiles(File engineDirectory)
+  public List<File> getEngineJars(File engineDirectory) throws IOException
+  {
+    List<File> ivyEngineClassPathFiles = getIvyEngineClassPathFiles(engineDirectory);
+    writeEngineClasspathJar(ivyEngineClassPathFiles);
+    return ivyEngineClassPathFiles;
+  }
+  
+  public static List<File> getIvyEngineClassPathFiles(File engineDirectory)
   {
     List<File> classPathFiles = new ArrayList<>();
     for(String libDirPath : ENGINE_LIB_DIRECTORIES)
     {
-      File jarDir = new File(engineDirectory, libDirPath);
+      File jarDir = new File(engineDirectory, libDirPath + File.separator);
       if (!jarDir.isDirectory())
       {
         continue;
@@ -120,21 +133,6 @@ public class EngineClassLoaderFactory
     jar.createFileEntries(ivyEngineClassPathFiles);
   }
   
-  private List<File> customize(List<File> engineClassPath)
-  {
-    EngineClassPathCustomizer classPathCustomizer = new EngineClassPathCustomizer(maven.log);
-    
-    // bridge log4j logs to SFL4J
-    classPathCustomizer.registerReplacement("log4j-", 
-            maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION)); 
-    
-    // do not bind log4j as implementation of SLF4J but use slf4j-simple
-    classPathCustomizer.registerReplacement("slf4j-log4j12", 
-            maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
-    
-    return classPathCustomizer.customizeClassPath(engineClassPath);
-  }
-
   private static URL[] toUrls(List<File> ivyEngineClassPathFiles) throws MalformedURLException
   {
     List<URL> classPathUrls = new ArrayList<>();

@@ -67,7 +67,6 @@ public class EngineControl
     FAILED;
   }
   
-  private static final String SERVER_MAIN_CLASS = "ch.ivyteam.ivy.server.ServerLauncher";
   private EngineMojoContext context;
   private AtomicBoolean engineStarted = new AtomicBoolean(false);
 
@@ -121,12 +120,14 @@ public class EngineControl
     
     CommandLine cli = new CommandLine(new File(getJavaExec()))
             .addArgument("-classpath").addArgument(classpath)
-            .addArgument(SERVER_MAIN_CLASS)
-            .addArgument(command.toString());
+            .addArgument("-Dosgi.install.area=" + context.engineDirectory);
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
     {
-      cli.addArgument(context.vmOptions.additionalVmOptions);
+      cli.addArgument(context.vmOptions.additionalVmOptions, false);
     }
+    cli.addArgument("org.eclipse.equinox.launcher.Main")
+            .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")
+            .addArgument(command.toString());
     return cli;
   }
   

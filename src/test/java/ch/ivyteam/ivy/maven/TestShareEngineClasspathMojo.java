@@ -41,7 +41,7 @@ public class TestShareEngineClasspathMojo
 
     assertThat(getEngineClasspathProperty())
             .as("used classpath must be shared as property so that other mojos can access it")
-            .contains("dummy-ivy.jar");
+            .contains("dummy-boot.jar");
   }
 
   private String getEngineClasspathProperty()
@@ -73,7 +73,7 @@ public class TestShareEngineClasspathMojo
         try
         {
           File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
-          FileUtils.touch(new File(engineDirectory, "plugins/dummy-shared.jar"));
+          FileUtils.touch(new File(engineDirectory, "lib/boot/dummy-boot.jar"));
         }
         catch (IOException | MojoExecutionException ex)
         {

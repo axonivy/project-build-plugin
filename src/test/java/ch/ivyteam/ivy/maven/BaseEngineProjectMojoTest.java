@@ -48,7 +48,7 @@ public class BaseEngineProjectMojoTest
 
   private static String getTestEngineVersion()
   {
-    return System.getProperty("ivy.engine.version", "6.2.1");
+    return System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION);
   }
 
   private static String getLocalRepoPath()
@@ -58,7 +58,7 @@ public class BaseEngineProjectMojoTest
     {
       return locaRepoGlobalProperty;
     }
-
+    
     StringBuilder defaultHomePath = new StringBuilder(SystemUtils.USER_HOME)
       .append(File.separatorChar).append(".m2")
       .append(File.separatorChar).append("repository");
@@ -77,13 +77,13 @@ public class BaseEngineProjectMojoTest
   @Rule
   public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<InstallEngineMojo>(
             new File("src/test/resources/base"), InstallEngineMojo.GOAL){
-
+      
       private static final String TIMESTAMP_FILE_NAME = "downloadtimestamp";
-
+    
       @Override
       protected void before() throws Throwable {
         super.before();
-
+        
         String alternateEngineListPageUrl = System.getProperty(InstallEngineMojo.ENGINE_LIST_URL_PROPERTY);
         if (alternateEngineListPageUrl != null)
         {
@@ -96,7 +96,7 @@ public class BaseEngineProjectMojoTest
         getMojo().execute();
         addTimestampToDownloadedEngine();
       }
-
+    
       private void deleteOutdatedEngine() throws IOException
       {
         File engineDir = getMojo().getRawEngineDirectory();
@@ -104,7 +104,7 @@ public class BaseEngineProjectMojoTest
         {
           return;
         }
-
+        
         File timestampFile = new File(engineDir, TIMESTAMP_FILE_NAME);
         if (isOlderThan24h(timestampFile))
         {
@@ -112,14 +112,14 @@ public class BaseEngineProjectMojoTest
           FileUtils.deleteDirectory(engineDir);
         }
       }
-
+  
       private boolean isOlderThan24h(File timestampFile)
       {
         if (!timestampFile.exists())
         {
           return true;
         }
-
+        
         try
         {
           BasicFileAttributes attr = Files.readAttributes(timestampFile.toPath(), BasicFileAttributes.class);
@@ -135,7 +135,7 @@ public class BaseEngineProjectMojoTest
           return true;
         }
       }
-
+      
       private void addTimestampToDownloadedEngine() throws IOException
       {
         File engineDir = getMojo().getRawEngineDirectory();
@@ -147,15 +147,15 @@ public class BaseEngineProjectMojoTest
         timestampFile.createNewFile();
       }
     };
-
-
+    
+    
   protected static class EngineMojoRule<T extends AbstractEngineMojo> extends ProjectMojoRule<T>
   {
     protected EngineMojoRule(String mojoName)
     {
       super(new File("src/test/resources/base"), mojoName);
     }
-
+  
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -169,14 +169,14 @@ public class BaseEngineProjectMojoTest
       newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   }
-
+    
   protected static class CompileMojoRule<T extends AbstractProjectCompileMojo> extends EngineMojoRule<T>
   {
     protected CompileMojoRule(String mojoName)
     {
       super(mojoName);
     }
-
+  
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -187,29 +187,29 @@ public class BaseEngineProjectMojoTest
     {
       newMojo.localRepository = provideLocalRepository();
     }
-
+  
     /**
      * maven-plugin-testing-harness can not inject local repositories (though the real runtime supports it).
-     * and the default stubs have no sufficient implementation of getPath():
+     * and the default stubs have no sufficient implementation of getPath(): 
      * @see "http://maven.apache.org/plugin-testing/maven-plugin-testing-harness/examples/repositories.html"
      */
     private ArtifactRepository provideLocalRepository() throws IllegalAccessException
     {
       DefaultArtifactRepositoryFactory factory = new DefaultArtifactRepositoryFactory();
       setVariableValueToObject(factory, "factory", new org.apache.maven.repository.legacy.repository.DefaultArtifactRepositoryFactory());
-
+      
       LegacySupport legacySupport = new DefaultLegacySupport();
       setVariableValueToObject(factory, "legacySupport", legacySupport);
-
-      ArtifactRepository localRepository = factory.createArtifactRepository("local", "http://localhost",
+      
+      ArtifactRepository localRepository = factory.createArtifactRepository("local", "http://localhost", 
               new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
-
+      
       setVariableValueToObject(localRepository, "basedir", LOCAL_REPOSITORY);
-
+      
       return localRepository;
     }
   }
-
+  
   protected class RunnableEngineMojoRule<T extends AbstractEngineMojo> extends EngineMojoRule<T>
   {
 
@@ -217,23 +217,23 @@ public class BaseEngineProjectMojoTest
     {
       super(mojoName);
     }
-
+    
     @Override
     protected void before() throws Throwable
     {
       super.before();
       provideClasspathJar();
     }
-
+    
     private void provideClasspathJar() throws IOException
     {
       File cpJar = new SharedFile(project).getEngineClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
               .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
-
+    
     @Override
-    protected void after()
+    protected void after() 
     {  // give time to close output stream before we delete the project;
       sleep(1, TimeUnit.SECONDS);
       // will delete the maven project under test + logs

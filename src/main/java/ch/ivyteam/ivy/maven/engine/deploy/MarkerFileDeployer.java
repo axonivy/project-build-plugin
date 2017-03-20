@@ -30,7 +30,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
 {
   private final File deployDir;
   private final Integer timeoutInSeconds;
-
+  
   private Log log;
   private DeploymentMarkerFiles markerFile;
 
@@ -50,10 +50,10 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       log.warn("Skipping deployment of '"+iarFilePath+"'. The IAR '"+iar+"' does not exist.");
       return;
     }
-
+    
     this.markerFile = new DeploymentMarkerFiles(iar);
     this.log = log;
-
+    
     deployInternal();
   }
 
@@ -93,11 +93,11 @@ public class MarkerFileDeployer implements IvyProjectDeployer
     {
       logForwarder.deactivate();
     }
-
+    
     failOnError();
     log.info("Deployment finished");
   }
-
+  
   private void failOnError() throws MojoExecutionException
   {
     if (markerFile.errorLog().exists())
@@ -134,5 +134,5 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       }
     }
   }
-
+  
 }

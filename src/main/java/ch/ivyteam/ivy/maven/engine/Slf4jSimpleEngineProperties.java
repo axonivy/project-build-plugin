@@ -54,6 +54,9 @@ public class Slf4jSimpleEngineProperties
     
     // only log errors from unspecific engine loggers! 
     System.setProperty(SimpleLogger.LOG_KEY_PREFIX+IVY_PREFIX, Level.ERROR);
+
+    //Disable CXF warning at startup (missing META-INF/cxf/cxf.xml)
+    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+"org.apache.cxf.bus.spring", Level.ERROR);
     
     // only warnings from any logger used by ivy third parties (e.g. org.apache.myfaces.xxx, org.apache.cxf, ...)
     System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
