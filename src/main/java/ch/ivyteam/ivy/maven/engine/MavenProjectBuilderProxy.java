@@ -58,7 +58,7 @@ public class MavenProjectBuilderProxy
     
     delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
 
-    List<File> engineJars = classLoaderFactory.getEngineJars(baseDirToBuildIn);
+    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
     engineClasspath = getEngineClasspath(engineJars);
   }
 

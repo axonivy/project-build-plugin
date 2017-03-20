@@ -100,13 +100,6 @@ public class EngineClassLoaderFactory
     }
   }
   
-  public List<File> getEngineJars(File engineDirectory) throws IOException
-  {
-    List<File> ivyEngineClassPathFiles = getIvyEngineClassPathFiles(engineDirectory);
-    writeEngineClasspathJar(ivyEngineClassPathFiles);
-    return ivyEngineClassPathFiles;
-  }
-  
   public static List<File> getIvyEngineClassPathFiles(File engineDirectory)
   {
     List<File> classPathFiles = new ArrayList<>();
@@ -123,6 +116,11 @@ public class EngineClassLoaderFactory
       }
     }
     return classPathFiles;
+  }
+  
+  public void writeEngineClasspathJar(File engineDirectory) throws IOException
+  {
+    writeEngineClasspathJar(getIvyEngineClassPathFiles(engineDirectory));
   }
 
   private void writeEngineClasspathJar(List<File> ivyEngineClassPathFiles) throws IOException

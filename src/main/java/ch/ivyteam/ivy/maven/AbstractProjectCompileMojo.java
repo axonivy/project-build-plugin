@@ -99,6 +99,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
               buildApplicationDirectory,
               engineDir);
     }
+    classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null)
     {

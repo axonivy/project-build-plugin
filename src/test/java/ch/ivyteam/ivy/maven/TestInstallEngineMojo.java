@@ -166,7 +166,7 @@ public class TestInstallEngineMojo
   @Test
   public void testEngineDownload_alreadyInstalledVersionTooOld() throws Exception
   {
-    final String outdatedVersion = "6.1.0";
+    final String outdatedVersion = "6.5.1";
     mojo.engineDirectory = createFakeEngineDir(outdatedVersion);
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
@@ -282,36 +282,36 @@ public class TestInstallEngineMojo
   @Test
   public void testEngineLinkFinder_absolute() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Windows_x86";
-    assertThat(findLink("<a href=\"http://developer.axonivy.com/download/6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip\">the latest engine</a>"))
-      .isEqualTo("http://developer.axonivy.com/download/6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip");
+    assertThat(findLink("<a href=\"http://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>"))
+      .isEqualTo("http://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip");
   }
   
   @Test
   public void testEngineLinkFinder_relative() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Windows_x86";
     mojo.engineListPageUrl = new URL("http://localhost/");
-    assertThat(findLink("<a href=\"6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip\">the latest engine</a>"))
-      .isEqualTo("http://localhost/6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip");
+    assertThat(findLink("<a href=\"6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>"))
+      .isEqualTo("http://localhost/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip");
   }
   
 
   @Test
   public void testEngineLinkFinder_sprintVersionQualifier() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Windows_x64";
-    assertThat(findLink("<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/6.1.0-S2/AxonIvyEngine6.1.0.47245.S2_Windows_x64.zip\">Axon.ivy Engine Windows x64</a>"))
-      .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/6.1.0-S2/AxonIvyEngine6.1.0.47245.S2_Windows_x64.zip");
+    assertThat(findLink("<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/6.5.1-S2/AxonIvyEngine6.5.1.47245.S2_Windows_x64.zip\">Axon.ivy Engine Windows x64</a>"))
+      .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/6.5.1-S2/AxonIvyEngine6.5.1.47245.S2_Windows_x64.zip");
   }
   
   @Test
   public void testEngineLinkFinder_wrongVersion() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Windows_x86";
     try
     {
@@ -320,37 +320,37 @@ public class TestInstallEngineMojo
     }
     catch(MojoExecutionException ex)
     {
-      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '6.1.0'");
+      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '6.5.1'");
     }
   }
   
   @Test
   public void testEngineLinkFinder_wrongArchitecture() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Linux_x86";
     try
     {
-      findLink("<a href=\"6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip\">the latest engine</a>");
+      findLink("<a href=\"6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>");
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
     }
     catch(MojoExecutionException ex)
     {
-      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '6.1.0'");
+      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '6.5.1'");
     }
   }
   
   @Test
   public void testEngineLinkFinder_multipleLinks() throws Exception
   {
-    mojo.ivyVersion = "6.1.0";
+    mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Linux_x86";
     mojo.engineListPageUrl = new URL("http://localhost/");
 
     assertThat(findLink(
-            "<a href=\"6.1.0/AxonIvyEngine6.1.0.46949_Windows_x86.zip\">the latest engine</a>" // windows
-          + "<a href=\"6.1.0/AxonIvyEngine6.1.0.46949_Linux_x86.zip\">the latest engine</a>")) // linux
-             .isEqualTo("http://localhost/6.1.0/AxonIvyEngine6.1.0.46949_Linux_x86.zip");
+            "<a href=\"6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>" // windows
+          + "<a href=\"6.5.1/AxonIvyEngine6.5.1.46949_Linux_x86.zip\">the latest engine</a>")) // linux
+             .isEqualTo("http://localhost/6.5.1/AxonIvyEngine6.5.1.46949_Linux_x86.zip");
   }
   
   private String findLink(String html) throws MojoExecutionException, MalformedURLException

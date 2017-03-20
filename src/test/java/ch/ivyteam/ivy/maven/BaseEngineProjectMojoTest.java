@@ -229,7 +229,7 @@ public class BaseEngineProjectMojoTest
     {
       File cpJar = new SharedFile(project).getEngineClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
-              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
+              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
     
     @Override
