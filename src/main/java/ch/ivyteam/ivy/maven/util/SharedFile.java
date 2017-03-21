@@ -34,6 +34,11 @@ public class SharedFile
     targetDir = new File(project.getBuild().getDirectory());
   }
   
+  public File getEngineOSGiBootClasspathJar()
+  {
+    return new File(targetDir, "ivy.engine.osgi.boot.classpath.jar");
+  }
+  
   public File getEngineClasspathJar()
   {
     return new File(targetDir, "ivy.engine.classpath.jar");

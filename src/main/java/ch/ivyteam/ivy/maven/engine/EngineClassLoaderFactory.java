@@ -67,8 +67,9 @@ public class EngineClassLoaderFactory
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException
   {
-    
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
+    addToClassPath(osgiClasspath, new File(engineDirectory, "plugins"),
+            new WildcardFileFilter("org.eclipse.osgi_*.jar"));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
@@ -81,11 +82,8 @@ public class EngineClassLoaderFactory
     {
       return Collections.emptyList();
     }
-
     List<File> classPathFiles = new ArrayList<>();
     addToClassPath(classPathFiles, new File(engineDirectory, "lib/boot"), new SuffixFileFilter(".jar"));
-    addToClassPath(classPathFiles, new File(engineDirectory, "plugins"),
-            new WildcardFileFilter("org.eclipse.osgi_*.jar"));
     return classPathFiles;
   }
 

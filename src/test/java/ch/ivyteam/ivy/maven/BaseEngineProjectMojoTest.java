@@ -227,9 +227,9 @@ public class BaseEngineProjectMojoTest
     
     private void provideClasspathJar() throws IOException
     {
-      File cpJar = new SharedFile(project).getEngineClasspathJar();
+      File cpJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
-              .getIvyEngineClassPathFiles(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
+              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
     
     @Override

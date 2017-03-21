@@ -59,7 +59,7 @@ public class EngineMojoContext
   
   private String setupEngineClasspathJarIfNotExists()
   {
-    File classpathJar = new SharedFile(project).getEngineClasspathJar();
+    File classpathJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
     
     if (!classpathJar.exists())
     {
