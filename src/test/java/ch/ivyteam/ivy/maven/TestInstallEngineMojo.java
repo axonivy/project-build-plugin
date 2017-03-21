@@ -406,7 +406,7 @@ public class TestInstallEngineMojo
   
   private static String getFakeLibraryPath(final String version)
   {
-    return "plugins/"+EngineVersionEvaluator.LIBRARY_ID+"-" + version + ".51869.jar";
+    return "plugins/"+EngineVersionEvaluator.LIBRARY_ID+"_" + version + ".51869.jar";
   }
 
   
