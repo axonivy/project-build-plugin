@@ -113,7 +113,7 @@ public class TestInstallEngineMojo
     File zipDir = createFakeEngineDir(ivyVersion);
     File zipFile = new File(zipDir, "fake.zip");
     ZipFile zip = new ZipFile(zipFile);
-    zip.createZipFileFromFolder(new File(zipDir, "lib"), new ZipParameters(), false, 0);
+    zip.createZipFileFromFolder(new File(zipDir, "plugins"), new ZipParameters(), false, 0);
     return zipFile;
   }
 
@@ -406,7 +406,7 @@ public class TestInstallEngineMojo
   
   private static String getFakeLibraryPath(final String version)
   {
-    return "lib/ivy/"+EngineVersionEvaluator.LIBRARY_ID+"-" + version + "-server.jar";
+    return "plugins/"+EngineVersionEvaluator.LIBRARY_ID+"-" + version + ".51869.jar";
   }
 
   
