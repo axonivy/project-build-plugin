@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -107,6 +108,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
   {
+    VersionRange ivyVersionRange = getIvyVersionRange();
     if (identifyAndGetEngineDirectory() == null)
     {
       handleNoInstalledEngine();
@@ -120,7 +122,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       
       if (installedEngineVersion == null || 
-              !getIvyVersionRange().containsVersion(installedEngineVersion))
+              !ivyVersionRange.containsVersion(installedEngineVersion))
       {
         handleWrongIvyVersion(installedEngineVersion);
       }
@@ -162,7 +164,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
       downloadZip.delete();
       
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
-      if (!getIvyVersionRange().containsVersion(installedEngineVersion))
+      if (installedEngineVersion == null || !getIvyVersionRange().containsVersion(installedEngineVersion))
       {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
                 + "Downloaded version is '"+installedEngineVersion+"' but expecting '"+ivyVersion+"'.");
