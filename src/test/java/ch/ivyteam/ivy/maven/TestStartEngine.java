@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,11 +79,12 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
       stopWatch.stop();
       long seconds = TimeUnit.SECONDS.convert(stopWatch.getTime(), TimeUnit.MILLISECONDS);
       assertThat(seconds)
-        .as("engine start should fail early if engine config is incomplete")
+        .describedAs("engine start should fail early if engine config is incomplete")
         .isLessThanOrEqualTo(20);
     }
     finally
     {
+      FileUtils.deleteDirectory(configDir);
       tmpConfigDir.renameTo(configDir);
       kill(startedProcess);
     }
