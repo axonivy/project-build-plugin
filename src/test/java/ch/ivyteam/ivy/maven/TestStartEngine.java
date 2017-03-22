@@ -84,9 +84,9 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
     finally
     {
+      kill(startedProcess);
       FileUtils.deleteDirectory(configDir);
       tmpConfigDir.renameTo(configDir);
-      kill(startedProcess);
     }
   }
 
