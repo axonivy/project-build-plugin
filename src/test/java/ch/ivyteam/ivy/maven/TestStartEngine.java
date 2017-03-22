@@ -26,6 +26,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -57,7 +58,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
   }
   
-  @Test
+  @Test @Ignore
   public void engineStartCanFailFast() throws Exception
   {
     StartTestEngineMojo mojo = rule.getMojo();
