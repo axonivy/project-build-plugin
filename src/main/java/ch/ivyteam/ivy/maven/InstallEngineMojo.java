@@ -84,7 +84,9 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * <ul>
    *    <li>Linux_x64</li>
    *    <li>Windows_x64</li>
-   *    <li>Windows_x86</li>
+   *    <li>Slim_All_x64</li>
+   *    <li>OSGi_All_x64</li>
+   *    <li>OSGi_Slim_All_x64</li>
    * </ul>
    */
   @Parameter(defaultValue="OSGi_All_x64", property="ivy.engine.os.arch")
