@@ -73,6 +73,11 @@ public class EngineClassLoaderFactory
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+    if (maven.log.isDebugEnabled())
+    {
+      maven.log.debug("Configuring OSGi engine classpath:");
+      osgiClasspath.stream().forEach(file -> {maven.log.debug(" + "+file.getAbsolutePath());});
+    }
     return new URLClassLoader(toUrls(osgiClasspath));
   }
 

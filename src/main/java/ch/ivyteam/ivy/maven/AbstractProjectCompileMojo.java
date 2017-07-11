@@ -97,7 +97,8 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
       builder = new MavenProjectBuilderProxy(
               classLoaderFactory,
               buildApplicationDirectory,
-              engineDir);
+              engineDir,
+              getLog());
     }
     classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:

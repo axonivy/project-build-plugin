@@ -21,6 +21,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.apache.maven.plugin.logging.Log;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -47,10 +51,12 @@ public class MavenProjectBuilderProxy
   private Class<?> delegateClass;
   private File baseDirToBuildIn;
   private String engineClasspath;
+  private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn) throws Exception
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log) throws Exception
   {
     this.baseDirToBuildIn = baseDirToBuildIn;
+    this.log = log;
     
     URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader);
@@ -76,13 +82,18 @@ public class MavenProjectBuilderProxy
   {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
     Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
-    String[] args = new String[]{"-application", "ch.ivyteam.ivy.server.exec.engine.maven"};
+    List<String> mainArgs = new ArrayList<>(Arrays.asList("-application", "ch.ivyteam.ivy.server.exec.engine.maven"));
+    if (log.isDebugEnabled())
+    {
+      mainArgs.add("-consoleLog");
+    }
+    final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
     startWithOsgiProperties(() -> mainMethod.invoke(null, (Object)args));
     Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
     return bundleContext;
   }
 
-  private static Object findBundle(Object bundleContext, String symbolicName)
+  private Object findBundle(Object bundleContext, String symbolicName)
           throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
     Object[] bundles = (Object[]) bundleContext.getClass().getDeclaredMethod("getBundles").invoke(bundleContext);
@@ -94,7 +105,7 @@ public class MavenProjectBuilderProxy
         return bundleObj;
       }
     }
-    return null;
+    throw new RuntimeException("Failed to resolve bundle with symbolice name '"+symbolicName+"'.");
   }
   
   private static String getEngineClasspath(List<File> jars)
@@ -153,6 +164,7 @@ public class MavenProjectBuilderProxy
   private void startWithOsgiProperties(Callable<?> function) throws Exception
   {
     Map<String, String> properties = new LinkedHashMap<>();
+    properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
     properties.put("user.dir", baseDirToBuildIn.getAbsolutePath());
     properties.put("osgi.install.area", baseDirToBuildIn.getAbsolutePath());
     properties.put("org.osgi.framework.bundle.parent", "framework");
@@ -160,7 +172,12 @@ public class MavenProjectBuilderProxy
             "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
             + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add log4j
             + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi"); // add slf4j
-
+    if (log.isDebugEnabled())
+    {
+      log.debug("Configuration OSGi system properties:");
+      properties.entrySet().forEach(entry -> log.debug("   " + entry.getKey() + " = " + entry.getValue()));
+    }
+    
     Map<String, String> oldProperties = setSystemProperties(properties);
     try
     {
