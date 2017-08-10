@@ -7,9 +7,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
+
 public class EngineVersionEvaluator
 {
   public static final String LIBRARY_ID = "ch.ivyteam.util";
+ 
   private File engineDir;
 
   public EngineVersionEvaluator(File engineDir)
@@ -19,6 +22,7 @@ public class EngineVersionEvaluator
 
   public ArtifactVersion evaluateVersion()
   {
+	throwIfNonOSGiEngine();
     String libraryFileName = getLibraryFileName(LIBRARY_ID);
     if (libraryFileName == null)
     {
@@ -29,7 +33,16 @@ public class EngineVersionEvaluator
     return new DefaultArtifactVersion(toReleaseVersion(version));
   }
   
-  public static String toReleaseVersion(String version)
+	private void throwIfNonOSGiEngine()
+	{
+		File ivyLib = new File(engineDir, "lib/ivy");
+		if (ivyLib.exists())
+		{
+			throw new RuntimeException("Cannot work with non-OSGi Engine, please use an OSGi Engine for building.");
+		}
+	}
+
+public static String toReleaseVersion(String version)
   { // 6.1.0.51869 -> 6.1.0
     String[] versionParts = StringUtils.split(version, ".");
     if (ArrayUtils.isEmpty(versionParts))
@@ -41,7 +54,7 @@ public class EngineVersionEvaluator
   
   private String getLibraryFileName(String libraryId)
   {
-    File ivyLibs = new File(engineDir, "plugins");
+    File ivyLibs = new File(engineDir, OsgiDir.PLUGINS);
     if (!ivyLibs.exists())
     {
       return null;

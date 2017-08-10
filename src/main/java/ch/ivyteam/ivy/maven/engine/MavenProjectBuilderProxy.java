@@ -38,6 +38,8 @@ import org.apache.maven.plugin.logging.Log;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
+
 /**
  * Provides project build functionality that can only be accessed trough reflection on an ivy Engine classloader.
  * 
@@ -164,9 +166,10 @@ public class MavenProjectBuilderProxy
   private void startWithOsgiProperties(Callable<?> function) throws Exception
   {
     Map<String, String> properties = new LinkedHashMap<>();
+    
     properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
     properties.put("user.dir", baseDirToBuildIn.getAbsolutePath());
-    properties.put("osgi.install.area", baseDirToBuildIn.getAbsolutePath());
+    properties.put("osgi.install.area", new File(baseDirToBuildIn, OsgiDir.INSTALL_AREA).getAbsolutePath());
     properties.put("org.osgi.framework.bundle.parent", "framework");
     properties.put("org.osgi.framework.bootdelegation",
             "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original

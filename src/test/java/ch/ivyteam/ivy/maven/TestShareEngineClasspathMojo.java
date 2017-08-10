@@ -27,6 +27,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
+
 public class TestShareEngineClasspathMojo
 {
   @Test
@@ -73,7 +75,7 @@ public class TestShareEngineClasspathMojo
         try
         {
           File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
-          FileUtils.touch(new File(engineDirectory, "lib/boot/dummy-boot.jar"));
+          FileUtils.touch(new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" +OsgiDir.LIB_BOOT + "/dummy-boot.jar"));
         }
         catch (IOException | MojoExecutionException ex)
         {

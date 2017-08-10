@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import ch.ivyteam.ivy.maven.StartTestEngineMojo;
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
 
 /**
@@ -118,9 +119,11 @@ public class EngineControl
       classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
     }
     
+    File osgiDir = new File(context.engineDirectory, OsgiDir.INSTALL_AREA);
+    
     CommandLine cli = new CommandLine(new File(getJavaExec()))
             .addArgument("-classpath").addArgument(classpath)
-            .addArgument("-Dosgi.install.area=" + context.engineDirectory);
+            .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
     {
       cli.addArgument(context.vmOptions.additionalVmOptions, false);

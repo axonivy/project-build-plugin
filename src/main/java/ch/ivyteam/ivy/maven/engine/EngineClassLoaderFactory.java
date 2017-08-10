@@ -48,13 +48,20 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  */
 public class EngineClassLoaderFactory
 {
+  public interface OsgiDir
+  {
+	  String INSTALL_AREA = "system";
+	  String PLUGINS = INSTALL_AREA + "/plugins";
+	  String LIB_BOOT = "lib/boot";
+  }
+  
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "1.7.7";
-
+  
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-    "lib"+File.separator+"boot",
-    "plugins",
-    "configuration"+File.separator+"org.eclipse.osgi", // unpacked jars from OSGI bundles
+	OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
+	OsgiDir.PLUGINS,
+    OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked jars from OSGI bundles
     "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"
   );
   
@@ -68,7 +75,7 @@ public class EngineClassLoaderFactory
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException
   {
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
-    addToClassPath(osgiClasspath, new File(engineDirectory, "plugins"),
+    addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS),
             new WildcardFileFilter("org.eclipse.osgi_*.jar"));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION));
     osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
@@ -88,7 +95,7 @@ public class EngineClassLoaderFactory
       return Collections.emptyList();
     }
     List<File> classPathFiles = new ArrayList<>();
-    addToClassPath(classPathFiles, new File(engineDirectory, "lib/boot"), new SuffixFileFilter(".jar"));
+    addToClassPath(classPathFiles, new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT), new SuffixFileFilter(".jar"));
     return classPathFiles;
   }
 

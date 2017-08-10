@@ -128,9 +128,16 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     return engineDirToTake;
   }
   
-  protected final ArtifactVersion getInstalledEngineVersion(File engineDir)
+  protected final ArtifactVersion getInstalledEngineVersion(File engineDir) throws MojoExecutionException
   {
-    return new EngineVersionEvaluator(engineDir).evaluateVersion();
+	try
+	{
+		return new EngineVersionEvaluator(engineDir).evaluateVersion();
+	}
+	catch (Exception ex)
+	{
+		throw new MojoExecutionException("Cannot evaluate engine version", ex);
+	}
   }
   
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException
