@@ -281,14 +281,23 @@ public class TestInstallEngineMojo
   }
 
   @Test
-  public void testEngineLinkFinder_absolute() throws Exception
+  public void testEngineLinkFinder_absolute_http() throws Exception
   {
     mojo.ivyVersion = "6.5.1";
     mojo.osArchitecture = "Windows_x86";
     assertThat(findLink("<a href=\"http://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>"))
       .isEqualTo("http://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip");
   }
-  
+
+  @Test
+  public void testEngineLinkFinder_absolute_https() throws Exception
+  {
+    mojo.ivyVersion = "6.5.1";
+    mojo.osArchitecture = "Windows_x86";
+    assertThat(findLink("<a href=\"https://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip\">the latest engine</a>"))
+      .isEqualTo("https://developer.axonivy.com/download/6.5.1/AxonIvyEngine6.5.1.46949_Windows_x86.zip");
+  }
+
   @Test
   public void testEngineLinkFinder_relative() throws Exception
   {

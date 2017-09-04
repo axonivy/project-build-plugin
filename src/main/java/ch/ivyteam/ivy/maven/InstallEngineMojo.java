@@ -63,7 +63,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.
-   * <code>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</code>
+   * <code>https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip</code>
    */
   @Parameter(property="ivy.engine.download.url")
   URL engineDownloadUrl;
@@ -72,9 +72,9 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * URL where a link to the ivy Engine in the expected {@link #ivyVersion} exists. 
    * The URL will be used to download the required engine if it does not yet exist.
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
-   * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
+   * <code>&lt;a href="https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
+  @Parameter(defaultValue="https://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
   URL engineListPageUrl;
   
   /** 
@@ -280,7 +280,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   
     private URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException
     {
-      boolean isAbsoluteLink = StringUtils.startsWith(parsedEngineArchivLink, "http://");
+      boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
       if (isAbsoluteLink)
       {
         return new URL(parsedEngineArchivLink);
