@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
+import ch.ivyteam.ivy.maven.util.UrlRedirectionResolver;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -242,7 +243,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   
     private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
     {
-      try(InputStream pageStream = engineListPageUrl.openStream())
+      try (InputStream pageStream = UrlRedirectionResolver.followRedirections(engineListPageUrl).openStream())
       {
         return findEngineDownloadUrl(pageStream);
       }
