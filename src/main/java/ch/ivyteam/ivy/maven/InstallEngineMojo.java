@@ -243,7 +243,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   
     private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
     {
-      try (InputStream pageStream = UrlRedirectionResolver.followRedirections(engineListPageUrl).openStream())
+      try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl))
       {
         return findEngineDownloadUrl(pageStream);
       }
