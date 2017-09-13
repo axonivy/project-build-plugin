@@ -69,7 +69,7 @@ public class TestInstallEngineMojo
       mockServer.startServer();
       String baseUrl = "http://localhost:" + mockServer.getServerPort();
       MockHttpServer.MockHttpServerResponse listPageResponse = new MockHttpServer.MockHttpServerResponse();
-      String defaultEngineName = "AxonIvyEngine" + AbstractEngineMojo.DEFAULT_VERSION + ".46949_OSGi_All_x64";
+      String defaultEngineName = "AxonIvyEngine" + AbstractEngineMojo.DEFAULT_VERSION + ".46949_All_x64";
       listPageResponse.setMockResponseContent("<a href=\""+baseUrl+"/" + defaultEngineName + ".zip\">the engine!</a>");
       File engineZip = createFakeEngineZip(mojo.ivyVersion);
       MockHttpServer.MockHttpServerResponse engineZipResponse = createFakeZipResponse(engineZip);
