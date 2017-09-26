@@ -321,7 +321,7 @@ public class TestInstallEngineMojo
   @Test
   public void testEngineLinkFinder_wrongVersion() throws Exception
   {
-    mojo.ivyVersion = "6.5.1";
+    mojo.ivyVersion = "7.0.0";
     mojo.osArchitecture = "Windows_x86";
     try
     {
@@ -330,7 +330,7 @@ public class TestInstallEngineMojo
     }
     catch(MojoExecutionException ex)
     {
-      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '6.5.1'");
+      assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '7.0.0'");
     }
   }
   
