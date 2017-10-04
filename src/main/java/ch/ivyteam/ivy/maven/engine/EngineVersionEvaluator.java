@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.plugin.logging.Log;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
@@ -13,16 +14,24 @@ public class EngineVersionEvaluator
 {
   public static final String LIBRARY_ID = "ch.ivyteam.util";
  
+  private Log log;
   private File engineDir;
 
-  public EngineVersionEvaluator(File engineDir)
+  public EngineVersionEvaluator(Log log, File engineDir)
   {
+    this.log = log;
     this.engineDir = engineDir;
   }
 
   public ArtifactVersion evaluateVersion()
   {
-    throwIfNonOSGiEngine();
+    if (!isOSGiEngine(engineDir))
+    {
+      String absolutePath = engineDir == null ? "" : engineDir.getAbsolutePath();
+      log.info("Can not evaluate version of a non-OSGi engine in directory '" + absolutePath + "'");
+      return null;
+    }
+
     String libraryFileName = getLibraryFileName(LIBRARY_ID);
     if (libraryFileName == null)
     {
@@ -33,13 +42,10 @@ public class EngineVersionEvaluator
     return new DefaultArtifactVersion(toReleaseVersion(version));
   }
 
-  private void throwIfNonOSGiEngine()
+  public static boolean isOSGiEngine(File engineDir)
   {
-    File ivyLib = new File(engineDir, "lib/ivy");
-    if (ivyLib.exists())
-    {
-      throw new RuntimeException("Cannot work with non-OSGi Engine, please use an OSGi Engine for building.");
-    }
+    File folder = new File(engineDir, OsgiDir.INSTALL_AREA);
+    return folder.exists();
   }
 
   public static String toReleaseVersion(String version)

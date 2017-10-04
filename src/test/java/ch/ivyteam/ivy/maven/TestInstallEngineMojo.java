@@ -198,6 +198,22 @@ public class TestInstallEngineMojo
   }
   
   @Test
+  public void testEngineDownload_skipNonOsgiEngineInCache() throws Exception
+  {
+    mojo.engineDirectory = null;
+    mojo.ivyVersion = "[7.0.0,7.1.0]";
+    mojo.autoInstallEngine = true;
+
+    // OSGi
+    new File(mojo.engineCacheDirectory, "7.0.0" + File.separator + getFakeLibraryPath("7.0.0")).mkdirs();
+    // non-OSGi
+    new File(mojo.engineCacheDirectory, "7.1.0").mkdirs();
+
+    mojo.execute();
+    assertThat(mojo.engineDirectory.getName()).isEqualTo("7.0.0");
+  }
+
+  @Test
   public void testEngineDownload_existingTmpFileNotOverwritten() throws Exception
   {
     mojo.engineDirectory = createTempDir("tmpEngine");

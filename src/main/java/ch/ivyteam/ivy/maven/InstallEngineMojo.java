@@ -165,7 +165,12 @@ public class InstallEngineMojo extends AbstractEngineMojo
       downloadZip.delete();
       
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
-      if (installedEngineVersion == null || !getIvyVersionRange().containsVersion(installedEngineVersion))
+      if (installedEngineVersion == null)
+      {
+        throw new MojoExecutionException("Can not determine installed engine version in directory '"+getRawEngineDirectory()+"'. "
+                + "Possibly a non-OSGi engine.");
+      }
+      if (!getIvyVersionRange().containsVersion(installedEngineVersion))
       {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
                 + "Downloaded version is '"+installedEngineVersion+"' but expecting '"+ivyVersion+"'.");
