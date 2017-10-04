@@ -22,7 +22,7 @@ public class EngineVersionEvaluator
 
   public ArtifactVersion evaluateVersion()
   {
-	throwIfNonOSGiEngine();
+    throwIfNonOSGiEngine();
     String libraryFileName = getLibraryFileName(LIBRARY_ID);
     if (libraryFileName == null)
     {
@@ -32,17 +32,17 @@ public class EngineVersionEvaluator
     String version = StringUtils.substringAfter(libraryFileName, "_");
     return new DefaultArtifactVersion(toReleaseVersion(version));
   }
-  
-	private void throwIfNonOSGiEngine()
-	{
-		File ivyLib = new File(engineDir, "lib/ivy");
-		if (ivyLib.exists())
-		{
-			throw new RuntimeException("Cannot work with non-OSGi Engine, please use an OSGi Engine for building.");
-		}
-	}
 
-public static String toReleaseVersion(String version)
+  private void throwIfNonOSGiEngine()
+  {
+    File ivyLib = new File(engineDir, "lib/ivy");
+    if (ivyLib.exists())
+    {
+      throw new RuntimeException("Cannot work with non-OSGi Engine, please use an OSGi Engine for building.");
+    }
+  }
+
+  public static String toReleaseVersion(String version)
   { // 6.1.0.51869 -> 6.1.0
     String[] versionParts = StringUtils.split(version, ".");
     if (ArrayUtils.isEmpty(versionParts))
