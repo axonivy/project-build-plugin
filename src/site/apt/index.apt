@@ -10,7 +10,7 @@ Introduction
 	
     * <<Installation>> of IAR artifacts into the local Maven repository
 	
-    * <<Deployment>> of IAR artifacts to an Axon.ivy Engine
+    * <<Deployment>> of single projects or full applications to an Axon.ivy Engine
     
 
  Ivy Documentation

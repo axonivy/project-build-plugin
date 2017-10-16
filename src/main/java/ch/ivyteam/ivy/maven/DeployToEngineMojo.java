@@ -30,33 +30,31 @@ import ch.ivyteam.ivy.maven.engine.deploy.IvyProjectDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 
 /**
- * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
+ * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
  * 
  * <p>Command line invocation is supported. E.g.</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.2.0:deploy-iar 
- * -Divy.deploy.iarFile=myProject.iar 
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.1.0:deploy-to-engine 
+ * -Divy.deploy.file=myProject.iar 
  * -Divy.deploy.engine.dir=c:/axonviy/engine
  * -Divy.deploy.engine.app=Portal</pre>
  * 
- * @since 6.1.0
- * @deprecated since 7.1.0. Use the {@link DeployToEngineMojo#GOAL} instead.
+ * @since 7.1.0
  */
-@Deprecated
-@Mojo(name = IarDeployMojo.GOAL, requiresProject=false)
-public class IarDeployMojo extends AbstractEngineMojo
+@Mojo(name = DeployToEngineMojo.GOAL, requiresProject=false)
+public class DeployToEngineMojo extends AbstractEngineMojo
 {
-  public static final String GOAL = "deploy-iar";
+  public static final String GOAL = "deploy-to-engine";
   
   /** The IAR to deploy. By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
-  @Parameter(property="ivy.deploy.iarFile", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
-  File deployIarFile;
+  @Parameter(property="ivy.deploy.file", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
+  File deployFile;
   
-  /** The path to the AXON.IVY Engine to which we deploy the IAR. <br/>
+  /** The path to the AXON.IVY Engine to which we deploy the file. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
   @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
   
-  /** The name of an ivy application to which the IAR is deployed. */
+  /** The name of an ivy application to which the file is deployed. */
   @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
   String deployToEngineApplication;
   
@@ -68,9 +66,7 @@ public class IarDeployMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
   Integer deployTimeoutInSeconds;
   
-  /** Set to <code>true</code> to skip the deployment to the engine.
-   * @since 6.1.1
-   */
+  /** Set to <code>true</code> to skip the deployment to the engine. */
   @Parameter(defaultValue="false", property="ivy.deploy.skip")
   boolean skipDeploy;
   
@@ -79,19 +75,19 @@ public class IarDeployMojo extends AbstractEngineMojo
   {
     if (skipDeploy)
     {
-      getLog().info("Skipping deployment of project.");
+      getLog().info("Skipping deployment to engine.");
       return;
     }
     
-    if (!deployIarFile.exists())
+    if (!deployFile.exists())
     {
-      getLog().warn("Skipping IAR deployment of '"+deployIarFile+"'. The file does not exist.");
+      getLog().warn("Skipping deployment of '"+deployFile+"' to engine. The file does not exist.");
       return;
     }
     File deployDir = getDeployDirectory();
     if (!deployDir.exists())
     {
-      getLog().warn("Skipping IAR deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
+      getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
       return;
     }
     
@@ -118,16 +114,16 @@ public class IarDeployMojo extends AbstractEngineMojo
   private File copyIarToEngine(File deployDir) throws MojoExecutionException
   {
     File deployApp = new File(deployDir, deployToEngineApplication);
-    File targetIarFile = new File(deployApp, deployIarFile.getName());
+    File targetIarFile = new File(deployApp, deployFile.getName());
     try
     {
-      getLog().info("Uploading project "+targetIarFile);
-      FileUtils.copyFile(deployIarFile, targetIarFile);
+      getLog().info("Uploading file "+targetIarFile);
+      FileUtils.copyFile(deployFile, targetIarFile);
       return targetIarFile;
     }
     catch (IOException ex)
     {
-      throw new MojoExecutionException("Upload of IAR '"+deployIarFile.getName()+"' failed.", ex);
+      throw new MojoExecutionException("Upload of file '"+deployFile.getName()+"' to engine failed.", ex);
     }
   }
   

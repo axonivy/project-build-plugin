@@ -31,14 +31,14 @@ import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFiles;
 
-public class TestIarDeployMojo
+public class TestDeployToEngineMojo
 {
   @Test
   public void deployPackedIar() throws Exception
   {
-    IarDeployMojo mojo = rule.getMojo();
+    DeployToEngineMojo mojo = rule.getMojo();
     
-    File deployedIar = getTarget(mojo.deployIarFile, mojo);
+    File deployedIar = getTarget(mojo.deployFile, mojo);
     File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
     assertThat(deployedIar).doesNotExist();
     assertThat(deployMarkerFile).doesNotExist();
@@ -61,8 +61,8 @@ public class TestIarDeployMojo
   @Test
   public void failOnEngineDeployError() throws Exception
   {
-    IarDeployMojo mojo = rule.getMojo();
-    DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployIarFile, mojo));
+    DeployToEngineMojo mojo = rule.getMojo();
+    DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployFile, mojo));
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
@@ -88,7 +88,7 @@ public class TestIarDeployMojo
     }
   }
 
-  private static File getTarget(File iar, IarDeployMojo mojo)
+  private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
     File app = new File(deploy, mojo.deployToEngineApplication);
@@ -97,8 +97,8 @@ public class TestIarDeployMojo
   }
 
   @Rule
-  public ProjectMojoRule<IarDeployMojo> rule = new ProjectMojoRule<IarDeployMojo>(
-          new File("src/test/resources/base"), IarDeployMojo.GOAL)
+  public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<DeployToEngineMojo>(
+          new File("src/test/resources/base"), DeployToEngineMojo.GOAL)
   {
     @Override
     protected void before() throws Throwable 
@@ -109,12 +109,12 @@ public class TestIarDeployMojo
       
       try
       {
-        getMojo().deployIarFile.getParentFile().mkdir();
-        getMojo().deployIarFile.createNewFile();
+        getMojo().deployFile.getParentFile().mkdir();
+        getMojo().deployFile.createNewFile();
       }
       catch (IOException ex)
       {
-        System.err.println("Failed to create IAR @ "+getMojo().deployIarFile.getAbsolutePath());
+        System.err.println("Failed to create IAR @ "+getMojo().deployFile.getAbsolutePath());
         throw ex;
       }
     }
