@@ -70,6 +70,9 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivy.engine.version")
   protected String ivyVersion;
 
+  /** testing only: avoid restriction to minimal version! */
+  boolean restrictVersionToMinimalCompatible = true;
+  
   public AbstractEngineMojo()
   {
     super();
@@ -144,26 +147,35 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   {
     try
     {
-      VersionRange minimalCompatibleVersionRange = VersionRange.createFromVersionSpec("[" + AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION + ",)");
       VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(ivyVersion);
-      
       if (ivyVersionRange.getRecommendedVersion() != null)
       {
         ivyVersionRange = VersionRange.createFromVersionSpec("["+ivyVersion+"]");
       }
       
-      VersionRange restrictedIvyVersionRange = ivyVersionRange.restrict(minimalCompatibleVersionRange);
-      if (!restrictedIvyVersionRange.hasRestrictions())
+      if (restrictVersionToMinimalCompatible)
       {
-        throw new MojoExecutionException("The ivyVersion '"+ivyVersion+"' is lower than the minimal compatible version"
-              + " '"+MINIMAL_COMPATIBLE_VERSION+"'.");
+        return restrictToMinimalCompatible(ivyVersionRange);
       }
-      return restrictedIvyVersionRange;
+      return ivyVersionRange;
     }
     catch (InvalidVersionSpecificationException ex)
     {
       throw new MojoExecutionException("Invalid ivyVersion '"+ivyVersion+"'.", ex);
     }
+  }
+
+  private VersionRange restrictToMinimalCompatible(VersionRange ivyVersionRange)
+          throws InvalidVersionSpecificationException, MojoExecutionException
+  {
+    VersionRange minimalCompatibleVersionRange = VersionRange.createFromVersionSpec("[" + AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION + ",)");
+    VersionRange restrictedIvyVersionRange = ivyVersionRange.restrict(minimalCompatibleVersionRange);
+    if (!restrictedIvyVersionRange.hasRestrictions())
+    {
+      throw new MojoExecutionException("The ivyVersion '"+ivyVersion+"' is lower than the minimal compatible version"
+            + " '"+MINIMAL_COMPATIBLE_VERSION+"'.");
+    }
+    return restrictedIvyVersionRange;
   }
 
 }
