@@ -113,7 +113,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
       {
         continue;
       }
-      
+
       ArtifactVersion candidateVersion = getInstalledEngineVersion(engineDirCandidate);
       if (candidateVersion == null || !getIvyVersionRange().containsVersion(candidateVersion))
       {
@@ -127,17 +127,17 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     }
     return engineDirToTake;
   }
-  
+
   protected final ArtifactVersion getInstalledEngineVersion(File engineDir) throws MojoExecutionException
   {
-	try
-	{
-		return new EngineVersionEvaluator(engineDir).evaluateVersion();
-	}
-	catch (Exception ex)
-	{
-		throw new MojoExecutionException("Cannot evaluate engine version", ex);
-	}
+    try
+    {
+      return new EngineVersionEvaluator(getLog(), engineDir).evaluateVersion();
+    }
+    catch (Exception ex)
+    {
+      throw new MojoExecutionException("Cannot evaluate engine version", ex);
+    }
   }
   
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException

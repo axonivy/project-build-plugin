@@ -50,21 +50,21 @@ public class EngineClassLoaderFactory
 {
   public interface OsgiDir
   {
-	  String INSTALL_AREA = "system";
-	  String PLUGINS = INSTALL_AREA + "/plugins";
-	  String LIB_BOOT = "lib/boot";
+    String INSTALL_AREA = "system";
+    String PLUGINS = INSTALL_AREA + "/plugins";
+    String LIB_BOOT = "lib/boot";
   }
   
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "1.7.7";
   
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-	OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
-	OsgiDir.PLUGINS,
-    OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked jars from OSGI bundles
-    "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"
+          OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
+          OsgiDir.PLUGINS,
+          OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked jars from OSGI bundles
+          "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"
   );
-  
+
   private MavenContext maven;
   
   public EngineClassLoaderFactory(MavenContext mavenContext)
