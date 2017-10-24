@@ -27,7 +27,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 
-public class MarkerFileDeployer implements IvyProjectDeployer
+public class MarkerFileDeployer implements IvyDeployer
 {
   private final File deployDir;
   private final Integer timeoutInSeconds;
@@ -45,7 +45,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
 
   @Override
   @SuppressWarnings("hiding")
-  public void deployIar(String iarFilePath, Log log) throws MojoExecutionException
+  public void deploy(String iarFilePath, Log log) throws MojoExecutionException
   {
     File iar = new File(deployDir, iarFilePath);
     if (!iar.exists() || !iar.isFile())

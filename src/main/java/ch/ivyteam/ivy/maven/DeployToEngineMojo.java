@@ -31,7 +31,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFile;
-import ch.ivyteam.ivy.maven.engine.deploy.IvyProjectDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 
 /**
@@ -116,8 +116,8 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     File uploadedDeployable = copyDeployableToEngine(deployDir);
     String deployablePath = deployDir.toPath().relativize(uploadedDeployable.toPath()).toString();
     DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(optionsFile, project, session, fileFilter);
-    IvyProjectDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds);
-    deployer.deployIar(deployablePath, getLog());
+    IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds);
+    deployer.deploy(deployablePath, getLog());
   }
 
   private File getDeployDirectory() throws MojoExecutionException
