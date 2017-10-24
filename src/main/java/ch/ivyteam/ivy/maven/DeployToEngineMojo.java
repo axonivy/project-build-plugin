@@ -21,11 +21,16 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.filtering.MavenFileFilter;
 
+import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFile;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyProjectDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 
@@ -62,6 +67,14 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
   String deployDirectory;
   
+  /** The file that contains deployment options.<br/>
+   * Example options file content:
+   * <pre><code>deployTestUsers: true
+   *target: RELEASED</code></pre>
+   */  
+  @Parameter(property="ivy.deploy.options.file", required=false)
+  File optionsFile;
+  
   /** The maximum amount of seconds that we wait for a deployment result from the engine */
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
   Integer deployTimeoutInSeconds;
@@ -69,6 +82,15 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   /** Set to <code>true</code> to skip the deployment to the engine. */
   @Parameter(defaultValue="false", property="ivy.deploy.skip")
   boolean skipDeploy;
+  
+  @Component
+  private MavenFileFilter fileFilter;
+  
+  @Parameter(property = "project", required = false, readonly = true)
+  MavenProject project;
+  
+  @Parameter(property = "session", required = true, readonly = true)
+  MavenSession session;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -91,11 +113,11 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       return;
     }
     
-    File uploadedIar = copyIarToEngine(deployDir);
-    
-    String iarPath = deployDir.toPath().relativize(uploadedIar.toPath()).toString();
-    IvyProjectDeployer deployer = new MarkerFileDeployer(deployDir, deployTimeoutInSeconds);
-    deployer.deployIar(iarPath, getLog());
+    File uploadedDeployable = copyDeployableToEngine(deployDir);
+    String deployablePath = deployDir.toPath().relativize(uploadedDeployable.toPath()).toString();
+    DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(optionsFile, project, session, fileFilter);
+    IvyProjectDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds);
+    deployer.deployIar(deployablePath, getLog());
   }
 
   private File getDeployDirectory() throws MojoExecutionException
@@ -111,7 +133,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     return new File(deployEngineDirectory, deployDirectory);
   }
 
-  private File copyIarToEngine(File deployDir) throws MojoExecutionException
+  private File copyDeployableToEngine(File deployDir) throws MojoExecutionException
   {
     File deployApp = new File(deployDir, deployToEngineApplication);
     File targetIarFile = new File(deployApp, deployFile.getName());

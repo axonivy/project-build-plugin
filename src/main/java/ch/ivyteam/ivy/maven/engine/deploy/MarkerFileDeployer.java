@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.shared.filtering.MavenFilteringException;
 
 public class MarkerFileDeployer implements IvyProjectDeployer
 {
@@ -33,10 +34,12 @@ public class MarkerFileDeployer implements IvyProjectDeployer
   
   private Log log;
   private DeploymentMarkerFiles markerFile;
+  private DeploymentOptionsFile deploymentOptions;
 
-  public MarkerFileDeployer(File deployDir, Integer deployTimeoutInSeconds)
+  public MarkerFileDeployer(File deployDir, DeploymentOptionsFile deploymentOptions, Integer deployTimeoutInSeconds)
   {
     this.deployDir = deployDir;
+    this.deploymentOptions = deploymentOptions;
     this.timeoutInSeconds = deployTimeoutInSeconds;
   }
 
@@ -51,6 +54,7 @@ public class MarkerFileDeployer implements IvyProjectDeployer
       return;
     }
     
+    this.deploymentOptions.setDeployableFile(iar);
     this.markerFile = new DeploymentMarkerFiles(iar);
     this.log = log;
     
@@ -59,9 +63,15 @@ public class MarkerFileDeployer implements IvyProjectDeployer
 
   private void deployInternal() throws MojoExecutionException
   {
-    markerFile.clearAll();
+    clear();
     initDeployment();
     determineDeployResult();
+  }
+
+  private void clear()
+  {
+    markerFile.clearAll();
+    deploymentOptions.clear();
   }
 
   private void initDeployment() throws MojoExecutionException
@@ -69,11 +79,16 @@ public class MarkerFileDeployer implements IvyProjectDeployer
     try
     {
       log.info("Deploying project "+markerFile.getDeployCandidate().getName());
+      deploymentOptions.copy();
       markerFile.doDeploy().createNewFile();
     }
     catch (IOException ex)
     {
       throw new MojoExecutionException("Failed to initialize engine deployment, could not create marker", ex);
+    }
+    catch (MavenFilteringException ex)
+    {
+      throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
     }
   }
 

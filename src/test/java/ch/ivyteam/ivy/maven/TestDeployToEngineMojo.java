@@ -40,12 +40,16 @@ public class TestDeployToEngineMojo
     
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+"options.yaml");
+
     assertThat(deployedIar).doesNotExist();
     assertThat(deployMarkerFile).doesNotExist();
+    assertThat(deploymentOptionsFile).doesNotExist();
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deployMarkerFile).as("deployment must be initialized").exists();
+      assertThat(deploymentOptionsFile).doesNotExist();
       deployMarkerFile.delete(); //deployment finished
       return null;
     };
@@ -58,6 +62,40 @@ public class TestDeployToEngineMojo
       .exists();
   }
   
+  @Test
+  public void deployWithOptions() throws Exception
+  {
+    rule.project.getProperties().setProperty("ivy.deploy.test.user", "true");
+    DeployToEngineMojo mojo = rule.getMojo();
+    
+    mojo.optionsFile = new File("src/test/resources/options.yaml");
+    File deployedIar = getTarget(mojo.deployFile, mojo);
+    File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
+    
+    assertThat(deployedIar).doesNotExist();
+    assertThat(deployMarkerFile).doesNotExist();
+    assertThat(deploymentOptionsFile).doesNotExist();
+    
+    
+    DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
+    Callable<Void> engineOperation = () -> {
+      assertThat(deployMarkerFile).as("deployment must be initialized").exists();
+      assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
+      assertThat(deploymentOptionsFile).as("deployement options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
+      deploymentOptionsFile.delete();
+      deployMarkerFile.delete(); //deployment finished
+      return null;
+    };
+    mockEngineDeployThread.execute(engineOperation);
+    mojo.execute();
+    mockEngineDeployThread.failOnExecption();
+    
+    assertThat(deployedIar)
+      .as("IAR must exist in engine deploy directory")
+      .exists();
+  }
+
   @Test
   public void failOnEngineDeployError() throws Exception
   {
