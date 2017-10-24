@@ -20,16 +20,19 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 /**
- * Deploys ivy projects to an AXON.IVY engine.
- * 
- * @since 6.1.0
+ * Deploys an ivy deployable to an AXON.IVY engine. A deployable can be
+ * <ul>
+ * <li>an *.iar project file</li>
+ * <li>an *.zip full application file containing a set of projects</li>
+ * </ul> 
+ *  * @since 6.1.0
  */
-public interface IvyProjectDeployer
+public interface IvyDeployer
 {
   /**
    * @param iarPath the path to the deployable (uploaded) iar. Must be relative the engines deploy directory.
    * @param log mojo log
    * @throws MojoExecutionException if deployment fails
    */
-  public void deployIar(String iarPath, Log log) throws MojoExecutionException;
+  public void deploy(String iarPath, Log log) throws MojoExecutionException;
 }
