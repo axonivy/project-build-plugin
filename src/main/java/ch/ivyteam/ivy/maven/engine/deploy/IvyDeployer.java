@@ -20,8 +20,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 /**
- * Deploys ivy projects to an AXON.IVY engine.
- * 
+ * Deploys ivy deployables to an AXON.IVY engine. Deployables can be:
+ * <ul>
+ * <li>An *.iar project file</li>
+ * <li>An *.zip full application file containing a set of projects</li>
+ * </ul>
  * @since 6.1.0
  */
 public interface IvyDeployer
