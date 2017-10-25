@@ -14,16 +14,16 @@ public class DeploymentMarkerFiles
   private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
   
-  private File iar;
+  private File deployable;
   
-  public DeploymentMarkerFiles(File iar)
+  public DeploymentMarkerFiles(File deployable)
   {
-    this.iar = iar;
+    this.deployable = deployable;
   }
   
   File getDeployCandidate()
   {
-    return iar;
+    return deployable;
   }
 
   public File doDeploy()
@@ -43,7 +43,7 @@ public class DeploymentMarkerFiles
 
   private File getFile(String markerExtension)
   {
-    return new File(iar.getParent(), iar.getName()+markerExtension);
+    return new File(deployable.getParent(), deployable.getName()+markerExtension);
   }
   
   public void clearAll()

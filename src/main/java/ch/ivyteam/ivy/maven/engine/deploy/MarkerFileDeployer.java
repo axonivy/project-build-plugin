@@ -45,17 +45,17 @@ public class MarkerFileDeployer implements IvyDeployer
 
   @Override
   @SuppressWarnings("hiding")
-  public void deploy(String iarFilePath, Log log) throws MojoExecutionException
+  public void deploy(String deployableFilePath, Log log) throws MojoExecutionException
   {
-    File iar = new File(deployDir, iarFilePath);
-    if (!iar.exists() || !iar.isFile())
+    File deployableFile = new File(deployDir, deployableFilePath);
+    if (!deployableFile.exists() || !deployableFile.isFile())
     {
-      log.warn("Skipping deployment of '"+iarFilePath+"'. The IAR '"+iar+"' does not exist.");
+      log.warn("Skipping deployment of '"+deployableFilePath+"'. The file '"+deployableFile+"' does not exist.");
       return;
     }
     
-    this.deploymentOptions.setDeployableFile(iar);
-    this.markerFile = new DeploymentMarkerFiles(iar);
+    this.deploymentOptions.setDeployableFile(deployableFile);
+    this.markerFile = new DeploymentMarkerFiles(deployableFile);
     this.log = log;
     
     deployInternal();

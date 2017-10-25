@@ -50,7 +50,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "deploy-to-engine";
   
-  /** The IAR to deploy. By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
+  /** The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
   @Parameter(property="ivy.deploy.file", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployFile;
   
@@ -136,12 +136,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   private File copyDeployableToEngine(File deployDir) throws MojoExecutionException
   {
     File deployApp = new File(deployDir, deployToEngineApplication);
-    File targetIarFile = new File(deployApp, deployFile.getName());
+    File targetDeployableFile = new File(deployApp, deployFile.getName());
     try
     {
-      getLog().info("Uploading file "+targetIarFile);
-      FileUtils.copyFile(deployFile, targetIarFile);
-      return targetIarFile;
+      getLog().info("Uploading file "+targetDeployableFile);
+      FileUtils.copyFile(deployFile, targetDeployableFile);
+      return targetDeployableFile;
     }
     catch (IOException ex)
     {
