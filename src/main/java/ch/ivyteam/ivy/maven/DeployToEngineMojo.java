@@ -70,7 +70,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   /** The file that contains deployment options.<br/>
    * Example options file content:
    * <pre><code>deployTestUsers: true
-   *target: RELEASED</code></pre>
+   *configuration:
+   *  overwrite: true
+   *  cleanup: REMOVE_UNUSED
+   *target:
+   *  version: RELEASED
+   *  state: ACTIVE_AND_RELEASED</code></pre>
    */  
   @Parameter(property="ivy.deploy.options.file", required=false)
   File optionsFile;
