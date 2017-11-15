@@ -48,12 +48,6 @@ public class MarkerFileDeployer implements IvyDeployer
   public void deploy(String deployableFilePath, Log log) throws MojoExecutionException
   {
     File deployableFile = new File(deployDir, deployableFilePath);
-    if (!deployableFile.exists() || !deployableFile.isFile())
-    {
-      log.warn("Skipping deployment of '"+deployableFilePath+"'. The file '"+deployableFile+"' does not exist.");
-      return;
-    }
-    
     this.deploymentOptions.setDeployableFile(deployableFile);
     this.markerFile = new DeploymentMarkerFiles(deployableFile);
     this.log = log;
@@ -80,11 +74,6 @@ public class MarkerFileDeployer implements IvyDeployer
     {
       log.info("Deploying project "+markerFile.getDeployCandidate().getName());
       deploymentOptions.copy();
-      markerFile.doDeploy().createNewFile();
-    }
-    catch (IOException ex)
-    {
-      throw new MojoExecutionException("Failed to initialize engine deployment, could not create marker", ex);
     }
     catch (MavenFilteringException ex)
     {
@@ -98,7 +87,7 @@ public class MarkerFileDeployer implements IvyDeployer
     try
     {
       logForwarder.activate();
-      wait(()->!markerFile.doDeploy().exists(), timeoutInSeconds, TimeUnit.SECONDS);
+      wait(()->!markerFile.getDeployCandidate().exists(), timeoutInSeconds, TimeUnit.SECONDS);
     }
     catch (TimeoutException ex)
     {

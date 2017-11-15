@@ -117,12 +117,13 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
       return;
     }
-    
-    File uploadedDeployable = copyDeployableToEngine(deployDir);
+
+    File uploadedDeployable = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.toPath().relativize(uploadedDeployable.toPath()).toString();
     DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(optionsFile, project, session, fileFilter);
     IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds);
     deployer.deploy(deployablePath, getLog());
+    copyDeployableToEngine(uploadedDeployable);
   }
 
   private File getDeployDirectory() throws MojoExecutionException
@@ -138,15 +139,19 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     return new File(deployEngineDirectory, deployDirectory);
   }
 
-  private File copyDeployableToEngine(File deployDir) throws MojoExecutionException
+  private File createTargetDeployableFile(File deployDir)
   {
     File deployApp = new File(deployDir, deployToEngineApplication);
     File targetDeployableFile = new File(deployApp, deployFile.getName());
+    return targetDeployableFile;
+  }
+
+  private void copyDeployableToEngine(File targetDeployableFile) throws MojoExecutionException
+  {
     try
     {
       getLog().info("Uploading file "+targetDeployableFile);
       FileUtils.copyFile(deployFile, targetDeployableFile);
-      return targetDeployableFile;
     }
     catch (IOException ex)
     {

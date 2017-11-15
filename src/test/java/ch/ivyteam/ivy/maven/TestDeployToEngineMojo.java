@@ -39,18 +39,14 @@ public class TestDeployToEngineMojo
     DeployToEngineMojo mojo = rule.getMojo();
     
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+"options.yaml");
 
     assertThat(deployedIar).doesNotExist();
-    assertThat(deployMarkerFile).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      assertThat(deployMarkerFile).as("deployment must be initialized").exists();
       assertThat(deploymentOptionsFile).doesNotExist();
-      deployMarkerFile.delete(); //deployment finished
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -70,21 +66,17 @@ public class TestDeployToEngineMojo
     
     mojo.optionsFile = new File("src/test/resources/options.yaml");
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deployMarkerFile = new DeploymentMarkerFiles(deployedIar).doDeploy();
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
     
     assertThat(deployedIar).doesNotExist();
-    assertThat(deployMarkerFile).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
     
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      assertThat(deployMarkerFile).as("deployment must be initialized").exists();
       assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
       assertThat(deploymentOptionsFile).as("deployement options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
       deploymentOptionsFile.delete();
-      deployMarkerFile.delete(); //deployment finished
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -104,9 +96,7 @@ public class TestDeployToEngineMojo
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      assertThat(markers.doDeploy()).as("deployment must be initialized").exists();
       FileUtils.write(markers.errorLog(), "validation errors");
-      markers.doDeploy().delete(); //deployment finished
       return null;
     };
     

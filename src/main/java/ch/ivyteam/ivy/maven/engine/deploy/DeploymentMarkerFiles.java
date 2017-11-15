@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
  */
 public class DeploymentMarkerFiles
 {
-  private static final String DO_DEPLOY = ".doDeploy";
   private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
   
@@ -26,11 +25,6 @@ public class DeploymentMarkerFiles
     return deployable;
   }
 
-  public File doDeploy()
-  {
-    return getFile(DO_DEPLOY);
-  }
-  
   public File log()
   {
     return getFile(LOG);
@@ -48,7 +42,7 @@ public class DeploymentMarkerFiles
   
   public void clearAll()
   {
-    for(String markerExtension : Arrays.asList(DO_DEPLOY, LOG, ERROR_LOG))
+    for(String markerExtension : Arrays.asList(LOG, ERROR_LOG))
     {
       FileUtils.deleteQuietly(getFile(markerExtension));
     }
