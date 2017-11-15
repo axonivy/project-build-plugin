@@ -47,6 +47,8 @@ public class TestDeployToEngineMojo
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).doesNotExist();
+      assertThat(deployedIar).exists();
+      deployedIar.delete();
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -54,8 +56,8 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.failOnExecption();
     
     assertThat(deployedIar)
-      .as("IAR must exist in engine deploy directory")
-      .exists();
+      .as("IAR should not exist in engine deploy directory")
+      .doesNotExist();
   }
   
   @Test
@@ -71,12 +73,13 @@ public class TestDeployToEngineMojo
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
     
-    
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
       assertThat(deploymentOptionsFile).as("deployement options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
       deploymentOptionsFile.delete();
+      assertThat(deployedIar).exists();
+      deployedIar.delete();
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -84,8 +87,8 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.failOnExecption();
     
     assertThat(deployedIar)
-      .as("IAR must exist in engine deploy directory")
-      .exists();
+      .as("IAR should not exist in engine deploy directory")
+      .doesNotExist();
   }
 
   @Test
@@ -93,10 +96,13 @@ public class TestDeployToEngineMojo
   {
     DeployToEngineMojo mojo = rule.getMojo();
     DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployFile, mojo));
+    File deployedIar = getTarget(mojo.deployFile, mojo);
     
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       FileUtils.write(markers.errorLog(), "validation errors");
+      assertThat(deployedIar).exists();
+      deployedIar.delete();
       return null;
     };
     

@@ -27,6 +27,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 
+// TODO Rename
 public class MarkerFileDeployer implements IvyDeployer
 {
   private final File deployDir;
@@ -35,12 +36,18 @@ public class MarkerFileDeployer implements IvyDeployer
   private Log log;
   private DeploymentMarkerFiles markerFile;
   private DeploymentOptionsFile deploymentOptions;
+  
+  private File deployFile;
+  private File targetDeployableFile;
 
-  public MarkerFileDeployer(File deployDir, DeploymentOptionsFile deploymentOptions, Integer deployTimeoutInSeconds)
+  public MarkerFileDeployer(File deployDir, DeploymentOptionsFile deploymentOptions, Integer deployTimeoutInSeconds, File deployFile, File targetDeployableFile)
   {
     this.deployDir = deployDir;
     this.deploymentOptions = deploymentOptions;
     this.timeoutInSeconds = deployTimeoutInSeconds;
+    
+    this.deployFile = deployFile;
+    this.targetDeployableFile = targetDeployableFile;
   }
 
   @Override
@@ -59,6 +66,7 @@ public class MarkerFileDeployer implements IvyDeployer
   {
     clear();
     initDeployment();
+    copyDeployableToEngine();
     determineDeployResult();
   }
 
@@ -78,6 +86,19 @@ public class MarkerFileDeployer implements IvyDeployer
     catch (MavenFilteringException ex)
     {
       throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
+    }
+  }
+  
+  private void copyDeployableToEngine() throws MojoExecutionException
+  {
+    try
+    {
+      log.info("Uploading file " + deployFile + " to " + targetDeployableFile);
+      FileUtils.copyFile(deployFile, targetDeployableFile);
+    }
+    catch (IOException ex)
+    {
+      throw new MojoExecutionException("Upload of file '"+deployFile.getName()+"' to engine failed.", ex);
     }
   }
 

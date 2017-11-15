@@ -42,13 +42,21 @@ public class DeploymentOptionsFile
     {
       return;
     }
-    fileFilter.copyFile(optionsFile, getTargetFile(), true, project, Collections.emptyList(), false, StandardCharsets.UTF_8.name(), session);
+    File targetFile = getTargetFile();
+    targetFile.getParentFile().mkdirs();
+    fileFilter.copyFile(optionsFile, targetFile, true, project, Collections.emptyList(), false, StandardCharsets.UTF_8.name(), session);
   }
   
   public void clear()
   {
+    File deployFolder = deployableFile.getParentFile();
+    if (!deployFolder.exists())
+    {
+      return;
+    }
+
     PrefixFileFilter optionsFileFilter = new PrefixFileFilter(getTargetFilePrefix());
-    Collection<File> targetOptionsFiles = FileUtils.listFiles(deployableFile.getParentFile(), optionsFileFilter, null);
+    Collection<File> targetOptionsFiles = FileUtils.listFiles(deployFolder, optionsFileFilter, null);
     for (File targetOptionFile : targetOptionsFiles)
     {
       FileUtils.deleteQuietly(targetOptionFile);

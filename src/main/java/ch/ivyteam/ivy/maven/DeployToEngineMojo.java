@@ -17,10 +17,8 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -118,12 +116,11 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       return;
     }
 
-    File uploadedDeployable = createTargetDeployableFile(deployDir);
-    String deployablePath = deployDir.toPath().relativize(uploadedDeployable.toPath()).toString();
+    File targetDeployableFile = createTargetDeployableFile(deployDir);
+    String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
     DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(optionsFile, project, session, fileFilter);
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds);
+    IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
-    copyDeployableToEngine(uploadedDeployable);
   }
 
   private File getDeployDirectory() throws MojoExecutionException
@@ -144,19 +141,6 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     File deployApp = new File(deployDir, deployToEngineApplication);
     File targetDeployableFile = new File(deployApp, deployFile.getName());
     return targetDeployableFile;
-  }
-
-  private void copyDeployableToEngine(File targetDeployableFile) throws MojoExecutionException
-  {
-    try
-    {
-      getLog().info("Uploading file "+targetDeployableFile);
-      FileUtils.copyFile(deployFile, targetDeployableFile);
-    }
-    catch (IOException ex)
-    {
-      throw new MojoExecutionException("Upload of file '"+deployFile.getName()+"' to engine failed.", ex);
-    }
   }
   
 }

@@ -17,10 +17,8 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -96,10 +94,11 @@ public class IarDeployMojo extends AbstractEngineMojo
       return;
     }
     
-    File uploadedIar = copyIarToEngine(deployDir);
-    
-    String iarPath = deployDir.toPath().relativize(uploadedIar.toPath()).toString();
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, DeploymentOptionsFile.NO_OPTIONS, deployTimeoutInSeconds);
+    File deployApp = new File(deployDir, deployToEngineApplication);
+    File targetIarFile = new File(deployApp, deployIarFile.getName());
+
+    String iarPath = deployDir.toPath().relativize(targetIarFile.toPath()).toString();
+    IvyDeployer deployer = new MarkerFileDeployer(deployDir, DeploymentOptionsFile.NO_OPTIONS, deployTimeoutInSeconds, deployIarFile, targetIarFile);
     deployer.deploy(iarPath, getLog());
   }
 
@@ -114,22 +113,6 @@ public class IarDeployMojo extends AbstractEngineMojo
       return new File(deployDirectory);
     }
     return new File(deployEngineDirectory, deployDirectory);
-  }
-
-  private File copyIarToEngine(File deployDir) throws MojoExecutionException
-  {
-    File deployApp = new File(deployDir, deployToEngineApplication);
-    File targetIarFile = new File(deployApp, deployIarFile.getName());
-    try
-    {
-      getLog().info("Uploading project "+targetIarFile);
-      FileUtils.copyFile(deployIarFile, targetIarFile);
-      return targetIarFile;
-    }
-    catch (IOException ex)
-    {
-      throw new MojoExecutionException("Upload of IAR '"+deployIarFile.getName()+"' failed.", ex);
-    }
   }
   
 }
