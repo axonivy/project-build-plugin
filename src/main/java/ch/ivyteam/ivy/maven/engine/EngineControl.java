@@ -123,7 +123,9 @@ public class EngineControl
     
     CommandLine cli = new CommandLine(new File(getJavaExec()))
             .addArgument("-classpath").addArgument(classpath)
+            .addArgument("-Divy.engine.testheadless=true")
             .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
+    		
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
     {
       cli.addArgument(context.vmOptions.additionalVmOptions, false);
