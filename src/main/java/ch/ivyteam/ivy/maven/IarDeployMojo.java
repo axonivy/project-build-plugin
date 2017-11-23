@@ -44,10 +44,12 @@ import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 @Mojo(name = IarDeployMojo.GOAL, requiresProject=false)
 public class IarDeployMojo extends AbstractEngineMojo
 {
+  static final String PROPERTY_IVY_DEPLOY_IAR_FILE = "ivy.deploy.iarFile";
+
   public static final String GOAL = "deploy-iar";
   
   /** The IAR to deploy. By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
-  @Parameter(property="ivy.deploy.iarFile", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
+  @Parameter(property=PROPERTY_IVY_DEPLOY_IAR_FILE, defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployIarFile;
   
   /** The path to the AXON.IVY Engine to which we deploy the IAR. <br/>
@@ -81,6 +83,7 @@ public class IarDeployMojo extends AbstractEngineMojo
       getLog().info("Skipping deployment of project.");
       return;
     }
+    getLog().warn("The goal '"+GOAL+"' is deprecated! Please migrate to the new goal '"+DeployToEngineMojo.GOAL+"'.");
     
     if (!deployIarFile.exists())
     {

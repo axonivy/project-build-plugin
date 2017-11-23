@@ -46,10 +46,12 @@ import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 @Mojo(name = DeployToEngineMojo.GOAL, requiresProject=false)
 public class DeployToEngineMojo extends AbstractEngineMojo
 {
+  static final String PROPERTY_IVY_DEPLOY_FILE = "ivy.deploy.file";
+
   public static final String GOAL = "deploy-to-engine";
   
   /** The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
-  @Parameter(property="ivy.deploy.file", defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
+  @Parameter(property=PROPERTY_IVY_DEPLOY_FILE, defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployFile;
   
   /** The path to the AXON.IVY Engine to which we deploy the file. <br/>
@@ -103,7 +105,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().info("Skipping deployment to engine.");
       return;
     }
-    
+    warnDeprectadIarProperty();
     if (!deployFile.exists())
     {
       getLog().warn("Skipping deployment of '"+deployFile+"' to engine. The file does not exist.");
@@ -141,6 +143,17 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     File deployApp = new File(deployDir, deployToEngineApplication);
     File targetDeployableFile = new File(deployApp, deployFile.getName());
     return targetDeployableFile;
+  }
+
+  @SuppressWarnings("deprecation")
+  private void warnDeprectadIarProperty()
+  {
+    String legacyIarFileProperty = System.getProperty(IarDeployMojo.PROPERTY_IVY_DEPLOY_IAR_FILE);
+    if (legacyIarFileProperty != null)
+    {
+      getLog().warn("Ignoring deprecated property '"+IarDeployMojo.PROPERTY_IVY_DEPLOY_IAR_FILE+"' with value '"+legacyIarFileProperty+"'.");
+      getLog().warn("Please migrate to the new property '"+PROPERTY_IVY_DEPLOY_FILE+"'.");
+    }
   }
   
 }
