@@ -66,7 +66,7 @@ public class TestDeployToEngineMojo
     rule.project.getProperties().setProperty("ivy.deploy.test.user", "true");
     DeployToEngineMojo mojo = rule.getMojo();
     
-    mojo.optionsFile = new File("src/test/resources/options.yaml");
+    mojo.deployOptionsFile = new File("src/test/resources/options.yaml");
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
     

@@ -76,9 +76,22 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    *target:
    *  version: RELEASED
    *  state: ACTIVE_AND_RELEASED</code></pre>
+   *  
+   *  <p>Inside the options file you can use property placeholders. The options file may look like this:</p>
+   *  <pre><code>deployTestUsers: ${ivy.deploy.test.users}
+   *configuration:
+   *  overwrite: true
+   *  cleanup: REMOVE_UNUSED
+   *target:
+   *  version: AUTO
+   *  state: ${ivy.deploy.target.state}</code></pre>
+   *  
+   *  <p>All options in this file are optional. You only need to specify options that overwrite the default behavior.</p>
+   *  
+   * @see <a href="https://developer.axonivy.com/doc/7.1.latest/EngineGuideHtml/administration.html#administration.deployment.directory.options">Engine Guide</a>
    */  
   @Parameter(property="ivy.deploy.options.file", required=false)
-  File optionsFile;
+  File deployOptionsFile;
   
   /** The maximum amount of seconds that we wait for a deployment result from the engine */
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
@@ -120,7 +133,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
     File targetDeployableFile = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-    DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(optionsFile, project, session, fileFilter);
+    DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(deployOptionsFile, project, session, fileFilter);
     IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
