@@ -210,40 +210,7 @@ file containing a full application (set of projects). By default
 the packed IAR from the <tt>IarPackagingMojo.GOAL</tt> is used.<br /><b>Default value is</b>: <tt>${project.build.directory}/${project.artifactId}-${project.version}.iar</tt>.<br /><b>User property is</b>: <tt>ivy.deploy.file</tt>.</td>
           </tr>
           <tr class="a">
-            <td><b><a href="#deployTimeoutInSeconds">deployTimeoutInSeconds</a></b></td>
-            <td><tt>Integer</tt></td>
-            <td><tt>7.1.0</tt></td>
-            <td>The maximum amount of seconds that we wait for a deployment result
-from the engine<br /><b>Default value is</b>: <tt>30</tt>.<br /><b>User property is</b>: <tt>ivy.deploy.timeout.seconds</tt>.</td>
-          </tr>
-          <tr class="b">
-            <td><b><a href="#deployToEngineApplication">deployToEngineApplication</a></b></td>
-            <td><tt>String</tt></td>
-            <td><tt>7.1.0</tt></td>
-            <td>The name of an ivy application to which the file is deployed.<br /><b>Default value is</b>: <tt>SYSTEM</tt>.<br /><b>User property is</b>: <tt>ivy.deploy.engine.app</tt>.</td>
-          </tr>
-          <tr class="a">
-            <td><b><a href="#engineCacheDirectory">engineCacheDirectory</a></b></td>
-            <td><tt>File</tt></td>
-            <td><tt>7.1.0</tt></td>
-            <td>Location where ivy engines in required version can be extracted to.
-
-<p>If the Engine does not yet exist, it can be automatically
-downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.cache/ivy</tt>.<br /><b>User property is</b>: <tt>ivy.engine.cache.directory</tt>.</td>
-          </tr>
-          <tr class="b">
-            <td><b><a href="#engineDirectory">engineDirectory</a></b></td>
-            <td><tt>File</tt></td>
-            <td><tt>7.1.0</tt></td>
-            <td>Location where an unpacked (may pre-configured) ivy Engine in the
-<tt>required version</tt> exists. 
-<p>If parameter is not set it will be a sub-directory of the
-<tt>engineCacheDirectory</tt>.</p>
-<p>If the Engine does not yet exist, it can be automatically
-downloaded.</p><br /><b>User property is</b>: <tt>ivy.engine.directory</tt>.</td>
-          </tr>
-          <tr class="a">
-            <td><b><a href="#optionsFile">optionsFile</a></b></td>
+            <td><b><a href="#deployOptionsFile">deployOptionsFile</a></b></td>
             <td><tt>File</tt></td>
             <td><tt>7.1.0</tt></td>
             <td>The file that contains deployment options.<br />
@@ -257,7 +224,56 @@ configuration:
 target:
  version: RELEASED
  state: ACTIVE_AND_RELEASED</tt>
-</pre></div><br /><b>User property is</b>: <tt>ivy.deploy.options.file</tt>.</td>
+</pre></div>
+
+<p>Inside the options file you can use property placeholders. The
+options file may look like this:</p>
+<div><pre>
+<tt>
+deployTestUsers: ${ivy.deploy.test.users}
+configuration:
+ overwrite: true
+ cleanup: REMOVE_UNUSED
+target:
+ version: AUTO
+ state: ${ivy.deploy.target.state}</tt>
+</pre></div>
+
+<p>All options in this file are optional. You only need to specify
+options that overwrite the default behavior.</p><br /><b>User property is</b>: <tt>ivy.deploy.options.file</tt>.</td>
+          </tr>
+          <tr class="b">
+            <td><b><a href="#deployTimeoutInSeconds">deployTimeoutInSeconds</a></b></td>
+            <td><tt>Integer</tt></td>
+            <td><tt>7.1.0</tt></td>
+            <td>The maximum amount of seconds that we wait for a deployment result
+from the engine<br /><b>Default value is</b>: <tt>30</tt>.<br /><b>User property is</b>: <tt>ivy.deploy.timeout.seconds</tt>.</td>
+          </tr>
+          <tr class="a">
+            <td><b><a href="#deployToEngineApplication">deployToEngineApplication</a></b></td>
+            <td><tt>String</tt></td>
+            <td><tt>7.1.0</tt></td>
+            <td>The name of an ivy application to which the file is deployed.<br /><b>Default value is</b>: <tt>SYSTEM</tt>.<br /><b>User property is</b>: <tt>ivy.deploy.engine.app</tt>.</td>
+          </tr>
+          <tr class="b">
+            <td><b><a href="#engineCacheDirectory">engineCacheDirectory</a></b></td>
+            <td><tt>File</tt></td>
+            <td><tt>7.1.0</tt></td>
+            <td>Location where ivy engines in required version can be extracted to.
+
+<p>If the Engine does not yet exist, it can be automatically
+downloaded.</p><br /><b>Default value is</b>: <tt>${settings.localRepository}/.cache/ivy</tt>.<br /><b>User property is</b>: <tt>ivy.engine.cache.directory</tt>.</td>
+          </tr>
+          <tr class="a">
+            <td><b><a href="#engineDirectory">engineDirectory</a></b></td>
+            <td><tt>File</tt></td>
+            <td><tt>7.1.0</tt></td>
+            <td>Location where an unpacked (may pre-configured) ivy Engine in the
+<tt>required version</tt> exists. 
+<p>If parameter is not set it will be a sub-directory of the
+<tt>engineCacheDirectory</tt>.</p>
+<p>If the Engine does not yet exist, it can be automatically
+downloaded.</p><br /><b>User property is</b>: <tt>ivy.engine.directory</tt>.</td>
           </tr>
           <tr class="b">
             <td><b><a href="#skipDeploy">skipDeploy</a></b></td>
@@ -297,6 +313,40 @@ the packed IAR from the <tt>IarPackagingMojo.GOAL</tt> is used.</div>
           <li><b>Required</b>: <tt>No</tt></li>
           <li><b>User Property</b>: <tt>ivy.deploy.file</tt></li>
           <li><b>Default</b>: <tt>${project.build.directory}/${project.artifactId}-${project.version}.iar</tt></li>
+        </ul><hr /><p><b><a name="deployOptionsFile">deployOptionsFile</a>:</b></p>
+        <div>The file that contains deployment options.<br />
+Example options file content: 
+<div><pre>
+<tt>
+deployTestUsers: true
+configuration:
+ overwrite: true
+ cleanup: REMOVE_UNUSED
+target:
+ version: RELEASED
+ state: ACTIVE_AND_RELEASED</tt>
+</pre></div>
+
+<p>Inside the options file you can use property placeholders. The
+options file may look like this:</p>
+<div><pre>
+<tt>
+deployTestUsers: ${ivy.deploy.test.users}
+configuration:
+ overwrite: true
+ cleanup: REMOVE_UNUSED
+target:
+ version: AUTO
+ state: ${ivy.deploy.target.state}</tt>
+</pre></div>
+
+<p>All options in this file are optional. You only need to specify
+options that overwrite the default behavior.</p></div>
+        <ul>
+          <li><b>Type</b>: <tt>java.io.File</tt></li>
+          <li><b>Since</b>: <tt>7.1.0</tt></li>
+          <li><b>Required</b>: <tt>No</tt></li>
+          <li><b>User Property</b>: <tt>ivy.deploy.options.file</tt></li>
         </ul><hr /><p><b><a name="deployTimeoutInSeconds">deployTimeoutInSeconds</a>:</b></p>
         <div>The maximum amount of seconds that we wait for a deployment result
 from the engine</div>
@@ -353,24 +403,6 @@ Examples: <br />
           <li><b>Required</b>: <tt>Yes</tt></li>
           <li><b>User Property</b>: <tt>ivy.engine.version</tt></li>
           <li><b>Default</b>: <tt>7.1.0</tt></li>
-        </ul><hr /><p><b><a name="optionsFile">optionsFile</a>:</b></p>
-        <div>The file that contains deployment options.<br />
-Example options file content: 
-<div><pre>
-<tt>
-deployTestUsers: true
-configuration:
- overwrite: true
- cleanup: REMOVE_UNUSED
-target:
- version: RELEASED
- state: ACTIVE_AND_RELEASED</tt>
-</pre></div></div>
-        <ul>
-          <li><b>Type</b>: <tt>java.io.File</tt></li>
-          <li><b>Since</b>: <tt>7.1.0</tt></li>
-          <li><b>Required</b>: <tt>No</tt></li>
-          <li><b>User Property</b>: <tt>ivy.deploy.options.file</tt></li>
         </ul><hr /><p><b><a name="skipDeploy">skipDeploy</a>:</b></p>
         <div>Set to <tt>true</tt> to skip the deployment to the engine.</div>
         <ul>
