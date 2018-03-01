@@ -21,11 +21,13 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -34,7 +36,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFiles;
 public class TestDeployToEngineMojo
 {
   @Test
-  public void deployPackedIar() throws Exception
+  public void deployPackedIar() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
     
@@ -53,7 +55,7 @@ public class TestDeployToEngineMojo
     };
     mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
-    mockEngineDeployThread.failOnExecption();
+    mockEngineDeployThread.failOnException();
     
     assertThat(deployedIar)
       .as("IAR should not exist in engine deploy directory")
@@ -61,9 +63,9 @@ public class TestDeployToEngineMojo
   }
   
   @Test
-  public void deployWithOptions() throws Exception
+  public void deployWithExistingOptionsFile() throws Throwable
   {
-    rule.project.getProperties().setProperty("ivy.deploy.test.user", "true");
+    rule.project.getProperties().setProperty("doDeploy.test.user", "true");
     DeployToEngineMojo mojo = rule.getMojo();
     
     mojo.deployOptionsFile = new File("src/test/resources/options.yaml");
@@ -76,15 +78,45 @@ public class TestDeployToEngineMojo
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
-      assertThat(deploymentOptionsFile).as("deployement options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
+      assertThat(deploymentOptionsFile).as("deployment options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
       deploymentOptionsFile.delete();
       assertThat(deployedIar).exists();
-      deployedIar.delete();
+      Files.delete(deployedIar.toPath());
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
-    mockEngineDeployThread.failOnExecption();
+    mockEngineDeployThread.failOnException();
+    
+    assertThat(deployedIar)
+      .as("IAR should not exist in engine deploy directory")
+      .doesNotExist();
+  }
+  
+  @Test
+  public void deployWithOptions() throws Throwable
+  {
+    DeployToEngineMojo mojo = rule.getMojo();
+    mojo.deployTestUsers = true;
+    
+    File deployedIar = getTarget(mojo.deployFile, mojo);
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
+    
+    assertThat(deployedIar).doesNotExist();
+    assertThat(deploymentOptionsFile).doesNotExist();
+    
+    DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
+    Callable<Void> engineOperation = () -> {
+      assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
+      assertThat(deploymentOptionsFile).as("deployment options file must contain").hasContent("deployTestUsers: true");
+      deploymentOptionsFile.delete();
+      assertThat(deployedIar).exists();
+      Files.delete(deployedIar.toPath());
+      return null;
+    };
+    mockEngineDeployThread.execute(engineOperation);
+    mojo.execute();
+    mockEngineDeployThread.failOnException();
     
     assertThat(deployedIar)
       .as("IAR should not exist in engine deploy directory")
@@ -92,7 +124,7 @@ public class TestDeployToEngineMojo
   }
 
   @Test
-  public void failOnEngineDeployError() throws Exception
+  public void failOnEngineDeployError() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
     DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployFile, mojo));
@@ -118,7 +150,7 @@ public class TestDeployToEngineMojo
     }
     finally
     {
-      mockEngineDeployThread.failOnExecption();
+      mockEngineDeployThread.failOnException();
     }
   }
 
@@ -172,7 +204,7 @@ public class TestDeployToEngineMojo
   private static class DelayedOperation
   {
     private final long delayMillis;
-    private Exception ex;
+    private Throwable throwable;
     private Thread thread;
   
     public DelayedOperation(long delay, TimeUnit unit)
@@ -191,25 +223,26 @@ public class TestDeployToEngineMojo
             Thread.sleep(delayMillis);
             delayedFunction.call();
           }
-          catch (Exception functionEx)
+          catch (Throwable functionThrowable)
           {
-            DelayedOperation.this.ex = functionEx;
+            functionThrowable.printStackTrace();
+            DelayedOperation.this.throwable = functionThrowable;
           }
         }
       };
       thread.start();
     }
   
-    public void failOnExecption() throws Exception
+    public void failOnException() throws Throwable
     {
       assertThat(thread).as("Delayed operation thread has never been started.").isNotNull();
       while(thread.isAlive())
       {
         Thread.sleep(10); // wait for result
       }
-      if (ex != null)
+      if (throwable != null)
       {
-        throw ex;
+        throw throwable;
       }
     }
   }

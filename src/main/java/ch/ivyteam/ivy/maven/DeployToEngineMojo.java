@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.nio.file.Paths;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,7 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
-import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFile;
+import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 
@@ -67,7 +68,8 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
   String deployDirectory;
   
-  /** The file that contains deployment options.<br/>
+  /** The file that contains deployment options. <br/>
+   * 
    * Example options file content:
    * <pre><code>deployTestUsers: true
    *configuration:
@@ -101,6 +103,72 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(defaultValue="false", property="ivy.deploy.skip")
   boolean skipDeploy;
   
+  /** If set to <code>true</code> then test users defined in the projects are deployed to the engine. 
+   * Only works if the current security system allows to create users. 
+   * Should only be used for testing. */
+  @Parameter(property="ivy.deploy.test.users", defaultValue="false")
+  boolean deployTestUsers;
+  
+  /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients) 
+   * defined in the deployed projects overwrite the configurations that are already configured on the engine. */
+  @Parameter(property="ivy.deploy.configuration.overwrite", defaultValue="false")
+  boolean deployConfigOverwrite;
+  
+  /** 
+   * Controls whether all configurations (global variables, external database, web services, REST clients) should be cleaned.
+   * 
+   * <p>Possible values:</p>
+   * <ul>
+   *    <li><code>DISABLED</code>: all configurations will be kept on the application.</li>
+   *    <li><code>REMOVE_UNUSED</code>: all configurations that are not used by any projects deployed on the application will be removed after the deployment.</li>
+   *    <li><code>REMOVE_ALL</code>: all configurations of the application are removed before the deployment. <br/>
+   *    <strong>Should only be used for development or test engines.<br/>
+   *    Do not use in productive systems because it could break already deployed projects! </strong>
+   * </ul>
+   */
+  @Parameter(property="ivy.deploy.configuration.cleanup", defaultValue=DefaultDeployOptions.CLEANUP_DISABLED)
+  String deployConfigCleanup;
+  
+  /** 
+   * The target version controls on which process model version (PMV) a project is re-deployed. 
+   * 
+   * <p>Matching:</p>
+   * <ul>
+   *    <li>In all cases the library identifier (group id and project/artifact id) of the PMV and the project has to be equal.</li>
+   *    <li>If multiple PMVs match the target version then the PMV with the highest library version is chosen.</li>
+   *    <li>If no PMV matches the target version then a new PMV is created and the project is deployed to the new PMV.</li>
+   * </ul>
+   * 
+   * <p>Possible values:</p>
+   * <ul>
+   *    <li><code>AUTO</code>: a project is re-deployed if the version of the PMV is equal to the project's version.</li>
+   *    <li><code>RELEASED</code>: a project is re-deployed to the released PMV. The version of the PMV and the project does not matter</li>
+   *    <li>Maven version range: a project is re-deployed if the version of the PMV matches the given range. Some samples: 
+   *       <ul>
+   *         <li><code>,</code> - Matches all version.</li>
+   *         <li><code>,2.5]</code> - Matches every version up to 2.5 inclusive.</li>
+   *         <li><code>(2.5,</code> - Matches every version from 2.5 exclusive.</li>
+   *         <li><code>[2.0,3.0)</code> - Matches every version from 2.0 inclusive up to 3.0 exclusive.</li>
+   *         <li><code>2.5</code> - Matches every version from 2.5 inclusive.</li>
+   *       </ul>
+   *    </li>
+   * </ul>
+   */
+  @Parameter(property="ivy.deploy.target.version", defaultValue=DefaultDeployOptions.VERSION_AUTO)
+  String deployTargetVersion;
+  
+  /** 
+   * The target state of all process model versions (PMVs) of the deployed projects.
+   * 
+   * <ul>
+   *   <li><code>ACTIVE_AND_RELEASED</code>: PMVs activated and released after the deployment</li>
+   *   <li><code>ACTIVE</code>: PMVs are activated but not released after the deployment</li>
+   *   <li><code>INACTIVE</code>: PMVs are neither activated nor released after the deployment</li>
+   * </ul>
+   */
+  @Parameter(property="ivy.deploy.target.state", defaultValue=DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED)
+  String deployTargetState;
+  
   @Component
   private MavenFileFilter fileFilter;
   
@@ -133,8 +201,9 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
     File targetDeployableFile = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-    DeploymentOptionsFile deploymentOptions = new DeploymentOptionsFile(deployOptionsFile, project, session, fileFilter);
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, deploymentOptions, deployTimeoutInSeconds, deployFile, targetDeployableFile);
+    
+    File resolvedOptionsFile = createDeployOptionsFile();
+    IvyDeployer deployer = new MarkerFileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
 
@@ -167,6 +236,69 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Ignoring deprecated property '"+IarDeployMojo.PROPERTY_IVY_DEPLOY_IAR_FILE+"' with value '"+legacyIarFileProperty+"'.");
       getLog().warn("Please migrate to the new property '"+PROPERTY_IVY_DEPLOY_FILE+"'.");
     }
+  }
+  
+  private File createDeployOptionsFile() throws MojoExecutionException
+  {
+    DeploymentOptionsFileFactory optionsFileFactory = new DeploymentOptionsFileFactory(deployFile);
+    if (deployOptionsFile != null)
+    {
+      return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
+    }
+    
+    String yamlOptions = generateYamlOptions();
+    if (StringUtils.isNotBlank(yamlOptions))
+    {
+      return optionsFileFactory.createFromConfiguration(yamlOptions);
+    }
+    return null;
+  }
+
+  private String generateYamlOptions()
+  {
+    StringBuilder options = new StringBuilder();
+    if (deployTestUsers)
+    {
+      options.append("deployTestUsers: ").append(deployTestUsers);
+    }
+    
+    boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(deployConfigCleanup);
+    if (deployConfigOverwrite || !defaultCleanup)
+    {
+      options.append("configuration: \n");
+      if (deployConfigOverwrite)
+      {
+        options.append("  overwrite: ").append(deployConfigOverwrite).append("\n");
+      }
+      if (!defaultCleanup)
+      {
+        options.append("  cleanup: ").append(deployConfigCleanup).append("\n"); // validate and log invalid values!
+      }
+    }
+    
+    boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(deployTargetVersion);
+    boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(deployTargetState);
+    if (!defaultVersion || !defaultState)
+    {
+      options.append("target :\n");
+      if (!defaultVersion)
+      {
+        options.append("  version: ").append(deployTargetVersion).append("\n");
+      }
+      if (!defaultCleanup)
+      {
+        options.append("  state: ").append(deployTargetState).append("\n");
+      }
+    }
+    
+    return options.toString();
+  }
+  
+  private static interface DefaultDeployOptions
+  {
+    String CLEANUP_DISABLED = "DISABLED";
+    String VERSION_AUTO = "AUTO";
+    String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
   }
   
 }

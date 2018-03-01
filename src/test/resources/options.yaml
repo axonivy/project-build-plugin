@@ -1,2 +1,2 @@
-deployTestUsers: ${ivy.deploy.test.user}
+deployTestUsers: ${doDeploy.test.user}
 target: AUTO

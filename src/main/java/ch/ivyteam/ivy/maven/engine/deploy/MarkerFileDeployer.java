@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.shared.filtering.MavenFilteringException;
 
 // TODO Rename
 public class MarkerFileDeployer implements IvyDeployer
@@ -35,15 +34,15 @@ public class MarkerFileDeployer implements IvyDeployer
   
   private Log log;
   private DeploymentMarkerFiles markerFile;
-  private DeploymentOptionsFile deploymentOptions;
   
   private File deployFile;
   private File targetDeployableFile;
+  private File deploymentOptionsFile;
 
-  public MarkerFileDeployer(File deployDir, DeploymentOptionsFile deploymentOptions, Integer deployTimeoutInSeconds, File deployFile, File targetDeployableFile)
+  public MarkerFileDeployer(File deployDir, File deploymentOptions, Integer deployTimeoutInSeconds, File deployFile, File targetDeployableFile)
   {
     this.deployDir = deployDir;
-    this.deploymentOptions = deploymentOptions;
+    this.deploymentOptionsFile = deploymentOptions;
     this.timeoutInSeconds = deployTimeoutInSeconds;
     
     this.deployFile = deployFile;
@@ -55,7 +54,6 @@ public class MarkerFileDeployer implements IvyDeployer
   public void deploy(String deployableFilePath, Log log) throws MojoExecutionException
   {
     File deployableFile = new File(deployDir, deployableFilePath);
-    this.deploymentOptions.setDeployableFile(deployableFile);
     this.markerFile = new DeploymentMarkerFiles(deployableFile);
     this.log = log;
     
@@ -66,14 +64,15 @@ public class MarkerFileDeployer implements IvyDeployer
   {
     clear();
     initDeployment();
+    removeTemporaryDeploymentOptionsFile();
     copyDeployableToEngine();
     determineDeployResult();
   }
 
+
   private void clear()
   {
     markerFile.clearAll();
-    deploymentOptions.clear();
   }
 
   private void initDeployment() throws MojoExecutionException
@@ -81,12 +80,22 @@ public class MarkerFileDeployer implements IvyDeployer
     try
     {
       log.info("Deploying project "+markerFile.getDeployCandidate().getName());
-      deploymentOptions.copy();
+      if (deploymentOptionsFile != null)
+      {
+        File engineOption = new File(markerFile.getDeployCandidate().getParentFile(), deploymentOptionsFile.getName());
+        FileUtils.copyFile(deploymentOptionsFile, engineOption);
+      }
     }
-    catch (MavenFilteringException ex)
+    catch (IOException ex)
     {
       throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
     }
+  }
+  
+
+  private void removeTemporaryDeploymentOptionsFile()
+  {
+    FileUtils.deleteQuietly(deploymentOptionsFile);
   }
   
   private void copyDeployableToEngine() throws MojoExecutionException
@@ -108,6 +117,7 @@ public class MarkerFileDeployer implements IvyDeployer
     try
     {
       logForwarder.activate();
+      log.debug("Deployment candidate " + markerFile.getDeployCandidate());
       wait(()->!markerFile.getDeployCandidate().exists(), timeoutInSeconds, TimeUnit.SECONDS);
     }
     catch (TimeoutException ex)

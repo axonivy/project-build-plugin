@@ -24,7 +24,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFile;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
 
@@ -101,7 +100,7 @@ public class IarDeployMojo extends AbstractEngineMojo
     File targetIarFile = new File(deployApp, deployIarFile.getName());
 
     String iarPath = deployDir.toPath().relativize(targetIarFile.toPath()).toString();
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, DeploymentOptionsFile.NO_OPTIONS, deployTimeoutInSeconds, deployIarFile, targetIarFile);
+    IvyDeployer deployer = new MarkerFileDeployer(deployDir, null, deployTimeoutInSeconds, deployIarFile, targetIarFile);
     deployer.deploy(iarPath, getLog());
   }
 
