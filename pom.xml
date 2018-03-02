@@ -311,7 +311,8 @@
             <id>gh-pages.redirect.page</id>
             <configuration>
               <target>
-                <copy file="src/site/gh/pages/index.html" tofile="${project.build.directory}/site-redirect/index.html">
+                <copy todir="${project.build.directory}/site-redirect">
+                  <fileset dir="src/site/gh/pages/" />
                   <filterset id="replaceProductAndVersion">
                     <filter token="version" value="${pluginVersion.majorVersion}.${pluginVersion.minorVersion}" />
                   </filterset>
