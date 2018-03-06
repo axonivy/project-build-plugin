@@ -123,9 +123,9 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * <ul>
    *    <li><code>DISABLED</code>: all configurations will be kept on the application.</li>
    *    <li><code>REMOVE_UNUSED</code>: all configurations that are not used by any projects deployed on the application will be removed after the deployment.</li>
-   *    <li><code>REMOVE_ALL</code>: all configurations of the application are removed before the deployment. <br/>
-   *    <strong>Should only be used for development or test engines.<br/>
-   *    Do not use in productive systems because it could break already deployed projects! </strong>
+   *    <li><code>REMOVE_ALL</code>: all configurations of the application are removed before the deployment.<br>
+   *    <strong>Should only be used for development or test engines.<br>
+   *    Do not use in productive systems because it could break already deployed projects! </strong></li>
    * </ul>
    */
   @Parameter(property="ivy.deploy.configuration.cleanup", defaultValue=DefaultDeployOptions.CLEANUP_DISABLED)
@@ -175,11 +175,11 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * The target file format as which the project will be deployed into the process model version (PMV). 
    * 
    * <ul>
-   *    <li><code>AUTO</code>: Keep the format of the origin project file if possible. Deploys IAR or ZIP projects into a ZIP process model version. <br/>
+   *    <li><code>AUTO</code>: Keep the format of the origin project file if possible. Deploys IAR or ZIP projects into a ZIP process model version. <br>
    *        But if the target PMV already exists as expanded directory, the new version will be expanded as well.</li>
-   *    <li><code>EXPANDED</code>: Enforce the deployment of a project as expanded file directory.<br/>
-   *        This is recommended for projects that change the project files at runtime. E.g. projects that use the Content Management (CMS) write API.<br/>
-   *        The expanded format behaves exactly like projects deployed with Axon.ivy 7.0 or older. You might choose to deploy expanded projects in order to avoid {@link ReadOnlyFileSystemException} at runtime.<br/>
+   *    <li><code>EXPANDED</code>: Enforce the deployment of a project as expanded file directory.<br>
+   *        This is recommended for projects that change the project files at runtime. E.g. projects that use the Content Management (CMS) write API.<br>
+   *        The expanded format behaves exactly like projects deployed with Axon.ivy 7.0 or older. You might choose to deploy expanded projects in order to avoid {@link ReadOnlyFileSystemException} at runtime.<br>
    *        <strong>Warning</strong>: Expanded projects will perform slower at runtime and are therefore not recommended.</li>
    * </ul>
    * */
