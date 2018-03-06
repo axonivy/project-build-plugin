@@ -32,7 +32,7 @@ import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
-import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 
 /**
@@ -220,7 +220,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
     
     File resolvedOptionsFile = createDeployOptionsFile();
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
+    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
 

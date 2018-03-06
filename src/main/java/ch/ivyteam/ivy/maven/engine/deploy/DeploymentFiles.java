@@ -6,20 +6,20 @@ import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Engine status marker files to steer the deployment.
+ * Engine status files from deployment.
  */
-public class DeploymentMarkerFiles
+public class DeploymentFiles
 {
   private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
-  
+
   private File deployable;
-  
-  public DeploymentMarkerFiles(File deployable)
+
+  public DeploymentFiles(File deployable)
   {
     this.deployable = deployable;
   }
-  
+
   File getDeployCandidate()
   {
     return deployable;
@@ -29,7 +29,7 @@ public class DeploymentMarkerFiles
   {
     return getFile(LOG);
   }
-  
+
   public File errorLog()
   {
     return getFile(ERROR_LOG);
@@ -39,7 +39,7 @@ public class DeploymentMarkerFiles
   {
     return new File(deployable.getParent(), deployable.getName()+markerExtension);
   }
-  
+
   public void clearAll()
   {
     for(String markerExtension : Arrays.asList(LOG, ERROR_LOG))

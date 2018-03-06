@@ -25,7 +25,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
-import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
 
 /**
  * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
@@ -100,7 +100,7 @@ public class IarDeployMojo extends AbstractEngineMojo
     File targetIarFile = new File(deployApp, deployIarFile.getName());
 
     String iarPath = deployDir.toPath().relativize(targetIarFile.toPath()).toString();
-    IvyDeployer deployer = new MarkerFileDeployer(deployDir, null, deployTimeoutInSeconds, deployIarFile, targetIarFile);
+    IvyDeployer deployer = new FileDeployer(deployDir, null, deployTimeoutInSeconds, deployIarFile, targetIarFile);
     deployer.deploy(iarPath, getLog());
   }
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ivyteam.ivy.maven.engine.deploy;
 
 import java.io.File;
@@ -26,25 +25,24 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
-// TODO Rename
-public class MarkerFileDeployer implements IvyDeployer
+public class FileDeployer implements IvyDeployer
 {
   private final File deployDir;
   private final Integer timeoutInSeconds;
-  
+
   private Log log;
-  private DeploymentMarkerFiles markerFile;
-  
+  private DeploymentFiles deploymentFiles;
+
   private File deployFile;
   private File targetDeployableFile;
   private File deploymentOptionsFile;
 
-  public MarkerFileDeployer(File deployDir, File deploymentOptions, Integer deployTimeoutInSeconds, File deployFile, File targetDeployableFile)
+  public FileDeployer(File deployDir, File deploymentOptions, Integer deployTimeoutInSeconds, File deployFile, File targetDeployableFile)
   {
     this.deployDir = deployDir;
     this.deploymentOptionsFile = deploymentOptions;
     this.timeoutInSeconds = deployTimeoutInSeconds;
-    
+
     this.deployFile = deployFile;
     this.targetDeployableFile = targetDeployableFile;
   }
@@ -54,9 +52,9 @@ public class MarkerFileDeployer implements IvyDeployer
   public void deploy(String deployableFilePath, Log log) throws MojoExecutionException
   {
     File deployableFile = new File(deployDir, deployableFilePath);
-    this.markerFile = new DeploymentMarkerFiles(deployableFile);
+    this.deploymentFiles = new DeploymentFiles(deployableFile);
     this.log = log;
-    
+
     deployInternal();
   }
 
@@ -72,17 +70,17 @@ public class MarkerFileDeployer implements IvyDeployer
 
   private void clear()
   {
-    markerFile.clearAll();
+    deploymentFiles.clearAll();
   }
 
   private void initDeployment() throws MojoExecutionException
   {
     try
     {
-      log.info("Deploying project "+markerFile.getDeployCandidate().getName());
+      log.info("Deploying project "+deploymentFiles.getDeployCandidate().getName());
       if (deploymentOptionsFile != null)
       {
-        File engineOption = new File(markerFile.getDeployCandidate().getParentFile(), deploymentOptionsFile.getName());
+        File engineOption = new File(deploymentFiles.getDeployCandidate().getParentFile(), deploymentOptionsFile.getName());
         FileUtils.copyFile(deploymentOptionsFile, engineOption);
       }
     }
@@ -91,13 +89,13 @@ public class MarkerFileDeployer implements IvyDeployer
       throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
     }
   }
-  
+
 
   private void removeTemporaryDeploymentOptionsFile()
   {
     FileUtils.deleteQuietly(deploymentOptionsFile);
   }
-  
+
   private void copyDeployableToEngine() throws MojoExecutionException
   {
     try
@@ -113,12 +111,12 @@ public class MarkerFileDeployer implements IvyDeployer
 
   private void determineDeployResult() throws MojoExecutionException
   {
-    FileLogForwarder logForwarder = new FileLogForwarder(markerFile.log(), log, new EngineLogLineHandler(log));
+    FileLogForwarder logForwarder = new FileLogForwarder(deploymentFiles.log(), log, new EngineLogLineHandler(log));
     try
     {
       logForwarder.activate();
-      log.debug("Deployment candidate " + markerFile.getDeployCandidate());
-      wait(()->!markerFile.getDeployCandidate().exists(), timeoutInSeconds, TimeUnit.SECONDS);
+      log.debug("Deployment candidate " + deploymentFiles.getDeployCandidate());
+      wait(()->!deploymentFiles.getDeployCandidate().exists(), timeoutInSeconds, TimeUnit.SECONDS);
     }
     catch (TimeoutException ex)
     {
@@ -128,24 +126,24 @@ public class MarkerFileDeployer implements IvyDeployer
     {
       logForwarder.deactivate();
     }
-    
+
     failOnError();
     log.info("Deployment finished");
   }
-  
+
   private void failOnError() throws MojoExecutionException
   {
-    if (markerFile.errorLog().exists())
+    if (deploymentFiles.errorLog().exists())
     {
       try
       {
-        log.error(FileUtils.readFileToString(markerFile.errorLog()));
+        log.error(FileUtils.readFileToString(deploymentFiles.errorLog()));
       }
       catch (IOException ex)
       {
         log.error("Failed to resolve deployment error cause", ex);
       }
-      throw new MojoExecutionException("Deployment of '"+markerFile.getDeployCandidate().getName()+"' failed!");
+      throw new MojoExecutionException("Deployment of '"+deploymentFiles.getDeployCandidate().getName()+"' failed!");
     }
   }
 
@@ -169,5 +167,5 @@ public class MarkerFileDeployer implements IvyDeployer
       }
     }
   }
-  
+
 }

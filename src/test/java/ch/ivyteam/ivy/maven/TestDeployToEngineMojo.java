@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +29,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.engine.deploy.DeploymentMarkerFiles;
+import ch.ivyteam.ivy.maven.engine.deploy.DeploymentFiles;
 
 public class TestDeployToEngineMojo
 {
@@ -38,13 +37,13 @@ public class TestDeployToEngineMojo
   public void deployPackedIar() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
-    
+
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+"options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
-    
+
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).doesNotExist();
@@ -55,25 +54,25 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
     mockEngineDeployThread.failOnException();
-    
+
     assertThat(deployedIar)
       .as("IAR should not exist in engine deploy directory")
       .doesNotExist();
   }
-  
+
   @Test
   public void deployWithExistingOptionsFile() throws Throwable
   {
     rule.project.getProperties().setProperty("doDeploy.test.user", "true");
     DeployToEngineMojo mojo = rule.getMojo();
-    
+
     mojo.deployOptionsFile = new File("src/test/resources/options.yaml");
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
-    
+
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
-    
+
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
@@ -86,24 +85,24 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
     mockEngineDeployThread.failOnException();
-    
+
     assertThat(deployedIar)
       .as("IAR should not exist in engine deploy directory")
       .doesNotExist();
   }
-  
+
   @Test
   public void deployWithOptions() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployTestUsers = true;
-    
+
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
-    
+
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
-    
+
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
@@ -116,7 +115,7 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.execute(engineOperation);
     mojo.execute();
     mockEngineDeployThread.failOnException();
-    
+
     assertThat(deployedIar)
       .as("IAR should not exist in engine deploy directory")
       .doesNotExist();
@@ -126,9 +125,9 @@ public class TestDeployToEngineMojo
   public void failOnEngineDeployError() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
-    DeploymentMarkerFiles markers = new DeploymentMarkerFiles(getTarget(mojo.deployFile, mojo));
+    DeploymentFiles markers = new DeploymentFiles(getTarget(mojo.deployFile, mojo));
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    
+
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
       FileUtils.write(markers.errorLog(), "validation errors");
@@ -136,7 +135,7 @@ public class TestDeployToEngineMojo
       deployedIar.delete();
       return null;
     };
-    
+
     mockEngineDeployThread.execute(engineOperation);
     try
     {
@@ -166,12 +165,12 @@ public class TestDeployToEngineMojo
           new File("src/test/resources/base"), DeployToEngineMojo.GOAL)
   {
     @Override
-    protected void before() throws Throwable 
+    protected void before() throws Throwable
     {
       super.before();
-      
+
       getMojo().deployEngineDirectory = createEngineDir();
-      
+
       try
       {
         getMojo().deployFile.getParentFile().mkdir();
@@ -183,7 +182,7 @@ public class TestDeployToEngineMojo
         throw ex;
       }
     }
-    
+
     private File createEngineDir()
     {
       File engine = new File("target/myTestIvyEngine");
@@ -191,7 +190,7 @@ public class TestDeployToEngineMojo
       deploy.mkdirs();
       return engine.getAbsoluteFile();
     }
-    
+
     @Override
     protected void after()
     {
@@ -205,12 +204,12 @@ public class TestDeployToEngineMojo
     private final long delayMillis;
     private Throwable throwable;
     private Thread thread;
-  
+
     public DelayedOperation(long delay, TimeUnit unit)
     {
       delayMillis = unit.toMillis(delay);
     }
-    
+
     public void execute(Callable<Void> delayedFunction)
     {
       thread = new Thread(){
@@ -231,7 +230,7 @@ public class TestDeployToEngineMojo
       };
       thread.start();
     }
-  
+
     public void failOnException() throws Throwable
     {
       assertThat(thread).as("Delayed operation thread has never been started.").isNotNull();
