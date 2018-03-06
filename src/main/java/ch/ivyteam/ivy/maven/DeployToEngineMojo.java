@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.nio.file.ReadOnlyFileSystemException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -32,6 +33,7 @@ import org.apache.maven.shared.filtering.MavenFileFilter;
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.MarkerFileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 
 /**
  * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
@@ -107,12 +109,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * Only works if the current security system allows to create users. 
    * Should only be used for testing. */
   @Parameter(property="ivy.deploy.test.users", defaultValue="false")
-  boolean deployTestUsers;
+  public boolean deployTestUsers;
   
   /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients) 
    * defined in the deployed projects overwrite the configurations that are already configured on the engine. */
   @Parameter(property="ivy.deploy.configuration.overwrite", defaultValue="false")
-  boolean deployConfigOverwrite;
+  public boolean deployConfigOverwrite;
   
   /** 
    * Controls whether all configurations (global variables, external database, web services, REST clients) should be cleaned.
@@ -127,7 +129,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * </ul>
    */
   @Parameter(property="ivy.deploy.configuration.cleanup", defaultValue=DefaultDeployOptions.CLEANUP_DISABLED)
-  String deployConfigCleanup;
+  public String deployConfigCleanup;
   
   /** 
    * The target version controls on which process model version (PMV) a project is re-deployed. 
@@ -155,7 +157,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * </ul>
    */
   @Parameter(property="ivy.deploy.target.version", defaultValue=DefaultDeployOptions.VERSION_AUTO)
-  String deployTargetVersion;
+  public String deployTargetVersion;
   
   /** 
    * The target state of all process model versions (PMVs) of the deployed projects.
@@ -167,7 +169,22 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * </ul>
    */
   @Parameter(property="ivy.deploy.target.state", defaultValue=DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED)
-  String deployTargetState;
+  public String deployTargetState;
+  
+  /** 
+   * The target file format as which the project will be deployed into the process model version (PMV). 
+   * 
+   * <ul>
+   *    <li><code>AUTO</code>: Keep the format of the origin project file if possible. Deploys IAR or ZIP projects into a ZIP process model version. <br/>
+   *        But if the target PMV already exists as expanded directory, the new version will be expanded as well.</li>
+   *    <li><code>EXPANDED</code>: Enforce the deployment of a project as expanded file directory.<br/>
+   *        This is recommended for projects that change the project files at runtime. E.g. projects that use the Content Management (CMS) write API.<br/>
+   *        The expanded format behaves exactly like projects deployed with Axon.ivy 7.0 or older. You might choose to deploy expanded projects in order to avoid {@link ReadOnlyFileSystemException} at runtime.<br/>
+   *        <strong>Warning</strong>: Expanded projects will perform slower at runtime and are therefore not recommended.</li>
+   * </ul>
+   * */
+  @Parameter(property = "ivy.deploy.target.file.format", defaultValue = DefaultDeployOptions.FILE_FORMAT_AUTO)
+  public String deployTargetFileFormat;
   
   @Component
   private MavenFileFilter fileFilter;
@@ -246,7 +263,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
     }
     
-    String yamlOptions = generateYamlOptions();
+    String yamlOptions = YamlOptionsFactory.generate(this);
     if (StringUtils.isNotBlank(yamlOptions))
     {
       return optionsFileFactory.createFromConfiguration(yamlOptions);
@@ -254,51 +271,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     return null;
   }
 
-  private String generateYamlOptions()
-  {
-    StringBuilder options = new StringBuilder();
-    if (deployTestUsers)
-    {
-      options.append("deployTestUsers: ").append(deployTestUsers);
-    }
-    
-    boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(deployConfigCleanup);
-    if (deployConfigOverwrite || !defaultCleanup)
-    {
-      options.append("configuration: \n");
-      if (deployConfigOverwrite)
-      {
-        options.append("  overwrite: ").append(deployConfigOverwrite).append("\n");
-      }
-      if (!defaultCleanup)
-      {
-        options.append("  cleanup: ").append(deployConfigCleanup).append("\n"); // validate and log invalid values!
-      }
-    }
-    
-    boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(deployTargetVersion);
-    boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(deployTargetState);
-    if (!defaultVersion || !defaultState)
-    {
-      options.append("target :\n");
-      if (!defaultVersion)
-      {
-        options.append("  version: ").append(deployTargetVersion).append("\n");
-      }
-      if (!defaultCleanup)
-      {
-        options.append("  state: ").append(deployTargetState).append("\n");
-      }
-    }
-    
-    return options.toString();
-  }
-  
-  private static interface DefaultDeployOptions
+  public static interface DefaultDeployOptions
   {
     String CLEANUP_DISABLED = "DISABLED";
     String VERSION_AUTO = "AUTO";
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
+    String FILE_FORMAT_AUTO = "AUTO";
   }
   
 }

@@ -1,0 +1,8 @@
+deployTestUsers: true
+configuration: 
+  overwrite: true
+  cleanup: REMOVE_ALL
+target :
+  version: RELEASED
+  state: ACTIVE
+  fileFormat: EXPANDED
