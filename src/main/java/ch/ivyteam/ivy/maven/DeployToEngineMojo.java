@@ -31,8 +31,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
-import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 
 /**
@@ -41,7 +41,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
  * <p>Command line invocation is supported. E.g.</p>
  * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.1.0:deploy-to-engine 
  * -Divy.deploy.file=myProject.iar 
- * -Divy.deploy.engine.dir=c:/axonviy/engine
+ * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal</pre>
  * 
  * @since 7.1.0
@@ -163,7 +163,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * The target state of all process model versions (PMVs) of the deployed projects.
    * 
    * <ul>
-   *   <li><code>ACTIVE_AND_RELEASED</code>: PMVs activated and released after the deployment</li>
+   *   <li><code>ACTIVE_AND_RELEASED</code>: PMVs are activated and released after the deployment</li>
    *   <li><code>ACTIVE</code>: PMVs are activated but not released after the deployment</li>
    *   <li><code>INACTIVE</code>: PMVs are neither activated nor released after the deployment</li>
    * </ul>
