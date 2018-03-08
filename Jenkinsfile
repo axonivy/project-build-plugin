@@ -11,7 +11,7 @@ pipeline {
     stage('build and deploy') {
       steps {
         script {
-          maven cmd: 'clean install -Dmaven.test.failure.ignore=true'
+          maven cmd: 'clean install -Dmaven.test.failure.ignore=true -Dgpg.skip=true'
         }
       }
       post {
