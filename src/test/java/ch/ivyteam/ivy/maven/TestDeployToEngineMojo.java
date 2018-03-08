@@ -100,6 +100,7 @@ public class TestDeployToEngineMojo
     mojo.deployConfigCleanup = "REMOVE_ALL";
     mojo.deployTargetVersion = "RELEASED";
     mojo.deployTargetState = "INACTIVE";
+    mojo.deployTargetFileFormat = "EXPANDED";
 
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
@@ -117,7 +118,8 @@ public class TestDeployToEngineMojo
               "  cleanup: REMOVE_ALL\n" +
               "target:\n" +
               "  version: RELEASED\n" +
-              "  state: INACTIVE");
+              "  state: INACTIVE\n"+
+              "  fileFormat: EXPANDED");
       deploymentOptionsFile.delete();
       assertThat(deployedIar).exists();
       Files.delete(deployedIar.toPath());
