@@ -32,9 +32,12 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
 {
 
   @Test
-  public void canStartEngine() throws Exception
+  public void canDeployIar() throws Exception
   {
     StartTestEngineMojo mojo = rule.getMojo();
+    mojo.maxmem = "2048m";
+    mojo.startTimeoutInSeconds = 60;
+
     DeployToEngineMojo deployMojo = deployRule.getMojo();
     deployMojo.deployEngineDirectory = mojo.engineDirectory.getAbsoluteFile();
     deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
