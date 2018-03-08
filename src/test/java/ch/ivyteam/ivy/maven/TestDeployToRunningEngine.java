@@ -37,7 +37,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     StartTestEngineMojo mojo = rule.getMojo();
 
     DeployToEngineMojo deployMojo = deployRule.getMojo();
-    deployMojo.deployTimeoutInSeconds = 60;
+    deployMojo.deployTimeoutInSeconds = 120;
     deployMojo.deployEngineDirectory = mojo.engineDirectory.getAbsoluteFile();
     deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = true;
