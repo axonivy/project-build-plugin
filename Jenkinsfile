@@ -18,7 +18,7 @@ pipeline {
       steps {
         script {
           def workspace = pwd()
-          maven cmd: "clean deploy site-deploy --activate-profiles ${params.deployProfile} -Dmaven.test.failure.ignore=true -Dgpg.skip=true -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
+          maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dmaven.test.failure.ignore=true -Dgpg.skip=true -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
         }
       }
       post {
