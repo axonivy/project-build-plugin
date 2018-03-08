@@ -11,8 +11,7 @@ pipeline {
 
   parameters {
     booleanParam(defaultValue: false, description: 'If checked the plugin documentation on GitHub will NOT be updated', name: 'skipGitHubSite')
-    choice(defaultValue: 'Trunk_All', choices: 'Trunk_All\nTrunk_DesignerAndServer', description: 'Engine to use for build', name: 'engineSource')
-    text(defaultValue: 'Trunk_All', description: 'Hello message', name: 'helloMessage')
+    choice(choices: 'Trunk_All\nTrunk_DesignerAndServer', description: 'Engine to use for build', name: 'engineSource')
   }
 
   stages {
