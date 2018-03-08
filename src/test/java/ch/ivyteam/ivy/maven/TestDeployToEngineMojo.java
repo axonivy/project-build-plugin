@@ -75,8 +75,8 @@ public class TestDeployToEngineMojo
 
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
-      assertThat(deploymentOptionsFile).as("deployment options file must contain").hasContent("deployTestUsers: true\ntarget: AUTO");
+      assertThat(deploymentOptionsFile).exists();
+      assertThat(deploymentOptionsFile).hasContent("deployTestUsers: true\ntarget: AUTO");
       deploymentOptionsFile.delete();
       assertThat(deployedIar).exists();
       Files.delete(deployedIar.toPath());
@@ -96,6 +96,10 @@ public class TestDeployToEngineMojo
   {
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployTestUsers = true;
+    mojo.deployConfigOverwrite = true;
+    mojo.deployConfigCleanup = "REMOVE_ALL";
+    mojo.deployTargetVersion = "RELEASED";
+    mojo.deployTargetState = "INACTIVE";
 
     File deployedIar = getTarget(mojo.deployFile, mojo);
     File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
@@ -105,8 +109,15 @@ public class TestDeployToEngineMojo
 
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      assertThat(deploymentOptionsFile).as("deployment options file must be written").exists();
-      assertThat(deploymentOptionsFile).as("deployment options file must contain").hasContent("deployTestUsers: true");
+      assertThat(deploymentOptionsFile).exists();
+      assertThat(deploymentOptionsFile).hasContent(
+              "deployTestUsers: true\n" +
+              "configuration:\n" +
+              "  overwrite: true\n" +
+              "  cleanup: REMOVE_ALL\n" +
+              "target:\n" +
+              "  version: RELEASED\n" +
+              "  state: INACTIVE");
       deploymentOptionsFile.delete();
       assertThat(deployedIar).exists();
       Files.delete(deployedIar.toPath());
