@@ -19,7 +19,7 @@ pipeline {
       steps {
         script {
           def workspace = pwd()
-          maven cmd: "clean install -Dmaven.test.failure.ignore=true -Dgpg.skip=true -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/ -Divy.engine.cache.directory=./target/ivyEngine -Divy.engine.version=[6.1.1,]"
+          maven cmd: "clean install -Dmaven.test.failure.ignore=true -Dgpg.skip=true -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory={$workspace}/target/ivyEngine -Divy.engine.version=[6.1.1,]"
         }
       }
       post {
