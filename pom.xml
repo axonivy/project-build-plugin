@@ -359,7 +359,7 @@
           </execution>
         </executions>
         <configuration>
-          <server>github</server>
+          <server>github.ivy-team</server>
           <merge>true</merge>
         </configuration>
       </plugin>
