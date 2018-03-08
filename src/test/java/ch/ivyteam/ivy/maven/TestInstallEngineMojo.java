@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,17 +49,17 @@ public class TestInstallEngineMojo
   private InstallEngineMojo mojo;
 
   @Rule
-  public ProjectMojoRule<InstallEngineMojo> rule = 
+  public ProjectMojoRule<InstallEngineMojo> rule =
     new ProjectMojoRule<InstallEngineMojo>(new File("src/test/resources/base"), InstallEngineMojo.GOAL)
     {
       @Override
-      protected void before() throws Throwable 
+      protected void before() throws Throwable
       {
         super.before();
         TestInstallEngineMojo.this.mojo = getMojo();
       }
     };
-    
+
   @Test
   public void testEngineDownload_defaultBehaviour() throws Exception
   {
@@ -74,18 +74,18 @@ public class TestInstallEngineMojo
       File engineZip = createFakeEngineZip(mojo.ivyVersion);
       MockHttpServer.MockHttpServerResponse engineZipResponse = createFakeZipResponse(engineZip);
       mockServer.setMockHttpServerResponses(listPageResponse, engineZipResponse);
-      
+
       // test setup can not expand expression ${settings.localRepository}: so we setup an explicit temp dir!
-      mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo").toFile(); 
+      mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo").toFile();
       mojo.engineListPageUrl = new URL(baseUrl + "/listPageUrl.html");
-      
+
       File defaultEngineDir = new File(mojo.engineCacheDirectory, AbstractEngineMojo.DEFAULT_VERSION);
       assertThat(defaultEngineDir).doesNotExist();
       assertThat(mojo.engineDownloadUrl).as("Default config should favour to download an engine from the 'list page url'.").isNull();
       assertThat(mojo.autoInstallEngine).isTrue();
-      
+
       mojo.execute();
-      
+
       assertThat(defaultEngineDir)
         .as("Engine must be automatically downloaded")
         .exists().isDirectory();
@@ -108,7 +108,7 @@ public class TestInstallEngineMojo
     engineZipResponse.setMockResponseContent(zipBytes);
     return engineZipResponse;
   }
-  
+
   private static File createFakeEngineZip(String ivyVersion) throws IOException, ZipException
   {
     File zipDir = createFakeEngineDir(ivyVersion);
@@ -126,14 +126,14 @@ public class TestInstallEngineMojo
     fakeLibToDeclareVersion.createNewFile();
     return fakeDir;
   }
-  
+
   private static File createTempDir(String namePrefix) throws IOException
   {
     File tmpDir = Files.createTempDirectory(namePrefix).toFile();
     tmpDir.deleteOnExit();
     return tmpDir;
   }
-  
+
   @Test
   public void testEngineDownload_alreadyInstalledVersionWithinRange() throws Exception
   {
@@ -151,7 +151,7 @@ public class TestInstallEngineMojo
         {
           return null;
         }
-      
+
         @Mock(maxInvocations = 0)
         public InputStream openStream()
         {
@@ -171,12 +171,12 @@ public class TestInstallEngineMojo
     mojo.engineDirectory = createFakeEngineDir(outdatedVersion);
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
-    
+
     mojo.ivyVersion = "[7.0.0,8.0.0)";
     mojo.autoInstallEngine = true;
     final String downloadVersion = "7.2.0";
     mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(downloadVersion).getMockInstance();
-    
+
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).doesNotExist();
@@ -189,14 +189,14 @@ public class TestInstallEngineMojo
     mojo.engineDirectory = createTempDir("tmpEngine");
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(mojo.engineDirectory.listFiles()).isEmpty();
-    
+
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(mojo.ivyVersion).getMockInstance();
-    
+
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
   }
-  
+
   @Test
   public void testEngineDownload_skipNonOsgiEngineInCache() throws Exception
   {
@@ -219,17 +219,17 @@ public class TestInstallEngineMojo
   {
     mojo.engineDirectory = createTempDir("tmpEngine");
 
-    File alreadyExistingFile = new File(mojo.getDownloadDirectory(), MockedIvyEngineDownloadUrl.ENGINE_FILE_NAME); 
+    File alreadyExistingFile = new File(mojo.getDownloadDirectory(), MockedIvyEngineDownloadUrl.ENGINE_FILE_NAME);
     alreadyExistingFile.createNewFile();
-    
+
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(mojo.ivyVersion).getMockInstance();
-    
+
     mojo.execute();
-    
+
     assertThat(alreadyExistingFile).exists();
   }
-  
+
   @Test
   public void testEngineDownload_validatesDownloadedVersion() throws Exception
   {
@@ -237,7 +237,7 @@ public class TestInstallEngineMojo
     mojo.autoInstallEngine = true;
     mojo.ivyVersion = "9999.0.0";
     mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(AbstractEngineMojo.DEFAULT_VERSION).getMockInstance();
-    
+
     try
     {
       mojo.execute();
@@ -248,13 +248,13 @@ public class TestInstallEngineMojo
       assertThat(ex).hasMessageStartingWith("Automatic installation of an ivyEngine failed.");
     }
   }
-  
+
   @Test
   public void testEngineDownload_canDisableAutoDownload() throws Exception
   {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = false;
-    
+
     try
     {
       mojo.execute();
@@ -265,7 +265,7 @@ public class TestInstallEngineMojo
       assertThat(ex).hasMessageContaining("no valid ivy Engine is available");
     }
   }
-  
+
   private static class MockedIvyEngineDownloadUrl extends MockUp<java.net.URL>
   {
     private static final String ENGINE_FILE_NAME = "fakeEngine.zip";
@@ -275,7 +275,7 @@ public class TestInstallEngineMojo
     {
       this.ivyVersion = ivyVersion;
     }
-    
+
     @Mock
     public InputStream openStream()
     {
@@ -289,7 +289,7 @@ public class TestInstallEngineMojo
         return null;
       }
     }
-    
+
     @Mock
     public String toExternalForm()
     {
@@ -327,7 +327,7 @@ public class TestInstallEngineMojo
     assertThat(findLink("<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>"))
       .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
   }
-  
+
 
   @Test
   public void testEngineLinkFinder_sprintVersionQualifier() throws Exception
@@ -338,7 +338,7 @@ public class TestInstallEngineMojo
     assertThat(findLink("<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip\">Axon.ivy Engine Windows x64</a>"))
       .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip");
   }
-  
+
   @Test
   public void testEngineLinkFinder_wrongVersion() throws Exception
   {
@@ -354,7 +354,7 @@ public class TestInstallEngineMojo
       assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '"+AbstractEngineMojo.DEFAULT_VERSION+"'");
     }
   }
-  
+
   @Test
   public void testEngineLinkFinder_wrongArchitecture() throws Exception
   {
@@ -370,7 +370,7 @@ public class TestInstallEngineMojo
       assertThat(ex).hasMessageStartingWith("Could not find a link to engine for version '"+AbstractEngineMojo.DEFAULT_VERSION+"'");
     }
   }
-  
+
   @Test
   public void testEngineLinkFinder_multipleLinks() throws Exception
   {
@@ -384,22 +384,19 @@ public class TestInstallEngineMojo
           + "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip\">the latest engine</a>")) // linux
              .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip");
   }
-  
+
   private String findLink(String html) throws MojoExecutionException, MalformedURLException
   {
     EngineDownloader engineDownloader = mojo.new EngineDownloader();
     return engineDownloader.findEngineDownloadUrl(IOUtils.toInputStream(html)).toExternalForm();
   }
-  
+
   @Test
   public void testDefaultListPage_isAvailable() throws Exception
   {
-    if (Boolean.parseBoolean(System.getProperty("skip.public.download.test", Boolean.FALSE.toString())))
-    {
-      mojo.getLog().warn("SKIPPING test 'testDefaultListPage_isAvailable'. As property 'skip.public.download.test' is set.");
-      return;
-    }
-    
+    boolean run = Boolean.parseBoolean(System.getProperty("run.public.download.test"));
+    assumeTrue("SKIPPING test 'testDefaultListPage_isAvailable'", run);
+
     EngineDownloader engineDownloader = mojo.new EngineDownloader();
     String engineUrl = engineDownloader.findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
@@ -407,7 +404,7 @@ public class TestInstallEngineMojo
               + "must provide an engine for the current default engine version '"+mojo.ivyVersion+"'.")
       .contains(mojo.ivyVersion);
   }
-  
+
   @Test
   public void testIvyVersion_mustMatchMinimalPluginVersion()
   {
@@ -422,7 +419,7 @@ public class TestInstallEngineMojo
       assertThat(ex).hasMessageContaining("'5.1.0' is lower than the minimal compatible version");
     }
   }
-  
+
   @Test
   public void testZipFileEngineVersionParser()
   {
@@ -435,11 +432,11 @@ public class TestInstallEngineMojo
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine_Linux_x64.zip"))
       .isEqualTo("AxonIvyEngine_Linux_x64.zip"); // do not return null!
   }
-  
+
   private static String getFakeLibraryPath(final String version)
   {
     return OsgiDir.PLUGINS + "/" + EngineVersionEvaluator.LIBRARY_ID + "_" + version + ".51869.jar";
   }
 
-  
+
 }
