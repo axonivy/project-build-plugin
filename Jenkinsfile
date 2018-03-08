@@ -9,7 +9,7 @@ pipeline {
   }
 
   parameters {
-    booleanParam(defaultValue: false, description: 'If checked the plugin documentation on GitHub will NOT be updated', name: 'skipGitHubSite')
+    booleanParam(defaultValue: true, description: 'If checked the plugin documentation on GitHub will NOT be updated', name: 'skipGitHubSite')
     choice(choices: 'Trunk_All\nTrunk_DesignerAndServer', description: 'Engine to use for build', name: 'engineSource')
     choice(choices: 'build\ncentral', description: 'Choose where the built plugin should be deployed to', name: 'deployProfile')
   }
