@@ -37,13 +37,13 @@ import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 
 /**
  * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
- * 
+ *
  * <p>Command line invocation is supported. E.g.</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.1.0:deploy-to-engine 
- * -Divy.deploy.file=myProject.iar 
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.1.0:deploy-to-engine
+ * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal</pre>
- * 
+ *
  * @since 7.1.0
  */
 @Mojo(name = DeployToEngineMojo.GOAL, requiresProject=false)
@@ -52,26 +52,26 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   static final String PROPERTY_IVY_DEPLOY_FILE = "ivy.deploy.file";
 
   public static final String GOAL = "deploy-to-engine";
-  
+
   /** The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the {@link IarPackagingMojo#GOAL} is used. */
   @Parameter(property=PROPERTY_IVY_DEPLOY_FILE, defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployFile;
-  
+
   /** The path to the AXON.IVY Engine to which we deploy the file. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
   @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
-  
+
   /** The name of an ivy application to which the file is deployed. */
   @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
   String deployToEngineApplication;
-  
+
   /** The auto deployment directory of the engine. Must match the ivy engine system property 'deployment.directory' */
   @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
   String deployDirectory;
-  
+
   /** The file that contains deployment options. <br/>
-   * 
+   *
    * Example options file content:
    * <pre><code>deployTestUsers: true
    *configuration:
@@ -80,7 +80,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    *target:
    *  version: RELEASED
    *  state: ACTIVE_AND_RELEASED</code></pre>
-   *  
+   *
    *  <p>Inside the options file you can use property placeholders. The options file may look like this:</p>
    *  <pre><code>deployTestUsers: ${ivy.deploy.test.users}
    *configuration:
@@ -89,36 +89,37 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    *target:
    *  version: AUTO
    *  state: ${ivy.deploy.target.state}</code></pre>
-   *  
+   *
    *  <p>All options in this file are optional. You only need to specify options that overwrite the default behavior.</p>
-   *  
+   *  <p>If configured, all Maven properties are ignored and only values in this file are used.</p>
+   *
    * @see <a href="https://developer.axonivy.com/doc/7.1.latest/EngineGuideHtml/administration.html#administration.deployment.directory.options">Engine Guide</a>
-   */  
+   */
   @Parameter(property="ivy.deploy.options.file", required=false)
   File deployOptionsFile;
-  
+
   /** The maximum amount of seconds that we wait for a deployment result from the engine */
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
   Integer deployTimeoutInSeconds;
-  
+
   /** Set to <code>true</code> to skip the deployment to the engine. */
   @Parameter(defaultValue="false", property="ivy.deploy.skip")
   boolean skipDeploy;
-  
-  /** If set to <code>true</code> then test users defined in the projects are deployed to the engine. 
-   * Only works if the current security system allows to create users. 
+
+  /** If set to <code>true</code> then test users defined in the projects are deployed to the engine.
+   * Only works if the current security system allows to create users.
    * Should only be used for testing. */
   @Parameter(property="ivy.deploy.test.users", defaultValue="false")
   public boolean deployTestUsers;
-  
-  /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients) 
+
+  /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients)
    * defined in the deployed projects overwrite the configurations that are already configured on the engine. */
   @Parameter(property="ivy.deploy.configuration.overwrite", defaultValue="false")
   public boolean deployConfigOverwrite;
-  
-  /** 
+
+  /**
    * Controls whether all configurations (global variables, external database, web services, REST clients) should be cleaned.
-   * 
+   *
    * <p>Possible values:</p>
    * <ul>
    *    <li><code>DISABLED</code>: all configurations will be kept on the application.</li>
@@ -130,22 +131,22 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.deploy.configuration.cleanup", defaultValue=DefaultDeployOptions.CLEANUP_DISABLED)
   public String deployConfigCleanup;
-  
-  /** 
-   * The target version controls on which process model version (PMV) a project is re-deployed. 
-   * 
+
+  /**
+   * The target version controls on which process model version (PMV) a project is re-deployed.
+   *
    * <p>Matching:</p>
    * <ul>
    *    <li>In all cases the library identifier (group id and project/artifact id) of the PMV and the project has to be equal.</li>
    *    <li>If multiple PMVs match the target version then the PMV with the highest library version is chosen.</li>
    *    <li>If no PMV matches the target version then a new PMV is created and the project is deployed to the new PMV.</li>
    * </ul>
-   * 
+   *
    * <p>Possible values:</p>
    * <ul>
    *    <li><code>AUTO</code>: a project is re-deployed if the version of the PMV is equal to the project's version.</li>
    *    <li><code>RELEASED</code>: a project is re-deployed to the released PMV. The version of the PMV and the project does not matter</li>
-   *    <li>Maven version range: a project is re-deployed if the version of the PMV matches the given range. Some samples: 
+   *    <li>Maven version range: a project is re-deployed if the version of the PMV matches the given range. Some samples:
    *       <ul>
    *         <li><code>,</code> - Matches all version.</li>
    *         <li><code>,2.5]</code> - Matches every version up to 2.5 inclusive.</li>
@@ -158,10 +159,10 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.deploy.target.version", defaultValue=DefaultDeployOptions.VERSION_AUTO)
   public String deployTargetVersion;
-  
-  /** 
+
+  /**
    * The target state of all process model versions (PMVs) of the deployed projects.
-   * 
+   *
    * <ul>
    *   <li><code>ACTIVE_AND_RELEASED</code>: PMVs are activated and released after the deployment</li>
    *   <li><code>ACTIVE</code>: PMVs are activated but not released after the deployment</li>
@@ -170,10 +171,10 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.deploy.target.state", defaultValue=DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED)
   public String deployTargetState;
-  
-  /** 
-   * The target file format as which the project will be deployed into the process model version (PMV). 
-   * 
+
+  /**
+   * The target file format as which the project will be deployed into the process model version (PMV).
+   *
    * <ul>
    *    <li><code>AUTO</code>: Keep the format of the origin project file if possible. Deploys IAR or ZIP projects into a ZIP process model version. <br>
    *        But if the target PMV already exists as expanded directory, the new version will be expanded as well.</li>
@@ -185,16 +186,16 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * */
   @Parameter(property = "ivy.deploy.target.file.format", defaultValue = DefaultDeployOptions.FILE_FORMAT_AUTO)
   public String deployTargetFileFormat;
-  
+
   @Component
   private MavenFileFilter fileFilter;
-  
+
   @Parameter(property = "project", required = false, readonly = true)
   MavenProject project;
-  
+
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -218,7 +219,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
     File targetDeployableFile = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-    
+
     File resolvedOptionsFile = createDeployOptionsFile();
     IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
@@ -254,7 +255,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Please migrate to the new property '"+PROPERTY_IVY_DEPLOY_FILE+"'.");
     }
   }
-  
+
   private File createDeployOptionsFile() throws MojoExecutionException
   {
     DeploymentOptionsFileFactory optionsFileFactory = new DeploymentOptionsFileFactory(deployFile);
@@ -262,7 +263,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     {
       return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
     }
-    
+
     String yamlOptions = YamlOptionsFactory.generate(this);
     if (StringUtils.isNotBlank(yamlOptions))
     {
@@ -278,5 +279,5 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
     String FILE_FORMAT_AUTO = "AUTO";
   }
-  
+
 }
