@@ -31,7 +31,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Starts the Axon.ivy Engine for integration testing.
- * 
+ *
  * @since 6.2.0
  */
 @Mojo(name = StartTestEngineMojo.GOAL)
@@ -39,34 +39,34 @@ public class StartTestEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "start-test-engine";
   public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
-  
+
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
-  
+
   /** The maximum heap (-Xmx) that is used for starting and running the Engine **/
   @Parameter(property = "ivy.engine.start.maxmem", required = false, defaultValue = "2048m")
   String maxmem;
-  
+
   /** Additional classpath entries for the JVM that runs the Engine **/
   @Parameter(property = "ivy.engine.start.additional.classpath", required = false, defaultValue = "")
   String additionalClasspath;
-  
+
   /** Additional options for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties. **/
   @Parameter(property = "ivy.engine.start.additional.vmoptions", required = false, defaultValue = "")
   String additionalVmOptions;
-  
+
   /** The file where the engine start is logged **/
   @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
   File engineLogFile;
-  
+
   /** The maximum amount of seconds that we wait for a engine to start */
-  @Parameter(property=IVY_ENGINE_START_TIMEOUT_SECONDS, defaultValue="60")
+  @Parameter(property=IVY_ENGINE_START_TIMEOUT_SECONDS, defaultValue="120")
   Integer startTimeoutInSeconds;
-  
+
   /** Set to <code>true</code> to skip the engine start. */
   @Parameter(defaultValue="false", property="maven.test.skip")
   boolean skipTest;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -75,7 +75,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
       getLog().info("Skipping start of engine.");
       return;
     }
-    
+
     try
     {
       startEngine();
