@@ -257,6 +257,9 @@
               <!-- Axon.ivy Project Build Publisher -->
               <gpg.passphrase>${gpg.keyring.password}</gpg.passphrase>
               <keyname>72B12346</keyname>
+              <gpgArguments>
+                <gpgArgument>--batch</gpgArgument>
+              </gpgArguments>
             </configuration>
           </execution>
         </executions>
