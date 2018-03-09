@@ -21,8 +21,9 @@ pipeline {
         script {
           def workspace = pwd()
           configFileProvider([configFile(fileId: 'Axon-ivy_project-build-plugin_GPG-signing-key', variable: 'GPG_KEYRING')]) {
-            maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.defaultKeyring=false -Dgpg.secretKeyring=$GPG_KEYRING -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
+            sh "gpg --import $GPG_KEYRING"
           }
+          maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
         }
       }
       post {
