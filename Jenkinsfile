@@ -21,6 +21,7 @@ pipeline {
         script {
           def workspace = pwd()
           configFileProvider([configFile(fileId: 'Axon-ivy_project-build-plugin_GPG-signing-key', variable: 'GPG_KEYRING')]) {
+            sh "export GPG_TTY=\$(tty)"
             sh "base64 -d $GPG_KEYRING > gpg_keyring.gpg"
           }
           sh "gpg --import gpg_keyring.gpg"
