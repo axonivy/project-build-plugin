@@ -255,10 +255,11 @@
             </goals>
             <configuration>
               <!-- Axon.ivy Project Build Publisher -->
-              <gpg.passphrase>${gpg.keyring.password}</gpg.passphrase>
+              <passphrase>${gpg.keyring.password}</passphrase>
               <keyname>72B12346</keyname>
               <gpgArguments>
-                <gpgArgument>--batch</gpgArgument>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
               </gpgArguments>
             </configuration>
           </execution>
