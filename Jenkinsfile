@@ -12,7 +12,7 @@ pipeline {
     booleanParam(defaultValue: true, description: 'If checked the plugin documentation on GitHub will NOT be updated', name: 'skipGitHubSite')
     booleanParam(defaultValue: false, description: 'If checked the plugin does not sign the plugin', name: 'skipGPGSign')
     choice(choices: 'Trunk_All\nTrunk_DesignerAndServer', description: 'Engine to use for build', name: 'engineSource')
-    choice(choices: 'build\ncentral', description: 'Choose where the built plugin should be deployed to', name: 'deployProfile')
+    choice(choices: 'zugpronexus.snapshots\nsonatype.snapshots\nmaven.central.release', description: 'Choose where the built plugin should be deployed to', name: 'deployProfile')
   }
 
   stages {

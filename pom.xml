@@ -50,7 +50,7 @@
 
   <profiles>
     <profile>
-      <id>build</id>
+      <id>zugpronexus.snapshots</id>
       <distributionManagement>
         <snapshotRepository>
           <id>zugpronexus.snapshots</id>
@@ -60,7 +60,7 @@
       </distributionManagement>
     </profile>
     <profile>
-      <id>central</id>
+      <id>sonatype.snapshots</id>
       <distributionManagement>
         <snapshotRepository>
           <id>sonatype.snapshots</id>
@@ -70,7 +70,7 @@
       </distributionManagement>
     </profile>
     <profile>
-      <id>release</id>
+      <id>maven.central.release</id>
       <properties>
         <site.path>release</site.path>
         <other.site.name>Snapshot</other.site.name>
