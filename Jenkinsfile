@@ -1,8 +1,6 @@
 pipeline {
   agent {
-    dockerfile {
-        args '-t'
-    }
+    dockerfile true
   }
 
   triggers {
