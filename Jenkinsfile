@@ -1,6 +1,5 @@
 pipeline {
   agent {
-    label 'ZugProBldDocker02'
     dockerfile true
   }
 
