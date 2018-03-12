@@ -1,7 +1,7 @@
 pipeline {
   agent {
+    label 'ZugProBldDocker02'
     dockerfile true
-    node { label 'ZugProBldDocker02' }
   }
 
   options {
