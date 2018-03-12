@@ -3,6 +3,10 @@ pipeline {
     dockerfile true
   }
 
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10'))
+  }
+
   triggers {
     pollSCM '@hourly'
     cron '@midnight'
@@ -29,7 +33,22 @@ pipeline {
       }
       post {
         always {
+          archiveArtifacts 'target/*.jar'
           junit '**/target/surefire-reports/**/*.xml'
+        }
+      }
+    }
+    stage('release') {
+      when {
+        branch 'master'
+        expression { params.deployProfile == 'maven.central.release' }
+      }
+      steps {
+        script {
+          // Create the new versions and SCM changes.
+          maven cmd: "release:prepare -P ${params.deployProfile} -Darguments=\"-Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
+          // Deploy to maven central.
+          maven cmd: "release:perform -P ${params.deployProfile} -Darguments=\"-Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
         }
       }
     }
