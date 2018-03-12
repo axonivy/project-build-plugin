@@ -1,6 +1,7 @@
 pipeline {
   agent {
     dockerfile true
+    node { label 'ZugProBldDocker02' }
   }
 
   options {
@@ -30,10 +31,10 @@ pipeline {
           }
           maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
         }
+        archiveArtifacts 'target/*.jar'
       }
       post {
         always {
-          archiveArtifacts 'target/*.jar'
           junit '**/target/surefire-reports/**/*.xml'
         }
       }
