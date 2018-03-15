@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.DeployToEngineMojo;
+import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
 
 public class TestYamlOptionsFactory
 {
@@ -23,7 +24,7 @@ public class TestYamlOptionsFactory
     config.deployTargetState = "ACTIVE";
     config.deployTargetFileFormat = "EXPANDED";
     
-    String yamlOptions = YamlOptionsFactory.generate(config);
+    String yamlOptions = YamlOptionsFactory.toYaml(config);
     assertThat(yamlOptions).isEqualTo(getFileContent("allOptionsSet.yaml"));
   }
   
@@ -33,5 +34,20 @@ public class TestYamlOptionsFactory
     {
       return IOUtils.toString(is);
     }
+  }
+  
+  @Test
+  public void yamlWithAllDefaultOptions() throws Exception
+  {
+    DeployToEngineMojo config = new DeployToEngineMojo();
+    config.deployTestUsers = false;
+    config.deployConfigCleanup = DefaultDeployOptions.CLEANUP_DISABLED;
+    config.deployConfigOverwrite = false;
+    config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;
+    config.deployTargetState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED;
+    config.deployTargetFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO;
+    
+    String yamlOptions = YamlOptionsFactory.toYaml(config);
+    assertThat(yamlOptions).isNullOrEmpty();
   }
 }

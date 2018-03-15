@@ -1,7 +1,16 @@
 package ch.ivyteam.ivy.maven.engine.deploy;
 
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.MINIMIZE_QUOTES;
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.WRITE_DOC_START_MARKER;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
 import ch.ivyteam.ivy.maven.DeployToEngineMojo;
 import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * @since 7.1.0
@@ -9,49 +18,85 @@ import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
 public class YamlOptionsFactory
 {
 
-  public static String generate(DeployToEngineMojo config)
+  private static YAMLFactory yamlFactory;
+  static
+  {
+    yamlFactory = new YAMLFactory();
+    yamlFactory.configure(MINIMIZE_QUOTES, true);
+    yamlFactory.configure(WRITE_DOC_START_MARKER, false);
+  }
+
+  public static String toYaml(DeployToEngineMojo config) throws IOException
+  {
+    StringWriter writer = new StringWriter();
+    JsonGenerator gen = yamlFactory.createGenerator(writer);
+    
+    gen.writeStartObject(); // root
+    writeTestUsers(config, gen);
+    writeConfig(config, gen);
+    writeTarget(config, gen);
+    gen.writeEndObject();
+    
+    gen.close();
+    String yaml = writer.toString();
+    if (yaml.equals("{}\n"))
     {
-      StringBuilder options = new StringBuilder();
-      if (config.deployTestUsers)
-      {
-        options.append("deployTestUsers: ").append(config.deployTestUsers).append("\n");
-      }
-
-      boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(config.deployConfigCleanup);
-      if (config.deployConfigOverwrite || !defaultCleanup)
-      {
-        options.append("configuration:\n");
-        if (config.deployConfigOverwrite)
-        {
-          options.append("  overwrite: ").append(config.deployConfigOverwrite).append("\n");
-        }
-        if (!defaultCleanup)
-        {
-          options.append("  cleanup: ").append(config.deployConfigCleanup).append("\n"); // validate and log invalid values!
-        }
-      }
-
-      boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);
-      boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(config.deployTargetState);
-      boolean defaultFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO.equals(config.deployTargetFileFormat);
-      if (!defaultVersion || !defaultState || !defaultFileFormat)
-      {
-        options.append("target:\n");
-        if (!defaultVersion)
-        {
-          options.append("  version: ").append(config.deployTargetVersion).append("\n");
-        }
-        if (!defaultState)
-        {
-          options.append("  state: ").append(config.deployTargetState).append("\n");
-        }
-        if (!defaultFileFormat)
-        {
-          options.append("  fileFormat: ").append(config.deployTargetFileFormat).append("\n");
-        }
-      }
-
-      return options.toString();
+      return null;
     }
+    
+    return yaml;
+  }
+
+  private static void writeTestUsers(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  {
+    if (config.deployTestUsers)
+    {
+      gen.writeBooleanField("deployTestUsers", config.deployTestUsers);
+    }
+  }
+  
+  private static void writeConfig(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  {
+    boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(config.deployConfigCleanup);
+    if (config.deployConfigOverwrite || !defaultCleanup)
+    {
+      gen.writeObjectFieldStart("configuration");
+      if (config.deployConfigOverwrite)
+      {
+        gen.writeBooleanField("overwrite", config.deployConfigOverwrite);
+      }
+      if (!defaultCleanup)
+      {
+        // validate and log invalid values!
+        gen.writeStringField("cleanup", config.deployConfigCleanup);
+      }
+      gen.writeEndObject();
+    }
+  }
+
+  private static void writeTarget(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  {
+    boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);
+    boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(config.deployTargetState);
+    boolean defaultFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO.equals(config.deployTargetFileFormat);
+    if (!defaultVersion || !defaultState || !defaultFileFormat)
+    {
+      gen.writeObjectFieldStart("target");
+      if (!defaultVersion)
+      {
+        gen.writeStringField("version", config.deployTargetVersion);
+      }
+      if (!defaultState)
+      {
+        gen.writeStringField("state", config.deployTargetState);
+      }
+      if (!defaultFileFormat)
+      {
+        gen.writeStringField("fileFormat", config.deployTargetFileFormat);
+      }
+      
+      gen.writeEndObject();
+    }
+  }
 
 }

@@ -144,6 +144,11 @@
       <version>2.4.4</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.9.4</version>
+    </dependency>
 
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>

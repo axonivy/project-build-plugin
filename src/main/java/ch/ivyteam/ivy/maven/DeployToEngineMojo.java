@@ -17,6 +17,7 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 
@@ -265,10 +266,17 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
     }
 
-    String yamlOptions = YamlOptionsFactory.generate(this);
-    if (StringUtils.isNotBlank(yamlOptions))
+    try
     {
-      return optionsFileFactory.createFromConfiguration(yamlOptions);
+      String yamlOptions = YamlOptionsFactory.toYaml(this);
+      if (StringUtils.isNotBlank(yamlOptions))
+      {
+        return optionsFileFactory.createFromConfiguration(yamlOptions);
+      }
+    }
+    catch (IOException ex)
+    {
+      throw new MojoExecutionException("Failed to generate YAML option", ex);
     }
     return null;
   }
