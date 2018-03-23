@@ -23,11 +23,11 @@ pipeline {
     stage('build and deploy') {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'), file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
-        script {
-          def workspace = pwd()
-          sh "gpg --batch --import ${env.GPG_FILE}"
-          maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.project-build.password='${env.GPG_PWD}' -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
-        }
+          script {
+            def workspace = pwd()
+            sh "gpg --batch --import ${env.GPG_FILE}"
+            maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.project-build.password='${env.GPG_PWD}' -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
+          }
         }
         archiveArtifacts 'target/*.jar'
       }
@@ -46,8 +46,8 @@ pipeline {
         script {
           // Create the new versions and SCM changes.
           maven cmd: "release:prepare -P ${params.deployProfile} -Darguments=\"-Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
-          // Deploy to maven central.
-          maven cmd: "release:perform -P ${params.deployProfile} -Darguments=\"-Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
+          // Deploy to sonatype. Please manually release to Maven Central from there.
+          maven cmd: "org.apache.maven.plugins:maven-release-plugin:2.5.3:perform -P ${params.deployProfile} -Darguments=\"-DautoReleaseAfterClose=false -Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
         }
       }
     }
