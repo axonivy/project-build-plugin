@@ -29,7 +29,7 @@ pipeline {
             sh "base64 -d $GPG_KEYRING > gpg_keyring.gpg"
             sh "gpg --batch --import gpg_keyring.gpg"
           }
-          maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.project-build.password=${env.GPG_PWD} -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
+          maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.project-build.password='${env.GPG_PWD}' -Dgpg.skip=${params.skipGPGSign} -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
         }
         }
         archiveArtifacts 'target/*.jar'
