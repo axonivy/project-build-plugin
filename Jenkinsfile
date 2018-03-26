@@ -45,7 +45,7 @@ pipeline {
       steps {
         script {
           // Create the new versions and SCM changes.
-          maven cmd: "release:prepare -P ${params.deployProfile} -Darguments=\"-Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
+          maven cmd: "release:prepare -P ${params.deployProfile} -Darguments=\"-Dmaven.test.skip=true -Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
           // Deploy to sonatype. Please manually release to Maven Central from there.
           maven cmd: "release:perform -P ${params.deployProfile} -Darguments=\"-DautoRelease=false -Divy.engine.version=[6.7.0,] -Divy.engine.list.url=http://zugprobldmas/job/Trunk_All/\""
         }

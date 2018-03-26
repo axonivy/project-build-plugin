@@ -71,6 +71,13 @@
     </profile>
     <profile>
       <id>maven.central.release</id>
+      <distributionManagement>
+        <repository>
+          <id>sonatype.releases</id>
+          <name>Sonatype Releases Repo</name>
+          <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+      </distributionManagement>
       <properties>
         <site.path>release</site.path>
         <other.site.name>Snapshot</other.site.name>
