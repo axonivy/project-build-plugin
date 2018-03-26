@@ -46,6 +46,7 @@
     <site.path>snapshot</site.path>
     <other.site.name>Stable</other.site.name>
     <other.site.path>release</other.site.path>
+    <autoRelease>true</autoRelease>
   </properties>
 
   <profiles>
@@ -340,7 +341,7 @@
         <configuration>
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
         </configuration>
       </plugin>
       <plugin>
