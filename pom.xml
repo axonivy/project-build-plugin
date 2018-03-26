@@ -85,7 +85,7 @@
             <version>2.5.3</version>
             <configuration>
               <tagNameFormat>v@{project.version}</tagNameFormat>
-              <releaseProfiles>maven.central.release</releaseProfiles>
+              <releaseProfiles>release</releaseProfiles>
               <goals>deploy site-deploy</goals>
             </configuration>
           </plugin>
