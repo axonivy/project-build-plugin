@@ -54,7 +54,7 @@ public class EngineControl
     public static final String TEST_ENGINE_URL = "test.engine.url";
     public static final String TEST_ENGINE_LOG = "test.engine.log";
   }
-  
+
   /**
    * mvn-plugin implementation of: ch.ivyteam.server.ServerState
    */
@@ -67,7 +67,7 @@ public class EngineControl
     UNREGISTERED,
     FAILED;
   }
-  
+
   private EngineMojoContext context;
   private AtomicBoolean engineStarted = new AtomicBoolean(false);
 
@@ -85,10 +85,10 @@ public class EngineControl
   {
     CommandLine startCmd = toEngineCommand(Command.start);
     context.log.info("Start Axon.ivy Engine in folder: " + context.engineDirectory);
-    
+
     Executor executor = createEngineExecutor();
     executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
-    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT)); 
+    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
     executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
     executor.execute(startCmd, asynchExecutionHandler());
     waitForEngineStart(executor);
@@ -99,12 +99,12 @@ public class EngineControl
   {
     CommandLine stopCmd = toEngineCommand(Command.stop);
     context.log.info("Stopping Axon.ivy Engine in folder: " + context.engineDirectory);
-    
+
     executeSynch(stopCmd);
     waitFor(()->EngineState.STOPPED == state(), context.timeoutInSeconds, TimeUnit.SECONDS);
   }
-  
-  EngineState state() 
+
+  EngineState state()
   {
     CommandLine statusCmd = toEngineCommand(Command.status);
     String engineOutput = executeSynch(statusCmd);
@@ -118,14 +118,15 @@ public class EngineControl
     {
       classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
     }
-    
+
     File osgiDir = new File(context.engineDirectory, OsgiDir.INSTALL_AREA);
-    
+
     CommandLine cli = new CommandLine(new File(getJavaExec()))
             .addArgument("-classpath").addArgument(classpath)
             .addArgument("-Divy.engine.testheadless=true")
+            .addArgument("-Djava.awt.headless=true")
             .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
-    		
+
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions))
     {
       cli.addArguments(context.vmOptions.additionalVmOptions, false);
@@ -135,7 +136,7 @@ public class EngineControl
             .addArgument(command.toString());
     return cli;
   }
-  
+
   private Executor createEngineExecutor()
   {
     DefaultExecutor executor = new DefaultExecutor();
@@ -177,9 +178,9 @@ public class EngineControl
     if (context.engineLogFile == null)
     {
       context.log.info("Do not forward engine output to a persistent location");
-      return new ByteArrayOutputStream(); 
+      return new ByteArrayOutputStream();
     }
-    
+
     context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
     context.log.info("Forwarding engine logs to: "+context.engineLogFile.getAbsolutePath());
     return new FileOutputStream(context.engineLogFile.getAbsolutePath());
@@ -191,7 +192,7 @@ public class EngineControl
     context.log.debug("Using Java exec from path: " + javaExec);
     return javaExec;
   }
-  
+
   private void findStartEngineUrl(String newLine)
   {
     if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
@@ -203,7 +204,7 @@ public class EngineControl
       engineStarted.set(true);
     }
   }
-  
+
   private void waitForEngineStart(Executor executor) throws Exception
   {
     int i = 0;
@@ -223,7 +224,7 @@ public class EngineControl
     }
     context.log.info("Engine started after " + i + " [s]");
   }
-  
+
   private ExecuteResultHandler asynchExecutionHandler()
   {
     return new ExecuteResultHandler()
@@ -233,7 +234,7 @@ public class EngineControl
         {
           throw new RuntimeException("Engine operation failed.", ex);
         }
-        
+
         @Override
         public void onProcessComplete(int exitValue)
         {
@@ -241,10 +242,10 @@ public class EngineControl
         }
       };
   }
-  
+
   /**
    * Run a short living engine command where we expect a process failure as the engine invokes <code>System.exit(-1)</code>.
-   * @param statusCmd 
+   * @param statusCmd
    * @return the output of the engine command.
    */
   private String executeSynch(CommandLine statusCmd)
@@ -269,7 +270,7 @@ public class EngineControl
     }
     return engineOutput;
   }
-  
+
   private EngineState parseState(String engineOut)
   {
     for(String line : StringUtils.split(engineOut, '\n'))
@@ -286,13 +287,13 @@ public class EngineControl
     context.log.error("Failed to evaluate engine state of engine in directory "+context.engineDirectory);
     return null;
   }
-  
+
   private static long waitFor(Supplier<Boolean> condition, long duration, TimeUnit unit) throws Exception
   {
     StopWatch watch = new StopWatch();
     watch.start();
     long timeout = unit.toMillis(duration);
-    
+
     while (!condition.get())
     {
       Thread.sleep(1_000);
@@ -301,8 +302,8 @@ public class EngineControl
         throw new TimeoutException("Condition not reached in "+duration+" "+unit);
       }
     }
-    
+
     return watch.getTime();
   }
-  
+
 }
