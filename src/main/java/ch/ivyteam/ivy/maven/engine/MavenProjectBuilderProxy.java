@@ -169,7 +169,6 @@ public class MavenProjectBuilderProxy
     
     properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
     properties.put("user.dir", baseDirToBuildIn.getAbsolutePath());
-    properties.put("java.awt.headless", "true");
     properties.put("osgi.install.area", new File(baseDirToBuildIn, OsgiDir.INSTALL_AREA).getAbsolutePath());
     properties.put("org.osgi.framework.bundle.parent", "framework");
     properties.put("org.osgi.framework.bootdelegation",
