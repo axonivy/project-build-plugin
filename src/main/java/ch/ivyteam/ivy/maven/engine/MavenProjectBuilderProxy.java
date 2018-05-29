@@ -174,7 +174,11 @@ public class MavenProjectBuilderProxy
     properties.put("org.osgi.framework.bootdelegation",
             "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
             + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add log4j
-            + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi"); // add slf4j
+            + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add slf4j
+            
+            + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
+            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax" // since oxygen platform
+            );
     if (log.isDebugEnabled())
     {
       log.debug("Configuration OSGi system properties:");
