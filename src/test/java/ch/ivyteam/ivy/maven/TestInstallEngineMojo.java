@@ -137,12 +137,12 @@ public class TestInstallEngineMojo
   @Test
   public void testEngineDownload_alreadyInstalledVersionWithinRange() throws Exception
   {
-    final String version = "7.1.0";
+    final String version = AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION;
     mojo.engineDirectory = createFakeEngineDir(version);
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(version))).exists();
 
-    mojo.ivyVersion = "[7.0.0,8.0.0)";
+    mojo.ivyVersion = "[7.0.0,800.0.0)";
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = new MockUp<java.net.URL>()
       {
