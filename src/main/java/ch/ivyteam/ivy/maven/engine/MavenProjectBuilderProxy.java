@@ -177,7 +177,8 @@ public class MavenProjectBuilderProxy
             + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add slf4j
             
             + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
-            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax" // since oxygen platform
+            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
+            + "org.w3c.dom" // since oxygen platform
             );
     if (log.isDebugEnabled())
     {
