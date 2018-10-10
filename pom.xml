@@ -21,7 +21,7 @@
     <developer>
       <name>Axon.ivy Project Build Authors</name>
       <email>support@ivyteam.ch</email>
-      <organization>AXON IVY AG</organization>
+      <organization>AXON Ivy AG</organization>
       <organizationUrl>https://www.axonivy.com</organizationUrl>
     </developer>
   </developers>
@@ -33,7 +33,7 @@
   </scm>
 
   <organization>
-    <name>AXON IVY AG</name>
+    <name>AXON Ivy AG</name>
     <url>https://developer.axonivy.com</url>
   </organization>
 
