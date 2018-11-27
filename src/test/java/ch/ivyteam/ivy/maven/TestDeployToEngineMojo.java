@@ -112,7 +112,7 @@ public class TestDeployToEngineMojo
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
-              "deployTestUsers: true\n" +
+              "deployTestUsers: TRUE\n" +
               "configuration:\n" +
               "  overwrite: true\n" +
               "  cleanup: REMOVE_ALL\n" +
