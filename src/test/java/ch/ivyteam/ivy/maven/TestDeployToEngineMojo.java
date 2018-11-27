@@ -95,7 +95,7 @@ public class TestDeployToEngineMojo
   public void deployWithOptions() throws Throwable
   {
     DeployToEngineMojo mojo = rule.getMojo();
-    mojo.deployTestUsers = true;
+    mojo.deployTestUsers = "true";
     mojo.deployConfigOverwrite = true;
     mojo.deployConfigCleanup = "REMOVE_ALL";
     mojo.deployTargetVersion = "RELEASED";

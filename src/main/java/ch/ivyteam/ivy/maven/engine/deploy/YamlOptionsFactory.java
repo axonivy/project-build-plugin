@@ -6,11 +6,13 @@ import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.WRITE_
 import java.io.IOException;
 import java.io.StringWriter;
 
-import ch.ivyteam.ivy.maven.DeployToEngineMojo;
-import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import ch.ivyteam.ivy.maven.DeployToEngineMojo;
+import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
 
 /**
  * @since 7.1.0
@@ -49,9 +51,10 @@ public class YamlOptionsFactory
 
   private static void writeTestUsers(DeployToEngineMojo config, JsonGenerator gen) throws IOException
   {
-    if (config.deployTestUsers)
+    String deployTestUsers = config.deployTestUsers;
+    if (!DefaultDeployOptions.DEPLOY_TEST_USERS.equalsIgnoreCase(deployTestUsers))
     {
-      gen.writeBooleanField("deployTestUsers", config.deployTestUsers);
+      gen.writeStringField("deployTestUsers", StringUtils.defaultString(deployTestUsers).toUpperCase());
     }
   }
   

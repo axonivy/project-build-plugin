@@ -17,7 +17,7 @@ public class TestYamlOptionsFactory
   public void yamlWithAllNonDefaultOptions() throws Exception
   {
     DeployToEngineMojo config = new DeployToEngineMojo();
-    config.deployTestUsers = true;
+    config.deployTestUsers = "true";
     config.deployConfigCleanup = "REMOVE_ALL";
     config.deployConfigOverwrite = true;
     config.deployTargetVersion = "RELEASED";
@@ -40,7 +40,7 @@ public class TestYamlOptionsFactory
   public void yamlWithAllDefaultOptions() throws Exception
   {
     DeployToEngineMojo config = new DeployToEngineMojo();
-    config.deployTestUsers = false;
+    config.deployTestUsers = DefaultDeployOptions.DEPLOY_TEST_USERS;
     config.deployConfigCleanup = DefaultDeployOptions.CLEANUP_DISABLED;
     config.deployConfigOverwrite = false;
     config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;

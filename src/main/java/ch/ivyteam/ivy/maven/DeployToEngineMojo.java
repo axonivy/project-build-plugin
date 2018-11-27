@@ -74,7 +74,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   /** The file that contains deployment options. <br/>
    *
    * Example options file content:
-   * <pre><code>deployTestUsers: true
+   * <pre><code>deployTestUsers: auto
    *configuration:
    *  overwrite: true
    *  cleanup: REMOVE_UNUSED
@@ -108,10 +108,13 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   boolean skipDeploy;
 
   /** If set to <code>true</code> then test users defined in the projects are deployed to the engine.
-   * Only works if the current security system allows to create users.
-   * Should only be used for testing. */
-  @Parameter(property="ivy.deploy.test.users", defaultValue="false")
-  public boolean deployTestUsers;
+   * If set to <code>auto</code> then test users will only deployed when engine runs in demo mode.
+   * Should only be used for testing.
+   * <p>This option is only in charge if security system is set to <i>Ivy Security System</i>.
+   * This means if the security system is Active Directory or Novell eDirectory test users will never deployed.</p>
+   */
+  @Parameter(property="ivy.deploy.test.users", defaultValue=DefaultDeployOptions.DEPLOY_TEST_USERS)
+  public String deployTestUsers;
 
   /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients)
    * defined in the deployed projects overwrite the configurations that are already configured on the engine. */
@@ -287,6 +290,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     String VERSION_AUTO = "AUTO";
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
     String FILE_FORMAT_AUTO = "AUTO";
+    String DEPLOY_TEST_USERS = "AUTO";
   }
 
 }
