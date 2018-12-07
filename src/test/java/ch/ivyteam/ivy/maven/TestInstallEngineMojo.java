@@ -174,7 +174,7 @@ public class TestInstallEngineMojo
 
     mojo.ivyVersion = "[7.0.0,8.0.0)";
     mojo.autoInstallEngine = true;
-    final String downloadVersion = "7.2.0";
+    final String downloadVersion = AbstractEngineMojo.DEFAULT_VERSION;
     mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(downloadVersion).getMockInstance();
 
     mojo.execute();
