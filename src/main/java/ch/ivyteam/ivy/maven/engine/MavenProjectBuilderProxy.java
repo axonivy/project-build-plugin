@@ -125,6 +125,15 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
+  public Map<String, Object> validate(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  {
+    Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
+    return (Map<String, Object>) executeInEngineDir(() -> 
+      validate.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options)
+    );
+  }
+  
+  @SuppressWarnings("unchecked")
   public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
   {
     Method compileMethod = getMethod("testCompile", File.class, List.class, String.class, Map.class);

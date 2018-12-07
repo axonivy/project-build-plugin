@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,6 +48,13 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
   @Parameter(defaultValue="false", property="ivy.compiler.skip")
   boolean skipCompilation;
 
+  /** 
+   * Set to <code>true</code> to avoid the validation of ivyScript code within ivy processes.
+   * @since 7.3.0
+   */
+  @Parameter(defaultValue="false", property="ivy.script.validation.skip")
+  boolean skipScriptValidation;
+  
   @Override
   protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
@@ -57,7 +65,18 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     
     getLog().info("Compiling ivy Project...");
     List<File> iarJars = projectBuilder.createIarJars(getDependencies("iar"));
-    projectBuilder.compile(project.getBasedir(), iarJars, getOptions());
+    Map<String, String> options = getOptions();
+    projectBuilder.compile(project.getBasedir(), iarJars, options);
+    
+    if (skipScriptValidation)
+    {
+      getLog().info("Skipping ivy script validation");
+    }
+    else
+    {
+      projectBuilder.validate(project.getBasedir(), iarJars, options);
+    }
+    
     writeDependencyIarJar(iarJars);
   }
   
