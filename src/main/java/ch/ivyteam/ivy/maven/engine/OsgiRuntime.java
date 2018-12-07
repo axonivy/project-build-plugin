@@ -49,7 +49,7 @@ class OsgiRuntime
     List<String> mainArgs = new ArrayList<>(Arrays.asList("-application", "ch.ivyteam.ivy.server.exec.engine.maven"));
     if (log.isDebugEnabled())
     {
-      mainArgs.add("-consoleLog");
+      mainArgs.add("-debug");
     }
     final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
     runThreadWithProperties(() -> mainMethod.invoke(null, (Object)args));
