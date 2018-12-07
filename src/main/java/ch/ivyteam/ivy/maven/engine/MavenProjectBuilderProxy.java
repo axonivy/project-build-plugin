@@ -18,27 +18,14 @@ package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.logging.Log;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
 /**
  * Provides project build functionality that can only be accessed trough reflection on an ivy Engine classloader.
@@ -70,33 +57,19 @@ public class MavenProjectBuilderProxy
     engineClasspath = getEngineClasspath(engineJars);
   }
 
-  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
-          NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
+  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws Exception
   { 
-    Object bundleContext = startEclipseOsgiImpl(ivyEngineClassLoader);
+    Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
-    return (Class<?>) buildBundle.getClass().getDeclaredMethod("loadClass", String.class)
-            .invoke(buildBundle, FQ_DELEGATE_CLASS_NAME);
+    return loadClassInBundle(buildBundle, FQ_DELEGATE_CLASS_NAME);
   }
   
-  private Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
-          NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
+  private static Class<?> loadClassInBundle(Object bundle, String className) throws Exception
   {
-    Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
-    Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
-    List<String> mainArgs = new ArrayList<>(Arrays.asList("-application", "ch.ivyteam.ivy.server.exec.engine.maven"));
-    if (log.isDebugEnabled())
-    {
-      mainArgs.add("-consoleLog");
-    }
-    final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
-    startWithOsgiProperties(() -> mainMethod.invoke(null, (Object)args));
-    Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
-    return bundleContext;
+    return (Class<?>) bundle.getClass().getDeclaredMethod("loadClass", String.class).invoke(bundle, className);
   }
-
-  private Object findBundle(Object bundleContext, String symbolicName)
-          throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  
+  private static Object findBundle(Object bundleContext, String symbolicName) throws Exception
   {
     Object[] bundles = (Object[]) bundleContext.getClass().getDeclaredMethod("getBundles").invoke(bundleContext);
     for(Object bundleObj : bundles)
@@ -161,71 +134,6 @@ public class MavenProjectBuilderProxy
               "Method "+name+"("+parameterTypes+") does not exist in engine '"+baseDirToBuildIn+"'. \n"
                       + "You might need to configer another version to work with.");
     }
-  }
-  
-  private void startWithOsgiProperties(Callable<?> function) throws Exception
-  {
-    Map<String, String> properties = new LinkedHashMap<>();
-    
-    properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
-    properties.put("user.dir", baseDirToBuildIn.getAbsolutePath());
-    properties.put("osgi.install.area", new File(baseDirToBuildIn, OsgiDir.INSTALL_AREA).getAbsolutePath());
-    properties.put("org.osgi.framework.bundle.parent", "framework");
-    properties.put("org.osgi.framework.bootdelegation",
-            "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
-            + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add log4j
-            + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add slf4j
-            
-            + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
-            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
-            + "org.w3c.dom" // since oxygen platform
-            );
-    if (log.isDebugEnabled())
-    {
-      log.debug("Configuration OSGi system properties:");
-      properties.entrySet().forEach(entry -> log.debug("   " + entry.getKey() + " = " + entry.getValue()));
-    }
-    
-    Map<String, String> oldProperties = setSystemProperties(properties);
-    try
-    {
-      ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Init Engine Thread").build();
-      ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor(threadFactory);
-      Future<?> result = singleThreadExecutor.submit(function);
-      try
-      {
-        result.get(60, TimeUnit.SECONDS);
-      }
-      catch (Exception ex)
-      {
-        throw new Exception("Could not initialize engine", ex);
-      }
-    }
-    finally
-    {
-      setSystemProperties(oldProperties);
-    }
-  }
-  
-  private Map<String, String> setSystemProperties(Map<String, String> properties)
-  {
-    Map<String, String> oldProperties = new LinkedHashMap<>();
-    for (Map.Entry<String, String> entry : properties.entrySet())
-    {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      String oldValue;
-      if (value == null)
-      {
-        oldValue = System.clearProperty(key);
-      }
-      else
-      {
-        oldValue = System.setProperty(key, value);
-      }
-      oldProperties.put(key, oldValue);
-    }
-    return oldProperties;
   }
   
   private <T> T executeInEngineDir(Callable<T> function) throws Exception
