@@ -60,10 +60,11 @@ public class MavenProjectBuilderProxy
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws Exception
   { 
     Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader);
+    hackProvokeEagerStartOfJdt(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
     return loadClassInBundle(buildBundle, FQ_DELEGATE_CLASS_NAME);
   }
-  
+
   private static Class<?> loadClassInBundle(Object bundle, String className) throws Exception
   {
     return (Class<?>) bundle.getClass().getDeclaredMethod("loadClass", String.class).invoke(bundle, className);
@@ -88,6 +89,16 @@ public class MavenProjectBuilderProxy
     return jars.stream()
             .map(file -> file.getAbsolutePath())
             .collect(Collectors.joining(File.pathSeparator));
+  }
+  
+  /**
+   * @since 7.3.0
+   */
+  private static void hackProvokeEagerStartOfJdt(Object bundleContext) throws Exception
+  {
+    Object jdtBundle = findBundle(bundleContext, "org.eclipse.jdt.core");
+    Class<?> javaCore = loadClassInBundle(jdtBundle, "org.eclipse.jdt.core.JavaCore");
+    javaCore.newInstance();
   }
 
   /**
