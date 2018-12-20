@@ -13,9 +13,17 @@ pipeline {
   }
 
   parameters {
-    booleanParam(defaultValue: true, description: 'If checked the plugin documentation on GitHub will NOT be updated', name: 'skipGitHubSite')
-    choice(choices: 'Trunk_All\nTrunk_DesignerAndServer\nLinux_Trunk_DesignerAndServer', description: 'Engine to use for build', name: 'engineSource')
-    choice(choices: 'zugpronexus.snapshots\nsonatype.snapshots\nmaven.central.release', description: 'Choose where the built plugin should be deployed to', name: 'deployProfile')
+    booleanParam(name: 'skipGitHubSite',
+      description: 'If checked the plugin documentation on GitHub will NOT be updated',
+      defaultValue: true)
+
+    choice(name: 'engineSource',
+      description: 'Engine to use for build',
+      choices: 'Trunk_All\nLinux_Trunk_DesignerAndServer')
+
+    choice(name: 'deployProfile',
+      description: 'Choose where the built plugin should be deployed to',
+      choices: 'zugpronexus.snapshots\nsonatype.snapshots\nmaven.central.release')
   }
 
   stages {
@@ -25,7 +33,15 @@ pipeline {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
-            maven cmd: "clean deploy site-deploy -P ${params.deployProfile} -Dgpg.project-build.password='${env.GPG_PWD}' -Dgpg.skip=false -Dgithub.site.skip=${params.skipGitHubSite} -Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ -Divy.engine.cache.directory=$workspace/target/ivyEngine -Divy.engine.version=[6.1.1,]"
+            
+            maven cmd: "clean deploy site-deploy " +
+              "-P ${params.deployProfile} " + 
+              "-Dgpg.project-build.password='${env.GPG_PWD}' " +
+              "-Dgpg.skip=false " +
+              "-Dgithub.site.skip=${params.skipGitHubSite} " +
+              "-Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ " +
+              "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
+              "-Divy.engine.version=[6.1.1,]"
           }
         }
         archiveArtifacts 'target/*.jar'
