@@ -33,7 +33,7 @@ pipeline {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
-            
+
             maven cmd: "clean deploy site-deploy " +
               "-P ${params.deployProfile} " + 
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -42,6 +42,8 @@ pipeline {
               "-Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ " +
               "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
               "-Divy.engine.version=[6.1.1,]"
+            
+            maven cmd: "sonar:sonar"
           }
         }
         archiveArtifacts 'target/*.jar'
