@@ -43,7 +43,7 @@ pipeline {
               "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
               "-Divy.engine.version=[6.1.1,]"
             
-            maven cmd: "sonar:sonar -Psonar"
+            maven cmd: "sonar:sonar -Dsonar.host.url=http://zugprosonar"
           }
         }
         archiveArtifacts 'target/*.jar'
