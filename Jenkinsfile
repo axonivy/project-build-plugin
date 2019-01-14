@@ -17,13 +17,14 @@ pipeline {
       description: 'If checked the plugin documentation on GitHub will NOT be updated',
       defaultValue: true)
 
-    choice(name: 'engineSource',
+    choice(name: 'engineListUrl',
       description: 'Engine to use for build',
-      choices: 'Trunk_All\nLinux_Trunk_DesignerAndServer')
+      choices: ['http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/',
+                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/'])
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
-      choices: 'zugpronexus.snapshots\nsonatype.snapshots\nmaven.central.release')
+      choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
   }
 
   stages {
@@ -39,7 +40,7 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.list.url=http://zugprobldmas/job/${params.engineSource}/lastSuccessfulBuild/ " +
+              "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
               "-Divy.engine.version=[6.1.1,]"
             
