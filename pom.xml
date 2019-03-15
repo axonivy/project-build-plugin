@@ -249,6 +249,7 @@
 						</goals>
 						<configuration>
 							<!-- Axon.ivy Project Build Publisher -->
+                            <passphrase>${gpg.project-build.password}</passphrase>
 							<keyname>72B12346</keyname>
 							<gpgArguments>
 							    <arg>--pinentry-mode</arg>
