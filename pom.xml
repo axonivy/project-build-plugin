@@ -250,6 +250,10 @@
 						<configuration>
 							<!-- Axon.ivy Project Build Publisher -->
 							<keyname>72B12346</keyname>
+							<gpgArguments>
+							    <arg>--pinentry-mode</arg>
+							    <arg>loopback</arg>
+							</gpgArguments>
 						</configuration>
 					</execution>
 				</executions>
