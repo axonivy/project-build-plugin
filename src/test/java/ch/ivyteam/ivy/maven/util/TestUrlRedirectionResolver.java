@@ -26,7 +26,7 @@ public class TestUrlRedirectionResolver
   @Test
   public void redirections() throws IOException
   {
-    assertRedirection("http://developer.axonivy.com/download", "http://developer.axonivy.com/download", "https://developer.axonivy.com/download");
+    assertRedirection("http://answers.axonivy.com/", "http://answers.axonivy.com/", "https://answers.axonivy.com/");
   }
 
   private static void assertRedirection(String initUrl, String... openendUrls) throws IOException
