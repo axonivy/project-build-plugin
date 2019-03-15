@@ -1,5 +1,37 @@
-Snapshot Release
+Examples
 
  Sample projects that use the project-build-plugin are available on github: 
  
 	* {{https://github.com/axonivy/project-build-examples/tree/master}}
+
+
+Snapshots
+
+ To use a snapshot release:
+ 
+ [[1]] define an additional plugin repository as snapshots are not released to public maven central repos.
+ POM.xml:
+ 
++------------------------------------------------------------------------------------+
+<project>
+  ....
+  <pluginRepositories>
+    <!-- Snapshot releases are available via sonatype.org -->
+    <pluginRepository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+  ...
+</project>
++------------------------------------------------------------------------------------+
+ 
+ [[2]] provide an URI where a compatible 'dev' engine can be found:
+ 
++------------------------------------------------------------------------------------+
+ mvn clean install -Divy.engine.list.url=https://dev.axonivy.com/download/nightly
++------------------------------------------------------------------------------------+
+ 
