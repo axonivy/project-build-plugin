@@ -17,11 +17,6 @@ pipeline {
       description: 'If checked the plugin documentation on GitHub will NOT be updated',
       defaultValue: true)
 
-    choice(name: 'engineListUrl',
-      description: 'Engine to use for build',
-      choices: ['http://zugprobldmas/view/7.0/job/7.0_DesignerAndServer/lastSuccessfulBuild/',
-                'http://zugprobldmas/view/7.0/job/7.0_All/lastSuccessfulBuild/'])
-
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
       choices: ['build', 'central', 'release'])
@@ -40,7 +35,6 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
               "-Divy.engine.version=[6.1.1,]"
           }
