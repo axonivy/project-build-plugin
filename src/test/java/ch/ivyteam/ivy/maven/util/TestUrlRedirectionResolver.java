@@ -20,7 +20,7 @@ public class TestUrlRedirectionResolver
   {
     assertRedirection("http://developer.axonivy.com/download/maven.html", "http://developer.axonivy.com/download/maven.html");
     assertRedirection("https://developer.axonivy.com/download/maven.html",  "https://developer.axonivy.com/download/maven.html");
-    assertRedirection("https://developer.axonivy.com/download/", "https://developer.axonivy.com/download/");
+    assertRedirection("https://developer.axonivy.com/download", "https://developer.axonivy.com/download");
   }
 
   @Test
