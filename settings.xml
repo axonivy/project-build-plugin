@@ -13,7 +13,7 @@
     <server>
       <id>sonatype.releases</id>
       <username>${env.SONA_IVYTEAM_USER}</username>
-      <username>${env.SONA_IVYTEAM_PWD}</username>
+      <password>${env.SONA_IVYTEAM_PWD}</password>
     </server>
   </servers>
   <mirrors/>
