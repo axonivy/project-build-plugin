@@ -18,7 +18,7 @@ pipeline {
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
-      choices: ['build', 'central', 'release'])
+      choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
   }
 
   stages {
@@ -30,6 +30,7 @@ pipeline {
             sh "gpg --batch --import ${env.GPG_FILE}"
 
             maven cmd: "clean deploy site-deploy " +
+              "-s settings.xml " +
               "-P ${params.deployProfile} " + 
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +

@@ -21,7 +21,7 @@
 		<developer>
 			<name>Axon.ivy Project Build Authors</name>
 			<email>support@ivyteam.ch</email>
-			<organization>AXON IVY AG</organization>
+      <organization>AXON Ivy AG</organization>
 			<organizationUrl>https://www.axonivy.com</organizationUrl>
 		</developer>
 	</developers>
@@ -33,7 +33,7 @@
 	</scm>
 
 	<organization>
-		<name>AXON IVY AG</name>
+    <name>AXON Ivy AG</name>
 		<url>https://developer.axonivy.com</url>
 	</organization>
 
@@ -45,11 +45,12 @@
 		<site.path>snapshot</site.path>
 		<other.site.name>Stable</other.site.name>
 		<other.site.path>release</other.site.path>
+        <autoRelease>true</autoRelease>
 	</properties>
 
 	<profiles>
 		<profile>
-			<id>build</id>
+            <id>zugpronexus.snapshots</id>
 			<distributionManagement>
 				<snapshotRepository>
 			      <id>zugpronexus.snapshots</id>
@@ -59,22 +60,29 @@
 			</distributionManagement>
 		</profile>
 		<profile>
-			<id>central</id>
+            <id>sonatype.snapshots</id>
 			<distributionManagement>
 				<snapshotRepository>
-					<id>ossrh</id>
+					<id>sonatype.snapshots</id>
 					<name>Maven Central Snapshots Repo</name>
 					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
 	    <profile>
-	        <id>release</id>
+	        <id>maven.central.release</id>
+	        <distributionManagement>
+	            <repository>
+	                <id>sonatype.releases</id>
+	                <name>Sonatype Releases Repo</name>
+	                <url>https://oss.sonatype.org/content/repositories/releases/</url>
+	            </repository>
+	        </distributionManagement>
 	        <properties>
 	            <site.path>release</site.path>
 	            <other.site.name>Snapshot</other.site.name>
 				<other.site.path>snapshot</other.site.path>
-				<skip.public.download.test>true</skip.public.download.test>
+				<run.public.download.test>true</run.public.download.test>
 	        </properties>
 	        <build>
 	        	<plugins>
@@ -328,7 +336,7 @@
 				<configuration>
 					<serverId>ossrh</serverId>
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -357,7 +365,7 @@
 			        </execution>
 			    </executions>
 			    <configuration>
-					<server>github</server>
+                    <server>github.ivy-team</server>
 					<merge>true</merge>
 			    </configuration>
 			</plugin>
