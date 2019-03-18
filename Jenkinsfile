@@ -37,8 +37,7 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=true " +
-              "-Divy.engine.cache.directory=$workspace/target/ivyEngine " +
-              "-Divy.engine.version=[6.1.1,]"
+              "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
           
           }
         }
@@ -60,8 +59,7 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.cache.directory=$workspace/target/ivyEngine " +
-              "-Divy.engine.version=[6.1.1,]"
+              "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
           }
         }
         archiveArtifacts 'target/*.jar'
