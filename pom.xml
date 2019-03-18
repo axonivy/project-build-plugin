@@ -46,6 +46,7 @@
 		<other.site.name>Stable</other.site.name>
 		<other.site.path>release</other.site.path>
         <autoRelease>true</autoRelease>
+        <project.scm.id>github.ivy-team</project.scm.id>
 	</properties>
 
 	<profiles>

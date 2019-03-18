@@ -29,7 +29,8 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
+                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'SONA_IVYTEAM_USER', passwordVariable: 'SONA_IVYTEAM_PWD')]) {
 
           script {
             def workspace = pwd()
