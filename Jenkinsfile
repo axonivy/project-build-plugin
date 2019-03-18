@@ -30,15 +30,17 @@ pipeline {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
 
-        script {
-          def workspace = pwd()
-          maven cmd: "release:prepare " +
+          script {
+            def workspace = pwd()
+            maven cmd: "release:prepare " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=true " +
               "-Divy.engine.cache.directory=$workspace/target/ivyEngine " +
               "-Divy.engine.version=[6.1.1,]"
+          
+          }
         }
       }
     }
