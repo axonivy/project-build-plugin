@@ -35,7 +35,7 @@ pipeline {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
 
-            maven cmd: "release:prepare " +
+            maven cmd: "clean verify release:prepare " +
               "-s settings.xml " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
