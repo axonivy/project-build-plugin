@@ -28,13 +28,15 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
-                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
+                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
 
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
 
             maven cmd: "release:prepare " +
+              "-s settings.xml " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
