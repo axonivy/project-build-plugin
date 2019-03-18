@@ -22,6 +22,20 @@ pipeline {
   }
 
   stages {
+    stage('release prepare') {
+      when {
+        expression { params.deployProfile == 'maven.central.release' }
+      } steps {
+        def workspace = pwd()
+        maven cmd: "release:prepare " +
+              "-P ${params.deployProfile} " +
+              "-Dgpg.skip=true " +
+              "-Dgithub.site.skip=true " +
+              "-Divy.engine.cache.directory=$workspace/target/ivyEngine " +
+              "-Divy.engine.version=[6.1.1,]"
+      }
+    }
+
     stage('build and deploy') {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
@@ -33,11 +47,11 @@ pipeline {
 
             maven cmd: "clean deploy site-deploy " +
               "-s settings.xml " +
-              "-P ${params.deployProfile} " + 
+              "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.cache.directory=$workspace/target/ivyEngine "
+              "-Divy.engine.cache.directory=$workspace/target/ivyEngine " +
               "-Divy.engine.version=[6.1.1,]"
           }
         }

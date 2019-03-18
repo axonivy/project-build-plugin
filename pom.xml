@@ -29,7 +29,7 @@
 		<connection>scm:git:git@github.com:axonivy/project-build-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:axonivy/project-build-plugin.git</developerConnection>
 		<url>git@github.com:axonivy/project-build-plugin.git</url>
-		<tag>v6.4.0</tag>
+		<tag>v7.0.2</tag>
 	</scm>
 
 	<organization>
@@ -70,14 +70,14 @@
 			</distributionManagement>
 		</profile>
 	    <profile>
-	        <id>maven.central.release</id>
-	        <distributionManagement>
-	            <repository>
-	                <id>sonatype.snapshots</id>
-	                <name>Sonatype Releases Repo</name>
-	                <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-	            </repository>
-	        </distributionManagement>
+      <id>maven.central.release</id>
+          <distributionManagement>
+              <repository>
+                  <id>sonatype.releases</id>
+                  <name>Sonatype Releases Repo</name>
+                  <url>https://oss.sonatype.org/content/repositories/releases/</url>
+              </repository>
+          </distributionManagement>
 	        <properties>
 	            <site.path>release</site.path>
 	            <other.site.name>Snapshot</other.site.name>
