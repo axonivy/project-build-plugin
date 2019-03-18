@@ -24,7 +24,9 @@ pipeline {
   stages {
     stage('build and deploy') {
       steps {
-        withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'), file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'), string(credentialsId: 'sonatype.snapshots', variable: 'SONA_IVY_PWD')]) {
+        withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
+                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
