@@ -73,7 +73,7 @@
 	        <id>maven.central.release</id>
 	        <distributionManagement>
 	            <repository>
-	                <id>sonatype.releases</id>
+	                <id>sonatype.snapshots</id>
 	                <name>Sonatype Releases Repo</name>
 	                <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 	            </repository>

@@ -11,7 +11,7 @@
       <password>${env.SONA_IVY_PWD}</password>
     </server>
     <server>
-      <id>sonatype.releases</id>
+      <id>github.ivy-team</id>
       <username>${env.SONA_IVYTEAM_USER}</username>
       <password>${env.SONA_IVYTEAM_PWD}</password>
     </server>
