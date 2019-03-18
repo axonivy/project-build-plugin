@@ -8,6 +8,7 @@
     <server>
       <id>sonatype.snapshots</id>
       <username>ivy</username>
+      <password>${env.SONA_IVY_PWD}</password>
     </server>
     <server>
       <id>github.ivy-team</id>
