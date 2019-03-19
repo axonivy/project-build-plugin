@@ -10,11 +10,6 @@
       <username>${env.SONA_IVY_USER}</username>
       <password>${env.SONA_IVY_PWD}</password>
     </server>
-    <server>
-      <id>github.ivy-team</id>
-      <username>${env.GITHUB_IVYTEAM_USER}</username>
-      <password>${env.GITHUB_IVYTEAM_PWD}</password>
-    </server>
   </servers>
   <mirrors/>
   <proxies/>
