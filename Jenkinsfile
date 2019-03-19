@@ -29,8 +29,7 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
-                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'GITHUB_IVY_USER', passwordVariable: 'GITHUB_IVY_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
 
           script {
             def workspace = pwd()
@@ -66,8 +65,7 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
-                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'GITHUB_IVY_USER', passwordVariable: 'GITHUB_IVY_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
