@@ -37,14 +37,15 @@ pipeline {
             sh "gpg --batch --import ${env.GPG_FILE}"
             sh "git config user.email \"support@ivyteam.ch\""
 
-            maven cmd: "clean verify release:prepare " +
-              "-s settings.xml " +
-              "-P ${params.deployProfile} " +
-              "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-              "-Dgpg.skip=false " +
-              "-Dgithub.site.skip=true " +
-              "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
-          
+            withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
+              maven cmd: "clean verify release:prepare " +
+                "-s settings.xml " +
+                "-P ${params.deployProfile} " +
+                "-Dgpg.project-build.password='${env.GPG_PWD}' " +
+                "-Dgpg.skip=false " +
+                "-Dgithub.site.skip=true " +
+                "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
+            }
           }
         }
       }
