@@ -44,6 +44,7 @@ pipeline {
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
                   "-Dgithub.site.skip=true " +
+                  "-Dmaven.test.skip=true " +
                   "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
               }
             }
