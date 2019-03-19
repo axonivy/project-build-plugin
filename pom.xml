@@ -25,6 +25,7 @@
       <organizationUrl>https://www.axonivy.com</organizationUrl>
     </developer>
   </developers>
+
   <scm>
     <connection>scm:git:git@github.com:axonivy/project-build-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:axonivy/project-build-plugin.git</developerConnection>
@@ -345,7 +346,7 @@
         <version>1.6.6</version>
         <extensions>true</extensions>
         <configuration>
-          <serverId>ossrh</serverId>
+		  <serverId>sonatype.snapshots</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
         </configuration>
