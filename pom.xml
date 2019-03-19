@@ -46,7 +46,6 @@
 		<other.site.name>Stable</other.site.name>
 		<other.site.path>release</other.site.path>
         <autoRelease>true</autoRelease>
-        <project.scm.id>github.ivy-team</project.scm.id>
 	</properties>
 
 	<profiles>
@@ -96,13 +95,6 @@
 						<releaseProfiles>release</releaseProfiles>
 						<goals>deploy site-deploy</goals>
 			        </configuration>
-			        <dependencies>
-			          <dependency>
-			            <groupId>org.apache.maven.scm</groupId>
-			            <artifactId>maven-scm-provider-gitexe</artifactId>
-			            <version>1.9.5</version>
-			          </dependency>
-			        </dependencies>
 			      </plugin>
 	        	</plugins>
 	        </build>

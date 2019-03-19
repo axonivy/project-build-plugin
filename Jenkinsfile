@@ -35,6 +35,7 @@ pipeline {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
+            sh "git config user.email \"support@ivyteam.ch\""
 
             maven cmd: "clean verify release:prepare " +
               "-s settings.xml " +
