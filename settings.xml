@@ -12,8 +12,8 @@
     </server>
     <server>
       <id>github.ivy-team</id>
-      <username>${env.SONA_IVYTEAM_USER}</username>
-      <password>${env.SONA_IVYTEAM_PWD}</password>
+      <username>${env.GITHUB_IVYTEAM_USER}</username>
+      <password>${env.GITHUB_IVYTEAM_PWD}</password>
     </server>
   </servers>
   <mirrors/>

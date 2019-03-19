@@ -13,7 +13,7 @@ pipeline {
 
   parameters {
     booleanParam(name: 'skipGitHubSite',
-      description: 'If checked the plugin documentation on GitHub will NOT be updated',
+      description: 'If checked the plugin documentation on GitHub will NOT be updated (ignored for release)',
       defaultValue: true)
 
     choice(name: 'deployProfile',
@@ -29,7 +29,8 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
+                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'GITHUB_IVY_USER', passwordVariable: 'GITHUB_IVY_PWD')]) {
 
           script {
             def workspace = pwd()
@@ -43,7 +44,6 @@ pipeline {
                   "-P ${params.deployProfile} " +
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
-                  "-Dgithub.site.skip=true " +
                   "-Dmaven.test.skip=true " +
                   "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
               }
@@ -66,7 +66,8 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
+                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'GITHUB_IVY_USER', passwordVariable: 'GITHUB_IVY_PWD')]) {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
