@@ -22,15 +22,14 @@ pipeline {
   }
 
   stages {
-    stage('release prepare') {
+    stage('release') {
       when {
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD'),
-                        usernamePassword(credentialsId: 'github.ivy-team', usernameVariable: 'SONA_IVYTEAM_USER', passwordVariable: 'SONA_IVYTEAM_PWD')]) {
+                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
 
           script {
             def workspace = pwd()
@@ -38,20 +37,31 @@ pipeline {
             sh "git config user.email \"support@ivyteam.ch\""
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
-              maven cmd: "clean verify release:prepare " +
-                "-s settings.xml " +
-                "-P ${params.deployProfile} " +
-                "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-                "-Dgpg.skip=false " +
-                "-Dgithub.site.skip=true " +
-                "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
+              sshagent(credentials: ['github-axonivy']) {
+                maven cmd: "clean verify release:prepare release:perform " +
+                  "-s settings.xml " +
+                  "-P ${params.deployProfile} " +
+                  "-Dgpg.project-build.password='${env.GPG_PWD}' " +
+                  "-Dgpg.skip=false " +
+                  "-Dgithub.site.skip=true " +
+                  "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
+              }
             }
           }
+        }
+        archiveArtifacts 'target/*.jar'
+      }
+      post {
+        always {
+          junit '**/target/surefire-reports/**/*.xml'
         }
       }
     }
 
     stage('build and deploy') {
+      when {
+        expression { params.deployProfile != 'maven.central.release' }
+      }
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
                         file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
