@@ -28,8 +28,7 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
-                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
+                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
 
           script {
             def workspace = pwd()
@@ -39,7 +38,6 @@ pipeline {
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
                 maven cmd: "clean verify release:prepare release:perform " +
-                  "-s settings.xml " +
                   "-P ${params.deployProfile} " +
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
@@ -64,14 +62,12 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
-                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE'),
-                        usernamePassword(credentialsId: 'sonatype.snapshots', usernameVariable: 'SONA_IVY_USER', passwordVariable: 'SONA_IVY_PWD')]) {
+                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
           script {
             def workspace = pwd()
             sh "gpg --batch --import ${env.GPG_FILE}"
 
             maven cmd: "clean deploy site-deploy " +
-              "-s settings.xml " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
