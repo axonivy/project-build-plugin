@@ -25,6 +25,10 @@ pipeline {
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
       choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
+
+    string(name: 'nextDevVersion',
+      description: 'Next development version used after release (only used for release target). If not set next patch version will be raised by one',
+      defaultValue: '' )
   }
 
   stages {
@@ -39,6 +43,13 @@ pipeline {
 
           script {
             def workspace = pwd()
+            def nextDevelopmentVersion = ''
+            if (params.nextDevVersion.trim() =~ /\d+\.\d+\.\d+-SNAPSHOT/) {
+              echo "nextDevVersion is set to ${params.nextDevVersion.trim()}"
+              nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()}"
+            } else {
+              echo "nextDevVersion is NOT set or does not match version pattern - using default"
+            }
             sh "gpg --batch --import ${env.GPG_FILE}"
             sh "git config --global user.email 'nobody@axonivy.com'"
 
@@ -46,6 +57,7 @@ pipeline {
               sshagent(credentials: ['github-axonivy']) {
                 maven cmd: "clean verify release:prepare release:perform " +
                   "-P ${params.deployProfile} " +
+                  "${nextDevelopmentVersion} " +
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
                   "-Dmaven.test.skip=true " +
