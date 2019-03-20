@@ -27,7 +27,7 @@ pipeline {
       choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
 
     string(name: 'nextDevVersion',
-      description: 'Next development version used after release (only used for release target). If not set next patch version will be raised by one',
+      description: "Next development version used after release, e.g. '7.3.0' (no '-SNAPSHOT').\nNote: This is only used for release target; if not set next patch version will be raised by one",
       defaultValue: '' )
   }
 
@@ -44,9 +44,9 @@ pipeline {
           script {
             def workspace = pwd()
             def nextDevelopmentVersion = ''
-            if (params.nextDevVersion.trim() =~ /\d+\.\d+\.\d+-SNAPSHOT/) {
+            if (params.nextDevVersion.trim() =~ /\d+\.\d+\.\d+/) {
               echo "nextDevVersion is set to ${params.nextDevVersion.trim()}"
-              nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()}"
+              nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()-SNAPSHOT}"
             } else {
               echo "nextDevVersion is NOT set or does not match version pattern - using default"
             }
