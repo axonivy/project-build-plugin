@@ -22,18 +22,39 @@ pipeline {
   }
 
   stages {
-    stage('release') {
+    stage('snapshot build') {
       when {
+        expression { params.deployProfile != 'maven.central.release' }
+      }
+      steps {
+        script {
+          setupGPGEnvironment()
+          withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
+
+            maven cmd: "clean deploy site-deploy " +
+              "-P ${params.deployProfile} " +
+              "-Dgpg.project-build.password='${env.GPG_PWD}' " +
+              "-Dgpg.skip=false " +
+              "-Dgithub.site.skip=${params.skipGitHubSite} "
+
+          }
+        }
+        archiveArtifacts 'target/*.jar'
+        junit '**/target/surefire-reports/**/*.xml'
+      }
+    }
+
+    stage('release build') {
+      when {
+        branch '7.0'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
-        withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
-                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
+        script {
+          setupGPGEnvironment()
+          sh "git config --global user.email 'nobody@axonivy.com'"
 
-          script {
-            def workspace = pwd()
-            sh "gpg --batch --import ${env.GPG_FILE}"
-            sh "git config user.email \"support@ivyteam.ch\""
+          withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
@@ -41,47 +62,21 @@ pipeline {
                   "-P ${params.deployProfile} " +
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
-                  "-Dmaven.test.skip=true " +
-                  "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
+                  "-Dmaven.test.skip=true "
               }
             }
+
           }
         }
         archiveArtifacts 'target/*.jar'
-      }
-      post {
-        always {
-          junit '**/target/surefire-reports/**/*.xml'
-        }
+        junit '**/target/surefire-reports/**/*.xml'
       }
     }
+  }
+}
 
-    stage('build and deploy') {
-      when {
-        expression { params.deployProfile != 'maven.central.release' }
-      }
-      steps {
-        withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD'),
-                        file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
-          script {
-            def workspace = pwd()
-            sh "gpg --batch --import ${env.GPG_FILE}"
-
-            maven cmd: "clean deploy site-deploy " +
-              "-P ${params.deployProfile} " +
-              "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-              "-Dgpg.skip=false " +
-              "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.cache.directory=$workspace/target/ivyEngine"
-          }
-        }
-        archiveArtifacts 'target/*.jar'
-      }
-      post {
-        always {
-          junit '**/target/surefire-reports/**/*.xml'
-        }
-      }
-    }
+def setupGPGEnvironment() {
+  withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
+    sh "gpg --batch --import ${env.GPG_FILE}"
   }
 }
