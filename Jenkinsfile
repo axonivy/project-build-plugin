@@ -58,7 +58,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch 'master release/*'
+        branch 'master'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
@@ -66,6 +66,7 @@ pipeline {
         script {
           def nextDevVersionParam = createNextDevVersionJVMParam()
           setupGPGEnvironment()
+          sh "git config --global user.name 'ivy-team'"
           sh "git config --global user.email 'nobody@axonivy.com'"
           
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
@@ -78,7 +79,7 @@ pipeline {
                   "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                   "-Dgpg.skip=false " +
                   "-Dmaven.test.skip=true " +
-                  "-Divy.engine.list.url=${params.engineListUrl} "
+                  "-Darguments=-Divy.engine.list.url=${params.engineListUrl} "
               }
             }
           }
@@ -94,7 +95,7 @@ def createNextDevVersionJVMParam() {
   def nextDevelopmentVersion = '' 
   if (params.nextDevVersion.trim() =~ /\d+\.\d+\.\d+/) {
     echo "nextDevVersion is set to ${params.nextDevVersion.trim()}"
-    nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()-SNAPSHOT}"
+    nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()}-SNAPSHOT"
   } else {
     echo "nextDevVersion is NOT set or does not match version pattern - using default"
   }
