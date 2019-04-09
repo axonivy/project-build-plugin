@@ -37,12 +37,7 @@ class OsgiRuntime
     this.log = log;
   }
   
-  /**
-   * @param ivyEngineClassLoader
-   * @return BundleContext
-   * @throws Exception
-   */
-  Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader) throws Exception
+  Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws Exception
   {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
     Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
@@ -52,12 +47,12 @@ class OsgiRuntime
       mainArgs.add("-debug");
     }
     final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
-    runThreadWithProperties(() -> mainMethod.invoke(null, (Object)args));
+    runThreadWithProperties(() -> mainMethod.invoke(null, (Object)args), timeoutEngineStartInSeconds);
     Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
     return bundleContext;
   }
   
-  void runThreadWithProperties(Callable<?> function) throws Exception
+  void runThreadWithProperties(Callable<?> function, int timeoutEngineStartInSeconds) throws Exception
   {
     Map<String, String> properties = createOsgiConfigurationProps();
     Map<String, String> oldProperties = setSystemProperties(properties);
@@ -68,7 +63,7 @@ class OsgiRuntime
       Future<?> result = singleThreadExecutor.submit(function);
       try
       {
-        result.get(60, TimeUnit.SECONDS);
+        result.get(timeoutEngineStartInSeconds, TimeUnit.SECONDS);
       }
       catch (Exception ex)
       {

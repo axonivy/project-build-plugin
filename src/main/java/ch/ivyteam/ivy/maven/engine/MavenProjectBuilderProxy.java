@@ -42,13 +42,13 @@ public class MavenProjectBuilderProxy
   private String engineClasspath;
   private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log) throws Exception
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception
   {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
     
     URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
-    delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader);
+    delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
     
     delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
@@ -57,9 +57,9 @@ public class MavenProjectBuilderProxy
     engineClasspath = getEngineClasspath(engineJars);
   }
 
-  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws Exception
+  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws Exception
   { 
-    Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader);
+    Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     hackProvokeEagerStartOfJdt(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
     return loadClassInBundle(buildBundle, FQ_DELEGATE_CLASS_NAME);
