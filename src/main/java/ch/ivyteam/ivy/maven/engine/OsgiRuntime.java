@@ -63,7 +63,12 @@ class OsgiRuntime
       Future<?> result = singleThreadExecutor.submit(function);
       try
       {
-        result.get(timeoutEngineStartInSeconds, TimeUnit.SECONDS);
+    	TimeUnit timeUnit = TimeUnit.SECONDS;
+        if (log.isDebugEnabled())
+        {
+          log.debug("Waiting " + timeoutEngineStartInSeconds + " " + timeUnit.name().toLowerCase() + " on engine start");
+        }
+        result.get(timeoutEngineStartInSeconds, timeUnit);
       }
       catch (Exception ex)
       {
