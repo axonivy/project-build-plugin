@@ -64,7 +64,7 @@ public class StartTestEngineMojo extends AbstractEngineMojo
   Integer startTimeoutInSeconds;
 
   /** Set to <code>true</code> to skip the engine start. */
-  @Parameter(defaultValue="false", property="maven.test.skip")
+  @Parameter(property="maven.test.skip", defaultValue="false")
   boolean skipTest;
 
   @Override

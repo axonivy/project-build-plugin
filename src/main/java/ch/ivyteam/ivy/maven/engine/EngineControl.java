@@ -51,14 +51,14 @@ public class EngineControl
 {
   public static interface Property
   {
-    public static final String TEST_ENGINE_URL = "test.engine.url";
-    public static final String TEST_ENGINE_LOG = "test.engine.log";
+    String TEST_ENGINE_URL = "test.engine.url";
+    String TEST_ENGINE_LOG = "test.engine.log";
   }
 
   /**
    * mvn-plugin implementation of: ch.ivyteam.server.ServerState
    */
-  public static enum EngineState
+  public enum EngineState
   {
     STOPPED,
     STARTING,

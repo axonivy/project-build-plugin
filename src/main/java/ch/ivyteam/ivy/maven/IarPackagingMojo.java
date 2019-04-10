@@ -98,7 +98,7 @@ public class IarPackagingMojo extends AbstractMojo
     Artifact artifact = project.getArtifact();
     artifact.setFile(iar);
     project.setArtifact(artifact);
-    getLog().info("Attached " + artifact.toString() + ".");
+    getLog().info("Attached " + artifact + ".");
   }
 
   private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException

@@ -45,14 +45,14 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
    * Set to <code>true</code> to bypass the generation of <b>ivy data classes</b>+<b>webservice processes</b> and compilation of <b>java sources</b>.
    * @since 6.1.0
    */
-  @Parameter(defaultValue="false", property="ivy.compiler.skip")
+  @Parameter(property="ivy.compiler.skip", defaultValue="false")
   boolean skipCompilation;
 
   /** 
    * Set to <code>true</code> to avoid the validation of ivyScript code within ivy processes.
    * @since 7.3.0
    */
-  @Parameter(defaultValue="true", property="ivy.script.validation.skip")
+  @Parameter(property="ivy.script.validation.skip", defaultValue="true")
   boolean skipScriptValidation;
   
   @Override

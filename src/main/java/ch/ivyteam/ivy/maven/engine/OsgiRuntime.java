@@ -63,7 +63,7 @@ class OsgiRuntime
       Future<?> result = singleThreadExecutor.submit(function);
       try
       {
-    	TimeUnit timeUnit = TimeUnit.SECONDS;
+        TimeUnit timeUnit = TimeUnit.SECONDS;
         if (log.isDebugEnabled())
         {
           log.debug("Waiting " + timeoutEngineStartInSeconds + " " + timeUnit.name().toLowerCase() + " on engine start");
@@ -81,7 +81,7 @@ class OsgiRuntime
     }
   }
 
-  private Map<String, String> setSystemProperties(Map<String, String> properties)
+  private static Map<String, String> setSystemProperties(Map<String, String> properties)
   {
     Map<String, String> oldProperties = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : properties.entrySet())

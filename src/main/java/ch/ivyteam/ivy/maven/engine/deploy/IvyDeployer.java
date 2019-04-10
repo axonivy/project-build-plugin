@@ -34,5 +34,5 @@ public interface IvyDeployer
    * @param log mojo log
    * @throws MojoExecutionException if deployment fails
    */
-  public void deploy(String deployablePath, Log log) throws MojoExecutionException;
+  void deploy(String deployablePath, Log log) throws MojoExecutionException;
 }

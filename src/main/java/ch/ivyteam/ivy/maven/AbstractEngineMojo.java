@@ -67,7 +67,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * <li>"<code>(6.0.0,]</code>" means ivyVersion &gt; 6.0.0</li>
    * </ul>
    */
-  @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivy.engine.version")
+  @Parameter(property="ivy.engine.version", defaultValue = DEFAULT_VERSION, required = true)
   protected String ivyVersion;
 
   /** testing only: avoid restriction to minimal version! */

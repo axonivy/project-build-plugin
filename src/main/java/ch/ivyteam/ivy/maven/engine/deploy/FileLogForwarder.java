@@ -96,7 +96,7 @@ class FileLogForwarder
     @Override
     public void onFileChange(File log)
     {
-      try(RandomAccessFile readableLog = new RandomAccessFile(log, "r");)
+      try (RandomAccessFile readableLog = new RandomAccessFile(log, "r"))
       {
         readableLog.seek(lastReadPosition);
         readNewLines(readableLog);

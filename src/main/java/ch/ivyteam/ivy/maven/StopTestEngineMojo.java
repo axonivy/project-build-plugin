@@ -56,7 +56,7 @@ public class StopTestEngineMojo extends AbstractEngineMojo
   Integer stopTimeoutInSeconds;
   
   /** Set to <code>true</code> to skip the engine stop. */
-  @Parameter(defaultValue="false", property="maven.test.skip")
+  @Parameter(property="maven.test.skip", defaultValue="false")
   boolean skipTest;
 
   @Override

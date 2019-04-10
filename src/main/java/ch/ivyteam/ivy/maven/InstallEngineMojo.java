@@ -76,7 +76,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="https://developer.axonivy.com/download/maven.html", property=ENGINE_LIST_URL_PROPERTY)
+  @Parameter(property=ENGINE_LIST_URL_PROPERTY, defaultValue="https://developer.axonivy.com/download/maven.html")
   URL engineListPageUrl;
   
   /** 
@@ -91,7 +91,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * All_x64 supports Linux and Windows.
    * Slim_All_x64 supports Linux and Windows only with the necessary features (e.g. without demo applications).
    */
-  @Parameter(defaultValue=DEFAULT_ARCH, property="ivy.engine.os.arch")
+  @Parameter(property="ivy.engine.os.arch", defaultValue=DEFAULT_ARCH)
   String osArchitecture;
   
   /** 
@@ -100,7 +100,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * engine will be downloaded from the {@link #engineDownloadUrl} and unpacked into the
    * {@link #engineDirectory}.
    */
-  @Parameter(defaultValue="true", property="ivy.engine.auto.install") 
+  @Parameter(property="ivy.engine.auto.install", defaultValue="true") 
   boolean autoInstallEngine;
 
   @Override

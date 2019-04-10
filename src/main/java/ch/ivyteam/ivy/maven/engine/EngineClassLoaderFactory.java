@@ -58,7 +58,7 @@ public class EngineClassLoaderFactory
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "1.7.7";
   
-  private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
+  private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
           OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
           OsgiDir.PLUGINS,
           OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked jars from OSGI bundles
@@ -83,7 +83,7 @@ public class EngineClassLoaderFactory
     if (maven.log.isDebugEnabled())
     {
       maven.log.debug("Configuring OSGi engine classpath:");
-      osgiClasspath.stream().forEach(file -> {maven.log.debug(" + "+file.getAbsolutePath());});
+      osgiClasspath.stream().forEach(file -> maven.log.debug(" + "+file.getAbsolutePath()));
     }
     return new URLClassLoader(toUrls(osgiClasspath));
   }

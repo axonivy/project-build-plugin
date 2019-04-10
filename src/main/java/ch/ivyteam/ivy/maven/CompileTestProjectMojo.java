@@ -42,7 +42,7 @@ public class CompileTestProjectMojo extends AbstractProjectCompileMojo
   public static final String GOAL = "test-compile";
   
   /** Set to <code>true</code> to bypass the compilation of test sources. */
-  @Parameter(defaultValue="false", property="maven.test.skip")
+  @Parameter(property="maven.test.skip", defaultValue="false")
   boolean skipTest;
   
   @Override

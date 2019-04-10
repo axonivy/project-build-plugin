@@ -63,7 +63,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    * Defines the timeout how long to wait for an engine start to compile.
    * @since 7.4.0
    */
-  @Parameter(defaultValue = "60", property = "ivy.compiler.engine.start.timeout")
+  @Parameter(property = "ivy.compiler.engine.start.timeout", defaultValue = "60")
   private int timeoutEngineStartInSeconds;
 
   @Component

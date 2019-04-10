@@ -108,7 +108,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     }
   }
 
-  private String getClasspath(File jar)
+  private static String getClasspath(File jar)
   {
     return new ClasspathJar(jar).getClasspathFiles();
   }
