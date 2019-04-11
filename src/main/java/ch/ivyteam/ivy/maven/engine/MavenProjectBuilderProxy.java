@@ -55,13 +55,13 @@ public class MavenProjectBuilderProxy
   private String engineClasspath;
   private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log) throws Exception
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception
   {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
     
     URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
-    delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader);
+    delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
     
     delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
@@ -70,16 +70,16 @@ public class MavenProjectBuilderProxy
     engineClasspath = getEngineClasspath(engineJars);
   }
 
-  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
+  private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws ClassNotFoundException,
           NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
   { 
-    Object bundleContext = startEclipseOsgiImpl(ivyEngineClassLoader);
+    Object bundleContext = startEclipseOsgiImpl(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
     return (Class<?>) buildBundle.getClass().getDeclaredMethod("loadClass", String.class)
             .invoke(buildBundle, FQ_DELEGATE_CLASS_NAME);
   }
   
-  private Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader) throws ClassNotFoundException,
+  private Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws ClassNotFoundException,
           NoSuchMethodException, Exception, IllegalAccessException, InvocationTargetException
   {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
@@ -90,7 +90,7 @@ public class MavenProjectBuilderProxy
       mainArgs.add("-consoleLog");
     }
     final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
-    startWithOsgiProperties(() -> mainMethod.invoke(null, (Object)args));
+    startWithOsgiProperties(() -> mainMethod.invoke(null, (Object)args), timeoutEngineStartInSeconds);
     Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
     return bundleContext;
   }
@@ -163,7 +163,7 @@ public class MavenProjectBuilderProxy
     }
   }
   
-  private void startWithOsgiProperties(Callable<?> function) throws Exception
+  private void startWithOsgiProperties(Callable<?> function, int timeoutEngineStartInSeconds) throws Exception
   {
     Map<String, String> properties = new LinkedHashMap<>();
     
@@ -189,7 +189,12 @@ public class MavenProjectBuilderProxy
       Future<?> result = singleThreadExecutor.submit(function);
       try
       {
-        result.get(60, TimeUnit.SECONDS);
+        TimeUnit timeUnit = TimeUnit.SECONDS;
+        if (log.isDebugEnabled())
+        {
+          log.debug("Waiting " + timeoutEngineStartInSeconds + " " + timeUnit.name().toLowerCase() + " on engine start");
+        }
+        result.get(timeoutEngineStartInSeconds, timeUnit);
       }
       catch (Exception ex)
       {

@@ -59,6 +59,13 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   @Parameter(property="ivy.compiler.encoding")
   private String encoding;
   
+  /** 
+   * Defines the timeout how long to wait for an engine start to compile.
+   * @since 7.0.4 (Leading Edge 7.4.0)
+   */
+  @Parameter(defaultValue = "60", property = "ivy.compiler.engine.start.timeout")
+  private int timeoutEngineStartInSeconds;
+  
   @Component
   private RepositorySystem repository;
   
@@ -98,7 +105,8 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
               classLoaderFactory,
               buildApplicationDirectory,
               engineDir,
-              getLog());
+              getLog(),
+              timeoutEngineStartInSeconds);
     }
     classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
