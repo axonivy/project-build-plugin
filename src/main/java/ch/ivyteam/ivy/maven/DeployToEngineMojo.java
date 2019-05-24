@@ -18,10 +18,31 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -62,6 +83,18 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
   @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
+  
+  @Parameter(property="ivy.deploy.remote.engine", defaultValue="http://localhost:8080/ivy")
+  String deployRemoteEngine;
+  
+  @Parameter(property="ivy.deploy.remote", defaultValue="false")
+  boolean deployRemote;
+  
+  @Parameter(property="ivy.deploy.remote.username", defaultValue="admin")
+  String deployRemoteUsername;
+  
+  @Parameter(property="ivy.deploy.remote.password", defaultValue="admin")
+  String deployRemotePassword;
 
   /** The name of an ivy application to which the file is deployed. */
   @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
@@ -215,19 +248,69 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Skipping deployment of '"+deployFile+"' to engine. The file does not exist.");
       return;
     }
-    File deployDir = getDeployDirectory();
-    if (!deployDir.exists())
+    if (!deployRemote)
     {
-      getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
-      return;
+      File deployDir = getDeployDirectory();
+      if (!deployDir.exists())
+      {
+        getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
+        return;
+      }
+  
+      File targetDeployableFile = createTargetDeployableFile(deployDir);
+      String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
+  
+      File resolvedOptionsFile = createDeployOptionsFile();
+      IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
+      deployer.deploy(deployablePath, getLog());
     }
+    else
+    {
+      getLog().warn("Try to deploy to remote engine: " + deployRemoteEngine);
+      deployToRemoteEngine();
+    }
+  }
 
-    File targetDeployableFile = createTargetDeployableFile(deployDir);
-    String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-
-    File resolvedOptionsFile = createDeployOptionsFile();
-    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
-    deployer.deploy(deployablePath, getLog());
+  private void deployToRemoteEngine()
+  {
+    String url = deployRemoteEngine + "/api/system/apps";
+    
+    HttpEntity entity = MultipartEntityBuilder.create()
+            .addPart("fileToDeploy", new FileBody(deployFile))
+            .build();
+    HttpPost httpPost = new HttpPost(url);
+    httpPost.setEntity(entity);
+    httpPost.addHeader("X-Requested-By", "maven-build-plugin");
+   
+    HttpEntity resEntity = null;
+    
+    try (CloseableHttpClient client = HttpClientBuilder.create().build())
+    {
+      HttpHost httpHost = URIUtils.extractHost(new URI(url));
+      CredentialsProvider credsProvider = new BasicCredentialsProvider();
+      credsProvider.setCredentials(AuthScope.ANY,
+          new UsernamePasswordCredentials(deployRemoteUsername, deployRemotePassword));
+      AuthCache authCache = new BasicAuthCache();
+      authCache.put(httpHost, new BasicScheme());
+      HttpClientContext context = HttpClientContext.create();
+      context.setCredentialsProvider(credsProvider);
+      context.setAuthCache(authCache);
+      CloseableHttpResponse response = client.execute(httpPost, context);
+      
+      resEntity = response.getEntity();
+      if (resEntity != null) {
+        getLog().error(EntityUtils.toString(resEntity));
+      }
+      int status = response.getStatusLine().getStatusCode();
+      if (status != HttpStatus.SC_OK) {
+        getLog().error("Upload error! (" + status + ")");
+      }
+      EntityUtils.consume(resEntity);
+    }
+    catch (IOException | URISyntaxException ex)
+    {
+      getLog().error(ex.getMessage());
+    }
   }
 
   private File getDeployDirectory() throws MojoExecutionException

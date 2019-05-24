@@ -164,6 +164,15 @@ public class TestDeployToEngineMojo
       mockEngineDeployThread.failOnException();
     }
   }
+  
+  @Test
+  public void deployToRemoteEngine() throws Throwable
+  {
+    DeployToEngineMojo mojo = rule.getMojo();
+    mojo.deployRemote = true;
+    mojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
+    mojo.execute();
+  }
 
   private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
