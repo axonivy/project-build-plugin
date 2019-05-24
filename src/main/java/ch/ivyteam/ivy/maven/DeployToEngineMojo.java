@@ -18,33 +18,10 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -52,12 +29,14 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Server;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
+import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 
 /**
  * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
@@ -86,26 +65,35 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
   
-  @Parameter(property="ivy.deploy.remote.engine", defaultValue="http://localhost:8080/ivy")
-  String deployRemoteEngine;
-  
-  @Parameter(property="ivy.deploy.remote", defaultValue="false")
-  boolean deployRemote;
-  
-  @Parameter(property="ivy.deploy.remote.username", defaultValue="admin")
-  String deployRemoteUsername;
-  
-  @Parameter(property="ivy.deploy.remote.password", defaultValue="admin")
-  String deployRemotePassword;
-
   /** The name of an ivy application to which the file is deployed. */
   @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
   String deployToEngineApplication;
-
+  
   /** The auto deployment directory of the engine. Must match the ivy engine system property 'deployment.directory' */
   @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
   String deployDirectory;
-
+  
+  /** The deploy method
+   * 
+   * <p>Possible values:</p>
+   * <ul>
+   *    <li><code>DIRECTORY</code>: use filesystem for deployment</li>
+   *    <li><code>HTTP</code>: use rest deployment to remote engine/li>
+   * </ul>
+   * @since7.4 */
+  @Parameter(property="ivy.deploy.option", defaultValue=DeployMethod.DIRECTORY)
+  String deployMethod;
+  
+  /** server id which is configured in settings.xml 
+   * @since 7.4 */
+  @Parameter(property="ivy.deploy.remote.id")
+  String deployRemoteId;
+  
+  /** server url
+   * @since 7.4 */
+  @Parameter(property="ivy.deploy.remote.engine", defaultValue="http://localhost:8080/ivy")
+  String deployRemoteEngine;
+  
   /** The file that contains deployment options. <br/>
    *
    * Example options file content:
@@ -250,7 +238,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Skipping deployment of '"+deployFile+"' to engine. The file does not exist.");
       return;
     }
-    if (!deployRemote)
+    if (DeployMethod.DIRECTORY.equals(deployMethod))
     {
       File deployDir = getDeployDirectory();
       if (!deployDir.exists())
@@ -266,66 +254,22 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
       deployer.deploy(deployablePath, getLog());
     }
-    else
+    else if (DeployMethod.HTTP.equals(deployMethod))
     {
       getLog().warn("Try to deploy to remote engine: " + deployRemoteEngine);
-      deployToRemoteEngine();
-    }
-  }
-
-  private void deployToRemoteEngine() throws MojoExecutionException
-  {
-    String url = deployRemoteEngine + "/api/system/apps";
-    File resolvedOptionsFile = createDeployOptionsFile();
-    
-    HttpPost httpPost = new HttpPost(url);
-    httpPost.addHeader("X-Requested-By", "maven-build-plugin");
-    HttpEntity resEntity = null;
-    
-    try (CloseableHttpClient client = HttpClientBuilder.create().build())
-    {
-      httpPost.setEntity(getRequestData(resolvedOptionsFile));
-      CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url));
-      
-      resEntity = response.getEntity();
-      if (resEntity != null) {
-        getLog().error(EntityUtils.toString(resEntity));
+      Server server = session.getSettings().getServer(deployRemoteId);
+      if (server == null)
+      {
+        getLog().warn("Can not load credentials from settings.xml because server '" + deployRemoteId + "' is not definied. Try to deploy with default username, password");
       }
-      int status = response.getStatusLine().getStatusCode();
-      if (status != HttpStatus.SC_OK) {
-        getLog().error("Upload error! (" + status + ")");
-      }
-      EntityUtils.consume(resEntity);
+      HttpDeployer httpDeployer = new HttpDeployer(server, 
+              deployRemoteEngine, deployToEngineApplication, deployFile, createDeployOptionsFile());
+      httpDeployer.deploy(getLog());
     }
-    catch (IOException | URISyntaxException ex)
+    else
     {
-      getLog().error(ex.getMessage());
+      getLog().warn("Invalid deployMethod is set.");
     }
-  }
-
-  private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException
-  {
-    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-    builder.addPart("fileToDeploy", new FileBody(deployFile));
-    if (resolvedOptionsFile != null)
-    {
-      builder.addTextBody("deploymentOptions", FileUtils.readFileToString(resolvedOptionsFile, StandardCharsets.UTF_8));
-    }
-    return builder.build();
-  }
-
-  private HttpClientContext getRequestContext(String url) throws URISyntaxException
-  {
-    HttpHost httpHost = URIUtils.extractHost(new URI(url));
-    CredentialsProvider credsProvider = new BasicCredentialsProvider();
-    credsProvider.setCredentials(AuthScope.ANY,
-        new UsernamePasswordCredentials(deployRemoteUsername, deployRemotePassword));
-    AuthCache authCache = new BasicAuthCache();
-    authCache.put(httpHost, new BasicScheme());
-    HttpClientContext context = HttpClientContext.create();
-    context.setCredentialsProvider(credsProvider);
-    context.setAuthCache(authCache);
-    return context;
   }
 
   private File getDeployDirectory() throws MojoExecutionException
@@ -389,6 +333,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
     String FILE_FORMAT_AUTO = "AUTO";
     String DEPLOY_TEST_USERS = "AUTO";
+  }
+  
+  public static interface DeployMethod
+  {
+    String DIRECTORY = "DIRECTORY";
+    String HTTP = "HTTP";
   }
 
 }
