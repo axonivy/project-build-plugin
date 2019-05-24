@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -271,31 +273,19 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     }
   }
 
-  private void deployToRemoteEngine()
+  private void deployToRemoteEngine() throws MojoExecutionException
   {
     String url = deployRemoteEngine + "/api/system/apps";
+    File resolvedOptionsFile = createDeployOptionsFile();
     
-    HttpEntity entity = MultipartEntityBuilder.create()
-            .addPart("fileToDeploy", new FileBody(deployFile))
-            .build();
     HttpPost httpPost = new HttpPost(url);
-    httpPost.setEntity(entity);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
-   
     HttpEntity resEntity = null;
     
     try (CloseableHttpClient client = HttpClientBuilder.create().build())
     {
-      HttpHost httpHost = URIUtils.extractHost(new URI(url));
-      CredentialsProvider credsProvider = new BasicCredentialsProvider();
-      credsProvider.setCredentials(AuthScope.ANY,
-          new UsernamePasswordCredentials(deployRemoteUsername, deployRemotePassword));
-      AuthCache authCache = new BasicAuthCache();
-      authCache.put(httpHost, new BasicScheme());
-      HttpClientContext context = HttpClientContext.create();
-      context.setCredentialsProvider(credsProvider);
-      context.setAuthCache(authCache);
-      CloseableHttpResponse response = client.execute(httpPost, context);
+      httpPost.setEntity(getRequestData(resolvedOptionsFile));
+      CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url));
       
       resEntity = response.getEntity();
       if (resEntity != null) {
@@ -311,6 +301,31 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     {
       getLog().error(ex.getMessage());
     }
+  }
+
+  private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException
+  {
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addPart("fileToDeploy", new FileBody(deployFile));
+    if (resolvedOptionsFile != null)
+    {
+      builder.addTextBody("deploymentOptions", FileUtils.readFileToString(resolvedOptionsFile, StandardCharsets.UTF_8));
+    }
+    return builder.build();
+  }
+
+  private HttpClientContext getRequestContext(String url) throws URISyntaxException
+  {
+    HttpHost httpHost = URIUtils.extractHost(new URI(url));
+    CredentialsProvider credsProvider = new BasicCredentialsProvider();
+    credsProvider.setCredentials(AuthScope.ANY,
+        new UsernamePasswordCredentials(deployRemoteUsername, deployRemotePassword));
+    AuthCache authCache = new BasicAuthCache();
+    authCache.put(httpHost, new BasicScheme());
+    HttpClientContext context = HttpClientContext.create();
+    context.setCredentialsProvider(credsProvider);
+    context.setAuthCache(authCache);
+    return context;
   }
 
   private File getDeployDirectory() throws MojoExecutionException

@@ -171,6 +171,7 @@ public class TestDeployToEngineMojo
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployRemote = true;
     mojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
+    mojo.deployTestUsers = "FALSE";
     mojo.execute();
   }
 
