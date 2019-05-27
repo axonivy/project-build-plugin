@@ -388,7 +388,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     return null;
   }
   
-  private void removeTemporaryDeploymentOptionsFile(File deploymentOptionsFile)
+  private static void removeTemporaryDeploymentOptionsFile(File deploymentOptionsFile)
   {
     FileUtils.deleteQuietly(deploymentOptionsFile);
   }
