@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -242,43 +243,60 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Skipping deployment of '"+deployFile+"' to engine. The file does not exist.");
       return;
     }
-    if (DeployMethod.DIRECTORY.equals(deployMethod))
+    File resolvedOptionsFile = createDeployOptionsFile();
+    try
     {
-      File deployDir = getDeployDirectory();
-      if (!deployDir.exists())
+      if (DeployMethod.DIRECTORY.equals(deployMethod))
       {
-        getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
-        return;
+        deployToDirectory(resolvedOptionsFile);
       }
-      
-      checkDirParams();
-  
-      File targetDeployableFile = createTargetDeployableFile(deployDir);
-      String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-  
-      File resolvedOptionsFile = createDeployOptionsFile();
-      IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
-      deployer.deploy(deployablePath, getLog());
-    }
-    else if (DeployMethod.HTTP.equals(deployMethod))
-    {
-      getLog().info("Try to deploy to remote engine: " + deployEngineUrl);
-      
-      checkHttpParams();
-      
-      Server server = session.getSettings().getServer(deployServerId);
-      if (server == null)
+      else if (DeployMethod.HTTP.equals(deployMethod))
       {
-        getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId + "' is not definied. Try to deploy with default username, password");
+        deployToRestService();
       }
-      HttpDeployer httpDeployer = new HttpDeployer(server, 
-              deployEngineUrl, deployToEngineApplication, deployFile, createDeployOptionsFile());
-      httpDeployer.deploy(getLog());
+      else
+      {
+        getLog().warn("Invalid deployMethod is set.");
+      }
     }
-    else
+    finally
     {
-      getLog().warn("Invalid deployMethod is set.");
+      removeTemporaryDeploymentOptionsFile(resolvedOptionsFile);
     }
+  }
+
+  private void deployToDirectory(File resolvedOptionsFile) throws MojoExecutionException
+  {
+    File deployDir = getDeployDirectory();
+    if (!deployDir.exists())
+    {
+      getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
+      return;
+    }
+    
+    checkDirParams();
+  
+    File targetDeployableFile = createTargetDeployableFile(deployDir);
+    String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
+  
+    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
+    deployer.deploy(deployablePath, getLog());
+  }
+
+  private void deployToRestService() throws MojoExecutionException
+  {
+    getLog().info("Try to deploy to remote engine: " + deployEngineUrl);
+    
+    checkHttpParams();
+    
+    Server server = session.getSettings().getServer(deployServerId);
+    if (server == null)
+    {
+      getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId + "' is not definied. Try to deploy with default username, password");
+    }
+    HttpDeployer httpDeployer = new HttpDeployer(server, 
+            deployEngineUrl, deployToEngineApplication, deployFile, createDeployOptionsFile());
+    httpDeployer.deploy(getLog());
   }
 
   private void checkHttpParams()
@@ -354,6 +372,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     }
     return null;
   }
+  
+  private void removeTemporaryDeploymentOptionsFile(File deploymentOptionsFile)
+  {
+    FileUtils.deleteQuietly(deploymentOptionsFile);
+  }
+
 
   public static interface DefaultDeployOptions
   {

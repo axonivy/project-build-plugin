@@ -32,6 +32,7 @@ import org.apache.maven.settings.Server;
 
 public class HttpDeployer
 {
+  private static final String DEPLOY_URI = "/api/system/apps/";
   private String serverUrl;
   private String targetApplication;
   private File deployFile;
@@ -49,26 +50,9 @@ public class HttpDeployer
 
   public void deploy(Log log) throws MojoExecutionException
   {
-    String url = serverUrl + "/api/system/apps/" + targetApplication;
-    
-    HttpPost httpPost = new HttpPost(url);
-    httpPost.addHeader("X-Requested-By", "maven-build-plugin");
-    HttpEntity resEntity = null;
-    
     try (CloseableHttpClient client = HttpClientBuilder.create().build())
     {
-      httpPost.setEntity(getRequestData(deploymentOptions));
-      CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url));
-      
-      resEntity = response.getEntity();
-      if (resEntity != null) {
-        log.info(EntityUtils.toString(resEntity));
-      }
-      int status = response.getStatusLine().getStatusCode();
-      if (status != HttpStatus.SC_OK) {
-        throw new MojoExecutionException("Upload of file '" + deployFile.getName() + "' to engine failed (Status: " + status + ")");
-      }
-      EntityUtils.consume(resEntity);
+      executeRequest(log, client);
     }
     catch (IOException ex)
     {
@@ -78,15 +62,33 @@ public class HttpDeployer
     {
       throw new MojoExecutionException("Failed to build http credentials context", ex);
     }
-    finally 
-    {
-      removeTemporaryDeploymentOptionsFile();
-    }
   }
   
-  private void removeTemporaryDeploymentOptionsFile()
+  private void executeRequest(Log log, CloseableHttpClient client) throws IOException, URISyntaxException, MojoExecutionException
   {
-    FileUtils.deleteQuietly(deploymentOptions);
+    String url = serverUrl + DEPLOY_URI + targetApplication;
+    HttpPost httpPost = new HttpPost(url);
+    httpPost.addHeader("X-Requested-By", "maven-build-plugin");
+    httpPost.setEntity(getRequestData(deploymentOptions));
+
+    HttpEntity resEntity = null;
+    try(CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url)))
+    {
+      resEntity = response.getEntity();
+      if (resEntity != null) 
+      {
+        log.info(EntityUtils.toString(resEntity));
+      }
+      int status = response.getStatusLine().getStatusCode();
+      if (status != HttpStatus.SC_OK) 
+      {
+        throw new MojoExecutionException("Deployment of file '" + deployFile.getName() + "' to engine failed (Status: " + status + ")");
+      }
+    }
+    finally
+    {
+      EntityUtils.consume(resEntity);
+    }
   }
   
   private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException

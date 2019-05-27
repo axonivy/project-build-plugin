@@ -62,7 +62,6 @@ public class FileDeployer implements IvyDeployer
   {
     clear();
     initDeployment();
-    removeTemporaryDeploymentOptionsFile();
     copyDeployableToEngine();
     determineDeployResult();
   }
@@ -88,12 +87,6 @@ public class FileDeployer implements IvyDeployer
     {
       throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
     }
-  }
-
-
-  private void removeTemporaryDeploymentOptionsFile()
-  {
-    FileUtils.deleteQuietly(deploymentOptionsFile);
   }
 
   private void copyDeployableToEngine() throws MojoExecutionException
