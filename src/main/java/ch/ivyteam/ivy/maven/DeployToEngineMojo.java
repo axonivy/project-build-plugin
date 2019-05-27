@@ -85,18 +85,18 @@ public class DeployToEngineMojo extends AbstractEngineMojo
    *    <li><code>HTTP</code>: use rest deployment to remote engine/li>
    * </ul>
    * @since7.4 */
-  @Parameter(property="ivy.deploy.option", defaultValue=DeployMethod.DIRECTORY)
+  @Parameter(property="ivy.deploy.method", defaultValue=DeployMethod.DIRECTORY)
   String deployMethod;
   
   /** server id for deployment over HTTP which is configured in settings.xml 
    * @since 7.4 */
-  @Parameter(property="ivy.deploy.http.id")
-  String deployHttpId;
+  @Parameter(property="ivy.deploy.server.id")
+  String deployServerId;
   
-  /** server url for deployment over HTTP
+  /** engine url for deployment over HTTP
    * @since 7.4 */
-  @Parameter(property="ivy.deploy.http.engine", defaultValue=HTTP_ENGINE_URL_DEFAULT)
-  String deployHttpEngine;
+  @Parameter(property="ivy.deploy.engine.url", defaultValue=HTTP_ENGINE_URL_DEFAULT)
+  String deployEngineUrl;
   
   /** The file that contains deployment options. <br/>
    *
@@ -262,17 +262,17 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     }
     else if (DeployMethod.HTTP.equals(deployMethod))
     {
-      getLog().info("Try to deploy to remote engine: " + deployHttpEngine);
+      getLog().info("Try to deploy to remote engine: " + deployEngineUrl);
       
       checkHttpParams();
       
-      Server server = session.getSettings().getServer(deployHttpId);
+      Server server = session.getSettings().getServer(deployServerId);
       if (server == null)
       {
-        getLog().warn("Can not load credentials from settings.xml because server '" + deployHttpId + "' is not definied. Try to deploy with default username, password");
+        getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId + "' is not definied. Try to deploy with default username, password");
       }
       HttpDeployer httpDeployer = new HttpDeployer(server, 
-              deployHttpEngine, deployToEngineApplication, deployFile, createDeployOptionsFile());
+              deployEngineUrl, deployToEngineApplication, deployFile, createDeployOptionsFile());
       httpDeployer.deploy(getLog());
     }
     else
@@ -283,10 +283,6 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
   private void checkHttpParams()
   {
-    if (!DEPLOY_ENGINE_DIR_DEFAULT.equals(deployEngineDirectory.toString()))
-    {
-      getLog().warn("deployEngineDirectory is set but will not be used for HTTP Deployment.");
-    }
     if (!DEPLOY_DEFAULT.equals(deployDirectory))
     {
       getLog().warn("deployDirectory is set but will not be used for HTTP Deployment.");
@@ -295,11 +291,11 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   
   private void checkDirParams()
   {
-    if (!HTTP_ENGINE_URL_DEFAULT.equals(deployHttpEngine))
+    if (!HTTP_ENGINE_URL_DEFAULT.equals(deployEngineUrl))
     {
       getLog().warn("deployHttpEngine Url is set but will not be used for Directory Deployment.");
     }
-    if (StringUtils.isBlank(deployHttpId))
+    if (StringUtils.isBlank(deployServerId))
     {
       getLog().warn("deployHttpId is set but will not be used for Directory Deployment.");
     }

@@ -102,7 +102,6 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
       assertThat(outContent.toString()).contains("Start deploying project(s) of file")
               .contains("Application: test")
               .contains("Deploying users ...")
-              .contains("deployEngineDirectory is set but will not be used for HTTP Deployment.")
               .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
     }
     finally
