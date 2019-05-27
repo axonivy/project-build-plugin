@@ -26,6 +26,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
 
@@ -46,7 +47,7 @@ public class HttpDeployer
     this.deploymentOptions = deploymentOptions;
   }
 
-  public void deploy(Log log)
+  public void deploy(Log log) throws MojoExecutionException
   {
     String url = serverUrl + "/api/system/apps/" + targetApplication;
     
@@ -65,13 +66,17 @@ public class HttpDeployer
       }
       int status = response.getStatusLine().getStatusCode();
       if (status != HttpStatus.SC_OK) {
-        log.error("Upload error! (" + status + ")");
+        throw new MojoExecutionException("Upload of file '" + deployFile.getName() + "' to engine failed (Status: " + status + ")");
       }
       EntityUtils.consume(resEntity);
     }
-    catch (IOException | URISyntaxException ex)
+    catch (IOException ex)
     {
-      log.error(ex.getMessage());
+      throw new MojoExecutionException("Failed to build request body", ex);
+    }
+    catch (URISyntaxException ex)
+    {
+      throw new MojoExecutionException("Failed to build http credentials context", ex);
     }
     finally 
     {
