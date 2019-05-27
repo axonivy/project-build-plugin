@@ -29,7 +29,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentFiles;
 
 public class TestDeployToEngineMojo
@@ -166,18 +165,6 @@ public class TestDeployToEngineMojo
     }
   }
   
-  @Test
-  public void deployToRemoteEngine() throws Throwable
-  {
-    DeployToEngineMojo mojo = rule.getMojo();
-    mojo.deployMethod = DeployMethod.HTTP;
-    mojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
-    mojo.deployTestUsers = "FALSE";
-    mojo.execute();
-    //TODO: remove deploy.options.yaml
-    //TODO: assert
-  }
-
   private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);

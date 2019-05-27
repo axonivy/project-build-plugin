@@ -18,29 +18,50 @@ package ch.ivyteam.ivy.maven;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 
 import org.apache.commons.exec.Executor;
 import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import ch.ivyteam.ivy.maven.DeployToEngineMojo.DeployMethod;
 
 /**
  * @since 7.1.0
  */
 public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
 {
+  StartTestEngineMojo mojo;
+  DeployToEngineMojo deployMojo;
+  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+  private final PrintStream originalOut = System.out;
+  
+  @Before
+  public void setup()
+  {
+    mojo = rule.getMojo();
+    deployMojo = deployRule.getMojo();
+    deployMojo.deployEngineDirectory = mojo.engineDirectory.getAbsoluteFile();
+    deployMojo.deployTimeoutInSeconds = 120;
+    deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
+    deployMojo.deployTestUsers = "true";
+    
+    System.setOut(new PrintStream(outContent));
+  }
+  
+  @After
+  public void restoreStreams() {
+      System.setOut(originalOut);
+  }
 
   @Test
   public void canDeployIar() throws Exception
   {
-    StartTestEngineMojo mojo = rule.getMojo();
-
-    DeployToEngineMojo deployMojo = deployRule.getMojo();
-    deployMojo.deployTimeoutInSeconds = 120;
-    deployMojo.deployEngineDirectory = mojo.engineDirectory.getAbsoluteFile();
-    deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
-    deployMojo.deployTestUsers = "true";
     deployMojo.deployToEngineApplication = "Portal";
 
     File deployedIar = getTarget(deployMojo.deployFile, deployMojo);
@@ -65,6 +86,29 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     }
   }
 
+  @Test
+  public void canDeployRemoteIar() throws Exception
+  {
+    deployMojo.deployToEngineApplication = "test";
+    deployMojo.deployMethod = DeployMethod.HTTP;
+    
+    Executor startedProcess = null;
+    try
+    {
+      startedProcess = mojo.startEngine();
+
+      deployMojo.execute();
+      
+      assertThat(outContent.toString()).contains("Start deploying project(s) of file")
+              .contains("Application: test")
+              .contains("Deploying users ...");
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+  
   private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);

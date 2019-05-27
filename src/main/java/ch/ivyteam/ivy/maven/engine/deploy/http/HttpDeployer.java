@@ -61,7 +61,7 @@ public class HttpDeployer
       
       resEntity = response.getEntity();
       if (resEntity != null) {
-        log.error(EntityUtils.toString(resEntity));
+        log.info(EntityUtils.toString(resEntity));
       }
       int status = response.getStatusLine().getStatusCode();
       if (status != HttpStatus.SC_OK) {
@@ -73,6 +73,15 @@ public class HttpDeployer
     {
       log.error(ex.getMessage());
     }
+    finally 
+    {
+      removeTemporaryDeploymentOptionsFile();
+    }
+  }
+  
+  private void removeTemporaryDeploymentOptionsFile()
+  {
+    FileUtils.deleteQuietly(deploymentOptions);
   }
   
   private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException
