@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven.engine.deploy;
+package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

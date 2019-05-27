@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven.engine.deploy;
+package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
