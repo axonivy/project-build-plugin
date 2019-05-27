@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven.engine.deploy;
+package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.engine.deploy.dir.EngineLogLineHandler;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.FileLogForwarder;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.log.LogCollector.LogEntry;
 

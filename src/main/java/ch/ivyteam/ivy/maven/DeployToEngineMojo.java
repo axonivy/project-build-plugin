@@ -33,9 +33,9 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
-import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
-import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 
 /**
@@ -52,6 +52,10 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 @Mojo(name = DeployToEngineMojo.GOAL, requiresProject=false)
 public class DeployToEngineMojo extends AbstractEngineMojo
 {
+  private static final String DEPLOY_ENGINE_DIR_DEFAULT = "${"+ENGINE_DIRECTORY_PROPERTY+"}";
+  private static final String DEPLOY_DEFAULT = "deploy";
+  private static final String HTTP_ENGINE_URL_DEFAULT = "http://localhost:8080/ivy";
+
   static final String PROPERTY_IVY_DEPLOY_FILE = "ivy.deploy.file";
 
   public static final String GOAL = "deploy-to-engine";
@@ -62,7 +66,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
   /** The path to the AXON.IVY Engine to which we deploy the file. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
-  @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
+  @Parameter(property="ivy.deploy.engine.dir", defaultValue=DEPLOY_ENGINE_DIR_DEFAULT)
   File deployEngineDirectory;
   
   /** The name of an ivy application to which the file is deployed. */
@@ -70,7 +74,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   String deployToEngineApplication;
   
   /** The auto deployment directory of the engine. Must match the ivy engine system property 'deployment.directory' */
-  @Parameter(property="ivy.deploy.dir", defaultValue="deploy")
+  @Parameter(property="ivy.deploy.dir", defaultValue=DEPLOY_DEFAULT)
   String deployDirectory;
   
   /** The deploy method
@@ -84,15 +88,15 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.option", defaultValue=DeployMethod.DIRECTORY)
   String deployMethod;
   
-  /** server id which is configured in settings.xml 
+  /** server id for deployment over HTTP which is configured in settings.xml 
    * @since 7.4 */
-  @Parameter(property="ivy.deploy.remote.id")
-  String deployRemoteId;
+  @Parameter(property="ivy.deploy.http.id")
+  String deployHttpId;
   
-  /** server url
+  /** server url for deployment over HTTP
    * @since 7.4 */
-  @Parameter(property="ivy.deploy.remote.engine", defaultValue="http://localhost:8080/ivy")
-  String deployRemoteEngine;
+  @Parameter(property="ivy.deploy.http.engine", defaultValue=HTTP_ENGINE_URL_DEFAULT)
+  String deployHttpEngine;
   
   /** The file that contains deployment options. <br/>
    *
@@ -246,6 +250,8 @@ public class DeployToEngineMojo extends AbstractEngineMojo
         getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
         return;
       }
+      
+      checkDirParams();
   
       File targetDeployableFile = createTargetDeployableFile(deployDir);
       String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
@@ -256,19 +262,46 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     }
     else if (DeployMethod.HTTP.equals(deployMethod))
     {
-      getLog().warn("Try to deploy to remote engine: " + deployRemoteEngine);
-      Server server = session.getSettings().getServer(deployRemoteId);
+      getLog().info("Try to deploy to remote engine: " + deployHttpEngine);
+      
+      checkHttpParams();
+      
+      Server server = session.getSettings().getServer(deployHttpId);
       if (server == null)
       {
-        getLog().warn("Can not load credentials from settings.xml because server '" + deployRemoteId + "' is not definied. Try to deploy with default username, password");
+        getLog().warn("Can not load credentials from settings.xml because server '" + deployHttpId + "' is not definied. Try to deploy with default username, password");
       }
       HttpDeployer httpDeployer = new HttpDeployer(server, 
-              deployRemoteEngine, deployToEngineApplication, deployFile, createDeployOptionsFile());
+              deployHttpEngine, deployToEngineApplication, deployFile, createDeployOptionsFile());
       httpDeployer.deploy(getLog());
     }
     else
     {
       getLog().warn("Invalid deployMethod is set.");
+    }
+  }
+
+  private void checkHttpParams()
+  {
+    if (!DEPLOY_ENGINE_DIR_DEFAULT.equals(deployEngineDirectory.toString()))
+    {
+      getLog().warn("deployEngineDirectory is set but will not be used for HTTP Deployment.");
+    }
+    if (!DEPLOY_DEFAULT.equals(deployDirectory))
+    {
+      getLog().warn("deployDirectory is set but will not be used for HTTP Deployment.");
+    }
+  }
+  
+  private void checkDirParams()
+  {
+    if (!HTTP_ENGINE_URL_DEFAULT.equals(deployHttpEngine.toString()))
+    {
+      getLog().warn("deployHttpEngine Url is set but will not be used for Directory Deployment.");
+    }
+    if (StringUtils.isBlank(deployHttpId))
+    {
+      getLog().warn("deployHttpId is set but will not be used for Directory Deployment.");
     }
   }
 

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven.engine.deploy;
+package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.logging.Log;
+
+import ch.ivyteam.ivy.maven.engine.deploy.dir.FileLogForwarder.LogLineHandler;
 
 /**
  * Logs only log lines with a well known severity into maven log.

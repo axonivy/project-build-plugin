@@ -29,7 +29,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.engine.deploy.DeploymentFiles;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
 
 public class TestDeployToEngineMojo
 {

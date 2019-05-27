@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.engine.deploy;
+package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import java.io.File;
 import java.util.Arrays;

@@ -24,8 +24,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import ch.ivyteam.ivy.maven.engine.deploy.IvyDeployer;
-import ch.ivyteam.ivy.maven.engine.deploy.FileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
+import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 
 /**
  * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
