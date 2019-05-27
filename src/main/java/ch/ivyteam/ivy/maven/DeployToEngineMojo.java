@@ -42,11 +42,20 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 /**
  * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
  *
- * <p>Command line invocation is supported. E.g.</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.1.0:deploy-to-engine
+ * <p>Command line invocation is supported.</p>
+ * <p>Local engine (using DIRECTORY deploy method):</p>
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.4.0:deploy-to-engine
  * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal</pre>
+ * 
+ * <p>Remote Engine (using HTTP deploy method):</p>
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:7.4.0:deploy-to-engine 
+ * -Divy.deploy.file=myProject.iar 
+ * -Divy.deploy.method=HTTP 
+ * -Divy.deploy.server.id=AxonIvyEngine
+ * -Divy.deploy.engine.url=http://ivyhost:8080/ivy 
+ * -Divy.deploy.engine.app=portal</pre>
  *
  * @since 7.1.0
  */
@@ -78,24 +87,30 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   @Parameter(property="ivy.deploy.dir", defaultValue=DEPLOY_DEFAULT)
   String deployDirectory;
   
-  /** The deploy method
+  /** 
+   * The deploy method
    * 
    * <p>Possible values:</p>
    * <ul>
-   *    <li><code>DIRECTORY</code>: use filesystem for deployment</li>
-   *    <li><code>HTTP</code>: use rest deployment to remote engine/li>
+   *    <li><code>DIRECTORY</code>: use filesystem to deploy to local engine</li>
+   *    <li><code>HTTP</code>: use HTTP or HTTPS to deploy to a remote engine</li>
    * </ul>
-   * @since7.4 */
+   * @since 7.4 */
   @Parameter(property="ivy.deploy.method", defaultValue=DeployMethod.DIRECTORY)
   String deployMethod;
   
-  /** server id for deployment over HTTP which is configured in settings.xml 
-   * @since 7.4 */
+  /**
+   * Id of server configured in settings.xml that specifies the administrator user name and password 
+   * used to authenticate in case of HTTP deployment.
+   * @since 7.4 
+   */
   @Parameter(property="ivy.deploy.server.id")
   String deployServerId;
   
-  /** engine url for deployment over HTTP
-   * @since 7.4 */
+  /** 
+   * Engine url for deployment over HTTP or HTTPS
+   * @since 7.4 
+   */
   @Parameter(property="ivy.deploy.engine.url", defaultValue=HTTP_ENGINE_URL_DEFAULT)
   String deployEngineUrl;
   
