@@ -295,7 +295,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   
   private void checkDirParams()
   {
-    if (!HTTP_ENGINE_URL_DEFAULT.equals(deployHttpEngine.toString()))
+    if (!HTTP_ENGINE_URL_DEFAULT.equals(deployHttpEngine))
     {
       getLog().warn("deployHttpEngine Url is set but will not be used for Directory Deployment.");
     }
