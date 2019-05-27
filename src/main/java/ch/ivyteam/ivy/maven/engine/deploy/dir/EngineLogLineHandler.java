@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.logging.Log;
 
-import ch.ivyteam.ivy.maven.engine.deploy.dir.FileLogForwarder.LogLineHandler;
-
 /**
  * Logs only log lines with a well known severity into maven log.
  * 
