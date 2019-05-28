@@ -40,7 +40,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 
 /**
- * Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.
+ * <p>Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.</p>
  *
  * <p>Command line invocation is supported.</p>
  * <p>Local engine (using DIRECTORY deploy method):</p>
@@ -261,17 +261,18 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     File resolvedOptionsFile = createDeployOptionsFile();
     try
     {
+      getLog().info("Deploying project "+deployFile.getName());
       if (DeployMethod.DIRECTORY.equals(deployMethod))
       {
         deployToDirectory(resolvedOptionsFile);
       }
       else if (DeployMethod.HTTP.equals(deployMethod))
       {
-        deployToRestService();
+        deployToRestService(resolvedOptionsFile);
       }
       else
       {
-        getLog().warn("Invalid deployMethod is set.");
+        getLog().warn("Invalid deploy method  "+deployMethod+" configured in parameter deployMethod (Supported values are "+DeployMethod.DIRECTORY+", "+DeployMethod.HTTP+")");
       }
     }
     finally
@@ -298,10 +299,8 @@ public class DeployToEngineMojo extends AbstractEngineMojo
     deployer.deploy(deployablePath, getLog());
   }
 
-  private void deployToRestService() throws MojoExecutionException
-  {
-    getLog().info("Try to deploy to remote engine: " + deployEngineUrl);
-    
+  private void deployToRestService(File resolvedOptionsFile) throws MojoExecutionException
+  {    
     checkHttpParams();
     
     Server server = session.getSettings().getServer(deployServerId);
@@ -310,7 +309,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId + "' is not definied. Try to deploy with default username, password");
     }
     HttpDeployer httpDeployer = new HttpDeployer(server, 
-            deployEngineUrl, deployToEngineApplication, deployFile, createDeployOptionsFile());
+            deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
     httpDeployer.deploy(getLog());
   }
 
@@ -318,7 +317,12 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   {
     if (!DEPLOY_DEFAULT.equals(deployDirectory))
     {
-      getLog().warn("deployDirectory is set but will not be used for HTTP Deployment.");
+      logParameterIgnoredByMethod("deployDirectory", deployDirectory, DeployMethod.HTTP);
+    }
+    Object defaultDeployEngineDirectory = project.getProperties().get(ENGINE_DIRECTORY_PROPERTY);
+    if (deployEngineDirectory != null && !deployEngineDirectory.getPath().equals(defaultDeployEngineDirectory))
+    {
+      logParameterIgnoredByMethod("deployEngineDirectory", deployEngineDirectory.getPath(), DeployMethod.HTTP);
     }
   }
   
@@ -326,12 +330,17 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   {
     if (!HTTP_ENGINE_URL_DEFAULT.equals(deployEngineUrl))
     {
-      getLog().warn("deployHttpEngine Url is set but will not be used for Directory Deployment.");
+      logParameterIgnoredByMethod("deployEngineUrl", deployEngineUrl, DeployMethod.DIRECTORY);
     }
-    if (StringUtils.isBlank(deployServerId))
+    if (StringUtils.isNotBlank(deployServerId))
     {
-      getLog().warn("deployHttpId is set but will not be used for Directory Deployment.");
+      logParameterIgnoredByMethod("deployServerId", deployServerId, DeployMethod.DIRECTORY);
     }
+  }
+
+  private void logParameterIgnoredByMethod(String parameter, String value, String method)
+  {
+    getLog().warn("Parameter "+parameter+" is set to "+value+" but will be ignored by "+method+" deployment.");
   }
 
   private File getDeployDirectory() throws MojoExecutionException

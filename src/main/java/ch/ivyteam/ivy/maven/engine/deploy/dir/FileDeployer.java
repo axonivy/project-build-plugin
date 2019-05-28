@@ -76,7 +76,6 @@ public class FileDeployer implements IvyDeployer
   {
     try
     {
-      log.info("Deploying project "+deploymentFiles.getDeployCandidate().getName());
       if (deploymentOptionsFile != null)
       {
         File engineOption = new File(deploymentFiles.getDeployCandidate().getParentFile(), deploymentOptionsFile.getName());
