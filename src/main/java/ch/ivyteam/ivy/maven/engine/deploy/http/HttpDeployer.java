@@ -71,24 +71,34 @@ public class HttpDeployer
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
     httpPost.setEntity(getRequestData(deploymentOptions));
 
-    HttpEntity resEntity = null;
+    HttpEntity resultEntity = null;
+    log.info("Uploading file "+deployFile+" to "+url);
     try(CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url)))
     {
-      resEntity = response.getEntity();
-      if (resEntity != null) 
-      {
-        log.info(EntityUtils.toString(resEntity));
-      }
+      resultEntity = response.getEntity();
+      String deploymentLog = readDeploymentLog(resultEntity); 
       int status = response.getStatusLine().getStatusCode();
       if (status != HttpStatus.SC_OK) 
-      {
+      {        
+        log.error(deploymentLog);
         throw new MojoExecutionException("Deployment of file '" + deployFile.getName() + "' to engine failed (Status: " + status + ")");
       }
+      log.debug(deploymentLog);
+      log.info("Deployment finished");
     }
     finally
     {
-      EntityUtils.consume(resEntity);
+      EntityUtils.consume(resultEntity);
     }
+  }
+
+  private String readDeploymentLog(HttpEntity resultEntity) throws IOException
+  {
+    if (resultEntity ==  null) 
+    {
+      return "";
+    }
+    return EntityUtils.toString(resultEntity);
   }
   
   private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException
