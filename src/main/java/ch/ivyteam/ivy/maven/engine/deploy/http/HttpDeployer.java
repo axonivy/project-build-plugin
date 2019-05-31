@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -18,6 +16,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.auth.BasicScheme;
@@ -101,13 +100,13 @@ public class HttpDeployer
     return EntityUtils.toString(resultEntity);
   }
   
-  private HttpEntity getRequestData(File resolvedOptionsFile) throws IOException
+  private HttpEntity getRequestData(File resolvedOptionsFile)
   {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
     builder.addPart("fileToDeploy", new FileBody(deployFile));
     if (resolvedOptionsFile != null)
     {
-      builder.addTextBody("deploymentOptions", FileUtils.readFileToString(resolvedOptionsFile, StandardCharsets.UTF_8));
+      builder.addPart("deploymentOptions", new FileBody(resolvedOptionsFile, ContentType.TEXT_PLAIN));
     }
     return builder.build();
   }
