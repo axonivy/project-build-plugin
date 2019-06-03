@@ -37,7 +37,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
  * -Divy.deploy.engine.app=Portal</pre>
  * 
  * @since 6.1.0
- * @deprecated since 7.1.0. Use the {@link DeployToEngineMojo#GOAL} instead.
+ * @deprecated since 7.1.0. Use the deploy-to-engine goal instead.
  */
 @Deprecated
 @Mojo(name = IarDeployMojo.GOAL, requiresProject=false)

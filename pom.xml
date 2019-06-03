@@ -245,6 +245,7 @@
         <configuration>
           <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+          <goalPrefix>ivy</goalPrefix>
         </configuration>
         <executions>
           <execution>
