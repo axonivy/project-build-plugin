@@ -119,6 +119,7 @@ class OsgiRuntime
             + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
             + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
             + "org.w3c.dom" // since oxygen platform
+            + "javax.xml.transform" // for java 11
             );
     
     if (log.isDebugEnabled())
