@@ -118,8 +118,10 @@ class OsgiRuntime
             
             + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
             + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
-            + "org.w3c.dom" // since oxygen platform
-            + "javax.xml.transform" // for java 11
+            + "org.w3c.dom," // since oxygen platform
+            + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath," // for java 11
+            + "org.xml.sax.ext,org.xml.sax.helpers,"
+            + "javax.xml.stream,javax.xml.stream.events,javax.xml.stream.util"
             );
     
     if (log.isDebugEnabled())
