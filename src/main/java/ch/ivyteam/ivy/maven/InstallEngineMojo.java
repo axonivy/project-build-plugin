@@ -17,17 +17,10 @@
 package ch.ivyteam.ivy.maven;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
+import ch.ivyteam.ivy.maven.util.UrlRedirectionResolver;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,13 +29,28 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 
-import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.UrlRedirectionResolver;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Downloads an AXON.IVY Engine from the NET if it does not yet exists in the correct version.
@@ -62,7 +70,26 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
   public static final String DEFAULT_ARCH = "Slim_All_x64";
-  
+  public static final String ENGINE_ZIP_GAV_GROUP = "com.axonivy";
+  public static final String ENGINE_ZIP_GAV_ARTIFACT = "engine";
+
+  /**
+   * Indicate if the engine artifact should be downloaded using maven (from a configured maven repository) or if
+   * the URL download way should be used.
+   */
+  @Parameter(property="ivy.engine.download.from.maven", defaultValue = "false")
+  protected Boolean downloadUsingMaven;
+
+  /* maven artifact resolution components / params */
+  @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
+  private RepositorySystemSession repositorySession;
+
+  @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
+  private List<RemoteRepository> pluginRepositories;
+
+  @Component
+  private RepositorySystem repositorySystem;
+
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.
    * <code>https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip</code>
@@ -149,23 +176,64 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
   {
+    EngineDownloader engineDownloader = new EngineDownloader();
+
     if (autoInstallEngine)
     {
       getLog().info("Will automatically download Engine now.");
-      EngineDownloader engineDownloader = new EngineDownloader();
-      File downloadZip = engineDownloader.downloadEngine();
+
+
+      File downloadZip = null;
+      if(downloadUsingMaven)
+      {
+        getLog().info("Downloading engine " + ivyVersion + " using maven plugin repositories");
+        final ArtifactRequest artifactRequest = new ArtifactRequest();
+        artifactRequest.setArtifact(new DefaultArtifact(ENGINE_ZIP_GAV_GROUP, ENGINE_ZIP_GAV_ARTIFACT, osArchitecture, "zip", ivyVersion));
+        artifactRequest.setRepositories(pluginRepositories);
+
+        try
+        {
+          ArtifactResult result = repositorySystem.resolveArtifact(repositorySession, artifactRequest);
+          downloadZip = result.getArtifact().getFile();
+        }
+        catch(ArtifactResolutionException e)
+        {
+          throw new MojoExecutionException("Failed to resolve artifact " + artifactRequest + "!", e);
+        }
+      }
+      else
+      {
+        downloadZip = engineDownloader.downloadEngine();
+      }
+
       if (cleanEngineDir)
       {
         removeOldEngineContent();
       }
+
       if (!isEngineDirectoryIdentified())
       {
-        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadUrl();
+
+        String engineZipFileName;
+        if(!downloadUsingMaven)
+        {
+          engineZipFileName = engineDownloader.getZipFileNameFromDownloadUrl();
+        }
+        else
+        {
+          engineZipFileName = downloadZip.getName();
+        }
+
         engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
         engineDirectory.mkdirs();
       }
+
       unpackEngine(downloadZip);
-      downloadZip.delete();
+
+      if(!downloadUsingMaven)
+      {
+        downloadZip.delete();
+      }
       
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       if (installedEngineVersion == null)
