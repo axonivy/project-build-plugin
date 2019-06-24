@@ -69,14 +69,14 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * the URL download way should be used.
    */
   @Parameter(property="ivy.engine.download.from.maven", defaultValue = "false")
-  protected Boolean downloadUsingMaven;
+  Boolean downloadUsingMaven;
 
   /* maven artifact resolution components / params */
   @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
-  private RepositorySystemSession repositorySession;
+  RepositorySystemSession repositorySession;
 
   @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
-  private List<RemoteRepository> pluginRepositories;
+  List<RemoteRepository> pluginRepositories;
 
   @Component
   private RepositorySystem repositorySystem;
