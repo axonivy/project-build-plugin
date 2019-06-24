@@ -29,13 +29,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 
+import ch.ivyteam.ivy.maven.util.EngineDownloader;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.wink.client.MockHttpServer;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.InstallEngineMojo.EngineDownloader;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import mockit.Mock;
@@ -387,7 +387,7 @@ public class TestInstallEngineMojo
 
   private String findLink(String html) throws MojoExecutionException, MalformedURLException
   {
-    EngineDownloader engineDownloader = mojo.new EngineDownloader();
+    EngineDownloader engineDownloader = new EngineDownloader(mojo.engineDownloadUrl, mojo.engineListPageUrl, mojo.osArchitecture, mojo.ivyVersion, mojo.getIvyVersionRange(), mojo.getLog(), mojo.getDownloadDirectory());
     return engineDownloader.findEngineDownloadUrl(IOUtils.toInputStream(html)).toExternalForm();
   }
 
@@ -397,7 +397,7 @@ public class TestInstallEngineMojo
     boolean run = Boolean.parseBoolean(System.getProperty("run.public.download.test"));
     assumeTrue("SKIPPING test 'testDefaultListPage_isAvailable'", run);
 
-    EngineDownloader engineDownloader = mojo.new EngineDownloader();
+    EngineDownloader engineDownloader = new EngineDownloader(mojo.engineDownloadUrl, mojo.engineListPageUrl, mojo.osArchitecture, mojo.ivyVersion, mojo.getIvyVersionRange(), mojo.getLog(), mojo.getDownloadDirectory());
     String engineUrl = engineDownloader.findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
       .as("The default engine list page url '"+mojo.engineListPageUrl.toExternalForm()+"' "

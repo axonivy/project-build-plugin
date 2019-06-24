@@ -18,15 +18,13 @@ package ch.ivyteam.ivy.maven;
 
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.UrlRedirectionResolver;
+import ch.ivyteam.ivy.maven.util.EngineDownloader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -42,13 +40,8 @@ import org.eclipse.aether.resolution.ArtifactResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -176,7 +169,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
   {
-    EngineDownloader engineDownloader = new EngineDownloader();
+    EngineDownloader engineDownloader = new EngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
 
     if (autoInstallEngine)
     {
@@ -303,116 +296,6 @@ public class InstallEngineMojo extends AbstractEngineMojo
   File getDownloadDirectory()
   {
     return SystemUtils.getJavaIoTmpDir(); 
-  }
-
-  class EngineDownloader
-  {
-    private String zipFileName = null;
-    
-    private File downloadEngine() throws MojoExecutionException
-    {
-      URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl : findEngineDownloadUrlFromListPage();
-      return downloadEngineFromUrl(downloadUrlToUse);
-    }
-  
-    private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
-    {
-      try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl))
-      {
-        return findEngineDownloadUrl(pageStream);
-      }
-      catch (IOException ex)
-      {
-        throw new MojoExecutionException("Failed to find engine download link in list page "+engineListPageUrl, ex);
-      }
-    }
-    
-    URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
-    {
-      String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_"+osArchitecture+"\\.zip";
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?"+engineFileNameRegex+"[\"|']");
-      try(Scanner scanner = new Scanner(htmlStream))
-      {
-        String engineLink = null;
-        while (StringUtils.isBlank(engineLink))
-        {
-          String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
-          if (engineLinkMatch == null)
-          {
-            throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
-          }
-          String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
-          ArtifactVersion version = new DefaultArtifactVersion(EngineVersionEvaluator.toReleaseVersion(versionString));
-          if (getIvyVersionRange().containsVersion(version))
-          {
-            engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
-            engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
-          }
-        }
-        return toAbsoluteLink(engineListPageUrl, engineLink);
-      }
-    }
-  
-    private URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException
-    {
-      boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
-      if (isAbsoluteLink)
-      {
-        return new URL(parsedEngineArchivLink);
-      }
-      return new URL(baseUrl, parsedEngineArchivLink);
-    }
-  
-    private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
-    {
-      try
-      {
-        File downloadZip = evaluateTargetFile(engineUrl);
-        getLog().info("Starting engine download from "+engineUrl);
-        Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        return downloadZip;
-      }
-      catch (IOException ex)
-      {
-        throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-                + getDownloadDirectory() + "'", ex);
-      }
-    }
-
-    private File evaluateTargetFile(URL engineUrl)
-    {
-      zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
-      File downloadZip = new File(getDownloadDirectory(), zipFileName);
-      int tempFileSuffix = 0;
-      while (downloadZip.exists())
-      {
-        String suffixedZipFileName = zipFileName + "." + tempFileSuffix;  
-        downloadZip = new File(getDownloadDirectory(), suffixedZipFileName);
-        tempFileSuffix++;
-      }
-      return downloadZip;
-    }
-
-    /**
-     * Extracts the name of the engine zip-file from the url used to download the engine.
-     * <br/>
-     * The zip-file name is only known <i>after</i> downloading the engine. Since the download-url might
-     * be extracted from an engine list-page. 
-     * <br/>
-     * The returned zip-file name is not necessarily equal to the name of the downloaded zip-file, since the 
-     * downloaded file could have been renamed to avoid name conflicts.
-     *     
-     * @return engine zip file-name
-     */
-    private String getZipFileNameFromDownloadUrl()
-    {
-      if (zipFileName == null)
-      {
-        throw new IllegalStateException("Engine zip file name is not set up.");
-      }
-      return zipFileName;
-    }
-   
   }
 
 }
