@@ -47,6 +47,7 @@
     <other.site.name>Stable</other.site.name>
     <other.site.path>release</other.site.path>
     <autoRelease>true</autoRelease>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <profiles>
