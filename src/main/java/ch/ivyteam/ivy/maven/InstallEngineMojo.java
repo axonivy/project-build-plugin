@@ -18,7 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.EngineDownloader;
+import ch.ivyteam.ivy.maven.util.URLEngineDownloader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -169,7 +169,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
   {
-    EngineDownloader engineDownloader = new EngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
+    URLEngineDownloader engineDownloader = new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
 
     if (autoInstallEngine)
     {
