@@ -6,4 +6,5 @@ import java.io.File;
 
 public interface EngineDownloader {
     File downloadEngine() throws MojoExecutionException;
+    String getZipFileNameFromDownloadLocation();
 }

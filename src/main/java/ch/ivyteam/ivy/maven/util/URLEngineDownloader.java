@@ -52,7 +52,7 @@ public class URLEngineDownloader implements EngineDownloader {
     }
   }
 
-  public File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
+  private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
   {
     try
     {
@@ -91,7 +91,8 @@ public class URLEngineDownloader implements EngineDownloader {
    *
    * @return engine zip file-name
    */
-  public String getZipFileNameFromDownloadUrl()
+  @Override
+  public String getZipFileNameFromDownloadLocation()
   {
     if (zipFileName == null)
     {
