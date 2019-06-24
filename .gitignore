@@ -10,3 +10,7 @@
 # Maven
 /log/
 /target/
+
+# Idea
+*.iml
+.idea/
