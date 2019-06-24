@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import ch.ivyteam.ivy.maven.util.EngineDownloader;
+import ch.ivyteam.ivy.maven.util.MavenEngineDownloader;
 import ch.ivyteam.ivy.maven.util.URLEngineDownloader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -33,11 +34,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.ArtifactResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -171,36 +168,20 @@ public class InstallEngineMojo extends AbstractEngineMojo
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
   {
 
-    EngineDownloader engineDownloader;
-    engineDownloader = new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
+    final EngineDownloader engineDownloader;
+    if(downloadUsingMaven)
+    {
+      engineDownloader = new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories, repositorySystem, repositorySession);
+    }
+    else
+    {
+      engineDownloader = new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
+    }
 
     if (autoInstallEngine)
     {
       getLog().info("Will automatically download Engine now.");
-
-
-      File downloadZip = null;
-      if(downloadUsingMaven)
-      {
-        getLog().info("Downloading engine " + ivyVersion + " using maven plugin repositories");
-        final ArtifactRequest artifactRequest = new ArtifactRequest();
-        artifactRequest.setArtifact(new DefaultArtifact(ENGINE_ZIP_GAV_GROUP, ENGINE_ZIP_GAV_ARTIFACT, osArchitecture, "zip", ivyVersion));
-        artifactRequest.setRepositories(pluginRepositories);
-
-        try
-        {
-          ArtifactResult result = repositorySystem.resolveArtifact(repositorySession, artifactRequest);
-          downloadZip = result.getArtifact().getFile();
-        }
-        catch(ArtifactResolutionException e)
-        {
-          throw new MojoExecutionException("Failed to resolve artifact " + artifactRequest + "!", e);
-        }
-      }
-      else
-      {
-        downloadZip = engineDownloader.downloadEngine();
-      }
+      File downloadZip = downloadZip = engineDownloader.downloadEngine();
 
       if (cleanEngineDir)
       {
@@ -209,17 +190,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
       if (!isEngineDirectoryIdentified())
       {
-
-        String engineZipFileName;
-        if(!downloadUsingMaven)
-        {
-          engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
-        }
-        else
-        {
-          engineZipFileName = downloadZip.getName();
-        }
-
+        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
         engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
         engineDirectory.mkdirs();
       }
