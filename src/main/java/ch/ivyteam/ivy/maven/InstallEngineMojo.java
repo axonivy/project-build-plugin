@@ -69,11 +69,12 @@ public class InstallEngineMojo extends AbstractEngineMojo
   /**
    * Indicate if the engine artifact should be downloaded using maven (from a configured maven repository) or if
    * the URL download way should be used.
+   * 
+   * As there exist no official maven repository containing the axonivy engine, it must be published manually to an accessible plugin repository. 
    */
   @Parameter(property="ivy.engine.download.from.maven", defaultValue = "false")
   Boolean downloadUsingMaven;
 
-  /* maven artifact resolution components / params */
   @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
   RepositorySystemSession repositorySession;
 
