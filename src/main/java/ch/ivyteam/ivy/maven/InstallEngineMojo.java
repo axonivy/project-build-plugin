@@ -62,7 +62,8 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
   public static final String DEFAULT_ARCH = "Slim_All_x64";
-  public static final String ENGINE_ZIP_GAV_GROUP = "com.axonivy";
+  
+  public static final String ENGINE_ZIP_GAV_GROUP = "com.axonivy.ivy";
   public static final String ENGINE_ZIP_GAV_ARTIFACT = "engine";
 
   /**
