@@ -1,10 +1,11 @@
-package ch.ivyteam.ivy.maven.util;
-
-import org.apache.maven.plugin.MojoExecutionException;
+package ch.ivyteam.ivy.maven.engine.download;
 
 import java.io.File;
 
-public interface EngineDownloader {
+import org.apache.maven.plugin.MojoExecutionException;
+
+public interface EngineDownloader 
+{
     File downloadEngine() throws MojoExecutionException;
     String getZipFileNameFromDownloadLocation() throws MojoExecutionException;
 }

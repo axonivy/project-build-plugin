@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.util;
+package ch.ivyteam.ivy.maven.engine.download;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.util;
+package ch.ivyteam.ivy.maven.engine.download;
 
 import java.io.IOException;
 import java.io.InputStream;

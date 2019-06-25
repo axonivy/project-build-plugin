@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.util;
+package ch.ivyteam.ivy.maven.engine.download;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;

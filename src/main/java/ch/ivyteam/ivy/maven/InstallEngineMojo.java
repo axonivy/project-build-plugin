@@ -38,9 +38,9 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.EngineDownloader;
-import ch.ivyteam.ivy.maven.util.MavenEngineDownloader;
-import ch.ivyteam.ivy.maven.util.URLEngineDownloader;
+import ch.ivyteam.ivy.maven.engine.download.EngineDownloader;
+import ch.ivyteam.ivy.maven.engine.download.MavenEngineDownloader;
+import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 

@@ -1,9 +1,4 @@
-package ch.ivyteam.ivy.maven.util;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
+package ch.ivyteam.ivy.maven.engine.download;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +6,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 
 public class URLEngineDownloader implements EngineDownloader {
   private String zipFileName = null;
@@ -22,8 +22,8 @@ public class URLEngineDownloader implements EngineDownloader {
   private Log log;
   private File downloadDirectory;
 
-
-  public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture, String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory){
+  public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture, String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory)
+  {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
     this.osArchitecture = osArchitecture;

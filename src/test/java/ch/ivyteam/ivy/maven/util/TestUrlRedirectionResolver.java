@@ -8,6 +8,8 @@ import java.net.URL;
 
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.engine.download.UrlRedirectionResolver;
+
 /**
  * Url: developer.axonivy.com/download/maven.html must be available for http
  * and https without any redirections. Old versions of project-build-plugin

@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 
-import ch.ivyteam.ivy.maven.util.EngineDownloadURLResolver;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.wink.client.MockHttpServer;
@@ -37,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
+import ch.ivyteam.ivy.maven.engine.download.EngineDownloadURLResolver;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import mockit.Mock;
 import mockit.MockUp;
