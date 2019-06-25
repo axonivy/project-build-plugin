@@ -17,12 +17,13 @@
 package ch.ivyteam.ivy.maven;
 
 
-import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.EngineDownloader;
-import ch.ivyteam.ivy.maven.util.MavenEngineDownloader;
-import ch.ivyteam.ivy.maven.util.URLEngineDownloader;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -36,12 +37,12 @@ import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
+import ch.ivyteam.ivy.maven.util.EngineDownloader;
+import ch.ivyteam.ivy.maven.util.MavenEngineDownloader;
+import ch.ivyteam.ivy.maven.util.URLEngineDownloader;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 /**
  * Downloads an AXON.IVY Engine from the NET if it does not yet exists in the correct version.
@@ -167,21 +168,11 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException
   {
-
-    final EngineDownloader engineDownloader;
-    if(downloadUsingMaven)
-    {
-      engineDownloader = new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories, repositorySystem, repositorySession);
-    }
-    else
-    {
-      engineDownloader = new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
-    }
-
     if (autoInstallEngine)
     {
       getLog().info("Will automatically download Engine now.");
-      File downloadZip = downloadZip = engineDownloader.downloadEngine();
+      final EngineDownloader engineDownloader = getDownloader();
+      File downloadZip = engineDownloader.downloadEngine();
 
       if (cleanEngineDir)
       {
@@ -218,6 +209,18 @@ public class InstallEngineMojo extends AbstractEngineMojo
     {
       throw new MojoExecutionException("Aborting class generation as no valid ivy Engine is available! "
               + "Use the 'autoInstallEngine' parameter for an automatic installation.");
+    }
+  }
+
+  private EngineDownloader getDownloader() throws MojoExecutionException
+  {
+    if(downloadUsingMaven)
+    {
+      return new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories, repositorySystem, repositorySession);
+    }
+    else
+    {
+      return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
     }
   }
 
