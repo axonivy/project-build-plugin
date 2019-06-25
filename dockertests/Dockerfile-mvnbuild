@@ -1,0 +1,8 @@
+FROM maven:3.6.1-jdk-8
+RUN mkdir /root/testproject/
+COPY dockertests/assets/testprojectpom.xml /root/testproject/pom.xml
+ADD / /plugin-workspace
+WORKDIR /plugin-workspace
+RUN mvn install -DskipTests -P '!sign-release-artifacts'
+WORKDIR /root/testproject
+CMD mvn install

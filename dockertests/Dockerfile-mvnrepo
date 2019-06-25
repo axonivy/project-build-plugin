@@ -1,0 +1,12 @@
+FROM nginx:1.17
+ADD https://download.axonivy.com/7.3.1/AxonIvyEngine7.3.1.1904101154_Slim_All_x64.zip /usr/share/nginx/html/com/axonivy/engine/7.3.1/engine-7.3.1-Slim_All_x64.zip
+WORKDIR /usr/share/nginx/html/com/axonivy/engine/7.3.1/
+RUN rm /usr/share/nginx/html/index.html
+RUN chmod 644 engine-7.3.1-Slim_All_x64.zip 
+RUN md5sum engine-7.3.1-Slim_All_x64.zip | cut -d ' ' -f1 > engine-7.3.1-Slim_All_x64.zip.md5 
+RUN sha1sum engine-7.3.1-Slim_All_x64.zip | cut -d ' ' -f1 > engine-7.3.1-Slim_All_x64.zip.sha1
+COPY assets/maven-metadata.xml /usr/share/nginx/html/com/axonivy/engine/maven-metadata.xml
+WORKDIR /usr/share/nginx/html/com/axonivy/engine/
+RUN md5sum maven-metadata.xml | cut -d ' ' -f1 > maven-metadata.xml.md5 
+RUN sha1sum maven-metadata.xml | cut -d ' ' -f1 > maven-metadata.xml.sha1
+RUN sed -i 's|location / {|location / {\n\tautoindex on;|g' /etc/nginx/conf.d/default.conf
