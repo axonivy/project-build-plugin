@@ -213,7 +213,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
     }
   }
 
-  private EngineDownloader getDownloader() throws MojoExecutionException
+  public EngineDownloader getDownloader() throws MojoExecutionException
   {
     if(downloadUsingMaven)
     {
