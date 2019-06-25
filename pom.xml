@@ -100,6 +100,43 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- give external contributors the opportunity to disable the gpg signing (to be able to call mvn install without errors) -->
+    <!-- just call mvn -P '!sign-release-artifacts' to disable the plugin  -->
+    <profile>
+      <id>sign-release-artifacts</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <!-- Axon.ivy Project Build Publisher -->
+                  <passphrase>${gpg.project-build.password}</passphrase>
+                  <keyname>72B12346</keyname>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
   <dependencies>
@@ -267,29 +304,6 @@
           </excludes>
           <argLine>-Dskip.public.download.test=${skip.public.download.test}</argLine>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-            <configuration>
-              <!-- Axon.ivy Project Build Publisher -->
-              <passphrase>${gpg.project-build.password}</passphrase>
-              <keyname>72B12346</keyname>
-              <gpgArguments>
-                <arg>--pinentry-mode</arg>
-                <arg>loopback</arg>
-              </gpgArguments>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
