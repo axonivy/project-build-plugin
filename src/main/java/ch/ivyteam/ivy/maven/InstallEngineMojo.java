@@ -19,28 +19,28 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
-import ch.ivyteam.ivy.maven.util.UrlRedirectionResolver;
+import ch.ivyteam.ivy.maven.engine.download.EngineDownloader;
+import ch.ivyteam.ivy.maven.engine.download.MavenEngineDownloader;
+import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -62,7 +62,34 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
   public static final String DEFAULT_ARCH = "Slim_All_x64";
-  
+
+  /**
+   * Indicate if the engine artifact should be downloaded using maven (from a configured maven repository) or if
+   * the URL download way should be used.
+   * 
+   * <p>As there exist no official maven repository containing the axonivy engine, 
+   * it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p> 
+   * <pre>
+   *    groupId=com.axonivy.ivy
+   *    artifactId=engine
+   *    version=!ivyVersion! (e.g. 7.0.0)
+   *    classifier=!osArchitecture! (e.g. All_x64)
+   *    extension=zip
+   * </pre>
+   * @since 7.4
+   */
+  @Parameter(property="ivy.engine.download.from.maven", defaultValue = "false")
+  Boolean downloadUsingMaven;
+
+  @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
+  RepositorySystemSession repositorySession;
+
+  @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
+  List<RemoteRepository> pluginRepositories;
+
+  @Component
+  private RepositorySystem repositorySystem;
+
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.
    * <code>https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip</code>
@@ -152,20 +179,27 @@ public class InstallEngineMojo extends AbstractEngineMojo
     if (autoInstallEngine)
     {
       getLog().info("Will automatically download Engine now.");
-      EngineDownloader engineDownloader = new EngineDownloader();
+      final EngineDownloader engineDownloader = getDownloader();
       File downloadZip = engineDownloader.downloadEngine();
+
       if (cleanEngineDir)
       {
         removeOldEngineContent();
       }
+
       if (!isEngineDirectoryIdentified())
       {
-        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadUrl();
+        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
         engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
         engineDirectory.mkdirs();
       }
+
       unpackEngine(downloadZip);
-      downloadZip.delete();
+
+      if(!downloadUsingMaven)
+      {
+        downloadZip.delete();
+      }
       
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       if (installedEngineVersion == null)
@@ -183,6 +217,18 @@ public class InstallEngineMojo extends AbstractEngineMojo
     {
       throw new MojoExecutionException("Aborting class generation as no valid ivy Engine is available! "
               + "Use the 'autoInstallEngine' parameter for an automatic installation.");
+    }
+  }
+
+  public EngineDownloader getDownloader() throws MojoExecutionException
+  {
+    if(downloadUsingMaven)
+    {
+      return new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories, repositorySystem, repositorySession);
+    }
+    else
+    {
+      return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion, getIvyVersionRange(), getLog(), getDownloadDirectory());
     }
   }
 
@@ -235,116 +281,6 @@ public class InstallEngineMojo extends AbstractEngineMojo
   File getDownloadDirectory()
   {
     return SystemUtils.getJavaIoTmpDir(); 
-  }
-
-  class EngineDownloader
-  {
-    private String zipFileName = null;
-    
-    private File downloadEngine() throws MojoExecutionException
-    {
-      URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl : findEngineDownloadUrlFromListPage();
-      return downloadEngineFromUrl(downloadUrlToUse);
-    }
-  
-    private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
-    {
-      try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl))
-      {
-        return findEngineDownloadUrl(pageStream);
-      }
-      catch (IOException ex)
-      {
-        throw new MojoExecutionException("Failed to find engine download link in list page "+engineListPageUrl, ex);
-      }
-    }
-    
-    URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
-    {
-      String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_"+osArchitecture+"\\.zip";
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?"+engineFileNameRegex+"[\"|']");
-      try(Scanner scanner = new Scanner(htmlStream))
-      {
-        String engineLink = null;
-        while (StringUtils.isBlank(engineLink))
-        {
-          String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
-          if (engineLinkMatch == null)
-          {
-            throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
-          }
-          String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
-          ArtifactVersion version = new DefaultArtifactVersion(EngineVersionEvaluator.toReleaseVersion(versionString));
-          if (getIvyVersionRange().containsVersion(version))
-          {
-            engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
-            engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
-          }
-        }
-        return toAbsoluteLink(engineListPageUrl, engineLink);
-      }
-    }
-  
-    private URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException
-    {
-      boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
-      if (isAbsoluteLink)
-      {
-        return new URL(parsedEngineArchivLink);
-      }
-      return new URL(baseUrl, parsedEngineArchivLink);
-    }
-  
-    private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
-    {
-      try
-      {
-        File downloadZip = evaluateTargetFile(engineUrl);
-        getLog().info("Starting engine download from "+engineUrl);
-        Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        return downloadZip;
-      }
-      catch (IOException ex)
-      {
-        throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-                + getDownloadDirectory() + "'", ex);
-      }
-    }
-
-    private File evaluateTargetFile(URL engineUrl)
-    {
-      zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
-      File downloadZip = new File(getDownloadDirectory(), zipFileName);
-      int tempFileSuffix = 0;
-      while (downloadZip.exists())
-      {
-        String suffixedZipFileName = zipFileName + "." + tempFileSuffix;  
-        downloadZip = new File(getDownloadDirectory(), suffixedZipFileName);
-        tempFileSuffix++;
-      }
-      return downloadZip;
-    }
-
-    /**
-     * Extracts the name of the engine zip-file from the url used to download the engine.
-     * <br/>
-     * The zip-file name is only known <i>after</i> downloading the engine. Since the download-url might
-     * be extracted from an engine list-page. 
-     * <br/>
-     * The returned zip-file name is not necessarily equal to the name of the downloaded zip-file, since the 
-     * downloaded file could have been renamed to avoid name conflicts.
-     *     
-     * @return engine zip file-name
-     */
-    private String getZipFileNameFromDownloadUrl()
-    {
-      if (zipFileName == null)
-      {
-        throw new IllegalStateException("Engine zip file name is not set up.");
-      }
-      return zipFileName;
-    }
-   
   }
 
 }
