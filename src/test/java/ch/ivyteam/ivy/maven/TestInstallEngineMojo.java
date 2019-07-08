@@ -16,7 +16,6 @@
 package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assume.assumeTrue;
 
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -38,8 +36,6 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
-import mockit.Mock;
-import mockit.MockUp;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -144,20 +140,7 @@ public class TestInstallEngineMojo
 
     mojo.ivyVersion = "[7.0.0,800.0.0)";
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new MockUp<java.net.URL>()
-      {
-        @Mock(maxInvocations = 0)
-        public String toExternalForm()
-        {
-          return null;
-        }
-
-        @Mock(maxInvocations = 0)
-        public InputStream openStream()
-        {
-          return null;
-        }
-      }.getMockInstance();
+    mojo.engineDownloadUrl = new URL("http://localhost/fakeUri");
 
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
@@ -175,7 +158,7 @@ public class TestInstallEngineMojo
     mojo.ivyVersion = "[7.0.0,8.0.0)";
     mojo.autoInstallEngine = true;
     final String downloadVersion = AbstractEngineMojo.DEFAULT_VERSION;
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(downloadVersion).getMockInstance();
+    mojo.engineDownloadUrl = createFakeEngineZip(downloadVersion).toURI().toURL();
 
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
@@ -191,7 +174,7 @@ public class TestInstallEngineMojo
     assertThat(mojo.engineDirectory.listFiles()).isEmpty();
 
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(mojo.ivyVersion).getMockInstance();
+    mojo.engineDownloadUrl = createFakeEngineZip(mojo.ivyVersion).toURI().toURL();
 
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
@@ -219,11 +202,11 @@ public class TestInstallEngineMojo
   {
     mojo.engineDirectory = createTempDir("tmpEngine");
 
-    File alreadyExistingFile = new File(mojo.getDownloadDirectory(), MockedIvyEngineDownloadUrl.ENGINE_FILE_NAME);
+    File alreadyExistingFile = new File(mojo.getDownloadDirectory(), "fakeEngine.zip");
     alreadyExistingFile.createNewFile();
 
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(mojo.ivyVersion).getMockInstance();
+    mojo.engineDownloadUrl = createFakeEngineZip(mojo.ivyVersion).toURI().toURL();
 
     mojo.execute();
 
@@ -236,7 +219,7 @@ public class TestInstallEngineMojo
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = true;
     mojo.ivyVersion = "9999.0.0";
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(AbstractEngineMojo.DEFAULT_VERSION).getMockInstance();
+    mojo.engineDownloadUrl = createFakeEngineZip(AbstractEngineMojo.DEFAULT_VERSION).toURI().toURL();
 
     try
     {
@@ -263,37 +246,6 @@ public class TestInstallEngineMojo
     catch(MojoExecutionException ex)
     {
       assertThat(ex).hasMessageContaining("no valid ivy Engine is available");
-    }
-  }
-
-  private static class MockedIvyEngineDownloadUrl extends MockUp<java.net.URL>
-  {
-    private static final String ENGINE_FILE_NAME = "fakeEngine.zip";
-    private String ivyVersion;
-
-    private MockedIvyEngineDownloadUrl(String ivyVersion)
-    {
-      this.ivyVersion = ivyVersion;
-    }
-
-    @Mock
-    public InputStream openStream()
-    {
-      try
-      {
-        return new FileInputStream(createFakeEngineZip(ivyVersion));
-      }
-      catch (Exception ex)
-      {
-        fail("Mock URL error", ex);
-        return null;
-      }
-    }
-
-    @Mock
-    public String toExternalForm()
-    {
-      return "http://localhost/" + ENGINE_FILE_NAME;
     }
   }
 
