@@ -37,7 +37,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
 {
   /** keep synch with pom.xml &gt; reporting &gt; maven-plugin-plugin &gt; requirements */
   protected static final String MINIMAL_COMPATIBLE_VERSION = "7.3.0";
-  protected static final String DEFAULT_VERSION = "7.3.2";
+  protected static final String DEFAULT_VERSION = "7.4.0";
   
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
   
