@@ -64,16 +64,16 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public static final String DEFAULT_ARCH = "Slim_All_x64";
 
   /**
-   * Indicate if the engine artifact should be downloaded using maven (from a configured maven repository) or if
-   * the URL download way should be used.
+   * Enables the engine artifact download via maven plugin repositories. If set to <code>false</code>,
+   * the default URL download approach is used (see {@link #engineDownloadUrl} and {@link #engineListPageUrl} properties).
    * 
    * <p>As there exist no official maven repository containing the axonivy engine, 
    * it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p> 
    * <pre>
    *    groupId=com.axonivy.ivy
    *    artifactId=engine
-   *    version=!ivyVersion! (e.g. 7.0.0)
-   *    classifier=!osArchitecture! (e.g. All_x64)
+   *    version=!ivyVersion! (e.g. 7.4.0)
+   *    classifier=!osArchitecture! (e.g. Slim_All_x64)
    *    extension=zip
    * </pre>
    * @since 7.4
