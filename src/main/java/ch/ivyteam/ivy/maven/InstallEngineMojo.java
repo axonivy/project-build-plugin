@@ -64,7 +64,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   public static final String DEFAULT_ARCH = "Slim_All_x64";
 
   /**
-   * Enables the the engine artifact downloaded via maven plugin repositories. If set to <code>false</code>,
+   * Enables the engine artifact download via maven plugin repositories. If set to <code>false</code>,
    * the default URL download approach is used (see {@link #engineDownloadUrl} and {@link #engineListPageUrl} properties).
    * 
    * <p>As there exist no official maven repository containing the axonivy engine, 
