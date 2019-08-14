@@ -41,7 +41,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import ch.ivyteam.ivy.maven.engine.download.EngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.MavenEngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 /**
