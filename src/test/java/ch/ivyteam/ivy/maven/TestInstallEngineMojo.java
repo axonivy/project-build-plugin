@@ -36,7 +36,7 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 
@@ -110,7 +110,7 @@ public class TestInstallEngineMojo
     File zipDir = createFakeEngineDir(ivyVersion);
     File zipFile = new File(zipDir, "fake.zip");
     ZipFile zip = new ZipFile(zipFile);
-    zip.createZipFileFromFolder(new File(zipDir, OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
+    zip.createSplitZipFileFromFolder(new File(zipDir, OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
     return zipFile;
   }
 
