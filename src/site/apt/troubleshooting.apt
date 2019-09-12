@@ -5,7 +5,7 @@ Troubleshooting
 *-----*------*------*
 <<Error Message>>		|		<<Cause>> 		| 		<<Possible Fix>>
 *-----*------*------*
- InvocationTargetException: No class loader avaible for bundle: ch.ivyteam.ivy.dataclasses.build    | Maven uses wrong Java version	|	Change your Java version if you have multiple versions (export JAVA_HOME=</your/Jre/Dir>)  
+ InvocationTargetException: No class loader avaible for bundle: ch.ivyteam.ivy.dataclasses.build    | Maven uses wrong Java version	|	Change your Java version if you have multiple versions installed [LINUX: export JAVA_HOME=</your/Jre/Dir>] [WINDOWS: change "JAVA_HOME" path variable in "Environment Variables"]  
 *-----*------*------*
  additionalVmOptions not getting initialized														| Multiple additionalVmOptions | Make sure you're on the latest version of project-build-plugin if it doesn't help and you have multiple adittionalVmOptions add a whitespace at the end of each argument
 *-----*------*------*
