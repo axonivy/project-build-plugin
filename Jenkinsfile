@@ -46,7 +46,8 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
-              "-Divy.engine.list.url=${params.engineListUrl} "
+              "-Divy.engine.list.url=${params.engineListUrl} " +
+              "-Dmaven.test.failure.ignore=true"
 
           }
           maven cmd: "sonar:sonar -Dsonar.host.url=http://zugprosonar"
