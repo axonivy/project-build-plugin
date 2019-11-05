@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
@@ -156,6 +159,13 @@ public class TestIarPackagingMojo
           .as("customer should be able to overwrite pre-defined resource with their own includes.")
           .contains("flattened");
       }
+      
+      List<? extends ZipEntry> pomEntries = Collections.list(archive.entries()).stream()
+        .filter(entry -> entry.getName().equals("pom.xml"))
+        .collect(Collectors.toList());
+      assertThat(pomEntries)
+        .as("if same path is specified twice, the users entry should win and no duplicates must exist.")
+        .hasSize(1);
     }
   }
   

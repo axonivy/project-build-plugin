@@ -105,14 +105,14 @@ public class IarPackagingMojo extends AbstractMojo
   private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException
   {
     ZipArchiver archiver = new ZipArchiver();
-    archiver.setDuplicateBehavior(Archiver.DUPLICATES_ADD);
+    archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar);
-    archiver.addFileSet(getDefaultFileset(sourceDir));
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir());
     for(org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets))
     {
       archiver.addFileSet(fs);
     }
+    archiver.addFileSet(getDefaultFileset(sourceDir));
     try
     {
       archiver.createArchive();
