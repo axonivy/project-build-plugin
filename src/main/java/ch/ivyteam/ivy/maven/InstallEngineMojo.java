@@ -135,6 +135,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   {
     getLog().info("Provide engine for ivy version " + ivyVersion);
     ensureEngineIsInstalled();
+    getLog().info("Using engine in '"+getRawEngineDirectory()+"'");
   }
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
