@@ -28,6 +28,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
@@ -104,6 +105,7 @@ public class IarPackagingMojo extends AbstractMojo
   private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException
   {
     ZipArchiver archiver = new ZipArchiver();
+    archiver.setDuplicateBehavior(Archiver.DUPLICATES_ADD);
     archiver.setDestFile(targetIar);
     archiver.addFileSet(getDefaultFileset(sourceDir));
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir());

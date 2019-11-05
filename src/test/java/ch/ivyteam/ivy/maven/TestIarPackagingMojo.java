@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.FileSet;
+import org.codehaus.plexus.util.IOUtil;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -128,6 +130,32 @@ public class TestIarPackagingMojo
     try(ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile()))
     {
       assertThat(archive.getEntry(relativeCustomIncludePath)).as("Custom inclusions must be included").isNotNull();
+    }
+  }
+  
+  @Test
+  public void canOverwriteDefaultInclusions() throws Exception
+  {
+    IarPackagingMojo mojo = rule.getMojo();
+    File outputDir = new File(mojo.project.getBasedir(), "target");
+    File flatPomXML = new File(outputDir, "pom.xml");
+    FileUtils.write(flatPomXML, "<artifactId>flattened</artifactId>");
+    
+    FileSet fs = new FileSet();
+    fs.setDirectory("target");
+    fs.setIncludes(Arrays.asList(flatPomXML.getName()));
+    mojo.iarFileSets = new FileSet[]{fs};
+    
+    mojo.execute();
+    try(ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile()))
+    {
+      try(InputStream is = archive.getInputStream(archive.getEntry("pom.xml")))
+      {
+        String pomInArchive = IOUtil.toString(is);
+        assertThat(pomInArchive)
+          .as("customer should be able to overwrite pre-defined resource with their own includes.")
+          .contains("flattened");
+      }
     }
   }
   
