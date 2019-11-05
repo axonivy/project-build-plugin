@@ -98,7 +98,7 @@ public class MavenProjectBuilderProxy
   {
     Object jdtBundle = findBundle(bundleContext, "org.eclipse.jdt.core");
     Class<?> javaCore = loadClassInBundle(jdtBundle, "org.eclipse.jdt.core.JavaCore");
-    javaCore.newInstance();
+    javaCore.getConstructor().newInstance();
   }
 
   /**
