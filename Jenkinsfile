@@ -13,17 +13,16 @@ pipeline {
   }
 
   parameters {
-    booleanParam(
+    booleanParam (
       name: 'skipGitHubSite',
       description: 'If checked the plugin documentation on GitHub will NOT be updated (ignored for release)',
       defaultValue: true
     )
 
-    choice(
+    string (
       name: 'engineListUrl',
       description: 'Engine to use for build',
-      choices: ['http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/',
-                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/']
+      defaultValue: 'http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/'
     )
   }
 
