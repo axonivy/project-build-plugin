@@ -170,7 +170,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
   
   private void handleWrongIvyVersion(ArtifactVersion installedEngineVersion) throws MojoExecutionException
   {
-    getLog().info("Installed engine has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
+    getLog().info("Installed engine in '"+getRawEngineDirectory()+"' has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
     boolean cleanEngineDir = installedEngineVersion != null;
     downloadAndInstallEngine(cleanEngineDir);
   }
