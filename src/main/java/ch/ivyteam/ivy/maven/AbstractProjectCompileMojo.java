@@ -60,6 +60,13 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   private String encoding;
 
   /** 
+   * Logs warnings found by the compiler.
+   * @since 8.1.0
+   */
+  @Parameter(property="ivy.compiler.warnings.enabled", defaultValue = "false")
+  private boolean compilerWarnings;
+
+  /** 
    * Defines the timeout how long to wait for an engine start to compile.
    * @since 7.4.0
    */
@@ -130,6 +137,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
+    options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, String.valueOf(compilerWarnings));
     return options;
   }
 
