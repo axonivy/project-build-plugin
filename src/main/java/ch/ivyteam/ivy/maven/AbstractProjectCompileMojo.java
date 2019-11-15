@@ -38,6 +38,7 @@ import org.apache.maven.repository.RepositorySystem;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy.Options;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 
 public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
@@ -65,6 +66,25 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.compiler.warnings.enabled", defaultValue = "false")
   private boolean compilerWarnings;
+
+  /** 
+   * Properties file to configure JDT compiler severities (info/warn/error).
+   * A valid properties file can be created using the Axon.ivy Designer:
+   * <ol>
+   *    <li>Open the 'Package Explorer': Windows > Show View > Other > Package Explorer</li>
+   *    <li>In Package Explorer: right click on an IvyProject > Properties</li>
+   *    <li>Navigate to Java > Compiler > Errors/Warnings</li>
+   *    <li>Enable project specific settings</li>
+   *    <li>Configure objects to analyze and it's report severity</li>
+   *    <li>Apply and close preferences dialog afterwards</li>
+   *    <li>Now the settings are persisted in '.settings/org.eclipse.jdt.prefs' of the project</li>
+   *    <li>Copy the org.eclipse.jdt.prefs to a location of your choice and pass it's path to this property</li>
+   * </ol>
+   * 
+   * @since 8.1.0
+   */
+  @Parameter(property="ivy.compiler.properties.file")
+  private File compilerProperties;
 
   /** 
    * Defines the timeout how long to wait for an engine start to compile.
@@ -134,10 +154,14 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   protected Map<String, String> getOptions()
   {
     Map<String, String> options = new HashMap<>();
-    options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
-    options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
-    options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
-    options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, String.valueOf(compilerWarnings));
+    options.put(Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
+    options.put(Options.COMPILE_CLASSPATH, getDependencyClasspath());
+    options.put(Options.SOURCE_ENCODING, encoding);
+    options.put(Options.WARNINGS_ENABLED, String.valueOf(compilerWarnings));
+    if (compilerProperties != null)
+    {
+      options.put(Options.SEVERITY_PROPERTIES, compilerProperties.getPath());
+    }
     return options;
   }
 
