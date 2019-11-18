@@ -144,7 +144,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     return builder;
   }
 
-  private EngineClassLoaderFactory getEngineClassloaderFactory()
+  public final EngineClassLoaderFactory getEngineClassloaderFactory()
   {
     MavenContext context = new EngineClassLoaderFactory.MavenContext(
             repository, localRepository, project, getLog());
