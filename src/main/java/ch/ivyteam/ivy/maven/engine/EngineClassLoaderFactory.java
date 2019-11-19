@@ -77,7 +77,7 @@ public class EngineClassLoaderFactory
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
     addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS),
             new WildcardFileFilter("org.eclipse.osgi_*.jar"));
-    getSlf4jJars().forEach(slf4j -> osgiClasspath.add(0, slf4j));
+    osgiClasspath.addAll(0, getSlf4jJars());
     if (maven.log.isDebugEnabled())
     {
       maven.log.debug("Configuring OSGi engine classpath:");
