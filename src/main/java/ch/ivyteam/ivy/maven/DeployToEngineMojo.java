@@ -80,7 +80,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
   File deployEngineDirectory;
   
   /** The name of an ivy application to which the file is deployed. */
-  @Parameter(property="ivy.deploy.engine.app", defaultValue="SYSTEM")
+  @Parameter(property="ivy.deploy.engine.app", required = true)
   String deployToEngineApplication;
   
   /** The auto deployment directory of the engine. Must match the ivy engine system property 'deployment.directory' */
