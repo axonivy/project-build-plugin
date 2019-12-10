@@ -20,7 +20,8 @@ pipeline {
     choice(name: 'engineListUrl',
       description: 'Engine to use for build',
       choices: ['http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/',
-                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/'])
+                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/',
+                'http://developer.axonivy.com/download/maven.html'])
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
@@ -47,6 +48,7 @@ pipeline {
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
+              "-Divy.engine.version=${params.engineVersion} " +
               "-Dmaven.test.failure.ignore=true"
 
           }
