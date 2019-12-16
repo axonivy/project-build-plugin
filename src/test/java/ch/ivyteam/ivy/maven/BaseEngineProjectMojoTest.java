@@ -32,6 +32,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.DefaultArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.internal.DefaultLegacySupport;
 import org.junit.Rule;
@@ -48,7 +49,25 @@ public class BaseEngineProjectMojoTest
 
   private static String getTestEngineVersion()
   {
-    return System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION);
+    return System.getProperty("ivy.engine.version", toRange(AbstractEngineMojo.DEFAULT_VERSION));
+  }
+  
+  private static String toRange(String version)
+  {
+    String nextMajor = getNextMajor(version);
+    return "["+version+","+nextMajor+")";
+  }
+
+  private static String getNextMajor(String version)
+  {
+    DefaultArtifactVersion parsed = new DefaultArtifactVersion(version);
+    int majorVersion = parsed.getMajorVersion();
+    String nextMajor = new StringBuilder()
+            .append(majorVersion+1).append('.')
+            .append(parsed.getMinorVersion()).append('.')
+            .append(parsed.getIncrementalVersion())
+            .toString();
+    return nextMajor;
   }
 
   private static String getLocalRepoPath()
@@ -74,6 +93,12 @@ public class BaseEngineProjectMojoTest
     return FileUtils.listFiles(dir, new String[]{fileExtension}, true);
   }
 
+  private static final File evalEngineDir(AbstractEngineMojo mojo)
+  {
+    return new File(mojo.engineCacheDirectory, 
+            System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION));
+  }
+
   @Rule
   public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<InstallEngineMojo>(
             new File("src/test/resources/base"), InstallEngineMojo.GOAL){
@@ -91,12 +116,12 @@ public class BaseEngineProjectMojoTest
         }
         getMojo().engineCacheDirectory = new File(CACHE_DIR);
         getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
-        getMojo().engineDirectory = new File(getMojo().engineCacheDirectory, ENGINE_VERSION_TO_TEST);
+        getMojo().engineDirectory = evalEngineDir(getMojo());
         deleteOutdatedEngine();
         getMojo().execute();
         addTimestampToDownloadedEngine();
       }
-    
+      
       private void deleteOutdatedEngine() throws IOException
       {
         File engineDir = getMojo().getRawEngineDirectory();
@@ -165,7 +190,7 @@ public class BaseEngineProjectMojoTest
     protected void configureMojo(AbstractEngineMojo newMojo)
     {
       newMojo.engineCacheDirectory = new File(CACHE_DIR);
-      newMojo.engineDirectory = new File(getMojo().engineCacheDirectory, ENGINE_VERSION_TO_TEST);
+      newMojo.engineDirectory = evalEngineDir(getMojo());
       newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   }
