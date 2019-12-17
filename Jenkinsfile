@@ -50,7 +50,9 @@ pipeline {
               "-Dmaven.test.failure.ignore=true"
 
           }
-          maven cmd: "sonar:sonar -Dsonar.host.url=http://zugprosonar"
+          if (env.BRANCH_NAME == 'master') {
+            maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io"
+          }
         }
         archiveArtifacts 'target/*.jar'
         junit '**/target/surefire-reports/**/*.xml'
