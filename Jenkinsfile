@@ -17,10 +17,9 @@ pipeline {
       description: 'If checked the plugin documentation on GitHub will NOT be updated (ignored for release)',
       defaultValue: true)
 
-    choice(name: 'engineListUrl',
+    string(name: 'engineListUrl',
       description: 'Engine to use for build',
-      choices: ['http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/',
-                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/'])
+      defaultValue: 'https://jenkins.ivyteam.io/job/ivy-core_product/job/master/lastSuccessfulBuild/')
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
