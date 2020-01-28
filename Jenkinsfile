@@ -23,7 +23,7 @@ pipeline {
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
-      choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
+      choices: ['sonatype.snapshots', 'maven.central.release'])
 
     string(name: 'nextDevVersion',
       description: "Next development version used after release, e.g. '7.3.0' (no '-SNAPSHOT').\nNote: This is only used for release target; if not set next patch version will be raised by one",
