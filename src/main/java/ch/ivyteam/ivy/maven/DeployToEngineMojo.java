@@ -44,13 +44,13 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  *
  * <p>Command line invocation is supported.</p>
  * <p>Local engine (using DIRECTORY deploy method):</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:8.0.0:deploy-to-engine
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:9.1.0:deploy-to-engine
  * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal</pre>
  * 
  * <p>Remote Engine (using HTTP deploy method):</p>
- * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:8.0.0:deploy-to-engine 
+ * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:9.1.0:deploy-to-engine 
  * -Divy.deploy.file=myProject.iar 
  * -Divy.deploy.method=HTTP 
  * -Divy.deploy.server.id=AxonIvyEngine
