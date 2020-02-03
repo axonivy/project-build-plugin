@@ -56,7 +56,7 @@ public class EngineClassLoaderFactory
   }
   
   /** must match version in pom.xml */
-  private static final String SLF4J_VERSION = "1.7.7";
+  private static final String SLF4J_VERSION = "1.7.25";
   
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
           OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
@@ -77,15 +77,21 @@ public class EngineClassLoaderFactory
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
     addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS),
             new WildcardFileFilter("org.eclipse.osgi_*.jar"));
-    osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION));
-    osgiClasspath.add(0, maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
-    osgiClasspath.add(0, maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+    osgiClasspath.addAll(0, getSlf4jJars());
     if (maven.log.isDebugEnabled())
     {
       maven.log.debug("Configuring OSGi engine classpath:");
       osgiClasspath.stream().forEach(file -> maven.log.debug(" + "+file.getAbsolutePath()));
     }
     return new URLClassLoader(toUrls(osgiClasspath));
+  }
+
+  public List<File> getSlf4jJars()
+  {
+    return List.of(
+      maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
+      maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
+      maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
   }
 
   public static List<File> getOsgiBootstrapClasspath(File engineDirectory)
