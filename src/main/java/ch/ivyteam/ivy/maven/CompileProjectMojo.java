@@ -18,10 +18,13 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -29,6 +32,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.SharedFile;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 /**
  * Compiles an ivy Project with an ivyEngine.
@@ -64,7 +69,8 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     }
     
     getLog().info("Compiling ivy Project...");
-    List<File> iarJars = projectBuilder.createIarJars(getDependencies("iar"));
+    List<File> iarDependencies = getDependencies("iar");
+    List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, String> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
     
@@ -74,10 +80,28 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     }
     else
     {
-      projectBuilder.validate(project.getBasedir(), iarJars, options);
+      List<File> dependencies = iarDependencies.stream()
+              .map(this::unpack)
+              .collect(Collectors.toList());
+      projectBuilder.validate(project.getBasedir(), dependencies);
     }
     
     writeDependencyIarJar(iarJars);
+  }
+  
+  private File unpack(File iar)
+  {
+    String destinationFolder = Paths.get(project.getBuild().getDirectory(),
+            FilenameUtils.removeExtension(iar.getName())).toString();
+    try
+    {
+      new ZipFile(iar).extractAll(destinationFolder);
+    }
+    catch (ZipException ex)
+    {
+      getLog().error("Unable to unpack " + iar.getName());
+    }
+    return new File(destinationFolder);
   }
   
   private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException
