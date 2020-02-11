@@ -125,11 +125,11 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
-  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects) throws Exception
+  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects, Map<String, String> options) throws Exception
   {
-    Method validate = getMethod("validate", File.class, List.class);
+    Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
-      validate.invoke(delegate, projectDirToBuild, dependentProjects)
+      validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options)
     );
   }
   
