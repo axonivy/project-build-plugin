@@ -50,7 +50,7 @@ pipeline {
 
           }
           if (env.BRANCH_NAME == 'master') {
-            maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io"
+            maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
           }
         }
         archiveArtifacts 'target/*.jar'
