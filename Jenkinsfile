@@ -40,7 +40,8 @@ pipeline {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
-            maven cmd: "clean deploy site-deploy " +
+            def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
+            maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
