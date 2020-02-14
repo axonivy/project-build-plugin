@@ -40,7 +40,8 @@ pipeline {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
-            maven cmd: "clean deploy site-deploy " +
+            def phase = env.BRANCH_NAME == '8.0' ? 'deploy site-deploy' : 'verify'
+            maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
@@ -48,9 +49,6 @@ pipeline {
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"
 
-          }
-          if (env.BRANCH_NAME == 'master') {
-            maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io"
           }
         }
         archiveArtifacts 'target/*.jar'
@@ -60,7 +58,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch 'master'
+        branch '8.0'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
