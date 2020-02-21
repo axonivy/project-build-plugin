@@ -50,7 +50,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
 
   /** 
    * Set to <code>true</code> to avoid the validation of ivyScript code within ivy processes.
-   * @since 9.1.0
+   * @since 8.0.3
    */
   @Parameter(property="ivy.script.validation.skip", defaultValue="true")
   boolean skipScriptValidation;
