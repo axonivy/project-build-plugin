@@ -44,6 +44,7 @@ public class Slf4jSimpleEngineProperties
     setDefaultProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, Boolean.FALSE.toString());
     setDefaultProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, Boolean.TRUE.toString());
     setDefaultProperty(SimpleLogger.SHOW_LOG_NAME_KEY, Boolean.FALSE.toString());
+    setDefaultProperty(SimpleLogger.WARN_LEVEL_STRING_KEY, "WARNING");
     
     // apply Maven log level to well known white-listed ivy loggers
     String mavenClientLogLevel = getDefaultLogLevel();

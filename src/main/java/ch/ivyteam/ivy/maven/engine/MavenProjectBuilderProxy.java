@@ -125,11 +125,11 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
-  public Map<String, Object> validate(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects, Map<String, String> options) throws Exception
   {
     Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
-      validate.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options)
+      validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options)
     );
   }
   
@@ -152,7 +152,7 @@ public class MavenProjectBuilderProxy
     {
       throw new RuntimeException(
               "Method "+name+"("+parameterTypes+") does not exist in engine '"+baseDirToBuildIn+"'. \n"
-                      + "You might need to configer another version to work with.");
+                      + "You might need to configure another version to work with.");
     }
   }
   
