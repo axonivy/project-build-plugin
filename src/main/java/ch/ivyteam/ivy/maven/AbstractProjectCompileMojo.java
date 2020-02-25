@@ -66,6 +66,22 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.compiler.engine.start.timeout", defaultValue = "60")
   private int timeoutEngineStartInSeconds;
 
+  /**
+   * Set to <code>false</code> to disable JDT compilation warnings.
+   * @since 8.0.3
+   */
+  @Parameter(property = "ivy.compiler.warnings", defaultValue = "true")
+  private boolean compilerWarnings;
+
+  /**
+   * Define a jdt settings file to configure compilation warnings.
+   * If left empty the plugin will try to load the project settings file from <code>./settings/org.eclipse.jdt.core.prefs</code>
+   * These settings are only active when {@link AbstractProjectCompileMojo#compilerWarnings} is set to <code>true</code>.
+   * @since 8.0.3
+   */
+  @Parameter(property = "ivy.jdt.settings.file", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
+  private File jdtSettings;
+
   @Component
   private RepositorySystem repository;
   
@@ -130,7 +146,22 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
+    options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
+    addJdtSettings(options);
     return options;
+  }
+
+  private void addJdtSettings(Map<String, String> options)
+  {
+    String settingsAbsolutePath = jdtSettings.getAbsolutePath();
+    if (jdtSettings.exists())
+    {
+      options.put(MavenProjectBuilderProxy.Options.JDT_SETTINGS_FILE, settingsAbsolutePath);
+    }
+    else
+    {
+      getLog().warn("Could not locate jdt settings file: " + settingsAbsolutePath + " continuing with default jdt compiler settings");
+    }
   }
 
   private String getDependencyClasspath()
