@@ -3,7 +3,7 @@
   <groupId>com.axonivy.ivy.ci</groupId>
   <artifactId>project-build-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>8.0.0</version>
+  <version>8.0.3-SNAPSHOT</version>
 
   <name>Axon.ivy Project Build Plugin</name>
   <description>Maven plugin for the automated building of Axon.ivy projects. Referenced from the pom.xml of Axon.ivy projects.</description>
@@ -50,17 +50,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <profiles>
-    <profile>
-      <id>zugpronexus.snapshots</id>
-      <distributionManagement>
-        <snapshotRepository>
-          <id>zugpronexus.snapshots</id>
-          <name>Internal Plugin Snapshot Repository</name>
-          <url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-snapshots/</url>
-        </snapshotRepository>
-      </distributionManagement>
-    </profile>
+  <profiles>    
     <profile>
       <id>sonatype.snapshots</id>
       <distributionManagement>

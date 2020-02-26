@@ -66,6 +66,27 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.compiler.engine.start.timeout", defaultValue = "60")
   private int timeoutEngineStartInSeconds;
 
+  /**
+   * Set to <code>false</code> to disable compilation warnings.
+   * @since 8.0.3
+   */
+  @Parameter(property = "ivy.compiler.warnings", defaultValue = "true")
+  protected boolean compilerWarnings;
+
+  /**
+   * Define a compiler settings file to configure compilation warnings.
+   * Such file can be created in the Designer: <i>Window - Preferences - Java - Compiler - Errors/Warnings</i>,
+   * the corresponding file can be found in:
+   * <i>designer-workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs</i>
+   * <br>
+   * If left empty the plugin will try to load the project specific settings file <i>project/.settings/org.eclipse.jdt.core.prefs</i>
+   * <br>
+   * These settings are only active when {@link AbstractProjectCompileMojo#compilerWarnings} is set to <code>true</code>.
+   * @since 8.0.3
+   */
+  @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
+  protected File compilerSettings;
+
   @Component
   private RepositorySystem repository;
   
@@ -130,6 +151,8 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
+    options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
+    options.put(MavenProjectBuilderProxy.Options.JDT_SETTINGS_FILE, getCompilerSettings());
     return options;
   }
 
@@ -138,6 +161,20 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     return StringUtils.join(getDependencies("jar").stream()
             .map(jar -> jar.getAbsolutePath())
             .collect(Collectors.toList()), File.pathSeparatorChar);
+  }
+
+  private String getCompilerSettings()
+  {
+    String settingsAbsolutePath = compilerSettings.getAbsolutePath();
+    if (compilerSettings.exists())
+    {
+      return settingsAbsolutePath;
+    }
+    else if (compilerWarnings)
+    {
+      getLog().warn("Could not locate compiler settings file: " + settingsAbsolutePath + " continuing with default compiler settings");
+    }
+    return null;
   }
 
   protected final List<File> getDependencies(String type)

@@ -176,6 +176,8 @@ public class MavenProjectBuilderProxy
     String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
     String COMPILE_CLASSPATH = "maven.dependency.classpath";
     String SOURCE_ENCODING = "project.source.encoding";
+    String WARNINGS_ENABLED = "jdt.warnings.enabled";
+    String JDT_SETTINGS_FILE = "jdt.settings.file";
   }
   
   public static interface Result
