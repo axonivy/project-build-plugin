@@ -50,7 +50,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
 
   /** 
    * Set to <code>true</code> to avoid the validation of ivyScript code within ivy processes.
-   * @since 7.3.0
+   * @since 8.0.3
    */
   @Parameter(property="ivy.script.validation.skip", defaultValue="true")
   boolean skipScriptValidation;
@@ -64,7 +64,8 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     }
     
     getLog().info("Compiling ivy Project...");
-    List<File> iarJars = projectBuilder.createIarJars(getDependencies("iar"));
+    List<File> iarDependencies = getDependencies("iar");
+    List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, String> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
     
@@ -74,7 +75,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     }
     else
     {
-      projectBuilder.validate(project.getBasedir(), iarJars, options);
+      projectBuilder.validate(project.getBasedir(), iarDependencies, options);
     }
     
     writeDependencyIarJar(iarJars);
