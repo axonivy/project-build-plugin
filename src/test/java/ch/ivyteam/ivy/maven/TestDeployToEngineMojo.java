@@ -183,6 +183,7 @@ public class TestDeployToEngineMojo
       super.before();
 
       getMojo().deployEngineDirectory = createEngineDir();
+      getMojo().deployToEngineApplication = "TestApp";
 
       try
       {
