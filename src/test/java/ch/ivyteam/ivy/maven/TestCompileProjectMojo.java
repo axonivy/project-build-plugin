@@ -25,6 +25,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.log.LogCollector;
+
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
 {
   private CompileTestProjectMojo testMojo;
@@ -73,6 +75,25 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
     assertThat(findFiles(classDir, "class"))
       .as("compiled classes must contain test resources as well")
       .hasSize(5);
+  }
+  
+  @Test
+  public void compilerSettingsFile_notFoundWarnings() throws Exception
+  {
+    LogCollector log = new LogCollector();
+    CompileProjectMojo mojo = compile.getMojo();
+    mojo.setLog(log);
+    
+    mojo.compilerWarnings = false;
+    mojo.compilerSettings = new File("path/to/oblivion");
+    
+    mojo.execute();
+    assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
+    
+    mojo.compilerWarnings = true;
+    
+    mojo.execute();
+    assertThat(log.getWarnings().toString()).contains("Could not locate compiler settings file");
   }
 
 }

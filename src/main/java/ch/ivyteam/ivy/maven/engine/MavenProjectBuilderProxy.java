@@ -116,7 +116,7 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
-  public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, Object> options) throws Exception
   {
     Method compileMethod = getMethod("compile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
@@ -125,7 +125,7 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
-  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects, Map<String, String> options) throws Exception
+  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects, Map<String, Object> options) throws Exception
   {
     Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
@@ -134,7 +134,7 @@ public class MavenProjectBuilderProxy
   }
   
   @SuppressWarnings("unchecked")
-  public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars, Map<String, String> options) throws Exception
+  public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars, Map<String, Object> options) throws Exception
   {
     Method compileMethod = getMethod("testCompile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(() -> 
@@ -176,6 +176,8 @@ public class MavenProjectBuilderProxy
     String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
     String COMPILE_CLASSPATH = "maven.dependency.classpath";
     String SOURCE_ENCODING = "project.source.encoding";
+    String WARNINGS_ENABLED = "jdt.warnings.enabled";
+    String JDT_SETTINGS_FILE = "jdt.settings.file";
   }
   
   public static interface Result

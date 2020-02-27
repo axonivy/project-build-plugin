@@ -66,7 +66,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     getLog().info("Compiling ivy Project...");
     List<File> iarDependencies = getDependencies("iar");
     List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
-    Map<String, String> options = getOptions();
+    Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
     
     if (skipScriptValidation)
