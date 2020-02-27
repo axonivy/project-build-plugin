@@ -178,6 +178,7 @@ public class MavenProjectBuilderProxy
     String SOURCE_ENCODING = "project.source.encoding";
     String WARNINGS_ENABLED = "jdt.warnings.enabled";
     String JDT_SETTINGS_FILE = "jdt.settings.file";
+    String JDT_OPTIONS = "jdt.options";
   }
   
   public static interface Result

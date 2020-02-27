@@ -86,7 +86,10 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    */
   @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
   File compilerSettings;
-
+  
+  @Parameter
+  List<String> compilerOptions;
+  
   @Component
   private RepositorySystem repository;
   
@@ -153,6 +156,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
     options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
     options.put(MavenProjectBuilderProxy.Options.JDT_SETTINGS_FILE, getCompilerSettings());
+    options.put(MavenProjectBuilderProxy.Options.JDT_OPTIONS, compilerOptions);
     return options;
   }
 
