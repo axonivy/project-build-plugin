@@ -71,7 +71,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    * @since 8.0.3
    */
   @Parameter(property = "ivy.compiler.warnings", defaultValue = "true")
-  protected boolean compilerWarnings;
+  boolean compilerWarnings;
 
   /**
    * Define a compiler settings file to configure compilation warnings.
@@ -85,7 +85,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    * @since 8.0.3
    */
   @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
-  protected File compilerSettings;
+  File compilerSettings;
 
   @Component
   private RepositorySystem repository;
