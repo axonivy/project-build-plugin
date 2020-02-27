@@ -145,9 +145,9 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
     return new EngineClassLoaderFactory(context);
   }
 
-  protected Map<String, String> getOptions()
+  protected Map<String, Object> getOptions()
   {
-    Map<String, String> options = new HashMap<>();
+    Map<String, Object> options = new HashMap<>();
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR, project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
@@ -163,16 +163,15 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
             .collect(Collectors.toList()), File.pathSeparatorChar);
   }
 
-  private String getCompilerSettings()
+  private File getCompilerSettings()
   {
-    String settingsAbsolutePath = compilerSettings.getAbsolutePath();
     if (compilerSettings.exists())
     {
-      return settingsAbsolutePath;
+      return compilerSettings;
     }
     else if (compilerWarnings)
     {
-      getLog().warn("Could not locate compiler settings file: " + settingsAbsolutePath + " continuing with default compiler settings");
+      getLog().warn("Could not locate compiler settings file: " + compilerSettings + " continuing with default compiler settings");
     }
     return null;
   }
