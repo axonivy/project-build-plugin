@@ -87,6 +87,16 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
   File compilerSettings;
   
+  /**
+   * Define compiler options.
+   * <br>
+   * {@literal
+   *   <compilerOptions>
+   *      <arg>-help<arg>
+   *   </compilerOptions>
+   * }
+   * @since 8.0.3
+   */
   @Parameter
   List<String> compilerOptions;
   
