@@ -17,14 +17,13 @@ pipeline {
       description: 'If checked the plugin documentation on GitHub will NOT be updated (ignored for release)',
       defaultValue: true)
 
-    choice(name: 'engineListUrl',
+    string(name: 'engineListUrl',
       description: 'Engine to use for build',
-      choices: ['http://zugprojenkins/job/ivy-core_product/job/master/lastSuccessfulBuild/',
-                'http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/'])
+      defaultValue: 'https://jenkins.ivyteam.io/job/ivy-core_product/job/release%252F8.0/lastSuccessfulBuild/')
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
-      choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
+      choices: ['sonatype.snapshots', 'maven.central.release'])
 
     string(name: 'nextDevVersion',
       description: "Next development version used after release, e.g. '7.3.0' (no '-SNAPSHOT').\nNote: This is only used for release target; if not set next patch version will be raised by one",
@@ -41,7 +40,8 @@ pipeline {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
-            maven cmd: "clean deploy site-deploy " +
+            def phase = env.BRANCH_NAME == '8.0' ? 'deploy site-deploy' : 'verify'
+            maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
@@ -50,7 +50,6 @@ pipeline {
               "-Dmaven.test.failure.ignore=true"
 
           }
-          maven cmd: "sonar:sonar -Dsonar.host.url=http://zugprosonar"
         }
         archiveArtifacts 'target/*.jar'
         junit '**/target/surefire-reports/**/*.xml'
@@ -59,7 +58,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch 'master'
+        branch '8.0'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
