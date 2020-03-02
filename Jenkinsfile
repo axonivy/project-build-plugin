@@ -40,7 +40,7 @@ pipeline {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
-            def phase = env.BRANCH_NAME == '8.0' ? 'deploy site-deploy' : 'verify'
+            def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -58,7 +58,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch '8.0'
+        branch 'master'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
