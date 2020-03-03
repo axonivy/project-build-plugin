@@ -68,7 +68,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 
   /**
    * Set to <code>false</code> to disable compilation warnings.
-   * @since 8.0.2
+   * @since 8.0.3
    */
   @Parameter(property = "ivy.compiler.warnings", defaultValue = "true")
   boolean compilerWarnings;
@@ -82,7 +82,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    * If left empty the plugin will try to load the project specific settings file <i>project/.settings/org.eclipse.jdt.core.prefs</i>
    * <br>
    * These settings are only active when {@link AbstractProjectCompileMojo#compilerWarnings} is set to <code>true</code>.
-   * @since 8.0.2
+   * @since 8.0.3
    */
   @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
   File compilerSettings;
@@ -95,7 +95,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    *      <arg>-help<arg>
    *   </compilerOptions>
    * }
-   * @since 8.0.2
+   * @since 8.0.3
    */
   @Parameter
   List<String> compilerOptions;
