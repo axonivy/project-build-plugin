@@ -17,13 +17,17 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 
@@ -41,6 +45,9 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
   
+  @Parameter(property = "project", required = true, readonly = true)
+  protected MavenProject project;
+  
   /**
    * Location where an unpacked (may pre-configured) ivy Engine in the {@link #ivyVersion required version} exists. 
    * <p>If parameter is not set it will be a sub-directory of the {@link #engineCacheDirectory}.
@@ -56,6 +63,13 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    */
   @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="ivy.engine.cache.directory")
   protected File engineCacheDirectory;
+  
+  /**
+   * When set to <code>true</code> the defined engine in {@link #engineDirectory} is copied to the target folder.
+   * Enable this when you want to start each test cycle with a clean engine.
+   */
+  @Parameter(property = "ivy.engine.to.target", defaultValue="false")
+  boolean engineToTarget;
   
   /**
    * The ivy Engine version or version-range that must be used. 
@@ -90,7 +104,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
 
   protected final File identifyAndGetEngineDirectory() throws MojoExecutionException
   {
-    if (!isEngineDirectoryIdentified())
+    if (!isEngineDirectoryIdentified() || engineToTarget)
     {
       engineDirectory = findMatchingEngineInCacheDirectory();
     }
@@ -129,9 +143,41 @@ public abstract class AbstractEngineMojo extends AbstractMojo
         versionOfEngineToTake = candidateVersion;
       }
     }
+    
+    getLog().warn("----------------------------------");
+    getLog().warn("engineToTarget: " + engineToTarget);
+    getLog().warn("Project: " + project);
+    if (engineToTarget && project != null && engineDirToTake != null)
+    {
+      engineDirToTake = copyEngineToTarget(project, engineDirToTake, getLog());
+    }
+    
+    getLog().warn("engineDirToTake: " + engineDirToTake);
     return engineDirToTake;
   }
 
+  private static File copyEngineToTarget(MavenProject project, File engineDirToTake, Log log)
+  {
+    String targetDirectory = project.getBuild().getDirectory();
+
+    try
+    {
+      File targetEngine = new File(targetDirectory, "ivyEngine");
+
+      log.info("Parameter <engineToTarget> is enabled, copying cached engine from: " + engineDirToTake
+              + " to " + targetEngine);
+
+      FileUtils.copyDirectory(engineDirToTake, targetEngine);
+      engineDirToTake = targetEngine;
+    }
+    catch (IOException ex)
+    {
+      log.warn("Could not clone engine from: " + engineDirToTake + " to " + targetDirectory);
+    }
+
+    return engineDirToTake;
+  }
+  
   protected final ArtifactVersion getInstalledEngineVersion(File engineDir) throws MojoExecutionException
   {
     try
