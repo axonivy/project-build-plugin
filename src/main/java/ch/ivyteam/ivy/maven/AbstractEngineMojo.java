@@ -163,13 +163,12 @@ public abstract class AbstractEngineMojo extends AbstractMojo
               + " to " + targetEngine);
 
       FileUtils.copyDirectory(engineDirToTake, targetEngine);
-      engineDirToTake = targetEngine;
+      return targetEngine;
     }
     catch (IOException ex)
     {
       getLog().warn("Could not clone engine from: " + engineDirToTake + " to " + targetDirectory);
     }
-
     return engineDirToTake;
   }
   
