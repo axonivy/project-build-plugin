@@ -103,7 +103,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
 
   protected final File identifyAndGetEngineDirectory() throws MojoExecutionException
   {
-    if (!isEngineDirectoryIdentified() || engineToTarget)
+    if (!isEngineDirectoryIdentified())
     {
       engineDirectory = findMatchingEngineInCacheDirectory();
     }

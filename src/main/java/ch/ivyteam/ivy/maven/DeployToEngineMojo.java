@@ -341,7 +341,7 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
   private File getDeployDirectory() throws MojoExecutionException
   {
-    if (deployEngineDirectory == null || engineToTarget)
+    if (deployEngineDirectory == null)
     { // re-use engine used to build
       deployEngineDirectory = identifyAndGetEngineDirectory();
     }
