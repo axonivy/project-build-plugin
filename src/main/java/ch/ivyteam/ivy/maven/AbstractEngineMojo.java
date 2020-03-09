@@ -25,7 +25,6 @@ import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -146,13 +145,13 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     
     if (engineToTarget && project != null && engineDirToTake != null)
     {
-      engineDirToTake = copyEngineToTarget(project, engineDirToTake, getLog());
+      engineDirToTake = copyEngineToTarget(engineDirToTake);
     }
     
     return engineDirToTake;
   }
 
-  private static File copyEngineToTarget(MavenProject project, File engineDirToTake, Log log)
+  private File copyEngineToTarget(File engineDirToTake)
   {
     String targetDirectory = project.getBuild().getDirectory();
 
@@ -160,7 +159,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     {
       File targetEngine = new File(targetDirectory, "ivyEngine");
 
-      log.info("Parameter <engineToTarget> is enabled, copying cached engine from: " + engineDirToTake
+      getLog().info("Parameter <engineToTarget> is enabled, copying cached engine from: " + engineDirToTake
               + " to " + targetEngine);
 
       FileUtils.copyDirectory(engineDirToTake, targetEngine);
@@ -168,7 +167,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     }
     catch (IOException ex)
     {
-      log.warn("Could not clone engine from: " + engineDirToTake + " to " + targetDirectory);
+      getLog().warn("Could not clone engine from: " + engineDirToTake + " to " + targetDirectory);
     }
 
     return engineDirToTake;
