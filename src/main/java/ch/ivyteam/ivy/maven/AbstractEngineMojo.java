@@ -66,7 +66,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   
   /**
    * When set to <code>true</code> the defined engine in {@link #engineDirectory} is copied to the target folder.
-   * Enable this when you want to start each test cycle with a clean engine.
+   * Enable this when you want to start each cycle with a clean engine.
    */
   @Parameter(property = "ivy.engine.to.target", defaultValue="false")
   boolean engineToTarget;
@@ -144,15 +144,11 @@ public abstract class AbstractEngineMojo extends AbstractMojo
       }
     }
     
-    getLog().warn("----------------------------------");
-    getLog().warn("engineToTarget: " + engineToTarget);
-    getLog().warn("Project: " + project);
     if (engineToTarget && project != null && engineDirToTake != null)
     {
       engineDirToTake = copyEngineToTarget(project, engineDirToTake, getLog());
     }
     
-    getLog().warn("engineDirToTake: " + engineDirToTake);
     return engineDirToTake;
   }
 

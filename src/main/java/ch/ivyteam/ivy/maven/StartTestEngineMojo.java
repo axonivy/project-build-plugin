@@ -23,7 +23,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
@@ -39,9 +38,6 @@ public class StartTestEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "start-test-engine";
   public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
-
-  @Parameter(property = "project", required = true, readonly = true)
-  MavenProject project;
 
   /** The maximum heap (-Xmx) that is used for starting and running the Engine **/
   @Parameter(property = "ivy.engine.start.maxmem", required = false, defaultValue = "2048m")

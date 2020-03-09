@@ -29,7 +29,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
@@ -237,9 +236,6 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
   @Component
   private MavenFileFilter fileFilter;
-
-  @Parameter(property = "project", required = false, readonly = true)
-  MavenProject project;
 
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;

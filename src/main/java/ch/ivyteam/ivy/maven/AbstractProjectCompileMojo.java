@@ -32,7 +32,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
@@ -42,9 +41,6 @@ import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 
 public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 {
-  @Parameter(property = "project", required = true, readonly = true)
-  protected MavenProject project;
-  
   /**
    * Home application where the project to build and its dependencies will be temporary deployed. 
    */

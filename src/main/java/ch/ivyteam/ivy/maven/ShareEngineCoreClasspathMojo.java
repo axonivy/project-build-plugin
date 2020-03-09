@@ -23,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.MavenProperties;
@@ -40,9 +38,6 @@ public class ShareEngineCoreClasspathMojo extends AbstractEngineMojo
   public static final String GOAL = "share-engine-core-classpath";
 
   public static final String IVY_ENGINE_CORE_CLASSPATH_PROPERTY = "ivy.engine.core.classpath"; //Duplicated for the comment, JavaDoc value didn't work.
-  
-  @Parameter(property = "project", required = true, readonly = true)
-  MavenProject project;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException

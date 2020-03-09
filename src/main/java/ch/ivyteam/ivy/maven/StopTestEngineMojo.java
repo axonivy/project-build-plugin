@@ -20,7 +20,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
@@ -35,9 +34,6 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 public class StopTestEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "stop-test-engine";
-  
-  @Parameter(property = "project", required = true, readonly = true)
-  MavenProject project;
 
   /** The maximum heap (-Xmx) that is used for stopping the Engine **/
   @Parameter(property = "ivy.engine.stop.maxmem", required = false, defaultValue = "128m")
