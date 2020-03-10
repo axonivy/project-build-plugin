@@ -111,6 +111,31 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
   }
 
+  @Test
+  public void startEngineInTarget() throws Exception
+  {
+    StartTestEngineMojo mojo = rule.getMojo();
+    Executor startedProcess = null;
+    try
+    {
+      mojo.engineToTarget = false;
+      File engineDirCache = mojo.getEngineDir(mojo.project);
+      assertThat(engineDirCache.toString()).contains("/repository/.cache/ivy-dev");
+      
+      mojo.engineToTarget = true;
+      File engineDirTarget = mojo.getEngineDir(mojo.project);
+      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
+      
+      assertThat(engineDirTarget).doesNotExist();
+      startedProcess = mojo.startEngine();
+      assertThat(engineDirTarget).exists();
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+
   private static void kill(Executor startedProcess)
   {
     if (startedProcess != null)

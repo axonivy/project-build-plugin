@@ -32,7 +32,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
  * @since 6.2.0
  */
 @Mojo(name = StopTestEngineMojo.GOAL)
-public class StopTestEngineMojo extends AbstractEngineMojo
+public class StopTestEngineMojo extends AbstractIntegrationTestMojo
 {
   public static final String GOAL = "stop-test-engine";
   
@@ -82,7 +82,7 @@ public class StopTestEngineMojo extends AbstractEngineMojo
   {
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
     EngineControl engineControl = new EngineControl(new EngineMojoContext(
-            identifyAndGetEngineDirectory(), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
+            getEngineDir(project), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
     return engineControl;
   }
   

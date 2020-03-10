@@ -17,8 +17,10 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.exec.Executor;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -35,7 +37,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
  * @since 6.2.0
  */
 @Mojo(name = StartTestEngineMojo.GOAL)
-public class StartTestEngineMojo extends AbstractEngineMojo
+public class StartTestEngineMojo extends AbstractIntegrationTestMojo
 {
   public static final String GOAL = "start-test-engine";
   public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
@@ -88,10 +90,41 @@ public class StartTestEngineMojo extends AbstractEngineMojo
 
   Executor startEngine() throws Exception
   {
+    File engineDir = identifyAndGetEngineDirectory();
+    
+    if (engineToTarget)
+    {
+      engineDir = copyEngineToTarget(engineDir);
+    }
+    else
+    {
+      getLog().info("Using the cached engine from: " + engineDir + " this could lead to unforseen behaviour when executed multiple times."
+              + " You can enable <engineToTarget> to copy the cached engine to the project target folder to avoid this.");
+    }
+    
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
     EngineControl engineControl = new EngineControl(new EngineMojoContext(
-            identifyAndGetEngineDirectory(), project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
+            engineDir, project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
     return engineControl.start();
+  }
+  
+  private File copyEngineToTarget(File cachedEngineDir) throws MojoExecutionException
+  {
+    try
+    {
+      File targetEngine = getEngineDir(project);
+
+      getLog().info("Parameter <engineToTarget> is enabled, copying cached engine from: "
+              + cachedEngineDir + " to " + targetEngine);
+
+      FileUtils.copyDirectory(cachedEngineDir, targetEngine);
+      return targetEngine;
+    }
+    catch (IOException ex)
+    {
+      getLog().warn("Could not clone engine from: " + cachedEngineDir);
+    }
+    return cachedEngineDir;
   }
 
 }

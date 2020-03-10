@@ -60,7 +60,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  * @since 7.1.0
  */
 @Mojo(name = DeployToEngineMojo.GOAL, requiresProject=false)
-public class DeployToEngineMojo extends AbstractEngineMojo
+public class DeployToEngineMojo extends AbstractIntegrationTestMojo
 {
   private static final String DEPLOY_ENGINE_DIR_DEFAULT = "${"+ENGINE_DIRECTORY_PROPERTY+"}";
   private static final String DEPLOY_DEFAULT = "deploy";
@@ -345,9 +345,9 @@ public class DeployToEngineMojo extends AbstractEngineMojo
 
   private File getDeployDirectory() throws MojoExecutionException
   {
-    if (deployEngineDirectory == null)
+    if (deployEngineDirectory == null || engineToTarget)
     { // re-use engine used to build
-      deployEngineDirectory = identifyAndGetEngineDirectory();
+      deployEngineDirectory = getEngineDir(project);
     }
     if (Paths.get(deployDirectory).isAbsolute())
     {
