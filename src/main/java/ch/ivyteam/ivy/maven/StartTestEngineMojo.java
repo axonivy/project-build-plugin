@@ -108,8 +108,8 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     File targetEngine = getEngineDir(project);
     try
     {
-      getLog().info("Parameter <testEngineLocation> is set to " + TestEngineLocation.TARGET + ", copying cached engine from: "
-              + cachedEngineDir + " to " + targetEngine);
+      getLog().info("Parameter <testEngineLocation> is set to " + testEngineLocation +
+              ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
 
       FileUtils.copyDirectory(cachedEngineDir, targetEngine);
       return targetEngine;
