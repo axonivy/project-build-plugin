@@ -30,7 +30,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.AbstractIntegrationTestMojo.TestEngineLocation;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.log.LogCollector;
 
 /**
  * @since 6.1.1
@@ -118,17 +120,81 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     Executor startedProcess = null;
     try
     {
-      mojo.engineToTarget = false;
+      mojo.testEngineLocation = TestEngineLocation.IGNORE;
       File engineDirCache = mojo.getEngineDir(mojo.project);
       assertThat(engineDirCache.toString()).contains("/repository/.cache/ivy-dev");
       
-      mojo.engineToTarget = true;
+      mojo.testEngineLocation = TestEngineLocation.TARGET;
       File engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
       
       assertThat(engineDirTarget).doesNotExist();
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+  
+  @Test
+  public void startEngine_target_nologs() throws Exception
+  {
+    LogCollector log = new LogCollector();
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.setLog(log);
+    
+    Executor startedProcess = null;
+    try
+    {
+      mojo.testEngineLocation = TestEngineLocation.TARGET;
+      assertThat(log.getInfos()).isEmpty();
+      startedProcess = mojo.startEngine();
+      assertThat(log.getInfos().toString()).contains("Parameter <testEngineLocation> is set");
+      assertThat(log.getWarnings()).isEmpty();
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+  
+  @Test
+  public void startEngine_ignore_nologs() throws Exception
+  {
+    LogCollector log = new LogCollector();
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.setLog(log);
+    
+    Executor startedProcess = null;
+    try
+    {
+      mojo.testEngineLocation = TestEngineLocation.IGNORE;
+      assertThat(log.getWarnings()).isEmpty();
+      startedProcess = mojo.startEngine();
+      assertThat(log.getWarnings()).isEmpty();
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+  
+  @Test
+  public void startEngine_cache_logs() throws Exception
+  {
+    LogCollector log = new LogCollector();
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.setLog(log);
+    
+    Executor startedProcess = null;
+    try
+    {
+      mojo.testEngineLocation = TestEngineLocation.CACHE;
+      assertThat(log.getWarnings()).isEmpty();
+      startedProcess = mojo.startEngine();
+      assertThat(log.getWarnings().toString()).contains("Using the cached engine from:");
     }
     finally
     {

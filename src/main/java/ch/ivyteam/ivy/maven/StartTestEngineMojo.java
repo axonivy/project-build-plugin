@@ -92,14 +92,14 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
   {
     File engineDir = identifyAndGetEngineDirectory();
     
-    if (engineToTarget)
+    if (isLocation(TestEngineLocation.TARGET))
     {
       engineDir = copyEngineToTarget(engineDir);
     }
-    else
+    else if (isLocation(TestEngineLocation.CACHE))
     {
-      getLog().info("Using the cached engine from: " + engineDir + " this could lead to unforseen behaviour when executed multiple times."
-              + " You can enable <engineToTarget> to copy the cached engine to the project target folder to avoid this.");
+      getLog().warn("Using the cached engine from: " + engineDir + " this could lead to unforeseen behaviour when executed multiple times."
+              + " You can configure <testEngineLocation> to copy the cached engine to the project target folder to avoid this.");
     }
     
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
@@ -110,11 +110,10 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
   
   private File copyEngineToTarget(File cachedEngineDir) throws MojoExecutionException
   {
+    File targetEngine = getEngineDir(project);
     try
     {
-      File targetEngine = getEngineDir(project);
-
-      getLog().info("Parameter <engineToTarget> is enabled, copying cached engine from: "
+      getLog().info("Parameter <testEngineLocation> is set to " + TestEngineLocation.TARGET + ", copying cached engine from: "
               + cachedEngineDir + " to " + targetEngine);
 
       FileUtils.copyDirectory(cachedEngineDir, targetEngine);
@@ -122,7 +121,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     }
     catch (IOException ex)
     {
-      getLog().warn("Could not clone engine from: " + cachedEngineDir);
+      getLog().warn("Could not copy engine from: " + cachedEngineDir + " to " + targetEngine);
     }
     return cachedEngineDir;
   }
