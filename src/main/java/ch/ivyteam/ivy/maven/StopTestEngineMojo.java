@@ -16,6 +16,8 @@
 
 package ch.ivyteam.ivy.maven;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -80,9 +82,15 @@ public class StopTestEngineMojo extends AbstractIntegrationTestMojo
 
   public EngineControl createEngineController() throws MojoExecutionException
   {
+    File engineDir = getEngineDir(project);
+    if (!engineDir.exists())
+    {
+      engineDir = identifyAndGetEngineDirectory();
+    }
+    
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
     EngineControl engineControl = new EngineControl(new EngineMojoContext(
-            getEngineDir(project), project, getLog(), null, vmOptions, stopTimeoutInSeconds));
+            engineDir, project, getLog(), null, vmOptions, stopTimeoutInSeconds));
     return engineControl;
   }
   
