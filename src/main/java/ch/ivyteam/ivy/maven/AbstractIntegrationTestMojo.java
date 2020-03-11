@@ -45,7 +45,12 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
   
   private boolean isCachedEngine() throws MojoExecutionException
   {
-    return Objects.equals(identifyAndGetEngineDirectory().getParentFile(), engineCacheDirectory);
+    File engineDir = identifyAndGetEngineDirectory();
+    if (engineDir == null)
+    {
+      return false;
+    }
+    return Objects.equals(engineDir.getParentFile(), engineCacheDirectory);
   }
   
   static interface TestEngineLocation
