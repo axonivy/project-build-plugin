@@ -92,14 +92,9 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
   {
     File engineDir = identifyAndGetEngineDirectory();
     
-    if (isLocation(TestEngineLocation.TARGET))
+    if (engineToTarget())
     {
       engineDir = copyEngineToTarget(engineDir);
-    }
-    else if (isLocation(TestEngineLocation.CACHE))
-    {
-      getLog().warn("Using the cached engine from: " + engineDir + " this could lead to unforeseen behaviour when executed multiple times."
-              + " You can configure <testEngineLocation> to copy the cached engine to the project target folder to avoid this.");
     }
     
     EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
