@@ -75,7 +75,22 @@
       
 <p><b>Description</b>:</p>
       
-<div>Starts the Axon.ivy Engine for integration testing.</div>
+<div>Starts the Axon.ivy Engine for integration testing. After starting
+the engine the plugin provides the url of the engine in the
+${test.engine.url} property. You can use this property to configure
+your maven-surefire-plugin to work against this test engine. 
+
+<div>
+<pre>
+
+&lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+  ...
+  &lt;configuration&gt;
+    &lt;argLine&gt;-Dtest.engine.url=${test.engine.url} 
+-Dtest.engine.app=Portal&lt;/argLine&gt;
+  &lt;/configuration&gt;
+
+</pre></div></div>
       
 <p><b>Attributes</b>:</p>
       

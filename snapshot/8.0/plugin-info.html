@@ -129,7 +129,20 @@ to use this classpath.</td></tr>
 <code>ivy.engine.core.classpath</code>.</td></tr>
 <tr class="b">
 <td><a href="start-test-engine-mojo.html">ivy:start-test-engine</a></td>
-<td>Starts the Axon.ivy Engine for integration testing.</td></tr>
+<td>Starts the Axon.ivy Engine for integration testing. After starting
+the engine the plugin provides the url of the engine in the
+${test.engine.url} property. You can use this property to configure
+your maven-surefire-plugin to work against this test engine. 
+<pre>
+<code>
+&lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+  ...
+  &lt;configuration&gt;
+    &lt;argLine&gt;-Dtest.engine.url=$</code>{test.engine.url} <code>
+-Dtest.engine.app=Portal&lt;/argLine&gt;
+  &lt;/configuration&gt;
+</code>
+</pre></td></tr>
 <tr class="a">
 <td><a href="stop-test-engine-mojo.html">ivy:stop-test-engine</a></td>
 <td>Stops the Axon.ivy Engine after integration testing</td></tr>
