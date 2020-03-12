@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.PrintStream;
 
 import org.apache.commons.exec.Executor;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -42,12 +43,12 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
   private final PrintStream originalOut = System.out;
   
   @Before
-  public void setup()
+  public void setup() throws MojoExecutionException
   {
     mojo = rule.getMojo();
     deployMojo = deployRule.getMojo();
     deployMojo.deployToEngineApplication = "MyTestApp";
-    deployMojo.deployEngineDirectory = mojo.engineDirectory.getAbsoluteFile();
+    deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project);
     deployMojo.deployTimeoutInSeconds = 120;
     deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = "true";
