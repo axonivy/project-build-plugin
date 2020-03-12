@@ -116,7 +116,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     }
     catch (IOException ex)
     {
-      getLog().warn("Could not copy engine from: " + cachedEngineDir + " to " + targetEngine + ex);
+      getLog().warn("Could not copy engine from: " + cachedEngineDir + " to " + targetEngine, ex);
     }
     return cachedEngineDir;
   }
