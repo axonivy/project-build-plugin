@@ -33,7 +33,18 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Starts the Axon.ivy Engine for integration testing.
- *
+ * 
+ * After starting the engine the plugin provides the url of the engine in the ${test.engine.url} property.
+ * You can use this property to configure your maven-surefire-plugin to work against this test engine.
+ * <pre>
+ * {@code
+ *   <artifactId>maven-surefire-plugin</artifactId>
+ *   ...
+ *   <configuration>
+ *     <argLine>-Dtest.engine.url=$}{test.engine.url} {@code -Dtest.engine.app=Portal</argLine>
+ *   </configuration>
+ * }
+ * </pre>
  * @since 6.2.0
  */
 @Mojo(name = StartTestEngineMojo.GOAL)
