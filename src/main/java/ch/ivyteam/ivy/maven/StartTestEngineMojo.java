@@ -114,12 +114,18 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     return engineControl.start();
   }
   
-  private File copyEngineToTarget(File cachedEngineDir) throws MojoExecutionException
+  private File copyEngineToTarget(File cachedEngineDir)
   {
-    File targetEngine = getEngineDir(project);
+    File targetEngine = getTargetDir(project);
+    if (targetEngine.exists())
+    {
+      getLog().warn("Skipping copy of engine to " + targetEngine + " it already exists. Use \"mvn clean\" to ensure a clean engine each cycle.");
+      return targetEngine;
+    }
+    
     try
     {
-      getLog().info("Parameter <testEngineLocation> is set to " + testEngineLocation +
+      getLog().info("Parameter <testEngineLocation> is set to " + testEngine +
               ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
 
       FileUtils.copyDirectory(cachedEngineDir, targetEngine);
@@ -131,5 +137,4 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     }
     return cachedEngineDir;
   }
-
 }
