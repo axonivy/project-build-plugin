@@ -11,24 +11,27 @@ import org.apache.maven.project.MavenProject;
 public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
 {
   /**
-   * Configure if the cached engine should be copied into the target folder of the maven project.
-   * This enables you to start each testing cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may
-   * lead to unwanted side effects on the next test cycle.
+   * Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine.
+   * Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle.
    * <ul>
-   *   <li><code>TARGET</code> = always copy the engine into the maven project target folder, this provides you with a clean engine in each test cycle.</li>
-   *   <li><code>CACHE</code> = if the engine comes from the {@link #engineCacheDirectory} copy it to the maven target folder.</li>
-   *   <li><code>IGNORE</code> = don't copy the engine, this could lead to unforeseen behaviour if the engine is used multiple times.</li>
+   *   <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the {@link #engineCacheDirectory}.</li>
+   *   <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
+   *   <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine
+   *   in the {@link #engineDirectory} it will be copied as well.
+   *   <ul>
+   *     <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li></li>
+   *   </ul>
    * </ul>
    * @since 8.0.4
    */
-  @Parameter(property = "ivy.test.engine.location", defaultValue=TestEngineLocation.CACHE)
-  String testEngineLocation;
+  @Parameter(property = "ivy.test.engine", defaultValue=TestEngineLocation.COPY_FROM_CACHE)
+  String testEngine;
 
   protected final File getEngineDir(MavenProject project) throws MojoExecutionException
   {
     if (engineToTarget())
     {
-      return new File(project.getBuild().getDirectory(), "ivyEngine");
+      return getTargetDir(project);
     }
     return findMatchingEngineInCacheDirectory();
   }
@@ -36,13 +39,13 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
   protected final boolean engineToTarget() throws MojoExecutionException
   {
     return
-        isLocation(TestEngineLocation.TARGET) ||
-        isLocation(TestEngineLocation.CACHE) && isCachedEngine();
+        isLocation(TestEngineLocation.COPY_FROM_TEMPLATE) ||
+        isLocation(TestEngineLocation.COPY_FROM_CACHE) && isCachedEngine();
   }
   
   private boolean isLocation(String location)
   {
-    return StringUtils.equalsIgnoreCase(testEngineLocation, location);
+    return StringUtils.equalsIgnoreCase(testEngine, location);
   }
   
   private boolean isCachedEngine() throws MojoExecutionException
@@ -55,10 +58,15 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
     return Objects.equals(engineDir.getParentFile(), engineCacheDirectory);
   }
   
+  File getTargetDir(MavenProject project)
+  {
+    return new File(project.getBuild().getDirectory(), "ivyEngine");
+  }
+  
   static interface TestEngineLocation
   {
-    String TARGET = "TARGET";
-    String CACHE = "CACHE";
-    String IGNORE = "IGNORE";
+    String COPY_FROM_CACHE = "COPY_FROM_CACHE";
+    String COPY_FROM_TEMPLATE = "COPY_FROM_TEMPLATE";
+    String MODIFY_EXISTING = "MODIFY_EXISTING";
   }
 }
