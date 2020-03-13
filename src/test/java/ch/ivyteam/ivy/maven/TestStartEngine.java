@@ -35,6 +35,7 @@ import com.google.common.io.Files;
 
 import ch.ivyteam.ivy.maven.AbstractIntegrationTestMojo.TestEngineLocation;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.log.LogCollector;
 
 /**
  * @since 6.1.1
@@ -115,57 +116,72 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
   }
 
+  /**
+   * MODIFY_EXISTING
+   * 1. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineDirectory} exists -> do not copy
+   * 2. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists -> do not copy
+   */
   @Test
-  public void startEngine_ignore_cacheEngine() throws MojoExecutionException
+  public void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.IGNORE;
-    assertThat(mojo.engineToTarget()).as("IGNORE set and using cached engine do not copy").isFalse();
-  }
-  
-  @Test
-  public void startEngine_ignore_configuredEngine() throws MojoExecutionException
-  {
-    StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.IGNORE;
+    mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
     mojo.engineDirectory = Files.createTempDir();
-    assertThat(mojo.engineToTarget()).as("IGNORE set and using configured engine do not copy").isFalse();
+    assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using configured engine do not copy").isFalse();
   }
-  
+
   @Test
-  public void startEngine_target_cacheEngine() throws MojoExecutionException
+  public void startEngine_MODIFY_EXISTING_cacheEngine() throws MojoExecutionException
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.TARGET;
-    assertThat(mojo.engineToTarget()).as("TARGET set and using cached engine do copy").isTrue();
+    mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
+    assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using cached engine do not copy").isFalse();
   }
-  
+
+  /**
+   * COPY_FROM_TEMPLATE
+   * 1. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineDirectory} exists -> do copy
+   * 2. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists -> do copy
+   */
   @Test
-  public void startEngine_target_configuredEngine() throws MojoExecutionException
+  public void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.TARGET;
+    mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     mojo.engineDirectory = Files.createTempDir();
-    assertThat(mojo.engineToTarget()).as("TARGET set and using configured engine do copy").isTrue();
+    assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using configured engine do copy").isTrue();
   }
-  
+
   @Test
-  public void startEngine_cache_cacheEngine() throws MojoExecutionException
+  public void startEngine_COPY_FROM_TEMPLATE_cacheEngine() throws MojoExecutionException
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.CACHE;
-    assertThat(mojo.engineToTarget()).as("CACHE set and using cached engine do copy").isTrue();
+    mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
+    assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using cached engine do copy").isTrue();
   }
-  
+
+  /**
+   * COPY_FROM_CACHE
+   * 1. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineDirectory} exists -> do not copy
+   * 2. If engine {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists -> do copy
+   */
   @Test
-  public void startEngine_cache_configuredEngine() throws MojoExecutionException
+  public void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException
   {
     StartTestEngineMojo mojo = rule.getMojo();
-    mojo.testEngineLocation = TestEngineLocation.CACHE;
+    mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
     mojo.engineDirectory = Files.createTempDir();
-    assertThat(mojo.engineToTarget()).as("CACHE set and using configured engine do not copy").isFalse();
+    assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using configured engine do not copy").isFalse();
   }
-  
+
+  @Test
+  public void startEngine_COPY_FROM_CACHE_cacheEngine() throws MojoExecutionException
+  {
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
+    assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using cached engine do copy").isTrue();
+  }
+
   @Test
   public void startEngine_copyEngineToTarget() throws Exception
   {
@@ -173,13 +189,44 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     Executor startedProcess = null;
     try
     {
-      mojo.testEngineLocation = TestEngineLocation.TARGET;
+      mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
       File engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
       
       assertThat(engineDirTarget).doesNotExist();
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+  
+  @Test
+  public void startEngine_targetDirectoryNotClean() throws Exception
+  {
+    LogCollector log = new LogCollector();
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.setLog(log);
+    
+    Executor startedProcess = null;
+    try
+    {
+      File engineDirTarget = mojo.getEngineDir(mojo.project);
+      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
+      
+      assertThat(engineDirTarget).doesNotExist();
+      assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
+
+      startedProcess = mojo.startEngine();
+      assertThat(engineDirTarget).exists();
+      assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
+      
+      kill(startedProcess);
+      startedProcess = mojo.startEngine();
+      assertThat(engineDirTarget).exists();
+      assertThat(log.getWarnings().toString()).contains("Skipping copy");
     }
     finally
     {
