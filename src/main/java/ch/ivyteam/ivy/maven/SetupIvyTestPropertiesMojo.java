@@ -18,6 +18,8 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -65,12 +67,16 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
       return;
     }
     
-    SharedFile shared = new SharedFile(project);
-    
-    File engineCp = shared.getEngineClasspathJar();
-    
     MavenProperties properties = new MavenProperties(project, getLog());
-    
+    setIvyProperties(properties);
+    configureMavenTestProperties(properties);
+    setTestOutputDirectory();
+  }
+
+  private void setIvyProperties(MavenProperties properties)
+  {
+    SharedFile shared = new SharedFile(project);
+    File engineCp = shared.getEngineClasspathJar();
     if (engineCp.exists())
     {
       properties.setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
@@ -81,18 +87,20 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     {
       properties.setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
     }
-    
-    configureMavenTestProperties();
   }
   
   /**
    * defines properties that are interpreted by maven-surefire.
    */
-  private void configureMavenTestProperties()
+  private void configureMavenTestProperties(MavenProperties properties)
   {
-    String surefireClasspath = "${"+IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}";
-    new MavenProperties(project, getLog()).setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
-    
+    List<String> IVY_PROPS = List.of(IVY_ENGINE_CLASSPATH_PROPERTY, IVY_PROJECT_IAR_CLASSPATH_PROPERTY);
+    String surefireClasspath = IVY_PROPS.stream().collect(Collectors.joining(",", "${", "}"));
+    properties.setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
+  }
+
+  private void setTestOutputDirectory()
+  {
     try
     {
       String testOutputDirectory = CompilerResult.load(project).getTestOutputDirectory();
