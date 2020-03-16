@@ -26,9 +26,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.engine.MavenProperties;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
+import ch.ivyteam.ivy.maven.util.MavenProperties;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**

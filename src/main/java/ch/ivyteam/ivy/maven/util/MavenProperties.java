@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ch.ivyteam.ivy.maven.engine;
+package ch.ivyteam.ivy.maven.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
@@ -22,9 +22,8 @@ import org.apache.maven.project.MavenProject;
 
 public class MavenProperties
 {
-
-  private MavenProject project;
-  private Log log;
+  private final MavenProject project;
+  private final Log log;
 
   public MavenProperties(MavenProject project, Log log)
   {
