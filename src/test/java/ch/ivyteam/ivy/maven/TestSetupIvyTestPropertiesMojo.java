@@ -29,6 +29,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.SetupIvyTestPropertiesMojo.Property;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
@@ -54,7 +55,7 @@ public class TestSetupIvyTestPropertiesMojo
   private String getEngineClasspathProperty()
   {
     return (String)rule.getMojo().project.getProperties()
-            .get(SetupIvyTestPropertiesMojo.IVY_ENGINE_CLASSPATH_PROPERTY);
+            .get(Property.IVY_ENGINE_CLASSPATH);
   }
 
   @Test
@@ -65,8 +66,8 @@ public class TestSetupIvyTestPropertiesMojo
     MavenProject project = rule.getMojo().project;
     assertThat(project.getBuild().getTestOutputDirectory())
       .isEqualTo(new File(project.getBasedir(), "classes-test").getAbsolutePath());
-    assertThat(project.getProperties().get(SetupIvyTestPropertiesMojo.MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY))
-      .isEqualTo("${"+SetupIvyTestPropertiesMojo.IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+SetupIvyTestPropertiesMojo.IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}");
+    assertThat(project.getProperties().get(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH))
+      .isEqualTo("${"+Property.IVY_ENGINE_CLASSPATH+"},${"+Property.IVY_PROJECT_IAR_CLASSPATH+"}");
   }
 
   @Rule

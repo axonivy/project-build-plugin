@@ -45,9 +45,13 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
 {
   public static final String GOAL = "ivy-test-properties";
   
-  public static final String IVY_ENGINE_CLASSPATH_PROPERTY = "ivy.engine.classpath";
-  public static final String IVY_PROJECT_IAR_CLASSPATH_PROPERTY = "ivy.project.iar.classpath";
-  public static final String MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY = "maven.test.additionalClasspath";
+  public static interface Property
+  {
+    String IVY_ENGINE_CLASSPATH = "ivy.engine.classpath";
+    String IVY_PROJECT_IAR_CLASSPATH = "ivy.project.iar.classpath";
+    
+    String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
+  }
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -79,13 +83,13 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     File engineCp = shared.getEngineClasspathJar();
     if (engineCp.exists())
     {
-      properties.setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
+      properties.setMavenProperty(Property.IVY_ENGINE_CLASSPATH, getClasspath(engineCp));
     }
 
     File iarCp = shared.getIarDependencyClasspathJar();
     if (iarCp.exists())
     {
-      properties.setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
+      properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
     }
   }
   
@@ -94,9 +98,13 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
    */
   private void configureMavenTestProperties(MavenProperties properties)
   {
-    List<String> IVY_PROPS = List.of(IVY_ENGINE_CLASSPATH_PROPERTY, IVY_PROJECT_IAR_CLASSPATH_PROPERTY);
-    String surefireClasspath = IVY_PROPS.stream().collect(Collectors.joining(",", "${", "}"));
-    properties.setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
+    List<String> IVY_PROPS = List.of(
+            Property.IVY_ENGINE_CLASSPATH, 
+            Property.IVY_PROJECT_IAR_CLASSPATH);
+    String surefireClasspath = IVY_PROPS.stream()
+            .map(property -> "${"+property+"}")
+            .collect(Collectors.joining(","));
+    properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
   }
 
   private void setTestOutputDirectory()
