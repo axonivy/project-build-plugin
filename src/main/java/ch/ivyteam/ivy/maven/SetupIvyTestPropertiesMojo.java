@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
@@ -41,7 +41,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @since 6.0.2
  */
 @Mojo(name = SetupIvyTestPropertiesMojo.GOAL)
-public class SetupIvyTestPropertiesMojo extends AbstractMojo
+public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "ivy-test-properties";
   
@@ -49,6 +49,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   {
     String IVY_ENGINE_CLASSPATH = "ivy.engine.classpath";
     String IVY_PROJECT_IAR_CLASSPATH = "ivy.project.iar.classpath";
+    String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";
     
     String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
   }
@@ -77,7 +78,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     setTestOutputDirectory();
   }
 
-  private void setIvyProperties(MavenProperties properties)
+  private void setIvyProperties(MavenProperties properties) throws MojoExecutionException
   {
     SharedFile shared = new SharedFile(project);
     File engineCp = shared.getEngineClasspathJar();
@@ -91,6 +92,23 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     {
       properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
     }
+    
+    File tstVmDir = createTestVmRuntime();
+    properties.setMavenProperty(Property.IVY_TEST_VM_RUNTIME, tstVmDir.getAbsolutePath());
+  }
+
+  private File createTestVmRuntime() throws MojoExecutionException
+  {
+    IvyTestRuntime testRuntime = new IvyTestRuntime();
+    testRuntime.setProductDir(identifyAndGetEngineDirectory());
+    try
+    {
+      return testRuntime.store(project);
+    } 
+    catch (IOException ex)
+    {
+      throw new MojoExecutionException("Failed to write ivy test vm settings.", ex);
+    }
   }
   
   /**
@@ -99,6 +117,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   private void configureMavenTestProperties(MavenProperties properties)
   {
     List<String> IVY_PROPS = List.of(
+            Property.IVY_TEST_VM_RUNTIME,
             Property.IVY_ENGINE_CLASSPATH, 
             Property.IVY_PROJECT_IAR_CLASSPATH);
     String surefireClasspath = IVY_PROPS.stream()
