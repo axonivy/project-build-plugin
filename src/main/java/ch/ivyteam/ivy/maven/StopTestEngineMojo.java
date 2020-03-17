@@ -83,7 +83,7 @@ public class StopTestEngineMojo extends AbstractIntegrationTestMojo
   public EngineControl createEngineController() throws MojoExecutionException
   {
     File engineDir = getEngineDir(project);
-    if (!engineDir.exists())
+    if (engineDir == null || !engineDir.exists())
     {
       engineDir = identifyAndGetEngineDirectory();
     }
