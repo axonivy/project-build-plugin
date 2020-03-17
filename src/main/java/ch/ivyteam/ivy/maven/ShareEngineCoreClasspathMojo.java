@@ -27,7 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
-import ch.ivyteam.ivy.maven.engine.MavenProperties;
+import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**
  * Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.

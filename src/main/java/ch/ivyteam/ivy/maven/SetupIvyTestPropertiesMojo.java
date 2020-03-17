@@ -18,6 +18,8 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,9 +28,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.engine.MavenProperties;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
+import ch.ivyteam.ivy.maven.util.MavenProperties;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -43,9 +45,13 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
 {
   public static final String GOAL = "ivy-test-properties";
   
-  public static final String IVY_ENGINE_CLASSPATH_PROPERTY = "ivy.engine.classpath";
-  public static final String IVY_PROJECT_IAR_CLASSPATH_PROPERTY = "ivy.project.iar.classpath";
-  public static final String MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY = "maven.test.additionalClasspath";
+  public static interface Property
+  {
+    String IVY_ENGINE_CLASSPATH = "ivy.engine.classpath";
+    String IVY_PROJECT_IAR_CLASSPATH = "ivy.project.iar.classpath";
+    
+    String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
+  }
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -65,34 +71,44 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
       return;
     }
     
-    SharedFile shared = new SharedFile(project);
-    
-    File engineCp = shared.getEngineClasspathJar();
-    
     MavenProperties properties = new MavenProperties(project, getLog());
-    
+    setIvyProperties(properties);
+    configureMavenTestProperties(properties);
+    setTestOutputDirectory();
+  }
+
+  private void setIvyProperties(MavenProperties properties)
+  {
+    SharedFile shared = new SharedFile(project);
+    File engineCp = shared.getEngineClasspathJar();
     if (engineCp.exists())
     {
-      properties.setMavenProperty(IVY_ENGINE_CLASSPATH_PROPERTY, getClasspath(engineCp));
+      properties.setMavenProperty(Property.IVY_ENGINE_CLASSPATH, getClasspath(engineCp));
     }
 
     File iarCp = shared.getIarDependencyClasspathJar();
     if (iarCp.exists())
     {
-      properties.setMavenProperty(IVY_PROJECT_IAR_CLASSPATH_PROPERTY, getClasspath(iarCp));
+      properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
     }
-    
-    configureMavenTestProperties();
   }
   
   /**
    * defines properties that are interpreted by maven-surefire.
    */
-  private void configureMavenTestProperties()
+  private void configureMavenTestProperties(MavenProperties properties)
   {
-    String surefireClasspath = "${"+IVY_ENGINE_CLASSPATH_PROPERTY+"}, ${"+IVY_PROJECT_IAR_CLASSPATH_PROPERTY+"}";
-    new MavenProperties(project, getLog()).setMavenProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH_PROPERTY, surefireClasspath);
-    
+    List<String> IVY_PROPS = List.of(
+            Property.IVY_ENGINE_CLASSPATH, 
+            Property.IVY_PROJECT_IAR_CLASSPATH);
+    String surefireClasspath = IVY_PROPS.stream()
+            .map(property -> "${"+property+"}")
+            .collect(Collectors.joining(","));
+    properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
+  }
+
+  private void setTestOutputDirectory()
+  {
     try
     {
       String testOutputDirectory = CompilerResult.load(project).getTestOutputDirectory();

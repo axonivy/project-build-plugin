@@ -22,6 +22,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.MavenProperties;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class EngineMojoContext
