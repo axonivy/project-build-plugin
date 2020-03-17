@@ -103,11 +103,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
     testRuntime.setProductDir(identifyAndGetEngineDirectory());
     try
     {
-      File target = new File(project.getBuild().getOutputDirectory()).getParentFile();
-      File tstVmDir = new File(target, "ivyTestVm");
-      tstVmDir.mkdir();
-      testRuntime.store(tstVmDir);
-      return tstVmDir;
+      return testRuntime.store(project);
     } 
     catch (IOException ex)
     {
