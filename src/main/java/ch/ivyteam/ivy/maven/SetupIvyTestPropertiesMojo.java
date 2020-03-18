@@ -18,6 +18,8 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,12 +27,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
+import ch.ivyteam.ivy.maven.util.MavenRuntime;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -40,7 +44,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 6.0.2
  */
-@Mojo(name = SetupIvyTestPropertiesMojo.GOAL)
+@Mojo(name = SetupIvyTestPropertiesMojo.GOAL, requiresDependencyResolution=ResolutionScope.TEST)
 public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "ivy-test-properties";
@@ -101,6 +105,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
   {
     IvyTestRuntime testRuntime = new IvyTestRuntime();
     testRuntime.setProductDir(identifyAndGetEngineDirectory());
+    testRuntime.setProjectLocations(getProjects());
     try
     {
       return testRuntime.store(project);
@@ -109,6 +114,16 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
     {
       throw new MojoExecutionException("Failed to write ivy test vm settings.", ex);
     }
+  }
+
+  private List<URI> getProjects()
+  {
+    List<File> deps = new ArrayList<>();
+    deps.add(project.getBasedir());
+    deps.addAll(MavenRuntime.getDependencies(project, "iar"));
+    return deps.stream()
+            .map(file -> file.toURI())
+            .collect(Collectors.toList());
   }
   
   /**

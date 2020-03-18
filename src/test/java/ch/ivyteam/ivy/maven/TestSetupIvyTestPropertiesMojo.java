@@ -79,7 +79,7 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest
   }
   
   @Test
-  public void productDirKnownInTestVm() throws Exception
+  public void ivyTestRuntimeClasspathResource() throws Exception
   {
     rule.getMojo().execute();
     
@@ -94,6 +94,8 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest
       props.load(is);
     }
     assertThat(props.getProperty(Key.PRODUCT_DIR)).isNotEmpty();
+    assertThat(props.getProperty(Key.PROJECT_LOCATIONS))
+      .isEqualTo("<"+rule.getMojo().project.getBasedir().toURI()+">");
   }
 
   @Rule

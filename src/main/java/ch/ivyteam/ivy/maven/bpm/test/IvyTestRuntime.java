@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.maven.project.MavenProject;
 
@@ -15,6 +18,7 @@ public class IvyTestRuntime
   public static interface Key
   {
     String PRODUCT_DIR = "product.dir";
+    String PROJECT_LOCATIONS = "project.locations";
   }
   
   private final Properties props = new Properties();
@@ -22,6 +26,16 @@ public class IvyTestRuntime
   public void setProductDir(File engineDir)
   {
     props.put(Key.PRODUCT_DIR, engineDir.getAbsolutePath());
+  }
+  
+  public void setProjectLocations(List<URI> locations)
+  {
+    var joinedUris = locations
+        .stream()
+        .map(URI::toASCIIString)
+        .map(uri -> "<"+uri+">") // RFC 3986 Appendix C
+        .collect(Collectors.joining(", "));
+    props.setProperty(Key.PROJECT_LOCATIONS, joinedUris);
   }
   
   public File store(MavenProject project) throws IOException
