@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -67,7 +69,10 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
    */
   @Parameter(defaultValue="false", property="maven.test.skip")
   boolean skipTest;
-
+  
+  @Component
+  private MavenSession session;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -120,7 +125,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
   {
     List<File> deps = new ArrayList<>();
     deps.add(project.getBasedir());
-    deps.addAll(MavenRuntime.getDependencies(project, "iar"));
+    deps.addAll(MavenRuntime.getDependencies(project, session, "iar"));
     return deps.stream()
             .map(file -> file.toURI())
             .collect(Collectors.toList());
