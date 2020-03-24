@@ -22,6 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -199,9 +201,37 @@ public class EngineControl
     {
       String url = StringUtils.substringBetween(newLine, "http://", "/");
       url = "http://" + url + "/";
+      url += evaluateDefaultContext(url);
       context.log.info("Axon.ivy Engine runs on : " + url);
       context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
       engineStarted.set(true);
+    }
+  }
+
+  private String evaluateDefaultContext(String url)
+  {
+    HttpURLConnection connection = null;
+    try
+    {
+      connection = (HttpURLConnection) new URL(url).openConnection();
+      connection.setRequestMethod("GET");
+      connection.setInstanceFollowRedirects(false);
+      connection.getResponseCode();
+      String location = connection.getHeaderField("Location");
+      String defaultContext = StringUtils.removeEnd(location, "/sys/info.xhtml");
+      return StringUtils.isBlank(defaultContext) ? defaultContext : defaultContext + "/";
+    }
+    catch (IOException ex)
+    {
+      context.log.info("Couldn't evaluate default context of engine > use 'ivy/'");
+      return "ivy/";
+    }
+    finally 
+    {
+      if (connection != null)
+      {
+        connection.disconnect();
+      }
     }
   }
 
