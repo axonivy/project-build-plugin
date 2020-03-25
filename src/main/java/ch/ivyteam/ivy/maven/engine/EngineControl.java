@@ -22,8 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -207,32 +211,33 @@ public class EngineControl
       engineStarted.set(true);
     }
   }
-
+  
   private String evaluateDefaultContext(String url)
   {
-    HttpURLConnection connection = null;
+    context.log.debug("Call '" + url + "' to evaluate the default context");
+    var client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).build();
+    var request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+    var result = "ivy/";
     try
     {
-      connection = (HttpURLConnection) new URL(url).openConnection();
-      connection.setRequestMethod("GET");
-      connection.setInstanceFollowRedirects(false);
-      connection.getResponseCode();
-      String location = connection.getHeaderField("Location");
-      String defaultContext = StringUtils.removeEnd(location, "/sys/info.xhtml");
-      return StringUtils.isBlank(defaultContext) ? defaultContext : defaultContext + "/";
+      HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+      result = response.headers().firstValue("Location").map(location -> {
+        context.log.debug("'" + url + "' returns location header: " + location);
+        String defaultContext = evaluateIvyContextFromUrl(location);
+        context.log.debug("Evalutate '" + defaultContext + "' as default context");
+        return defaultContext;
+      }).orElse(result);
     }
-    catch (IOException ex)
+    catch (IOException | InterruptedException ex)
     {
-      context.log.info("Couldn't evaluate default context of engine > use 'ivy/'");
-      return "ivy/";
+      context.log.warn("Couldn't evaluate default context of engine > use 'ivy/'");
     }
-    finally 
-    {
-      if (connection != null)
-      {
-        connection.disconnect();
-      }
-    }
+    return result;
+  }
+  
+  static String evaluateIvyContextFromUrl(String location)
+  {
+    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys/");
   }
 
   private void waitForEngineStart(Executor executor) throws Exception
