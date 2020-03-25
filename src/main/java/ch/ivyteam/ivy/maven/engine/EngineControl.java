@@ -203,8 +203,7 @@ public class EngineControl
   {
     if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
     {
-      String url = StringUtils.substringBetween(newLine, "http://", "/");
-      url = "http://" + url + "/";
+      String url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
       url += evaluateDefaultContext(url);
       context.log.info("Axon.ivy Engine runs on : " + url);
       context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
