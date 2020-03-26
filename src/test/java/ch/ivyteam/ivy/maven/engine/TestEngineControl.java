@@ -61,4 +61,14 @@ public class TestEngineControl extends BaseEngineProjectMojoTest
     assertThat(log.getErrors()).isEmpty();
   }
   
+  @Test
+  public void evalutateIvyContext()
+  {
+    assertThat(EngineControl.evaluateIvyContextFromUrl("sys/info.xhtml")).isEmpty();
+    assertThat(EngineControl.evaluateIvyContextFromUrl("/sys/info123.xhtml")).isEmpty();
+    assertThat(EngineControl.evaluateIvyContextFromUrl("ivy/sys/info")).isEqualTo("ivy/");
+    assertThat(EngineControl.evaluateIvyContextFromUrl("/ivy/sys/test")).isEqualTo("ivy/");
+    assertThat(EngineControl.evaluateIvyContextFromUrl("")).isEmpty();
+  }
+  
 }

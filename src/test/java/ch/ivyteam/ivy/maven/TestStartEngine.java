@@ -54,7 +54,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     try
     {
       startedProcess = mojo.startEngine();
-      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://");
+      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://")
+              .endsWith("/ivy/");
       assertThat(new File(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     }
     finally
