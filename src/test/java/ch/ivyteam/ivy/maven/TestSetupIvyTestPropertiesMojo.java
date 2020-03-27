@@ -20,22 +20,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.SetupIvyTestPropertiesMojo.Property;
+import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
+import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime.Key;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
-public class TestSetupIvyTestPropertiesMojo
+public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest
 {
   @Test
   public void engineClasspathIsSharedAsProperty() throws Exception
@@ -67,13 +73,41 @@ public class TestSetupIvyTestPropertiesMojo
     assertThat(project.getBuild().getTestOutputDirectory())
       .isEqualTo(new File(project.getBasedir(), "classes-test").getAbsolutePath());
     assertThat(project.getProperties().get(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH))
-      .isEqualTo("${"+Property.IVY_ENGINE_CLASSPATH+"},${"+Property.IVY_PROJECT_IAR_CLASSPATH+"}");
+      .isEqualTo("${"+Property.IVY_TEST_VM_RUNTIME+"},"
+              + "${"+Property.IVY_ENGINE_CLASSPATH+"},"
+              + "${"+Property.IVY_PROJECT_IAR_CLASSPATH+"}");
+  }
+  
+  @Test
+  public void ivyTestRuntimeClasspathResource() throws Exception
+  {
+    rule.getMojo().execute();
+    
+    MavenProject project = rule.getMojo().project;
+    String vmRtEntry = project.getProperties().getProperty(Property.IVY_TEST_VM_RUNTIME);
+    Properties props = new Properties();
+    try(
+      URLClassLoader loader = new URLClassLoader(new URL[]{new File(vmRtEntry).toURI().toURL()}, null);
+      InputStream is = loader.getResourceAsStream(IvyTestRuntime.RUNTIME_PROPS_RESOURCE)
+    )
+    {
+      props.load(is);
+    }
+    assertThat(props.getProperty(Key.PRODUCT_DIR)).isNotEmpty();
+    assertThat(props.getProperty(Key.PROJECT_LOCATIONS))
+      .isEqualTo("<"+rule.getMojo().project.getBasedir().toURI()+">");
   }
 
   @Rule
-  public ProjectMojoRule<SetupIvyTestPropertiesMojo> rule = new ProjectMojoRule<SetupIvyTestPropertiesMojo>(
-          new File("src/test/resources/base"), SetupIvyTestPropertiesMojo.GOAL)
+  public ProjectMojoRule<SetupIvyTestPropertiesMojo> rule = new TestPropertyMojoRule();
+
+  private static class TestPropertyMojoRule extends EngineMojoRule<SetupIvyTestPropertiesMojo>
   {
+    private TestPropertyMojoRule()
+    {
+      super(SetupIvyTestPropertiesMojo.GOAL);
+    }
+    
     @Override
     protected void before() throws Throwable
     {
@@ -84,7 +118,7 @@ public class TestSetupIvyTestPropertiesMojo
 
     private void writeTestClasspathJar() throws IOException
     {
-      File classPathJar = new SharedFile(rule.getMojo().project).getEngineClasspathJar();
+      File classPathJar = new SharedFile(getMojo().project).getEngineClasspathJar();
       new ClasspathJar(classPathJar).createFileEntries(Arrays.asList(
               Files.createTempFile("dummy", ".jar").toFile(),
               Files.createTempFile("dummy2", ".jar").toFile()));
@@ -94,8 +128,7 @@ public class TestSetupIvyTestPropertiesMojo
     {
       Map<String, Object> result = new HashMap<>();
       result.put(MavenProjectBuilderProxy.Result.TEST_OUTPUT_DIR, "classes-test");
-      CompilerResult.store(result, rule.getMojo().project);
+      CompilerResult.store(result, getMojo().project);
     }
-  };
-
+  }
 }
