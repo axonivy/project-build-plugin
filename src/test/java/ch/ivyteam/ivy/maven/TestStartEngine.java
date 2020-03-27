@@ -235,6 +235,36 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
   }
 
+  @Test
+  public void startEngine_copiedEngine_executable() throws Exception
+  {
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
+    Executor startedProcess = null;
+    try
+    {
+      File cacheEngine = mojo.engineDirectory;
+      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch.bat"));
+
+      startedProcess = mojo.startEngine();
+      
+      File engineTarget = mojo.getEngineDir(mojo.project);
+      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch.bat"));
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+
+  private void assertFileExecutable(File file)
+  {
+    assertThat(file).exists();
+    assertThat(file.canExecute()).isTrue();
+  }
+
   private static void kill(Executor startedProcess)
   {
     if (startedProcess != null)
