@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -142,18 +143,21 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
 
   public void copyEngine(Path src, Path dest) throws IOException
   {
-    Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+    try(Stream<Path> walk = Files.walk(src))
+    {
+      walk.forEach(source -> copyFile(source, dest.resolve(src.relativize(source))));
+    }
   }
 
-  private void copy(Path source, Path dest)
+  private void copyFile(Path source, Path dest)
   {
     try
     {
       Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES);
     }
-    catch (Exception e)
+    catch (Exception ex)
     {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new RuntimeException(ex);
     }
   }
 }
