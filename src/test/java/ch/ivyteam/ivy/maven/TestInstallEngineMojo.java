@@ -17,7 +17,6 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -346,7 +345,9 @@ public class TestInstallEngineMojo
   public void testDefaultListPage_isAvailable() throws Exception
   {
     boolean run = Boolean.parseBoolean(System.getProperty("run.public.download.test"));
-    assumeTrue("SKIPPING test 'testDefaultListPage_isAvailable'", run);
+    if (!run) {
+    	return;
+    }
 
     String engineUrl = getUrlDownloader().findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
