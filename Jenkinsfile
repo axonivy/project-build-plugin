@@ -110,4 +110,5 @@ def collectBuildArtifacts()  {
   archiveArtifacts 'target/*.jar'
   junit '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], unstableTotalAll: 1
+  recordIssues tools: [eclipse()], unstableTotalAll: 1
 }
