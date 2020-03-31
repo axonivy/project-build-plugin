@@ -39,7 +39,6 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-
             def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
@@ -53,9 +52,8 @@ pipeline {
           if (env.BRANCH_NAME == 'master') {
             maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
           }
+          collectBuildArtifacts()
         }
-        archiveArtifacts 'target/*.jar'
-        junit '**/target/surefire-reports/**/*.xml'
       }
     }
     
@@ -65,7 +63,6 @@ pipeline {
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
-
         script {
           def nextDevVersionParam = createNextDevVersionJVMParam()
           setupGPGEnvironment()
@@ -73,7 +70,6 @@ pipeline {
           sh "git config --global user.email 'nobody@axonivy.com'"
           
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
                 maven cmd: "clean verify release:prepare release:perform " +
@@ -86,9 +82,8 @@ pipeline {
               }
             }
           }
+          collectBuildArtifacts()
         }
-        archiveArtifacts 'target/*.jar'
-        junit '**/target/surefire-reports/**/*.xml'
       }
     }
   }
@@ -109,4 +104,9 @@ def setupGPGEnvironment() {
   withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
     sh "gpg --batch --import ${env.GPG_FILE}"
   }
+}
+
+def collectBuildArtifacts()  {
+  archiveArtifacts 'target/*.jar'
+  junit '**/target/surefire-reports/**/*.xml'
 }
