@@ -40,7 +40,7 @@ pipeline {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
 
-            def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
+            def phase = env.BRANCH_NAME == '8.0' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -50,9 +50,6 @@ pipeline {
               "-Dmaven.test.failure.ignore=true"
 
           }
-          if (env.BRANCH_NAME == 'master') {
-            maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
-          }
         }
         archiveArtifacts 'target/*.jar'
         junit '**/target/surefire-reports/**/*.xml'
@@ -61,7 +58,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch 'master'
+        branch '8.0'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
