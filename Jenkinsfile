@@ -111,7 +111,8 @@ def collectBuildArtifacts()  {
   junit '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], unstableTotalAll: 1, filters: [
     excludeType('site-maven-plugin:site'),
-    excludeType('sonar-maven-plugin:sonar')
+    excludeType('sonar-maven-plugin:sonar'),
+    excludeType('maven-surefire-plugin:test')
   ]
   recordIssues tools: [eclipse()], unstableTotalAll: 1
 }
