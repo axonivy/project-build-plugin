@@ -43,9 +43,7 @@ public class TestIarPackagingMojo
 {
   
   @Rule
-  public ProjectMojoRule<IarPackagingMojo> rule = 
-    new ProjectMojoRule<IarPackagingMojo>(
-            new File("src/test/resources/base"), IarPackagingMojo.GOAL)
+  public ProjectMojoRule<IarPackagingMojo> rule = new ProjectMojoRule<IarPackagingMojo>(new File("src/test/resources/base"), IarPackagingMojo.GOAL)
     {
       @Override
       protected void before() throws Throwable 
@@ -56,8 +54,7 @@ public class TestIarPackagingMojo
 
       private void createEmptySrcDirs() throws IOException
       {
-        List<String> emptySrcDirNames = Arrays.asList(
-                "src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
+        List<String> emptySrcDirNames = Arrays.asList("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
         for(String emptySrcDirName : emptySrcDirNames)
         {
           File srcDir = new File(projectDir, emptySrcDirName);
@@ -66,7 +63,7 @@ public class TestIarPackagingMojo
         }
       }
     };
-  
+
   /**
    * Happy path creation tests
    * @throws Exception
@@ -86,16 +83,19 @@ public class TestIarPackagingMojo
     assertThat(mojo.project.getArtifact().getFile())
       .as("Created IAR must be registered as artifact for later repository installation.").isEqualTo(iarFile);
     
-    try(ZipFile archive = new ZipFile(iarFile))
+    try (ZipFile archive = new ZipFile(iarFile))
     {
       assertThat(archive.getEntry(".classpath")).as(".classpath must be packed for internal binary retrieval").isNotNull();
       assertThat(archive.getEntry("src_hd")).as("Empty directories should be included (by default) "
               + "so that the IAR can be re-imported into the designer").isNotNull();
-      assertThat(archive.getEntry("target/sampleOutput.txt")).as("'target' folder should not be packed").isNull();
-      assertThat(archive.getEntry("target")).as("'target'folder should not be packed").isNull();
+      assertThat(archive.getEntry("target/sampleOutput.txt")).as("'target/sampleOutput.txt' should not be packed").isNull();
+      assertThat(archive.getEntry("target")).as("'target' must be packed because there are target/classes").isNotNull();
       assertThat(archive.getEntry(".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(archive.getEntry(".svn")).as("'target'.svn should not be packed").isNull();
       assertThat(archive.getEntry("classes/gugus.txt")).as("classes content should be included by default").isNotNull();
+      assertThat(archive.getEntry("target/classes/gugus.txt")).as("target/classes content should be included by default").isNotNull();
+      assertThat(archive.getEntry("target/classesAnother/gugus.txt")).as("target/classesAnother should not be packed by default").isNull();
+      assertThat(archive.getEntry("target/anythingelse/gugus.txt")).as("target/anythingelse should not be packed by default").isNull();
     }
   }
   
@@ -182,4 +182,21 @@ public class TestIarPackagingMojo
     }
   }
   
+  @Test
+  public void doNotPackTargetFolderIfThereAreNoTargetClasses() throws Exception
+  {
+    IarPackagingMojo mojo = rule.getMojo();
+    File targetClasses = new File(mojo.project.getBasedir(), "target/classes");
+    FileUtils.deleteDirectory(targetClasses);
+    mojo.execute();
+
+    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"), new String[]{"iar"}, false);
+    assertThat(iarFiles).hasSize(1);
+
+    File iarFile = iarFiles.iterator().next();
+    try (ZipFile archive = new ZipFile(iarFile))
+    {
+      assertThat(archive.getEntry("target")).as("'target' will not be packed when there are no target/classes").isNull();
+    }
+  }
 }
