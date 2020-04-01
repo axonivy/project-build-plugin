@@ -47,7 +47,7 @@ public class IarPackagingMojo extends AbstractMojo
 {
   public static final String GOAL = "pack-iar";
   private static final String[] DEFAULT_INCLUDES = new String[] {"**/*"};
-  private static final String[] DEFAULT_EXCLUDES = new String[] {"target", "target/**/*"};
+  private static final String[] DEFAULT_EXCLUDES = new String[] {"target", "%regex[target\\/(?!classes/).*]"};
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -61,7 +61,7 @@ public class IarPackagingMojo extends AbstractMojo
    * <li>
    * <pre><code>&lt;iarExcludes&gt;
    *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
-   *    &lt;iarExclude&gt;target&lt;/iarExclude&gt;
+   *    &lt;iarExclude&gt;%regex[target\/(?!classes/).*]&lt;/iarExclude&gt;
    *&lt;/iarExcludes&gt;</code></pre></li>
    *</ul>
    */
@@ -113,6 +113,7 @@ public class IarPackagingMojo extends AbstractMojo
       archiver.addFileSet(fs);
     }
     archiver.addFileSet(getDefaultFileset(sourceDir));
+
     try
     {
       archiver.createArchive();
