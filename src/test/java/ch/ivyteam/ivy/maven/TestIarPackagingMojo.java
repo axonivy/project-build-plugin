@@ -32,6 +32,8 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.FileSet;
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.MatchPattern;
+import org.codehaus.plexus.util.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -197,6 +199,28 @@ public class TestIarPackagingMojo
     try (ZipFile archive = new ZipFile(iarFile))
     {
       assertThat(archive.getEntry("target")).as("'target' will not be packed when there are no target/classes").isNull();
+    }
+  }
+
+  @Test
+  public void validDefaultExcludePatternsForWindows()
+  {
+    for (var defaultExclude : IarPackagingMojo.DEFAULT_EXCLUDES)
+    {
+      defaultExclude = StringUtils.replace(defaultExclude, "/", "\\\\"); // see org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
+      var matchPattern  = MatchPattern.fromString(defaultExclude);
+      assertThat(matchPattern.matchPath("never-matching-path", false)).isFalse();
+    }
+  }
+
+  @Test
+  public void validDefaultExcludePatternsForLinux()
+  {
+    for (var defaultExclude : IarPackagingMojo.DEFAULT_EXCLUDES)
+    {
+      defaultExclude = StringUtils.replace(defaultExclude, "\\\\", "/" ); // see org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
+      var matchPattern  = MatchPattern.fromString(defaultExclude);
+      assertThat(matchPattern.matchPath("never-matching-path", false)).isFalse();
     }
   }
 }
