@@ -18,12 +18,9 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +36,7 @@ import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.util.MavenRuntime;
 
 public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 {
@@ -192,21 +190,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 
   protected final List<File> getDependencies(String type)
   {
-    Set<org.apache.maven.artifact.Artifact> dependencies = project.getArtifacts();
-    if (dependencies == null)
-    {
-      return Collections.emptyList();
-    }
-    
-    List<File> dependentIars = new ArrayList<>();
-    for(org.apache.maven.artifact.Artifact artifact : dependencies)
-    {
-      if (artifact.getType().equals(type))
-      {
-        dependentIars.add(artifact.getFile());
-      }
-    }
-    return dependentIars;
+    return MavenRuntime.getDependencies(project, type);
   }
 
 }
