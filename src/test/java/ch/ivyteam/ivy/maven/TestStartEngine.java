@@ -50,7 +50,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     {
       startedProcess = mojo.startEngine();
       assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://")
-              .endsWith("/ivy/");
+              .endsWith("/");
       assertThat(new File(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     }
     finally
