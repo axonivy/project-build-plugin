@@ -284,6 +284,13 @@ public class DeployToEngineMojo extends AbstractIntegrationTestMojo
   private void deployToDirectory(File resolvedOptionsFile) throws MojoExecutionException
   {
     File deployDir = getDeployDirectory();
+    if (deployEngineDirectory == null)
+    {
+      getLog().warn("Skipping deployment, target engine could not be evaluated." +
+              "Please configure an existing engine to deploy to with argument <deployEngineDirectory>.");
+      return;
+    }
+
     if (!deployDir.exists())
     {
       getLog().warn("Skipping deployment to engine '"+deployEngineDirectory+"'. The directory '"+deployDir+"' does not exist.");
