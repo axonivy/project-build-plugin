@@ -236,7 +236,7 @@ public class EngineControl
   
   static String evaluateIvyContextFromUrl(String location)
   {
-    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys/");
+    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
   }
 
   private void waitForEngineStart(Executor executor) throws Exception
