@@ -31,7 +31,7 @@ import org.apache.maven.settings.Server;
 
 public class HttpDeployer
 {
-  private static final String DEPLOY_URI = "/api/system/apps/";
+  private static final String DEPLOY_URI = "/system/api/apps/";
   private String serverUrl;
   private String targetApplication;
   private File deployFile;
