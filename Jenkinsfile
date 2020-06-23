@@ -18,7 +18,7 @@ pipeline {
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
-      choices: ['zugpronexus.snapshots', 'sonatype.snapshots', 'maven.central.release'])
+      choices: ['sonatype.snapshots', 'maven.central.release'])
   }
 
   stages {

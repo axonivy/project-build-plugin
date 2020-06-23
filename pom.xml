@@ -50,21 +50,10 @@
 
 	<profiles>
 		<profile>
-            <id>zugpronexus.snapshots</id>
-			<distributionManagement>
-				<snapshotRepository>
-			      <id>zugpronexus.snapshots</id>
-			      <name>Internal Plugin Snapshot Repository</name>
-			      <url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-snapshots/</url>
-			    </snapshotRepository>
-			</distributionManagement>
-		</profile>
-		<profile>
             <id>sonatype.snapshots</id>
 			<distributionManagement>
 				<snapshotRepository>
-					<id>sonatype.snapshots</id>
-					<name>Maven Central Snapshots Repo</name>
+					<id>sonatype.snapshots</id>			
 					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 				</snapshotRepository>
 			</distributionManagement>
@@ -74,7 +63,6 @@
           <distributionManagement>
               <repository>
                   <id>sonatype.releases</id>
-                  <name>Sonatype Releases Repo</name>
                   <url>https://oss.sonatype.org/content/repositories/releases/</url>
               </repository>
           </distributionManagement>
