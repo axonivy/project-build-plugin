@@ -22,5 +22,32 @@
 				</phases>
 			</configuration>
 		</component>
+		<component>
+			<role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+			<role-hint>iar-enginetest</role-hint>
+			<implementation>
+				org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+			</implementation>
+			<configuration>
+				<phases>
+					<initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
+					<compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+					<test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
+					<test>
+						com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
+						org.apache.maven.plugins:maven-surefire-plugin:test
+					</test>
+					<package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
+					<pre-integration-test>
+						com.axonivy.ivy.ci:project-build-plugin:start-test-engine,
+						com.axonivy.ivy.ci:project-build-plugin:deploy-to-engine
+					</pre-integration-test>
+					<integration-test>org.apache.maven.plugins:maven-surefire-plugin:test</integration-test>
+					<post-integration-test>com.axonivy.ivy.ci:project-build-plugin:stop-test-engine</post-integration-test>
+					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
+					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+				</phases>
+			</configuration>
+		</component>
 	</components>
 </component-set>
