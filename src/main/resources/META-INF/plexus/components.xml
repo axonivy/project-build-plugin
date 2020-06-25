@@ -42,8 +42,9 @@
 						com.axonivy.ivy.ci:project-build-plugin:start-test-engine,
 						com.axonivy.ivy.ci:project-build-plugin:deploy-to-test-engine
 					</pre-integration-test>
-					<integration-test>org.apache.maven.plugins:maven-surefire-plugin:test</integration-test>
+					<integration-test>org.apache.maven.plugins:maven-failsafe-plugin:integration-test</integration-test>
 					<post-integration-test>com.axonivy.ivy.ci:project-build-plugin:stop-test-engine</post-integration-test>
+					<verify>org.apache.maven.plugins:maven-failsafe-plugin:verify</verify>
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
 				</phases>
