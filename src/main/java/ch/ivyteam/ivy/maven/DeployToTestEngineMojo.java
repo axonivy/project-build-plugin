@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
+import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**
  * <p>Deploys a set of test projects (iar) or a full application (set of projects as zip) to a running test engine.</p>
@@ -33,6 +34,11 @@ import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 public class DeployToTestEngineMojo extends AbstractDeployMojo
 {
   public static final String TEST_GOAL = "deploy-to-test-engine";
+  
+  public static interface Property
+  {
+    String TEST_ENGINE_APP = "test.engine.app";
+  }
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -46,6 +52,8 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
       deployToEngineApplication = project.getArtifactId();
       getLog().info("Using '"+deployToEngineApplication+"' as target app.");
     }
+    var props = new MavenProperties(project, getLog());
+    props.set(Property.TEST_ENGINE_APP, deployToEngineApplication);
     
     deployTestApp();
   }

@@ -42,7 +42,10 @@
 						com.axonivy.ivy.ci:project-build-plugin:start-test-engine,
 						com.axonivy.ivy.ci:project-build-plugin:deploy-to-test-engine
 					</pre-integration-test>
-					<integration-test>org.apache.maven.plugins:maven-failsafe-plugin:integration-test</integration-test>
+					<integration-test>
+						com.axonivy.ivy.ci:project-build-plugin:ivy-integration-test-properties,
+						org.apache.maven.plugins:maven-failsafe-plugin:integration-test
+					</integration-test>
 					<post-integration-test>com.axonivy.ivy.ci:project-build-plugin:stop-test-engine</post-integration-test>
 					<verify>org.apache.maven.plugins:maven-failsafe-plugin:verify</verify>
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
