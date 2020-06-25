@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import ch.ivyteam.ivy.maven.DeployToEngineMojo;
+import ch.ivyteam.ivy.maven.AbstractDeployMojo;
 import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
 
 /**
@@ -19,16 +19,17 @@ import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
  */
 public class YamlOptionsFactory
 {
+  private static YAMLFactory yamlFactory = initYamlFactory();
 
-  private static YAMLFactory yamlFactory;
-  static
+  private static YAMLFactory initYamlFactory()
   {
-    yamlFactory = new YAMLFactory();
-    yamlFactory.configure(MINIMIZE_QUOTES, true);
-    yamlFactory.configure(WRITE_DOC_START_MARKER, false);
+    YAMLFactory factory = new YAMLFactory();
+    factory.configure(MINIMIZE_QUOTES, true);
+    factory.configure(WRITE_DOC_START_MARKER, false);
+    return factory;
   }
 
-  public static String toYaml(DeployToEngineMojo config) throws IOException
+  public static String toYaml(AbstractDeployMojo config) throws IOException
   {
     StringWriter writer = new StringWriter();
     JsonGenerator gen = yamlFactory.createGenerator(writer);
@@ -49,7 +50,7 @@ public class YamlOptionsFactory
     return yaml;
   }
 
-  private static void writeTestUsers(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  private static void writeTestUsers(AbstractDeployMojo config, JsonGenerator gen) throws IOException
   {
     String deployTestUsers = config.deployTestUsers;
     if (!DefaultDeployOptions.DEPLOY_TEST_USERS.equalsIgnoreCase(deployTestUsers))
@@ -58,7 +59,7 @@ public class YamlOptionsFactory
     }
   }
   
-  private static void writeConfig(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  private static void writeConfig(AbstractDeployMojo config, JsonGenerator gen) throws IOException
   {
     boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(config.deployConfigCleanup);
     if (config.deployConfigOverwrite || !defaultCleanup)
@@ -77,7 +78,7 @@ public class YamlOptionsFactory
     }
   }
 
-  private static void writeTarget(DeployToEngineMojo config, JsonGenerator gen) throws IOException
+  private static void writeTarget(AbstractDeployMojo config, JsonGenerator gen) throws IOException
   {
     boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);
     boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(config.deployTargetState);
