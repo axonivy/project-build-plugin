@@ -40,7 +40,7 @@
 					<package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
 					<pre-integration-test>
 						com.axonivy.ivy.ci:project-build-plugin:start-test-engine,
-						com.axonivy.ivy.ci:project-build-plugin:deploy-to-engine
+						com.axonivy.ivy.ci:project-build-plugin:deploy-to-test-engine
 					</pre-integration-test>
 					<integration-test>org.apache.maven.plugins:maven-surefire-plugin:test</integration-test>
 					<post-integration-test>com.axonivy.ivy.ci:project-build-plugin:stop-test-engine</post-integration-test>
