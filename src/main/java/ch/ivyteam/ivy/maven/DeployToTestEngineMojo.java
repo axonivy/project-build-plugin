@@ -17,20 +17,27 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
+import ch.ivyteam.ivy.maven.util.MavenRuntime;
 
 /**
  * <p>Deploys a set of test projects (iar) or a full application (set of projects as zip) to a running test engine.</p>
  *
  * @since 9.1.0
  */
-@Mojo(name = DeployToTestEngineMojo.TEST_GOAL, requiresProject=true)
+@Mojo(name = DeployToTestEngineMojo.TEST_GOAL, requiresDependencyResolution=ResolutionScope.TEST)
 public class DeployToTestEngineMojo extends AbstractDeployMojo
 {
   public static final String TEST_GOAL = "deploy-to-test-engine";
@@ -39,6 +46,12 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
   {
     String TEST_ENGINE_APP = "test.engine.app";
   }
+  
+  /** If set to <code>true</code>, the 'deployFile' will automatically be replaced with an ZIP file 
+   * that contains all IAR dependencies of the project. <br/>
+   * This change will only be applied if 'deployFile' has it's default value and at least one IAR dependency has been declared. */
+  @Parameter(property="ivy.deploy.deps.as.app", defaultValue="true")
+  boolean deployDepsAsApp;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -55,7 +68,44 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
     var props = new MavenProperties(project, getLog());
     props.set(Property.TEST_ENGINE_APP, deployToEngineApplication);
     
+    boolean isDefaultFile = deployFile.getName().endsWith(project.getArtifactId()+"-"+project.getVersion()+".iar");
+    if (isDefaultFile && deployDepsAsApp)
+    {
+      provideDepsAsAppZip();
+    }
+    
     deployTestApp();
+  }
+
+  private void provideDepsAsAppZip()
+  {
+    List<File> deps = MavenRuntime.getDependencies(project, session, "iar");
+    if (deps.isEmpty())
+    {
+      return;
+    }
+    
+    deps.add(deployFile);
+    try
+    {
+      File appZip = createFullAppZip(deps);
+      getLog().info("Using "+appZip.getName()+" with all IAR dependencies of this test project for deployments.");
+      deployFile = appZip;
+    }
+    catch (ArchiverException | IOException ex)
+    {
+      getLog().error("Failed to write deployable application ", ex);
+    }
+  }
+
+  File createFullAppZip(List<File> deps) throws ArchiverException, IOException
+  {
+    File appZip = new File(project.getBuild().getDirectory(), deployToEngineApplication+"-app.zip");
+    ZipArchiver appZipper = new ZipArchiver();
+    appZipper.setDestFile(appZip);
+    deps.stream().forEach(iar -> appZipper.addFile(iar, iar.getName()));
+    appZipper.createArchive();
+    return appZip;
   }
 
   private void deployTestApp() throws MojoExecutionException
