@@ -129,7 +129,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
   @Parameter(property = "ivy.deploy.target.file.format", defaultValue = DefaultDeployOptions.FILE_FORMAT_AUTO)
   public String deployTargetFileFormat;
   
-  /** The file that contains deployment options. <br/>
+  /** <p>The file that contains deployment options.</p>
   *
   * Example options file content:
   * <pre><code>deployTestUsers: auto
