@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.DeployToEngineMojo.DeployMethod;
+import ch.ivyteam.ivy.maven.engine.EngineControl;
 
 /**
  * @since 7.1.0
@@ -58,7 +59,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
   
   @After
   public void restoreStreams() {
-      System.setOut(originalOut);
+    System.setOut(originalOut);
   }
 
   @Test
@@ -97,7 +98,10 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     Executor startedProcess = null;
     try
     {
+      System.setOut(originalOut);
       startedProcess = mojo.startEngine();
+      deployMojo.deployEngineUrl = (String)rule.project.getProperties().get(EngineControl.Property.TEST_ENGINE_URL);
+      System.setOut(new PrintStream(outContent));
 
       deployMojo.execute();
       

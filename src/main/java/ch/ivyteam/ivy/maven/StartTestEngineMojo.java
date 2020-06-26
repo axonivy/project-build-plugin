@@ -18,9 +18,12 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 import org.apache.commons.exec.Executor;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -125,10 +128,10 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     
     try
     {
-      getLog().info("Parameter <testEngineLocation> is set to " + testEngine +
+      getLog().info("Parameter <testEngine> is set to " + testEngine +
               ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
 
-      FileUtils.copyDirectory(cachedEngineDir, targetEngine);
+      copyEngine(cachedEngineDir.toPath(), targetEngine.toPath());
       return targetEngine;
     }
     catch (IOException ex)
@@ -136,5 +139,25 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
       getLog().warn("Could not copy engine from: " + cachedEngineDir + " to " + targetEngine, ex);
     }
     return cachedEngineDir;
+  }
+
+  public void copyEngine(Path src, Path dest) throws IOException
+  {
+    try(Stream<Path> walk = Files.walk(src))
+    {
+      walk.forEach(source -> copyFile(source, dest.resolve(src.relativize(source))));
+    }
+  }
+
+  private void copyFile(Path source, Path dest)
+  {
+    try
+    {
+      Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES);
+    }
+    catch (Exception ex)
+    {
+      throw new RuntimeException(ex);
+    }
   }
 }

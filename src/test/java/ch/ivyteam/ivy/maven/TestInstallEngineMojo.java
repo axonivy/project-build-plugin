@@ -17,7 +17,6 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -155,7 +154,7 @@ public class TestInstallEngineMojo
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
 
-    mojo.ivyVersion = "[7.0.0,8.0.3]";
+    mojo.ivyVersion = "[9.1.0,10.0.0]";
     mojo.autoInstallEngine = true;
     final String downloadVersion = AbstractEngineMojo.DEFAULT_VERSION;
     mojo.engineDownloadUrl = createFakeEngineZip(downloadVersion).toURI().toURL();
@@ -346,7 +345,9 @@ public class TestInstallEngineMojo
   public void testDefaultListPage_isAvailable() throws Exception
   {
     boolean run = Boolean.parseBoolean(System.getProperty("run.public.download.test"));
-    assumeTrue("SKIPPING test 'testDefaultListPage_isAvailable'", run);
+    if (!run) {
+    	return;
+    }
 
     String engineUrl = getUrlDownloader().findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
