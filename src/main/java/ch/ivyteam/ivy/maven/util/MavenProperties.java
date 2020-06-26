@@ -33,8 +33,19 @@ public class MavenProperties
 
   public void setMavenProperty(String key, String value)
   {
+    set(key, value);
+  }
+  
+  public void set(String key, String value)
+  {
     log.debug("share property '" + key + "' with value '" + StringUtils.abbreviate(value, 500) + "'");
     project.getProperties().put(key, value);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public <T extends Object> T get(String key)
+  {
+    return (T) project.getProperties().get(key);
   }
 
 }

@@ -92,7 +92,7 @@ public class IarPackagingMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    String iarName = project.getArtifactId() + "-" + project.getVersion() + "." + project.getPackaging();
+    String iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
     File iar = new File(project.getBuild().getDirectory(), iarName);
     createIvyArchive(project.getBasedir(), iar);
 
