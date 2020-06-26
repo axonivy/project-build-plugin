@@ -34,6 +34,7 @@ import ch.ivyteam.ivy.maven.util.MavenRuntime;
 
 /**
  * <p>Deploys a set of test projects (iar) or a full application (set of projects as zip) to a running test engine.</p>
+ * <p>By default the IAR of the current project plus all declared IAR dependencies will be deployed to the test engine.</p>
  *
  * @since 9.1.0
  */
