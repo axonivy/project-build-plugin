@@ -54,10 +54,18 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
   @Parameter(property="ivy.deploy.deps.as.app", defaultValue="true")
   boolean deployDepsAsApp;
   
+  /** Set to <code>true</code> to skip the test deployment to engine. */
+  @Parameter(property="maven.test.skip", defaultValue="false")
+  boolean skipTest;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     if (checkSkip())
+    {
+      return;
+    }
+    if (skipTest)
     {
       return;
     }
