@@ -5,7 +5,7 @@
       <packagingType>iar</packagingType>
     </lifecycleMapping>
     <lifecycleMapping>
-      <packagingType>iar-enginetest</packagingType>
+      <packagingType>iar-integration-test</packagingType>
     </lifecycleMapping>
   </lifecycleMappings>
 </lifecycleMappingMetadata>

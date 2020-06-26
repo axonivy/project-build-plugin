@@ -24,7 +24,7 @@
 		</component>
 		<component>
 			<role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
-			<role-hint>iar-enginetest</role-hint>
+			<role-hint>iar-integration-test</role-hint>
 			<implementation>
 				org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
 			</implementation>

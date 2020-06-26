@@ -29,7 +29,9 @@ import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**
- * Shares crucial test engine internals with the forked JVM that runs tests.
+ * Shares crucial test engine internals with the forked JVM that runs tests.<br/>
+ * The property being set is called 'argLine' and classically being read by 'maven-failsafe-plugin'.
+ * 
  * @since 9.1
  */
 @Mojo(name = SetupIntegrationTestPropertiesMojo.GOAL)
