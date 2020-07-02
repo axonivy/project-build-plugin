@@ -18,7 +18,10 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -112,9 +115,44 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
     File appZip = new File(project.getBuild().getDirectory(), deployToEngineApplication+"-app.zip");
     ZipArchiver appZipper = new ZipArchiver();
     appZipper.setDestFile(appZip);
-    deps.stream().forEach(iar -> appZipper.addFile(iar, iar.getName()));
+    for(File dep : deps) 
+    {
+      if (dep.isFile() && dep.getName().endsWith("iar"))
+      {
+        appZipper.addFile(dep, dep.getName());
+      }
+      else if (dep.isDirectory())
+      {
+        Optional<Path> packedIar = findPackedIar(dep);
+        if (packedIar.isPresent())
+        {
+          File iar = packedIar.get().toFile();
+          appZipper.addFile(iar, iar.getName());
+        }
+        else
+        {
+          appZipper.addDirectory(dep, dep.getName()+"/");
+        }
+      }
+      else
+      {
+        getLog().warn("Can not add dependency to app zip '"+dep+"'. \n "
+                + "Dependency type is neither an IAR nor a reactor project.");
+      }
+    }
     appZipper.createArchive();
     return appZip;
+  }
+
+  static Optional<Path> findPackedIar(File dep) throws IOException
+  {
+    Path target = dep.toPath().resolve("target");
+    if (!Files.isDirectory(target))
+    {
+      return Optional.empty();
+    }
+    return Files.find(target, 1, (p,attr)->p.getFileName().toString().endsWith(".iar"))
+      .findAny();
   }
 
   private void deployTestApp() throws MojoExecutionException
