@@ -74,7 +74,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
     }
     if (deployToEngineApplication == null)
     {
-      deployToEngineApplication = project.getArtifactId();
+      deployToEngineApplication = toAppName(project.getArtifactId());
       getLog().info("Using '"+deployToEngineApplication+"' as target app.");
     }
     var props = new MavenProperties(project, getLog());
@@ -87,6 +87,11 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
     }
     
     deployTestApp();
+  }
+
+  static String toAppName(String artifact)
+  {
+    return artifact.replaceAll("\\W", "");
   }
 
   private void provideDepsAsAppZip()

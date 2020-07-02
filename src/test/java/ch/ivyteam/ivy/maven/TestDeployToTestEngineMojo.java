@@ -77,6 +77,12 @@ public class TestDeployToTestEngineMojo
       }
     }
   }
+  
+  @Test
+  public void appNameSanitizing()
+  {
+    assertThat(DeployToTestEngineMojo.toAppName("ivy-webtest.pure5")).isEqualTo("ivywebtestpure5");
+  }
 
   @Rule
   public ProjectMojoRule<DeployToTestEngineMojo> deploy = new ProjectMojoRule<>(
