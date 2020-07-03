@@ -34,11 +34,13 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 /**
  * Starts the Axon.ivy Engine for integration testing.
  * 
- * After starting the engine the plugin provides the url of the engine in the ${test.engine.url} property.
- * You can use this property to configure your maven-surefire-plugin to work against this test engine.
+ * <p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>.
+ * You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine.
+ * However, in an <code>iar-integration-test</code> lifecycle this is already provided by the 'ivy-integration-test-properties' goal.
+ * 
  * <pre>
  * {@code
- *   <artifactId>maven-surefire-plugin</artifactId>
+ *   <artifactId>maven-failsafe-plugin</artifactId>
  *   ...
  *   <configuration>
  *     <argLine>-Dtest.engine.url=$}{test.engine.url} {@code -Dtest.engine.app=Portal</argLine>

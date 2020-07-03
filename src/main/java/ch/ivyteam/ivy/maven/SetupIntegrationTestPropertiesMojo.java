@@ -30,7 +30,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**
  * <p>Shares crucial test engine internals with the forked JVM that runs tests.</p>
- * <p>The property being set is called 'argLine' and classically being read by 'maven-failsafe-plugin'.</p>
+ * <p>The property being set is called <code>argLine</code> and classically used by the 'maven-failsafe-plugin'.</p>
  * 
  * @since 9.1
  */
