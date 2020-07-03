@@ -40,7 +40,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Shares the classpath of the built ivy project and it's engine as public property 
- * and tries to auto-configure maven-surefire-plugin to use this classpath.
+ * and tries to auto-configure 'maven-surefire-plugin' to use this classpath.
  * 
  * @author Reguel Wermelinger
  * @since 6.0.2
