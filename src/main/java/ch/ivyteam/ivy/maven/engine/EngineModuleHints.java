@@ -18,6 +18,16 @@ public class EngineModuleHints
     "jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED"
   );
   
+  public static String getCmdArgLine()
+  {
+    StringBuilder hints = new StringBuilder();
+    for(String open : ADD_OPENS_HINTS)
+    {
+      hints.append(" ").append(ADD_OPENS).append(" ").append(open);
+    }
+    return hints.toString();
+  }
+  
   public static void addToCmdLine(CommandLine cli)
   {
     for(String hint : EngineModuleHints.ADD_OPENS_HINTS)

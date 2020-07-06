@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
+import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
@@ -57,6 +58,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
     String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";
     
     String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
+    String MAVEN_TEST_ARGLINE = "argLine";
   }
 
   @Parameter(property = "project", required = true, readonly = true)
@@ -143,6 +145,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
             .map(property -> "${"+property+"}")
             .collect(Collectors.joining(","));
     properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
+    properties.append(Property.MAVEN_TEST_ARGLINE, EngineModuleHints.getCmdArgLine());
   }
 
   private void setTestOutputDirectory()
