@@ -18,30 +18,35 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
+import ch.ivyteam.ivy.maven.util.MavenRuntime;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Shares the classpath of the built ivy project and it's engine as public property 
- * and tries to auto-configure maven-surefire-plugin to use this classpath.
+ * and tries to auto-configure 'maven-surefire-plugin' to use this classpath.
  * 
  * @author Reguel Wermelinger
  * @since 6.0.2
  */
-@Mojo(name = SetupIvyTestPropertiesMojo.GOAL)
-public class SetupIvyTestPropertiesMojo extends AbstractMojo
+@Mojo(name = SetupIvyTestPropertiesMojo.GOAL, requiresDependencyResolution=ResolutionScope.TEST)
+public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "ivy-test-properties";
   
@@ -49,6 +54,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   {
     String IVY_ENGINE_CLASSPATH = "ivy.engine.classpath";
     String IVY_PROJECT_IAR_CLASSPATH = "ivy.project.iar.classpath";
+    String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";
     
     String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
   }
@@ -62,6 +68,9 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
    */
   @Parameter(defaultValue="false", property="maven.test.skip")
   boolean skipTest;
+
+  @Parameter( defaultValue = "${session}", readonly = true)
+  private MavenSession session;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -77,7 +86,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     setTestOutputDirectory();
   }
 
-  private void setIvyProperties(MavenProperties properties)
+  private void setIvyProperties(MavenProperties properties) throws MojoExecutionException
   {
     SharedFile shared = new SharedFile(project);
     File engineCp = shared.getEngineClasspathJar();
@@ -91,6 +100,34 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
     {
       properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
     }
+    
+    File tstVmDir = createTestVmRuntime();
+    properties.setMavenProperty(Property.IVY_TEST_VM_RUNTIME, tstVmDir.getAbsolutePath());
+  }
+
+  private File createTestVmRuntime() throws MojoExecutionException
+  {
+    IvyTestRuntime testRuntime = new IvyTestRuntime();
+    testRuntime.setProductDir(identifyAndGetEngineDirectory());
+    testRuntime.setProjectLocations(getProjects());
+    try
+    {
+      return testRuntime.store(project);
+    } 
+    catch (IOException ex)
+    {
+      throw new MojoExecutionException("Failed to write ivy test vm settings.", ex);
+    }
+  }
+
+  private List<URI> getProjects()
+  {
+    List<File> deps = new ArrayList<>();
+    deps.add(project.getBasedir());
+    deps.addAll(MavenRuntime.getDependencies(project, session, "iar"));
+    return deps.stream()
+            .map(file -> file.toURI())
+            .collect(Collectors.toList());
   }
   
   /**
@@ -99,6 +136,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractMojo
   private void configureMavenTestProperties(MavenProperties properties)
   {
     List<String> IVY_PROPS = List.of(
+            Property.IVY_TEST_VM_RUNTIME,
             Property.IVY_ENGINE_CLASSPATH, 
             Property.IVY_PROJECT_IAR_CLASSPATH);
     String surefireClasspath = IVY_PROPS.stream()

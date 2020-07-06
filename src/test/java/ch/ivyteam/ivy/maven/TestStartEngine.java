@@ -17,17 +17,12 @@
 package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,7 +49,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     try
     {
       startedProcess = mojo.startEngine();
-      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://");
+      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://")
+              .endsWith("/");
       assertThat(new File(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     }
     finally
@@ -63,39 +59,6 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     }
   }
   
-  @Test @Ignore
-  public void engineStartCanFailFast() throws Exception
-  {
-    StartTestEngineMojo mojo = rule.getMojo();
-    File engineDir = installUpToDateEngineRule.getMojo().getRawEngineDirectory();
-    File configDir = new File(engineDir, "configuration");
-    File tmpConfigDir = new File(engineDir, "config.bkp");
-    configDir.renameTo(tmpConfigDir);
-    
-    StopWatch stopWatch = new StopWatch();
-    stopWatch.start();
-    Executor startedProcess = null;
-    try
-    {
-      startedProcess = mojo.startEngine();
-      fail("Engine start should fail as no configuration directory exists.");
-    }
-    catch (RuntimeException ex)
-    {
-      stopWatch.stop();
-      long seconds = TimeUnit.SECONDS.convert(stopWatch.getTime(), TimeUnit.MILLISECONDS);
-      assertThat(seconds)
-        .describedAs("engine start should fail early if engine config is incomplete")
-        .isLessThanOrEqualTo(20);
-    }
-    finally
-    {
-      kill(startedProcess);
-      FileUtils.deleteDirectory(configDir);
-      tmpConfigDir.renameTo(configDir);
-    }
-  }
-
   @Test
   public void testKillEngineOnVmExit() throws Exception
   {
@@ -232,6 +195,36 @@ public class TestStartEngine extends BaseEngineProjectMojoTest
     {
       kill(startedProcess);
     }
+  }
+
+  @Test
+  public void startEngine_copiedEngine_executable() throws Exception
+  {
+    StartTestEngineMojo mojo = rule.getMojo();
+    mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
+    Executor startedProcess = null;
+    try
+    {
+      File cacheEngine = mojo.engineDirectory;
+      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch.bat"));
+
+      startedProcess = mojo.startEngine();
+      
+      File engineTarget = mojo.getEngineDir(mojo.project);
+      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch.bat"));
+    }
+    finally
+    {
+      kill(startedProcess);
+    }
+  }
+
+  private void assertFileExecutable(File file)
+  {
+    assertThat(file).exists();
+    assertThat(file.canExecute()).isTrue();
   }
 
   private static void kill(Executor startedProcess)

@@ -1,6 +1,6 @@
-IAR Lifecycle
+iar Lifecycle
 
- The project-build-plugin has a custom build lifecycle.
+ The project-build-plugin has a custom build lifecycle. It's enabled by setting the <<<\<packaging\>iar\</packaging\>>>> in your pom.xml.
 
 *-----*------*
  <<phase>>    | <<default executions>> 
@@ -18,3 +18,26 @@ IAR Lifecycle
 *-----*------*
  deploy       | org.apache.maven.plugins:maven-deploy-plugin:deploy 
 *-----*------*
+
+
+
+iar-integration-test Lifecycle
+
+ Web integration tests against an engine can conveniently be written with minimal POM configuration. \
+ Just change the packaging type to <<<\<packaging\>iar-integration-test\</packaging\>>>> on a project that contains integration tests. \
+ This will enable the <iar-integration-test> plugin goal bindings which are required to run <<<@IvyWebTest>>> classes.
+
+ The <<<iar-integration-test>>> lifecycle adds the following additional bindings to the normal <<<iar>>> lifecycle:
+
+*-----*------*
+ pre-integration-test | ${project.groupId}:${project.artifactId}:{{{./start-test-engine-mojo.html}start-test-engine}}\
+              | ${project.groupId}:${project.artifactId}:{{{./deploy-to-test-engine-mojo.html}deploy-to-test-engine}} 
+*-----*------*ja
+ integration-test | ${project.groupId}:${project.artifactId}:{{{./ivy-integration-test-properties-mojo.html}ivy-integration-test-properties}}\
+              | org.apache.maven.plugins:maven-failsafe-plugin:integration-test 
+*-----*------*
+ post-integration-test | ${project.groupId}:${project.artifactId}:{{{./stop-test-engine-mojo.html}stop-test-engine}} 
+*-----*------*
+ verify      | org.apache.maven.plugins:maven-failsafe-plugin:verify 
+*-----*------*
+

@@ -22,6 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -199,12 +205,40 @@ public class EngineControl
   {
     if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
     {
-      String url = StringUtils.substringBetween(newLine, "http://", "/");
-      url = "http://" + url + "/ivy/";
+      String url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
+      url += evaluateDefaultContext(url);
       context.log.info("Axon.ivy Engine runs on : " + url);
       context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
       engineStarted.set(true);
     }
+  }
+  
+  private String evaluateDefaultContext(String url)
+  {
+    context.log.debug("Call '" + url + "' to evaluate the default context");
+    var client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).build();
+    var request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+    var result = "ivy/";
+    try
+    {
+      HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+      result = response.headers().firstValue("Location").map(location -> {
+        context.log.debug("'" + url + "' returns location header: " + location);
+        String defaultContext = evaluateIvyContextFromUrl(location);
+        context.log.debug("Evalutate '" + defaultContext + "' as default context");
+        return defaultContext;
+      }).orElse(result);
+    }
+    catch (IOException | InterruptedException ex)
+    {
+      context.log.warn("Couldn't evaluate default context of engine > use 'ivy/'");
+    }
+    return result;
+  }
+  
+  static String evaluateIvyContextFromUrl(String location)
+  {
+    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
   }
 
   private void waitForEngineStart(Executor executor) throws Exception
