@@ -47,5 +47,15 @@ public class MavenProperties
   {
     return (T) project.getProperties().get(key);
   }
+  
+  public void append(String key, String value)
+  {
+    String current = get(key);
+    if (StringUtils.isNotEmpty(current))
+    {
+      value = current += value;
+    }
+    set(key, value);
+  }
 
 }

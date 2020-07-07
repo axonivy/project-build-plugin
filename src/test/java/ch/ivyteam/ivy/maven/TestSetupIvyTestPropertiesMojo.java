@@ -47,21 +47,33 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest
   public void engineClasspathIsSharedAsProperty() throws Exception
   {
     SetupIvyTestPropertiesMojo mojo = rule.getMojo();
-    assertThat(getEngineClasspathProperty())
+    assertThat(getProperty(Property.IVY_ENGINE_CLASSPATH))
       .as("used classpath has not been evaluated.")
       .isNullOrEmpty();
+    assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).isNullOrEmpty();
     
     mojo.execute();
     
-    assertThat(getEngineClasspathProperty())
+    assertThat(getProperty(Property.IVY_ENGINE_CLASSPATH))
       .as("used classpath must be shared as property so that other mojos can access it")
       .isNotEmpty();
   }
 
-  private String getEngineClasspathProperty()
+  @Test
+  public void engineModuleHintsSharedAsProperty() throws Exception
   {
-    return (String)rule.getMojo().project.getProperties()
-            .get(Property.IVY_ENGINE_CLASSPATH);
+    SetupIvyTestPropertiesMojo mojo = rule.getMojo();
+    assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).isNullOrEmpty();
+    
+    mojo.execute();
+    
+    assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).contains(" --add-opens ");
+  }
+
+  
+  private String getProperty(String key)
+  {
+    return (String)rule.getMojo().project.getProperties().get(key);
   }
 
   @Test

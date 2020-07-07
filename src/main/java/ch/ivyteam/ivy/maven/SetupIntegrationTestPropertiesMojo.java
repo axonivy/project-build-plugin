@@ -26,6 +26,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**
@@ -48,12 +49,13 @@ public class SetupIntegrationTestPropertiesMojo extends AbstractEngineMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     var props = new MavenProperties(project, getLog());
-    String jmvArgProps = asJvmArgs(props, 
+    String jmvArgs = asJvmArgs(props, 
       EngineControl.Property.TEST_ENGINE_URL, 
       EngineControl.Property.TEST_ENGINE_LOG, 
       DeployToTestEngineMojo.Property.TEST_ENGINE_APP
     );
-    props.set(FAILSAFE_ARGLINE_PROPERTY, jmvArgProps);
+    jmvArgs += EngineModuleHints.getCmdArgLine();
+    props.set(FAILSAFE_ARGLINE_PROPERTY, jmvArgs);
   }
 
   private static String asJvmArgs(MavenProperties store, String... keys)

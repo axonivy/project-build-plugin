@@ -48,7 +48,8 @@ public class TestShareIntegrationTestPropertiesMojo
     SetupIntegrationTestPropertiesMojo mojo = setupProps.getMojo();
     mojo.execute();
     String argLine = (String)props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
-    assertThat(argLine).isEqualTo("-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp");
+    assertThat(argLine).startsWith("-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp");
+    assertThat(argLine).contains(" --add-opens ");
   }
   
 }
