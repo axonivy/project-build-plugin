@@ -14,6 +14,9 @@ public class EngineModuleHints
     "java.base/java.lang=ALL-UNNAMED", 
      // ignore illegal reflective access warning at rest deployment because ProjectJaxRsClassesScanner#hackReflectionHelperToNonOsgiMode()
     "java.base/java.lang.reflect=ALL-UNNAMED", 
+     // on engine stop tomcat clears caches
+    "java.base/java.io=ALL-UNNAMED",
+    "java.rmi/sun.rmi.transport=ALL-UNNAMED",
      // allow ZipFileSystem readonly feature on engine with Java 11
     "jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED"
   );
