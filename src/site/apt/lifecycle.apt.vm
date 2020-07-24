@@ -5,7 +5,7 @@ iar Lifecycle
 *-----*------*
  <<phase>>    | <<default executions>> 
 *-----*------*
- initialize   | ${project.groupId}:${project.artifactId}:{{{./ensureInstalledEngine-mojo.html}ensureInstalledEngine}}
+ initialize   | ${project.groupId}:${project.artifactId}:{{{./installedEngine-mojo.html}installedEngine}}
 *-----*------*
  compile      | ${project.groupId}:${project.artifactId}:{{{./compileProject-mojo.html}compileProject}} 
 *-----*------*
