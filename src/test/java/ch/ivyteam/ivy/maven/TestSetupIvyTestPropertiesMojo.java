@@ -109,6 +109,15 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest
     assertThat(props.getProperty(Key.PROJECT_LOCATIONS))
       .isEqualTo("<"+rule.getMojo().project.getBasedir().toURI()+">");
   }
+  
+  @Test
+  public void ivyTestRuntimeIO() throws IOException
+  {
+    IvyTestRuntime rt = new IvyTestRuntime();
+    rt.setProductDir(new File("/tmp/myEngine"));
+    File ivyTestVm = rt.store(rule.project);
+    assertThat(ivyTestVm.getParentFile().getName()).isEqualTo("target");
+  }
 
   @Rule
   public ProjectMojoRule<SetupIvyTestPropertiesMojo> rule = new TestPropertyMojoRule();

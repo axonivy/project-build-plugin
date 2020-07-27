@@ -40,7 +40,7 @@ public class IvyTestRuntime
   
   public File store(MavenProject project) throws IOException
   {
-    File target = new File(project.getBuild().getOutputDirectory()).getParentFile();
+    File target = new File(project.getBuild().getDirectory());
     File tstVmDir = new File(target, "ivyTestVm");
     tstVmDir.mkdir();
     store(tstVmDir);
