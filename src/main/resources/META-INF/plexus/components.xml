@@ -53,5 +53,13 @@
 				</phases>
 			</configuration>
 		</component>
+		<component>
+			<role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+			<role-hint>iar-integration-test</role-hint>
+			<implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+			<configuration>
+				<extension>iar</extension>
+			</configuration>
+		</component>
 	</components>
 </component-set>
