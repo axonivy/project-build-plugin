@@ -162,7 +162,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
   @Parameter(property = "project", required = false, readonly = true)
   protected MavenProject project;
   @Parameter(property = "session", required = true, readonly = true)
-  protected MavenSession session;
+  MavenSession session;
   
   /** The maximum amount of seconds that we wait for a deployment result from the engine */
   @Parameter(property="ivy.deploy.timeout.seconds", defaultValue="30")
