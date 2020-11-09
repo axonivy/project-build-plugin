@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
@@ -101,7 +102,8 @@ public class DeployToEngineMojo extends AbstractIntegrationTestMojo
   
   /**
    * Id of server configured in settings.xml that specifies the administrator user name and password 
-   * used to authenticate in case of HTTP deployment.
+   * used to authenticate in case of HTTP deployment. If you're using an encrypted maven password with a settings-security.xml,
+   * you may need to define the location of this file with the property 'settings.security' (default location is ~/.settings-security.xml)
    * @since 7.4 
    */
   @Parameter(property="ivy.deploy.server.id")
@@ -244,6 +246,9 @@ public class DeployToEngineMojo extends AbstractIntegrationTestMojo
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;
 
+  @Component(role=org.sonatype.plexus.components.sec.dispatcher.SecDispatcher.class, hint="default")
+  private SecDispatcher secDispatcher;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -308,7 +313,7 @@ public class DeployToEngineMojo extends AbstractIntegrationTestMojo
     {
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId + "' is not definied. Try to deploy with default username, password");
     }
-    HttpDeployer httpDeployer = new HttpDeployer(server, 
+    HttpDeployer httpDeployer = new HttpDeployer(secDispatcher, server, 
             deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
     httpDeployer.deploy(getLog());
   }
