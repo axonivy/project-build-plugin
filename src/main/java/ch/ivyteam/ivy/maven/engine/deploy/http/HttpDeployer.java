@@ -28,6 +28,8 @@ import org.apache.http.util.EntityUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 public class HttpDeployer
 {
@@ -37,9 +39,11 @@ public class HttpDeployer
   private File deployFile;
   private File deploymentOptions;
   private Server server;
+  private SecDispatcher secDispatcher;
 
-  public HttpDeployer(Server server, String serverUrl, String targetApplication, File deployFile, File deploymentOptions)
+  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication, File deployFile, File deploymentOptions)
   {
+    this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
     this.targetApplication = targetApplication;
@@ -111,14 +115,21 @@ public class HttpDeployer
     return builder.build();
   }
 
-  private HttpClientContext getRequestContext(String url) throws URISyntaxException
+  private HttpClientContext getRequestContext(String url) throws URISyntaxException, MojoExecutionException
   {
     String username = "admin";
     String password = "admin";
     if (server != null)
     {
       username = server.getUsername();
-      password = server.getPassword();
+      try
+      {
+        password = secDispatcher.decrypt(server.getPassword());
+      }
+      catch (SecDispatcherException ex)
+      {
+        throw new MojoExecutionException("Could not decrypt maven password", ex);
+      }
     }
     HttpHost httpHost = URIUtils.extractHost(new URI(url));
     CredentialsProvider credsProvider = new BasicCredentialsProvider();
