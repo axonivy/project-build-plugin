@@ -24,6 +24,8 @@ import java.io.PrintStream;
 
 import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Server;
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -91,6 +93,36 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
 
   @Test
   public void canDeployRemoteIar() throws Exception
+  {
+    deployIarRemoteAndAssert();
+  }
+
+  @Test
+  public void canDeployRemoteIar_settingsPassword() throws Exception
+  {
+    addServerConnection("admin");
+    deployIarRemoteAndAssert();
+  }
+  
+  @Test
+  public void canDeployRemoteIar_encryptedSettingsPassword() throws Exception
+  {
+    addServerConnection("{VUpeDRRbfD4Hmk9WLKzhqLkLttTCsWfLtr75Nt9K/3k=}");
+    System.setProperty("settings.security", TestDeployToRunningEngine.class.getResource("settings-security.xml").getPath());
+    deployIarRemoteAndAssert();
+  }
+
+  private void addServerConnection(String password)
+  {
+    Server server = new Server();
+    server.setId("test.server");
+    server.setUsername("admin");
+    server.setPassword(password);
+    deployMojo.session.getSettings().addServer(server);
+    deployMojo.deployServerId = "test.server";
+  }
+  
+  private void deployIarRemoteAndAssert() throws Exception, MojoExecutionException, MojoFailureException
   {
     deployMojo.deployToEngineApplication = "test";
     deployMojo.deployMethod = DeployMethod.HTTP;
