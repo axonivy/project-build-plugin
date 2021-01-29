@@ -23,7 +23,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -98,7 +97,7 @@ public class EngineClassLoaderFactory
   {
     if (engineDirectory == null || !engineDirectory.isDirectory())
     {
-      return Collections.emptyList();
+      return List.of();
     }
     List<File> classPathFiles = new ArrayList<>();
     addToClassPath(classPathFiles, new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT), new SuffixFileFilter(".jar"));
