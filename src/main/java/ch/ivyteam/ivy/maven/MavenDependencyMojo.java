@@ -57,6 +57,11 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
     getLog().info("Copy maven dependencies...");
     
     var deps = getDependencies("jar");
+    if (deps.isEmpty())
+    {
+      getLog().info("No maven dependencies were found.");
+      return;
+    }
     var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
     deps.forEach(dep -> copyDependency(mvnLibDir, dep));
     
