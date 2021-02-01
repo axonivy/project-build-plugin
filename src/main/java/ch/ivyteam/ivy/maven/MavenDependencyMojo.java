@@ -79,7 +79,6 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
     catch (IOException ex)
     {
       getLog().warn("Couldn't copy depedency '" + dep +"' to: " + mvnLibDir, ex);
-      ex.printStackTrace();
     }
   }
   
