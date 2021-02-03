@@ -12,7 +12,7 @@ The Apache License, Version 2.0
 
 [0]: https://img.shields.io/badge/project--build--plugin-9.1.0-green
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/badge/project--build--plugin-9.1.1--SNAPSHOT-yellow
+[2]: https://img.shields.io/badge/project--build--plugin-9.2.0--SNAPSHOT-yellow
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: http://axonivy.github.io/project-build-plugin/release/9.1/index.html
