@@ -16,7 +16,10 @@
 						com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
 						org.apache.maven.plugins:maven-surefire-plugin:test
 					</test>
-					<package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
+					<package>
+					  com.axonivy.ivy.ci:project-build-plugin:maven-dependency,
+					  com.axonivy.ivy.ci:project-build-plugin:pack-iar
+					</package>
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
 				</phases>

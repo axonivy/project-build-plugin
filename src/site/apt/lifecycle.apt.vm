@@ -14,7 +14,8 @@ iar Lifecycle
  test         | ${project.groupId}:${project.artifactId}:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
               | org.apache.maven.plugins:maven-surefire-plugin:test 
 *-----*------*
- package      | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
+ package      | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}} 
+              | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
 *-----*------*
  deploy       | org.apache.maven.plugins:maven-deploy-plugin:deploy 
 *-----*------*
