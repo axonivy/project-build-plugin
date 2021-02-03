@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -44,9 +45,6 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
   @Parameter(property="ivy.mvn.dep.skip", defaultValue="false")
   boolean skipMvnDependency;
   
-  int copied = 0;
-  int ignored = 0;
-
   @Override
   protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
@@ -63,28 +61,32 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
       return;
     }
     var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
-    deps.forEach(dep -> copyDependency(mvnLibDir, dep));
+    var copied = copyDependency(mvnLibDir, deps);
     
-    getLog().info("Maven dependecies: " + copied + " copied, " + ignored + " ignored.");
+    getLog().info("Maven dependecies: " + copied + " copied.");
   }
 
-  private void copyDependency(Path mvnLibDir, File dep)
+  private int copyDependency(Path mvnLibDir, List<File> deps)
   {
-    try
+    var count = 0;
+    for (var dep : deps)
     {
-      Files.copy(dep.toPath(), mvnLibDir.resolve(dep.getName()));
-      getLog().info("Copied dependency: " + dep.getName());
-      copied ++;
+      try
+      {
+        Files.copy(dep.toPath(), mvnLibDir.resolve(dep.getName()));
+        getLog().debug("Copied dependency: " + dep.getName());
+        count ++;
+      }
+      catch (FileAlreadyExistsException ex)
+      {
+        getLog().debug("Ignore dependecy '" + dep.getName() + "' as it already exists at: " + mvnLibDir);
+      }
+      catch (IOException ex)
+      {
+        getLog().warn("Couldn't copy depedency '" + deps +"' to: " + mvnLibDir, ex);
+      }
     }
-    catch (FileAlreadyExistsException ex)
-    {
-      getLog().debug("Ignore dependecy '" + dep.getName() + "' as it already exists at: " + mvnLibDir);
-      ignored ++;
-    }
-    catch (IOException ex)
-    {
-      getLog().warn("Couldn't copy depedency '" + dep +"' to: " + mvnLibDir, ex);
-    }
+    return count;
   }
   
 }
