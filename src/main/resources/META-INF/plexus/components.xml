@@ -9,6 +9,7 @@
 			</implementation>
 			<configuration>
 				<phases>
+					<clean>com.axonivy.ivy.ci:project-build-plugin:maven-dependency-cleanup</clean>
 					<initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
 					<compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
 					<test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
@@ -17,8 +18,8 @@
 						org.apache.maven.plugins:maven-surefire-plugin:test
 					</test>
 					<package>
-					  com.axonivy.ivy.ci:project-build-plugin:maven-dependency,
-					  com.axonivy.ivy.ci:project-build-plugin:pack-iar
+						com.axonivy.ivy.ci:project-build-plugin:maven-dependency,
+						com.axonivy.ivy.ci:project-build-plugin:pack-iar
 					</package>
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
