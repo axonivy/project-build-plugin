@@ -350,7 +350,7 @@
         <version>1.6.6</version>
         <extensions>true</extensions>
         <configuration>
-		  <serverId>sonatype.snapshots</serverId>
+          <serverId>sonatype.snapshots</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
         </configuration>
@@ -381,7 +381,7 @@
           </execution>
         </executions>
         <configuration>
-          <server>github.ivy-team</server>
+          <server>github.ivy-team.oauth</server>
           <merge>true</merge>
         </configuration>
       </plugin>

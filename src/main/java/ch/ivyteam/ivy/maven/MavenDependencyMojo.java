@@ -30,7 +30,16 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
 /**
- * Copy maven dependencies to a specific folder.
+ * Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven dependencies</a> to a specific folder.
+ * 
+ * <p>To reduce the size of your ivy archives, make sure that your dependencies are configured correctly:</p>
+ * <ul>
+ * <li>Mark test dependencies with the scope <b>test</b></li>
+ * <li>
+ *   <a href="https://maven.apache.org/pom.html#exclusions">Exclude transient dependencies</a> 
+ *   which are already delivered by the core
+ * </li>
+ * </ul>
  * 
  * @since 9.2.0
  */
