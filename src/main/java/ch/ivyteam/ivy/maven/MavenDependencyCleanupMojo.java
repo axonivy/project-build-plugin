@@ -16,11 +16,15 @@
 
 package ch.ivyteam.ivy.maven;
 
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Delete copied maven dependencies in the lib/mvn-deps folder.
@@ -28,9 +32,12 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  * @since 9.2.0
  */
 @Mojo(name=MavenDependencyCleanupMojo.GOAL)
-public class MavenDependencyCleanupMojo extends AbstractProjectCompileMojo
+public class MavenDependencyCleanupMojo extends AbstractMojo
 {
   public static final String GOAL = "maven-dependency-cleanup";
+  
+  @Parameter(property = "project", required = true, readonly = true) 
+  MavenProject project;
   
   /** 
    * Set to <code>true</code> to bypass the deletion of <b>maven dependencies</b> copied by the {@value MavenDependencyMojo#GOAL} step.
@@ -39,7 +46,7 @@ public class MavenDependencyCleanupMojo extends AbstractProjectCompileMojo
   boolean skipMvnDependencyCleanup;
   
   @Override
-  protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
+  public void execute() throws MojoExecutionException, MojoFailureException
   {
     if (skipMvnDependencyCleanup)
     {
@@ -47,7 +54,14 @@ public class MavenDependencyCleanupMojo extends AbstractProjectCompileMojo
     }
     var mvnLibDir = project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     getLog().info("Deleting " + mvnLibDir.toString());
-    FileUtils.deleteDirectory(mvnLibDir.toFile());
+    try
+    {
+      FileUtils.deleteDirectory(mvnLibDir.toFile());
+    }
+    catch (IOException ex)
+    {
+      getLog().warn("Couldn't delete: " + mvnLibDir.toString(), ex);
+    }
   }
 
 }

@@ -26,20 +26,9 @@ import org.junit.Test;
 
 public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest
 {
-  private MavenDependencyCleanupMojo testMojo;
-
   @Rule
-  public CompileMojoRule<MavenDependencyCleanupMojo> compile = new CompileMojoRule<MavenDependencyCleanupMojo>(MavenDependencyCleanupMojo.GOAL)
-  {
-    @Override
-    protected void before() throws Throwable 
-    {
-      super.before();
-      // use same project as first rule/mojo
-      testMojo = (MavenDependencyCleanupMojo) lookupConfiguredMojo(project, MavenDependencyCleanupMojo.GOAL);
-      configureMojo(testMojo);
-    }
-  };
+  public ProjectMojoRule<MavenDependencyCleanupMojo> compile = 
+          new ProjectMojoRule<MavenDependencyCleanupMojo>(new File("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
   
   @Test
   public void noMavenDepsDir() throws Exception

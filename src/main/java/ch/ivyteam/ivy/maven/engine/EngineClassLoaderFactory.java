@@ -97,7 +97,7 @@ public class EngineClassLoaderFactory
   {
     if (engineDirectory == null || !engineDirectory.isDirectory())
     {
-      return List.of();
+      throw new RuntimeException("The engineDirectory is missing: " + engineDirectory);
     }
     List<File> classPathFiles = new ArrayList<>();
     addToClassPath(classPathFiles, new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT), new SuffixFileFilter(".jar"));
