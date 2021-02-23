@@ -23,11 +23,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
 /**
  * Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven dependencies</a> to a specific folder.
@@ -54,6 +56,9 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
   @Parameter(property="ivy.mvn.dep.skip", defaultValue="false")
   boolean skipMvnDependency;
   
+  @Parameter( defaultValue = "${session}", readonly = true)
+  private MavenSession session;
+  
   @Override
   protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
@@ -63,7 +68,7 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
     }
     getLog().info("Copy maven dependencies...");
     
-    var deps = getDependencies("jar");
+    var deps = new MavenDependencies(project, session).localTransient();
     if (deps.isEmpty())
     {
       getLog().info("No maven dependencies were found.");

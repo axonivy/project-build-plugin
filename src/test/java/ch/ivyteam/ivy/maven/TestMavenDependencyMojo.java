@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest
   private MavenDependencyMojo testMojo;
 
   @Rule
-  public CompileMojoRule<MavenDependencyMojo> compile = new CompileMojoRule<MavenDependencyMojo>(MavenDependencyMojo.GOAL)
+  public CompileMojoRule<MavenDependencyMojo> deps = new CompileMojoRule<MavenDependencyMojo>(MavenDependencyMojo.GOAL)
   {
     @Override
     protected void before() throws Throwable 
@@ -51,7 +52,7 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest
   @Test
   public void noMavenDeps() throws Exception
   {
-    MavenDependencyMojo mojo = compile.getMojo();
+    MavenDependencyMojo mojo = deps.getMojo();
     var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     mojo.execute();
@@ -61,19 +62,41 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest
   @Test
   public void exportMavenDepsToLibDir() throws Exception
   {
-    MavenDependencyMojo mojo = compile.getMojo();
+    MavenDependencyMojo mojo = deps.getMojo();
     var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
+    artifact.setDependencyTrail(List.of(mojo.project.getArtifact().toString()));
     artifact.setFile(new File("src/test/resources/jjwt-0.9.1.jar"));
     mojo.project.setArtifacts(Set.of(artifact));
     mojo.execute();
     assertThat(mvnLibDir).exists();
-    assertThat(getMavenLibs(mvnLibDir)).contains("jjwt-0.9.1.jar");
+    List<String> libs = getMavenLibs(mvnLibDir);
+    assertThat(libs).contains("jjwt-0.9.1.jar");
   }
   
-  private List<String> getMavenLibs(Path mvnLibDir) throws IOException
+  @Test
+  public void onlyLocalDeps() throws Exception
   {
+    MavenDependencyMojo mojo = deps.getMojo();
+    var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
+    assertThat(mvnLibDir).doesNotExist();
+    Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
+    artifact.setFile(new File("src/test/resources/jjwt-0.9.1.jar"));
+    artifact.setDependencyTrail(List.of(mojo.project.getArtifact().toString(), "other.group:other.artifact:iar:1.0.0"));
+    mojo.project.setArtifacts(Set.of(artifact));
+    mojo.execute();
+    assertThat(getMavenLibs(mvnLibDir))
+      .as("libs provided through a dependent 'iar' should not be packed.")
+      .isEmpty();
+  }
+  
+  private static List<String> getMavenLibs(Path mvnLibDir) throws IOException
+  {
+    if (!Files.isDirectory(mvnLibDir))
+    {
+      return Collections.emptyList();
+    }
     try (var walker = Files.walk(mvnLibDir, 1))
     {
       return walker
