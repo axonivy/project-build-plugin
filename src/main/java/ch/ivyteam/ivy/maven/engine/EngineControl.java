@@ -203,16 +203,21 @@ public class EngineControl
 
   private void findStartEngineUrl(String newLine)
   {
-    if (newLine.contains("info page of Axon Ivy Engine") && !engineStarted.get())
+    var lowercaseNewLine = StringUtils.lowerCase(newLine);
+    if (lowercaseNewLine.contains("info page of axon.ivy engine") || // 9.1.1 and earlier
+        lowercaseNewLine.contains("info page of axon ivy engine"))   // 9.2.0 and newer
     {
-      String url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
-      url += evaluateDefaultContext(url);
-      context.log.info("Axon Ivy Engine runs on : " + url);
-      context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
-      engineStarted.set(true);
+      if (!engineStarted.get())
+      {
+        var url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
+        url += evaluateDefaultContext(url);
+        context.log.info("Axon Ivy Engine runs on : " + url);
+        context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
+        engineStarted.set(true);
+      }
     }
   }
-  
+
   private String evaluateDefaultContext(String url)
   {
     context.log.debug("Call '" + url + "' to evaluate the default context");
