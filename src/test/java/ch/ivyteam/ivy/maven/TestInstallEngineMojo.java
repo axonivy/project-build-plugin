@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -286,7 +286,7 @@ public class TestInstallEngineMojo
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x64";
-    assertThat(findLink("<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip\">Axon.ivy Engine Windows x64</a>"))
+    assertThat(findLink("<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip\">Axon Ivy Engine Windows x64</a>"))
       .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip");
   }
 

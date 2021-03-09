@@ -1,11 +1,11 @@
 [![project-build-plugin version][0]][1] [![project-build-plugin snapshot version][2]][3] [![4]][5]
 
-# Axon.ivy project build plugin
-Maven plugin for the automated building of Axon.ivy projects. 
+# Axon Ivy Project build plugin
+Maven plugin for the automated building of Axon Ivy Projects. 
 
 ## Documentation
 - [Examples and documentation](https://axonivy.github.io/project-build-plugin)
-- Learn more about Axon.ivy project building in the Designer Guide under [Concepts -> Continuous Integration](https://developer.axonivy.com/doc/latest/DesignerGuideHtml/ivy.concepts.html#ivy-ci-maven-plugin)
+- Learn more about Axon Ivy Project building in the Designer Guide under [Concepts -> Continuous Integration](https://developer.axonivy.com/doc/latest/DesignerGuideHtml/ivy.concepts.html#ivy-ci-maven-plugin)
 
 ## License
 The Apache License, Version 2.0

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -90,7 +90,7 @@ public class EngineControl
   public Executor start() throws Exception
   {
     CommandLine startCmd = toEngineCommand(Command.start);
-    context.log.info("Start Axon.ivy Engine in folder: " + context.engineDirectory);
+    context.log.info("Start Axon Ivy Engine in folder: " + context.engineDirectory);
 
     Executor executor = createEngineExecutor();
     executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
@@ -104,7 +104,7 @@ public class EngineControl
   public void stop() throws Exception
   {
     CommandLine stopCmd = toEngineCommand(Command.stop);
-    context.log.info("Stopping Axon.ivy Engine in folder: " + context.engineDirectory);
+    context.log.info("Stopping Axon Ivy Engine in folder: " + context.engineDirectory);
 
     executeSynch(stopCmd);
     waitFor(()->EngineState.STOPPED == state(), context.timeoutInSeconds, TimeUnit.SECONDS);
@@ -203,16 +203,21 @@ public class EngineControl
 
   private void findStartEngineUrl(String newLine)
   {
-    if (newLine.contains("info page of Axon.ivy Engine") && !engineStarted.get())
+    var lowercaseNewLine = StringUtils.lowerCase(newLine);
+    if (lowercaseNewLine.contains("info page of axon.ivy engine") || // 9.1.1 and earlier
+        lowercaseNewLine.contains("info page of axon ivy engine"))   // 9.2.0 and newer
     {
-      String url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
-      url += evaluateDefaultContext(url);
-      context.log.info("Axon.ivy Engine runs on : " + url);
-      context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
-      engineStarted.set(true);
+      if (!engineStarted.get())
+      {
+        var url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
+        url += evaluateDefaultContext(url);
+        context.log.info("Axon Ivy Engine runs on : " + url);
+        context.properties.setMavenProperty(Property.TEST_ENGINE_URL, url);
+        engineStarted.set(true);
+      }
     }
   }
-  
+
   private String evaluateDefaultContext(String url)
   {
     context.log.debug("Call '" + url + "' to evaluate the default context");

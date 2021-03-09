@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
    *    <li><code>PACKED</code>: Enforce the deployment of a project as zipped file. Normal (expanded) project directories will be compressed into a ZIP during deployment.</li>
    *    <li><code>EXPANDED</code>: Enforce the deployment of a project as expanded file directory.<br>
    *        This is recommended for projects that change the project files at runtime. E.g. projects that use the Content Management (CMS) write API.<br>
-   *        The expanded format behaves exactly like projects deployed with Axon.ivy 7.0 or older. You might choose to deploy expanded projects in order to avoid {@link ReadOnlyFileSystemException} at runtime.<br>
+   *        The expanded format behaves exactly like projects deployed with Axon Ivy 7.0 or older. You might choose to deploy expanded projects in order to avoid {@link ReadOnlyFileSystemException} at runtime.<br>
    *        <strong>Warning</strong>: Expanded projects will perform slower at runtime and are therefore not recommended.</li>
    * </ul>
    * */

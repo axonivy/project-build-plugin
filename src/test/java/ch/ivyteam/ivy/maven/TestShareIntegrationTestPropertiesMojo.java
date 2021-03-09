@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

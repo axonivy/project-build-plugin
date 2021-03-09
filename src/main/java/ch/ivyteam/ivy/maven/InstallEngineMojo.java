@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 /**
- * Downloads an AXON.IVY Engine from the web if it does not yet exists in the correct version.
+ * Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version.
  * 
  * <p>Command line invocation is supported. E.g.</p>
  * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:9.1.0:installEngine

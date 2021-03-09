@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -29,7 +29,7 @@ import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
 import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
- * Stops the Axon.ivy Engine after integration testing
+ * Stops the Axon Ivy Engine after integration testing
  * 
  * @since 6.2.0
  */
