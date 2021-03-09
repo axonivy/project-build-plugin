@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -35,7 +35,7 @@ import ch.ivyteam.ivy.maven.engine.EngineMojoContext;
 import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
- * Starts the Axon.ivy Engine for integration testing.
+ * Starts the Axon Ivy Engine for integration testing.
  * 
  * <p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>.
  * You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine.

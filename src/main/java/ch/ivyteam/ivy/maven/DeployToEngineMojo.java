@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
 
 /**
- * <p>Deploys a single project (iar) or a full application (set of projects as zip) to a running AXON.IVY Engine.</p>
+ * <p>Deploys a single project (iar) or a full application (set of projects as zip) to a running Axon Ivy Engine.</p>
  *
  * <p>Command line invocation is supported.</p>
  * <p>Local engine (using DIRECTORY deploy method):</p>
@@ -61,7 +61,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo
 
   public static final String GOAL = "deploy-to-engine";
 
-  /** The path to the AXON.IVY Engine to which we deploy the file. <br/>
+  /** The path to the Axon Ivy Engine to which we deploy the file. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
   @Parameter(property="ivy.deploy.engine.dir", defaultValue=DEPLOY_ENGINE_DIR_DEFAULT)
   File deployEngineDirectory;

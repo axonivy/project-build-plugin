@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 /**
- * Deploys ivy deployables to an AXON.IVY engine. Deployables can be:
+ * Deploys ivy deployables to an Axon Ivy Engine. Deployables can be:
  * <ul>
  * <li>An *.iar project file</li>
  * <li>An *.zip full application file containing a set of projects</li>

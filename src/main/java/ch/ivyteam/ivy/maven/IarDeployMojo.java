@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 AXON Ivy AG
+ * Copyright (C) 2021 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 
 /**
- * Deploys an ivy-archive (IAR) to a running AXON.IVY Engine.
+ * Deploys an ivy-archive (IAR) to a running Axon Ivy Engine.
  * 
  * <p>Command line invocation is supported. E.g.</p>
  * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:6.2.0:deploy-iar 
@@ -51,7 +51,7 @@ public class IarDeployMojo extends AbstractEngineMojo
   @Parameter(property=PROPERTY_IVY_DEPLOY_IAR_FILE, defaultValue="${project.build.directory}/${project.artifactId}-${project.version}.iar")
   File deployIarFile;
   
-  /** The path to the AXON.IVY Engine to which we deploy the IAR. <br/>
+  /** The path to the Axon Ivy Engine to which we deploy the IAR. <br/>
    * The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code> */
   @Parameter(property="ivy.deploy.engine.dir", defaultValue="${"+ENGINE_DIRECTORY_PROPERTY+"}")
   File deployEngineDirectory;
