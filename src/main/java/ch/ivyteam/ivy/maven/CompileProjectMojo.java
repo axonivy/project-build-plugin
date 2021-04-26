@@ -22,12 +22,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -55,6 +57,9 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
   @Parameter(property="ivy.script.validation.skip", defaultValue="true")
   boolean skipScriptValidation;
   
+  @Parameter( defaultValue = "${session}", readonly = true)
+  private MavenSession session;
+  
   @Override
   protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
@@ -66,6 +71,10 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     getLog().info("Compiling ivy Project...");
     List<File> iarDependencies = getDependencies("iar");
     List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
+    var deps = new MavenDependencies(project, session).localTransient();
+    getLog().error("juhuu::: "+project.getArtifacts());
+    iarJars.addAll(deps);
+    
     Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
     

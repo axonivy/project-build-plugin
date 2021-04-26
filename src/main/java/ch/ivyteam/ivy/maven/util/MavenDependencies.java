@@ -34,6 +34,7 @@ public class MavenDependencies
   
   public List<File> localTransient()
   {
+    
     Stream<Artifact> artifacts = stream(project.getArtifacts())
       .filter(this::isLocalDep);
     return getFiles(artifacts);

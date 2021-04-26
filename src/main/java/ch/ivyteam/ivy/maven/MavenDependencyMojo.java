@@ -22,7 +22,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -67,6 +69,9 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
       return;
     }
     getLog().info("Copy maven dependencies...");
+    
+    Set<Artifact> all = project.getArtifacts();
+    getLog().info("all dependencies .... "+all);
     
     var deps = new MavenDependencies(project, session).localTransient();
     if (deps.isEmpty())
