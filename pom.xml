@@ -116,6 +116,11 @@
       <version>3.3</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>25.1-android</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
