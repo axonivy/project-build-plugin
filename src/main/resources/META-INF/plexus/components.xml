@@ -73,8 +73,9 @@
         <type>iar</type>
         <extension>iar</extension>
         <language>java</language>
-        <includesDependencies>true</includesDependencies>
-        <addedToClasspath>true</addedToClasspath>
+        <packaging>iar</packaging>
+        <includesDependencies>false</includesDependencies>
+        <addedToClasspath>false</addedToClasspath>
       </configuration>
     </component>
 	</components>

@@ -96,14 +96,13 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     
     //var systemSession = new DefaultRepositorySystemSession();
     var request = new DefaultDependencyResolutionRequest(project, systemSession);
-    
     DependencyResolutionResult resolutionResult = null;
     request.setResolutionFilter(new DependencyFilter()
       {
         @Override
         public boolean accept(DependencyNode node, List<DependencyNode> children)
         { // block resolution to artifact (e.g. IAR), but POMs of the hierarchy will be read!
-          getLog().warn("asdfasdf::::" + node);
+          getLog().warn("dependency::::" + node);
           getLog().warn("child::::" + children);
           return true;
         }
@@ -112,6 +111,9 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     
     resolutionResult = resolver.resolve(request);
     resolutionResult.getDependencyGraph().getChildren();
+    
+    
+    
     
     var mvnDependencies = new MavenDependencies(project, session);
     var deps = mvnDependencies.localTransient();
