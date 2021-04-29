@@ -34,17 +34,37 @@ public class MavenDependencies
   
   public List<File> localTransient()
   {
-    
     Stream<Artifact> artifacts = stream(project.getArtifacts())
       .filter(this::isLocalDep);
     return getFiles(artifacts);
+  }
+  
+  public List<File> localTransientDependencyJars()
+  {
+    return stream(project.getArtifacts())
+            //.filter(this::isLocalDep)
+            .map(this::getDependencyIarJars)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+  }
+  
+  private List<File> getDependencyIarJars(Artifact artifact)
+  {
+    return findReactorProject(artifact)
+            .map(p -> new SharedFile(p).getIarDependencyClasspathJar())
+            .filter(c -> c.exists())
+            .map(c -> new ClasspathJar(c).getFiles())
+            .orElse(List.of());
   }
   
   private boolean isLocalDep(Artifact artifact)
   {
     return artifact.getDependencyTrail().stream()
       .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
-      .filter(dep -> !dep.startsWith(project.getGroupId()+":"+project.getArtifactId()+":"))
+      .filter(dep -> 
+      {
+        return !dep.startsWith(project.getGroupId()+":"+project.getArtifactId()+":");
+      })
       .findAny()
       .isEmpty();
   }

@@ -22,10 +22,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.DefaultDependencyResolutionRequest;
+import org.apache.maven.project.DependencyResolutionResult;
+import org.apache.maven.project.ProjectDependenciesResolver;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.graph.DependencyNode;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
@@ -60,6 +68,16 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
   @Parameter( defaultValue = "${session}", readonly = true)
   private MavenSession session;
   
+  @Component
+  private ProjectDependenciesResolver resolver;
+  
+  @Component( role = ArtifactHandlerManager.class )
+  public ArtifactHandlerManager artifactHandlerManager;
+  
+  @Parameter(defaultValue = "${repositorySystemSession}")
+  private RepositorySystemSession systemSession;
+  
+  
   @Override
   protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
@@ -71,9 +89,36 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     getLog().info("Compiling ivy Project...");
     List<File> iarDependencies = getDependencies("iar");
     List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
-    var deps = new MavenDependencies(project, session).localTransient();
+    
+    
+    var artifactHandler = artifactHandlerManager.getArtifactHandler("iar");
+//    ((DefaultArtifactHandler) artifactHandler).setIncludesDependencies(true);
+    
+    //var systemSession = new DefaultRepositorySystemSession();
+    var request = new DefaultDependencyResolutionRequest(project, systemSession);
+    
+    DependencyResolutionResult resolutionResult = null;
+    request.setResolutionFilter(new DependencyFilter()
+      {
+        @Override
+        public boolean accept(DependencyNode node, List<DependencyNode> children)
+        { // block resolution to artifact (e.g. IAR), but POMs of the hierarchy will be read!
+          getLog().warn("asdfasdf::::" + node);
+          getLog().warn("child::::" + children);
+          return true;
+        }
+      });
+    
+    
+    resolutionResult = resolver.resolve(request);
+    resolutionResult.getDependencyGraph().getChildren();
+    
+    var mvnDependencies = new MavenDependencies(project, session);
+    var deps = mvnDependencies.localTransient();
     getLog().error("juhuu::: "+project.getArtifacts());
     iarJars.addAll(deps);
+    getLog().error("blbublb::: "+mvnDependencies.localTransientDependencyJars());
+    iarJars.addAll(mvnDependencies.localTransientDependencyJars());
     
     Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
@@ -99,5 +144,23 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
     File jar = new SharedFile(project).getIarDependencyClasspathJar();
     new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
   }
+  
 
+//  public class IarArtifactHandler extends DefaultArtifactHandler
+//  {
+//
+//    @Override
+//    public String getExtension()
+//    {
+//      return "iar";
+//    }
+//
+//    @Override
+//    public boolean isIncludesDependencies()
+//    {
+//      // TODO Auto-generated method stub
+//      return true;
+//    }
+//
+//  }
 }
