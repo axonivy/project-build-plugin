@@ -233,7 +233,6 @@ public class DeployToEngineMojo extends AbstractDeployMojo
 
   public static interface DefaultDeployOptions
   {
-    String CLEANUP_DISABLED = "DISABLED";
     String VERSION_AUTO = "AUTO";
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
     String FILE_FORMAT_AUTO = "AUTO";
