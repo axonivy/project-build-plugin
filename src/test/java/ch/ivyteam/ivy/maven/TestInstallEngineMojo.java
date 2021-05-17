@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import org.apache.commons.io.IOUtils;
@@ -338,7 +339,7 @@ public class TestInstallEngineMojo
 
   private String findLink(String html) throws MojoExecutionException, MalformedURLException
   {
-    return getUrlDownloader().findEngineDownloadUrl(IOUtils.toInputStream(html)).toExternalForm();
+    return getUrlDownloader().findEngineDownloadUrl(IOUtils.toInputStream(html, StandardCharsets.UTF_8)).toExternalForm();
   }
 
   @Test

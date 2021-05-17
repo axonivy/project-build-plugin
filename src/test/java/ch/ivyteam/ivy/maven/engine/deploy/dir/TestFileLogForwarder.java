@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
@@ -70,7 +71,7 @@ public class TestFileLogForwarder
   private static void logAndWait(File fakeEngineLog, String log) throws IOException, InterruptedException
   {
     boolean append = true;
-    FileUtils.write(fakeEngineLog, log, append);
+    FileUtils.write(fakeEngineLog, log, StandardCharsets.UTF_8, append);
     Thread.sleep(1000);
   }
   

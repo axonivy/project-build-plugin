@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +139,7 @@ public class TestDeployToEngineMojo
 
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      FileUtils.write(markers.errorLog(), "validation errors");
+      FileUtils.write(markers.errorLog(), "validation errors", StandardCharsets.UTF_8);
       assertThat(deployedIar).exists();
       deployedIar.delete();
       return null;

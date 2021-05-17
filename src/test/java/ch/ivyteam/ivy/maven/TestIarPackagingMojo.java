@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public class TestIarPackagingMojo
   {
     IarPackagingMojo mojo = rule.getMojo();
     File svn = new File(mojo.project.getBasedir(), ".svn/svn.txt");
-    FileUtils.write(svn, "svn");
+    FileUtils.write(svn, "svn", StandardCharsets.UTF_8);
     mojo.execute();
     Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"), new String[]{"iar"}, false);
     assertThat(iarFiles).hasSize(1);
@@ -124,7 +125,7 @@ public class TestIarPackagingMojo
     IarPackagingMojo mojo = rule.getMojo();
     File outputDir = new File(mojo.project.getBasedir(), "target");
     File customPomXml = new File(outputDir, "myCustomPom.xml");
-    FileUtils.write(customPomXml, "customPomContent");
+    FileUtils.write(customPomXml, "customPomContent", StandardCharsets.UTF_8);
     
     String relativeCustomIncludePath = "target/"+customPomXml.getName();
     FileSet fs = new FileSet();
@@ -144,7 +145,7 @@ public class TestIarPackagingMojo
     IarPackagingMojo mojo = rule.getMojo();
     File outputDir = new File(mojo.project.getBasedir(), "target");
     File flatPomXML = new File(outputDir, "pom.xml");
-    FileUtils.write(flatPomXML, "<artifactId>flattened</artifactId>");
+    FileUtils.write(flatPomXML, "<artifactId>flattened</artifactId>", StandardCharsets.UTF_8);
     
     FileSet fs = new FileSet();
     fs.setDirectory("target");

@@ -17,6 +17,7 @@ package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -129,7 +130,7 @@ public class FileDeployer implements IvyDeployer
     {
       try
       {
-        log.error(FileUtils.readFileToString(deploymentFiles.errorLog()));
+        log.error(FileUtils.readFileToString(deploymentFiles.errorLog(), StandardCharsets.UTF_8));
       }
       catch (IOException ex)
       {
