@@ -53,26 +53,6 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
   @Parameter(property="ivy.deploy.test.users", defaultValue=DefaultDeployOptions.DEPLOY_TEST_USERS)
   public String deployTestUsers;
 
-  /** If set to <code>true</code> then configurations (global variables, external database, web services, REST clients)
-   * defined in the deployed projects overwrite the configurations that are already configured on the engine. */
-  @Parameter(property="ivy.deploy.configuration.overwrite", defaultValue="false")
-  public boolean deployConfigOverwrite;
-
-  /**
-   * Controls whether all configurations (global variables, external database, web services, REST clients) should be cleaned.
-   *
-   * <p>Possible values:</p>
-   * <ul>
-   *    <li><code>DISABLED</code>: all configurations will be kept on the application.</li>
-   *    <li><code>REMOVE_UNUSED</code>: all configurations that are not used by any projects deployed on the application will be removed after the deployment.</li>
-   *    <li><code>REMOVE_ALL</code>: all configurations of the application are removed before the deployment.<br>
-   *    <strong>Should only be used for development or test engines.<br>
-   *    Do not use in productive systems because it could break already deployed projects! </strong></li>
-   * </ul>
-   */
-  @Parameter(property="ivy.deploy.configuration.cleanup", defaultValue=DefaultDeployOptions.CLEANUP_DISABLED)
-  public String deployConfigCleanup;
-
   /**
    * The target version controls on which process model version (PMV) a project is re-deployed.
    *

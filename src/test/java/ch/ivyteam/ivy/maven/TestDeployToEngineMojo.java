@@ -96,8 +96,6 @@ public class TestDeployToEngineMojo
   {
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployTestUsers = "true";
-    mojo.deployConfigOverwrite = true;
-    mojo.deployConfigCleanup = "REMOVE_ALL";
     mojo.deployTargetVersion = "RELEASED";
     mojo.deployTargetState = "INACTIVE";
     mojo.deployTargetFileFormat = "EXPANDED";
@@ -113,9 +111,6 @@ public class TestDeployToEngineMojo
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
               "deployTestUsers: TRUE\n" +
-              "configuration:\n" +
-              "  overwrite: true\n" +
-              "  cleanup: REMOVE_ALL\n" +
               "target:\n" +
               "  version: RELEASED\n" +
               "  state: INACTIVE\n"+

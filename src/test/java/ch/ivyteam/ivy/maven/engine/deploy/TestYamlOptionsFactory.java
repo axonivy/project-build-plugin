@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -18,8 +19,6 @@ public class TestYamlOptionsFactory
   {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = "true";
-    config.deployConfigCleanup = "REMOVE_ALL";
-    config.deployConfigOverwrite = true;
     config.deployTargetVersion = "RELEASED";
     config.deployTargetState = "ACTIVE";
     config.deployTargetFileFormat = "EXPANDED";
@@ -32,7 +31,7 @@ public class TestYamlOptionsFactory
   {
     try(InputStream is = getClass().getResourceAsStream(file))
     {
-      return IOUtils.toString(is);
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
   }
   
@@ -41,8 +40,6 @@ public class TestYamlOptionsFactory
   {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = DefaultDeployOptions.DEPLOY_TEST_USERS;
-    config.deployConfigCleanup = DefaultDeployOptions.CLEANUP_DISABLED;
-    config.deployConfigOverwrite = false;
     config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;
     config.deployTargetState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED;
     config.deployTargetFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO;
