@@ -289,6 +289,7 @@ public class EngineControl
    * @param statusCmd
    * @return the output of the engine command.
    */
+  @SuppressWarnings("deprecation")
   private String executeSynch(CommandLine statusCmd)
   {
     String engineOutput = null;

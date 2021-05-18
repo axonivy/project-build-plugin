@@ -56,7 +56,7 @@ public class DeploymentOptionsFileFactory
     File yamlOptionsFile = getTargetFile(YAML);
     try
     {
-      FileUtils.write(yamlOptionsFile, options);
+      FileUtils.write(yamlOptionsFile, options, StandardCharsets.UTF_8);
     }
     catch (IOException ex)
     {

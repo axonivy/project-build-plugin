@@ -36,7 +36,6 @@ public class YamlOptionsFactory
     
     gen.writeStartObject(); // root
     writeTestUsers(config, gen);
-    writeConfig(config, gen);
     writeTarget(config, gen);
     gen.writeEndObject();
     
@@ -59,25 +58,6 @@ public class YamlOptionsFactory
     }
   }
   
-  private static void writeConfig(AbstractDeployMojo config, JsonGenerator gen) throws IOException
-  {
-    boolean defaultCleanup = DefaultDeployOptions.CLEANUP_DISABLED.equals(config.deployConfigCleanup);
-    if (config.deployConfigOverwrite || !defaultCleanup)
-    {
-      gen.writeObjectFieldStart("configuration");
-      if (config.deployConfigOverwrite)
-      {
-        gen.writeBooleanField("overwrite", config.deployConfigOverwrite);
-      }
-      if (!defaultCleanup)
-      {
-        // validate and log invalid values!
-        gen.writeStringField("cleanup", config.deployConfigCleanup);
-      }
-      gen.writeEndObject();
-    }
-  }
-
   private static void writeTarget(AbstractDeployMojo config, JsonGenerator gen) throws IOException
   {
     boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);

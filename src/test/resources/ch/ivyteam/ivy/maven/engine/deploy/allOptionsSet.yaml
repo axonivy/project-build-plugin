@@ -1,7 +1,4 @@
 deployTestUsers: TRUE
-configuration:
-  overwrite: true
-  cleanup: REMOVE_ALL
 target:
   version: RELEASED
   state: ACTIVE

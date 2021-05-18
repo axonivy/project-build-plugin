@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -96,8 +97,6 @@ public class TestDeployToEngineMojo
   {
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployTestUsers = "true";
-    mojo.deployConfigOverwrite = true;
-    mojo.deployConfigCleanup = "REMOVE_ALL";
     mojo.deployTargetVersion = "RELEASED";
     mojo.deployTargetState = "INACTIVE";
     mojo.deployTargetFileFormat = "EXPANDED";
@@ -113,9 +112,6 @@ public class TestDeployToEngineMojo
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
               "deployTestUsers: TRUE\n" +
-              "configuration:\n" +
-              "  overwrite: true\n" +
-              "  cleanup: REMOVE_ALL\n" +
               "target:\n" +
               "  version: RELEASED\n" +
               "  state: INACTIVE\n"+
@@ -143,7 +139,7 @@ public class TestDeployToEngineMojo
 
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      FileUtils.write(markers.errorLog(), "validation errors");
+      FileUtils.write(markers.errorLog(), "validation errors", StandardCharsets.UTF_8);
       assertThat(deployedIar).exists();
       deployedIar.delete();
       return null;

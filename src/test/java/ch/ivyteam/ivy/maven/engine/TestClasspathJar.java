@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
@@ -47,7 +48,7 @@ public class TestClasspathJar
     ZipInputStream jarStream = new ZipInputStream(new FileInputStream(jarFile));
     ZipEntry first = jarStream.getNextEntry();
     assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");
-    String manifest = IOUtils.toString(jarStream);
+    String manifest = IOUtils.toString(jarStream, StandardCharsets.UTF_8);
     assertThat(manifest)
       .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
       .startsWith("Manifest-Version:");
