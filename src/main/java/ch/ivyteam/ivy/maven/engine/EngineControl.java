@@ -46,8 +46,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
-import ch.ivyteam.ivy.maven.StartTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
+import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
 import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.deploy;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -24,6 +24,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import ch.ivyteam.ivy.maven.AbstractEngineMojo;
+import ch.ivyteam.ivy.maven.IarPackagingMojo;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
   public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
 
   @Parameter(property = "project", required = true, readonly = true)
-  MavenProject project;
+  public MavenProject project;
 
   /** The maximum heap (-Xmx) that is used for starting and running the Engine **/
   @Parameter(property = "ivy.engine.start.maxmem", required = false, defaultValue = "2048m")
@@ -104,7 +104,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo
     }
   }
 
-  Executor startEngine() throws Exception
+  public Executor startEngine() throws Exception
   {
     File engineDir = identifyAndGetEngineDirectory();
     

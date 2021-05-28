@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.io.IOException;

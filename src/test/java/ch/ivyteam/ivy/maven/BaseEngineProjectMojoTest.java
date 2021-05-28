@@ -28,13 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.DefaultArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.plugin.internal.DefaultLegacySupport;
 import org.junit.Rule;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
@@ -44,7 +38,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
 public class BaseEngineProjectMojoTest
 {
   protected static final String ENGINE_VERSION_TO_TEST = getTestEngineVersion();
-  protected static final String LOCAL_REPOSITORY = getLocalRepoPath();
+  public static final String LOCAL_REPOSITORY = getLocalRepoPath();
   protected static final String CACHE_DIR = LOCAL_REPOSITORY + "/.cache/ivy-dev";
 
   private static String getTestEngineVersion()
@@ -174,7 +168,7 @@ public class BaseEngineProjectMojoTest
     };
     
     
-  protected static class EngineMojoRule<T extends AbstractEngineMojo> extends ProjectMojoRule<T>
+  public static class EngineMojoRule<T extends AbstractEngineMojo> extends ProjectMojoRule<T>
   {
     protected EngineMojoRule(String mojoName)
     {
@@ -195,46 +189,6 @@ public class BaseEngineProjectMojoTest
     }
   }
     
-  protected static class CompileMojoRule<T extends AbstractProjectCompileMojo> extends EngineMojoRule<T>
-  {
-    protected CompileMojoRule(String mojoName)
-    {
-      super(mojoName);
-    }
-  
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      configureMojo(getMojo());
-    }
-
-    public void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
-    {
-      newMojo.localRepository = provideLocalRepository();
-    }
-  
-    /**
-     * maven-plugin-testing-harness can not inject local repositories (though the real runtime supports it).
-     * and the default stubs have no sufficient implementation of getPath(): 
-     * @see "http://maven.apache.org/plugin-testing/maven-plugin-testing-harness/examples/repositories.html"
-     */
-    private ArtifactRepository provideLocalRepository() throws IllegalAccessException
-    {
-      DefaultArtifactRepositoryFactory factory = new DefaultArtifactRepositoryFactory();
-      setVariableValueToObject(factory, "factory", new org.apache.maven.repository.legacy.repository.DefaultArtifactRepositoryFactory());
-      
-      LegacySupport legacySupport = new DefaultLegacySupport();
-      setVariableValueToObject(factory, "legacySupport", legacySupport);
-      
-      ArtifactRepository localRepository = factory.createArtifactRepository("local", "http://localhost", 
-              new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
-      
-      setVariableValueToObject(localRepository, "basedir", LOCAL_REPOSITORY);
-      
-      return localRepository;
-    }
-  }
-  
   protected class RunnableEngineMojoRule<T extends AbstractEngineMojo> extends EngineMojoRule<T>
   {
 

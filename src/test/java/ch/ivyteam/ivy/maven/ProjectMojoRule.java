@@ -39,7 +39,7 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule
   private T mojo;
   private String mojoName;
   private File templateProjectDir;
-  protected MavenProject project;
+  public MavenProject project;
   
   public ProjectMojoRule(File srcDir, String mojoName)
   {

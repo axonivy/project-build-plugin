@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
+import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
@@ -41,7 +42,7 @@ import ch.ivyteam.ivy.maven.util.MavenRuntime;
 public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
 {
   @Parameter(property = "project", required = true, readonly = true)
-  protected MavenProject project;
+  public MavenProject project;
   
   /**
    * Home application where the project to build and its dependencies will be temporary deployed. 
@@ -102,7 +103,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   private RepositorySystem repository;
   
   @Parameter(defaultValue = "${localRepository}")
-  protected ArtifactRepository localRepository;
+  public ArtifactRepository localRepository;
   
   private static MavenProjectBuilderProxy builder;
 

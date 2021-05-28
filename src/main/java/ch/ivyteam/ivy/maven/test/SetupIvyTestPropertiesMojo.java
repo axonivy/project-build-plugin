@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +31,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
+import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
+import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenProperties;

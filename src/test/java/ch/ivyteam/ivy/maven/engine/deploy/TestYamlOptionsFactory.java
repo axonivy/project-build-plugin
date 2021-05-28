@@ -9,8 +9,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.DeployToEngineMojo;
-import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
+import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo;
+import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
 
 public class TestYamlOptionsFactory
 {

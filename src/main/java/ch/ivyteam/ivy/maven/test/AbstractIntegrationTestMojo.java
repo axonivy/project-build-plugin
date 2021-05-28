@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import java.io.File;
 import java.util.Objects;
@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+
+import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 
 public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
 {
@@ -27,7 +29,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.test.engine", defaultValue=TestEngineLocation.COPY_FROM_CACHE)
   String testEngine;
 
-  protected final File getEngineDir(MavenProject project) throws MojoExecutionException
+  public final File getEngineDir(MavenProject project) throws MojoExecutionException
   {
     if (engineToTarget())
     {

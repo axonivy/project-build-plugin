@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
@@ -32,8 +32,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.DeployToEngineMojo.DeployMethod;
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.ProjectMojoRule;
+import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
 
 /**
  * @since 7.1.0

@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import ch.ivyteam.ivy.maven.AbstractDeployMojo;
-import ch.ivyteam.ivy.maven.DeployToEngineMojo.DefaultDeployOptions;
+import ch.ivyteam.ivy.maven.deploy.AbstractDeployMojo;
+import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
 
 /**
  * @since 7.1.0

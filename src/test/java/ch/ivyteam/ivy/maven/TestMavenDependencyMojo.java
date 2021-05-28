@@ -32,6 +32,8 @@ import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.compile.CompileMojoRule;
+
 public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest
 {
   private MavenDependencyMojo testMojo;

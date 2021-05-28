@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.junit.Rule;
 import org.junit.Test;
+
+import ch.ivyteam.ivy.maven.ProjectMojoRule;
 
 public class TestDeployToTestEngineMojo
 {

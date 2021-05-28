@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.compile.CompileMojoRule;
+import ch.ivyteam.ivy.maven.compile.CompileProjectMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 
 public class TestLoggerIntegration extends BaseEngineProjectMojoTest
