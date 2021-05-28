@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.deploy.DeployToTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
 import ch.ivyteam.ivy.maven.util.MavenProperties;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -30,6 +30,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
 
 public class TestDeployToEngineMojo

@@ -26,6 +26,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.deploy.DeployToTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 
 public class TestShareIntegrationTestPropertiesMojo

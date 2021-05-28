@@ -27,7 +27,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo
   @Parameter(property = "ivy.test.engine", defaultValue=TestEngineLocation.COPY_FROM_CACHE)
   String testEngine;
 
-  protected final File getEngineDir(MavenProject project) throws MojoExecutionException
+  public final File getEngineDir(MavenProject project) throws MojoExecutionException
   {
     if (engineToTarget())
     {
