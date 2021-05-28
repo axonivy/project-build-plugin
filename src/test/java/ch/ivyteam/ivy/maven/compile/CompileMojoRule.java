@@ -26,7 +26,7 @@ import org.apache.maven.plugin.internal.DefaultLegacySupport;
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.EngineMojoRule;
 
-public class CompileMojoRule<T extends AbstractProjectCompileMojo> extends EngineMojoRule<T>
+public class CompileMojoRule<T extends AbstractEngineInstanceMojo> extends EngineMojoRule<T>
 {
   public CompileMojoRule(String mojoName)
   {
@@ -39,7 +39,7 @@ public class CompileMojoRule<T extends AbstractProjectCompileMojo> extends Engin
     configureMojo(getMojo());
   }
 
-  public void configureMojo(AbstractProjectCompileMojo newMojo) throws IllegalAccessException
+  public void configureMojo(AbstractEngineInstanceMojo newMojo) throws IllegalAccessException
   {
     newMojo.localRepository = provideLocalRepository();
   }

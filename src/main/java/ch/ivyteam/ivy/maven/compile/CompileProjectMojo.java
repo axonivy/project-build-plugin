@@ -56,7 +56,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo
   boolean skipScriptValidation;
   
   @Override
-  protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
+  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
     if (skipCompilation)
     {

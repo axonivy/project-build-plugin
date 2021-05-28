@@ -61,7 +61,7 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo
   private MavenSession session;
   
   @Override
-  protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
+  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
     if (skipMvnDependency)
     {
