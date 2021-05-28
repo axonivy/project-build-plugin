@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
