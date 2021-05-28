@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import java.io.File;
 

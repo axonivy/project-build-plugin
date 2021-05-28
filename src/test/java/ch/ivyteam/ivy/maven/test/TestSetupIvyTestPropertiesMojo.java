@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,10 +33,12 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.SetupIvyTestPropertiesMojo.Property;
-import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime;
-import ch.ivyteam.ivy.maven.bpm.test.IvyTestRuntime.Key;
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.test.SetupIvyTestPropertiesMojo.Property;
+import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
+import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime.Key;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.SharedFile;

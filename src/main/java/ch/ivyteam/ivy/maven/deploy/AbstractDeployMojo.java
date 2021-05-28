@@ -29,13 +29,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 
-import ch.ivyteam.ivy.maven.AbstractIntegrationTestMojo;
 import ch.ivyteam.ivy.maven.IarPackagingMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
+import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo;
 
 public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
 {

@@ -48,14 +48,14 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
   @Parameter(property=ENGINE_DIRECTORY_PROPERTY)
-  File engineDirectory;
+  public File engineDirectory;
   
   /**
    * Location where ivy engines in required version can be extracted to. 
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
   @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="ivy.engine.cache.directory")
-  protected File engineCacheDirectory;
+  public File engineCacheDirectory;
   
   /**
    * The ivy Engine version or version-range that must be used. 

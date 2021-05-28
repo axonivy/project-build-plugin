@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.bpm.test;
+package ch.ivyteam.ivy.maven.test.bpm;
 
 import java.io.File;
 import java.io.FileOutputStream;

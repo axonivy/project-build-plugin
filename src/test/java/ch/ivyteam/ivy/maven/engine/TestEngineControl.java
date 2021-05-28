@@ -23,9 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.StopTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl.EngineState;
 import ch.ivyteam.ivy.maven.log.LogCollector;
+import ch.ivyteam.ivy.maven.test.StopTestEngineMojo;
 
 public class TestEngineControl extends BaseEngineProjectMojoTest
 {

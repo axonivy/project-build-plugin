@@ -34,9 +34,9 @@ import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.ProjectMojoRule;
-import ch.ivyteam.ivy.maven.StartTestEngineMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
 
 /**
  * @since 7.1.0

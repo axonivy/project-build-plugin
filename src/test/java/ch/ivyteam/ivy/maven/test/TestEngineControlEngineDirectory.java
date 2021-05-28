@@ -1,13 +1,14 @@
-package ch.ivyteam.ivy.maven;
+package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.AbstractIntegrationTestMojo.TestEngineLocation;
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.log.LogCollector;
+import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 
 public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest
 {
