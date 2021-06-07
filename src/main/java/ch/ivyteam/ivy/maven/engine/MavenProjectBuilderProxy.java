@@ -100,6 +100,15 @@ public class MavenProjectBuilderProxy
     Class<?> javaCore = loadClassInBundle(jdtBundle, "org.eclipse.jdt.core.JavaCore");
     javaCore.getConstructor().newInstance();
   }
+  
+  @SuppressWarnings("unchecked")
+  public List<File> generateClient(File projectDirToBuild, Map<String, Object> options) throws Exception
+  {
+    Method generateMethod = getMethod("generateClient", File.class, Map.class);
+    return (List<File>) executeInEngineDir(() -> 
+      generateMethod.invoke(delegate, projectDirToBuild, options)
+    );
+  }
 
   /**
    * @param iarDependencies dependencies of type IAR
