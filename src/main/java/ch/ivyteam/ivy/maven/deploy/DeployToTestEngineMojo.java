@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -156,8 +157,10 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo
     {
       return Optional.empty();
     }
-    return Files.find(target, 1, (p,attr)->p.getFileName().toString().endsWith(".iar"))
-      .findAny();
+    try(Stream<Path> find = Files.find(target, 1, (p,attr)->p.getFileName().toString().endsWith(".iar")))
+    {
+      return find.findAny();
+    }
   }
 
   private void deployTestApp() throws MojoExecutionException
