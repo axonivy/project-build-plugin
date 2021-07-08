@@ -115,18 +115,12 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo
   *
   * Example options file content:
   * <pre><code>deployTestUsers: auto
-  *configuration:
-  *  overwrite: true
-  *  cleanup: REMOVE_UNUSED
   *target:
   *  version: RELEASED
   *  state: ACTIVE_AND_RELEASED</code></pre>
   *
   *  <p>Inside the options file you can use property placeholders. The options file may look like this:</p>
   *  <pre><code>deployTestUsers: ${ivy.deploy.test.users}
-  *configuration:
-  *  overwrite: true
-  *  cleanup: REMOVE_UNUSED
   *target:
   *  version: AUTO
   *  state: ${ivy.deploy.target.state}</code></pre>
