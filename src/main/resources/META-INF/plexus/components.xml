@@ -27,6 +27,15 @@
 			</configuration>
 		</component>
 		<component>
+			<role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+			<role-hint>iar</role-hint>
+			<implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+			<configuration>
+				<type>iar</type>
+				<extension>iar</extension>
+			</configuration>
+		</component>
+		<component>
 			<role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
 			<role-hint>iar-integration-test</role-hint>
 			<implementation>
