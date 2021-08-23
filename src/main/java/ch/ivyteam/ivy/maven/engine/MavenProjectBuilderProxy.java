@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -104,9 +105,11 @@ public class MavenProjectBuilderProxy
   @SuppressWarnings("unchecked")
   public List<File> generateClient(File projectDirToBuild, Map<String, Object> options) throws Exception
   {
+    Map<String, Object> opts = new HashMap<>(options);
+    opts.put("engine.classpath", engineClasspath);
     Method generateMethod = getMethod("generateClient", File.class, Map.class);
     return (List<File>) executeInEngineDir(() -> 
-      generateMethod.invoke(delegate, projectDirToBuild, options)
+      generateMethod.invoke(delegate, projectDirToBuild, opts)
     );
   }
 

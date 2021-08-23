@@ -28,6 +28,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import ch.ivyteam.ivy.maven.compile.AbstractEngineInstanceMojo;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
+/**
+ * Generates restClient libraries for OpenAPI compatible services.
+ *
+ * @since 9.3
+ */
 @Mojo(name = OpenApiClientGeneratorMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
 public class OpenApiClientGeneratorMojo extends AbstractEngineInstanceMojo
 {
