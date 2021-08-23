@@ -61,6 +61,11 @@ public class InstallEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
+
+  public interface Property {
+    String OS_ARCH = "ivy.engine.os.arch";
+  }
+
   public static final String DEFAULT_ARCH = "Slim_All_x64";
 
   /**
@@ -118,7 +123,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
    * All_x64 supports Linux and Windows.
    * Slim_All_x64 supports Linux and Windows only with the necessary features (e.g. without demo-portal or axis).
    */
-  @Parameter(property="ivy.engine.os.arch", defaultValue=DEFAULT_ARCH)
+  @Parameter(property=Property.OS_ARCH, defaultValue=DEFAULT_ARCH)
   String osArchitecture;
   
   /** 

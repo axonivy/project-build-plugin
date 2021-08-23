@@ -16,15 +16,19 @@
 
 package ch.ivyteam.ivy.maven.generate;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.compile.AbstractEngineInstanceMojo;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
-@Mojo(name = OpenApiClientGeneratorMojo.GOAL)
+@Mojo(name = OpenApiClientGeneratorMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
 public class OpenApiClientGeneratorMojo extends AbstractEngineInstanceMojo
 {
   public static final String GOAL = "generate-openapi-client";
@@ -33,6 +37,8 @@ public class OpenApiClientGeneratorMojo extends AbstractEngineInstanceMojo
   protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
     Map<String, Object> opts = new HashMap<>();
-    projectBuilder.generateClient(project.getBasedir(), opts);
+    List<File> clients = projectBuilder.generateClient(project.getBasedir(), opts);
+    List<String> simpleNames = clients.stream().map(File::getName).collect(Collectors.toList());
+    getLog().info("Created JAX-RS clients: "+simpleNames);
   }
 }

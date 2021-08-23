@@ -1,0 +1,8 @@
+RestClients:
+  Genderize.io:
+    UUID: 007036dc-72d1-429f-88a7-ba5d5cf5ae58
+    Features:
+    - ch.ivyteam.ivy.rest.client.mapper.JsonFeature
+    OpenAPI:
+      SpecUrl: https://raw.githubusercontent.com/axonivy/market/master/market/connector/genderize/openapi.json
+      Namespace: io.genderize

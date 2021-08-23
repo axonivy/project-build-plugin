@@ -117,6 +117,7 @@ class OsgiRuntime
             + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add slf4j
             
             + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
+            + "javax.naming,javax.net.ssl," // openapi codegen
             + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
             + "org.w3c.dom," // since oxygen platform
             + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath," // for java 11

@@ -108,6 +108,11 @@ public class BaseEngineProjectMojoTest
         {
       	  getMojo().engineListPageUrl = new URL(alternateEngineListPageUrl);
         }
+        String alternateArch = System.getProperty(InstallEngineMojo.Property.OS_ARCH);
+        if (alternateArch != null)
+        {
+          getMojo().osArchitecture = alternateArch;
+        }
         getMojo().engineCacheDirectory = new File(CACHE_DIR);
         getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
         getMojo().engineDirectory = evalEngineDir(getMojo());
