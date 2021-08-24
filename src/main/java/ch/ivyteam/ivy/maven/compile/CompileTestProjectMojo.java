@@ -46,7 +46,7 @@ public class CompileTestProjectMojo extends AbstractProjectCompileMojo
   boolean skipTest;
   
   @Override
-  protected void compile(MavenProjectBuilderProxy projectBuilder) throws Exception
+  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
   {
     if (skipTest)
     {

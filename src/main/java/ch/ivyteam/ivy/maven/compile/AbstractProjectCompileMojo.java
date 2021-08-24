@@ -24,32 +24,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 
-import ch.ivyteam.ivy.maven.AbstractEngineMojo;
-import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
-import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
-import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.util.MavenRuntime;
 
-public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
+public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceMojo
 {
-  @Parameter(property = "project", required = true, readonly = true)
-  public MavenProject project;
-  
-  /**
-   * Home application where the project to build and its dependencies will be temporary deployed. 
-   */
-  @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
-  protected File buildApplicationDirectory;
-  
   /** 
    * Specifies the default encoding for all source files. By default this is the charset of the JVM according to {@link Charset#defaultCharset()}.
    * You may set it to another value like 'UTF-8'.
@@ -57,13 +38,6 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.compiler.encoding")
   private String encoding;
-
-  /** 
-   * Defines the timeout how long to wait for an engine start to compile.
-   * @since 7.4.0
-   */
-  @Parameter(property = "ivy.compiler.engine.start.timeout", defaultValue = "60")
-  private int timeoutEngineStartInSeconds;
 
   /**
    * Set to <code>false</code> to disable compilation warnings.
@@ -99,64 +73,6 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineMojo
   @Parameter
   List<String> compilerOptions;
   
-  @Component
-  private RepositorySystem repository;
-  
-  @Parameter(defaultValue = "${localRepository}")
-  public ArtifactRepository localRepository;
-  
-  private static MavenProjectBuilderProxy builder;
-
-  @Override
-  public final void execute() throws MojoExecutionException, MojoFailureException
-  {
-    Slf4jSimpleEngineProperties.install();
-    try
-    {
-      compile(getMavenProjectBuilder());
-    }
-    catch (Exception ex)
-    {
-      throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
-    }
-    finally
-    {
-      Slf4jSimpleEngineProperties.reset();
-    }
-  }
-  
-  protected abstract void compile(MavenProjectBuilderProxy projectBuilder) throws Exception;
-
-  private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
-  {
-    EngineClassLoaderFactory classLoaderFactory = getEngineClassloaderFactory();
-
-    File engineDir = identifyAndGetEngineDirectory();
-    if (builder == null)
-    {
-      builder = new MavenProjectBuilderProxy(
-              classLoaderFactory,
-              buildApplicationDirectory,
-              engineDir,
-              getLog(),
-              timeoutEngineStartInSeconds);
-    }
-    classLoaderFactory.writeEngineClasspathJar(engineDir);
-    // share engine directory as property for custom follow up plugins:
-    if (engineDir != null)
-    {
-      project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.getAbsolutePath());
-    }
-    return builder;
-  }
-
-  public final EngineClassLoaderFactory getEngineClassloaderFactory()
-  {
-    MavenContext context = new EngineClassLoaderFactory.MavenContext(
-            repository, localRepository, project, getLog());
-    return new EngineClassLoaderFactory(context);
-  }
-
   protected Map<String, Object> getOptions()
   {
     Map<String, Object> options = new HashMap<>();
