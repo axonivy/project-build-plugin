@@ -29,7 +29,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 
 /**
  * A MOJO that relies on an unpacked ivy engine.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -37,28 +37,28 @@ public abstract class AbstractEngineMojo extends AbstractMojo
 {
   /** keep synch with pom.xml &gt; reporting &gt; maven-plugin-plugin &gt; requirements */
   protected static final String MINIMAL_COMPATIBLE_VERSION = "9.1.0";
-  protected static final String DEFAULT_VERSION = "9.2.0";
-  
+  protected static final String DEFAULT_VERSION = "9.3.0";
+
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
-  
+
   /**
-   * Location where an unpacked (may pre-configured) ivy Engine in the {@link #ivyVersion required version} exists. 
+   * Location where an unpacked (may pre-configured) ivy Engine in the {@link #ivyVersion required version} exists.
    * <p>If parameter is not set it will be a sub-directory of the {@link #engineCacheDirectory}.
-   * 
-   * <p>If the Engine does not yet exist, it can be automatically downloaded. 
+   *
+   * <p>If the Engine does not yet exist, it can be automatically downloaded.
    */
   @Parameter(property=ENGINE_DIRECTORY_PROPERTY)
   public File engineDirectory;
-  
+
   /**
-   * Location where ivy engines in required version can be extracted to. 
-   * <p>If the Engine does not yet exist, it can be automatically downloaded. 
+   * Location where ivy engines in required version can be extracted to.
+   * <p>If the Engine does not yet exist, it can be automatically downloaded.
    */
   @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="ivy.engine.cache.directory")
   public File engineCacheDirectory;
-  
+
   /**
-   * The ivy Engine version or version-range that must be used. 
+   * The ivy Engine version or version-range that must be used.
    * Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
    * Examples: <br>
    * <ul>
@@ -72,14 +72,14 @@ public abstract class AbstractEngineMojo extends AbstractMojo
 
   /** testing only: avoid restriction to minimal version! */
   boolean restrictVersionToMinimalCompatible = true;
-  
+
   public AbstractEngineMojo()
   {
     super();
   }
-  
+
   /**
-   * <b style="color:red">Caution</b>: normally you should favor {@link #identifyAndGetEngineDirectory()}. 
+   * <b style="color:red">Caution</b>: normally you should favor {@link #identifyAndGetEngineDirectory()}.
    * Otherwise the returned 'directory' could be yet invalid!
    * @return the raw engine directory
    */
@@ -96,19 +96,19 @@ public abstract class AbstractEngineMojo extends AbstractMojo
     }
     return engineDirectory;
   }
-  
+
   protected final boolean isEngineDirectoryIdentified()
   {
     return engineDirectory != null;
   }
-  
+
   protected final File findMatchingEngineInCacheDirectory() throws MojoExecutionException
   {
     if (engineCacheDirectory == null || !engineCacheDirectory.exists())
     {
       return null;
     }
-    
+
     File engineDirToTake = null;
     ArtifactVersion versionOfEngineToTake = null;
     for (File engineDirCandidate : engineCacheDirectory.listFiles())
@@ -143,7 +143,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
       throw new MojoExecutionException("Cannot evaluate engine version", ex);
     }
   }
-  
+
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException
   {
     try
@@ -153,7 +153,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
       {
         ivyVersionRange = VersionRange.createFromVersionSpec("["+ivyVersion+"]");
       }
-      
+
       if (restrictVersionToMinimalCompatible)
       {
         return restrictToMinimalCompatible(ivyVersionRange);

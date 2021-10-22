@@ -108,9 +108,12 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo
 
   public final EngineClassLoaderFactory getEngineClassloaderFactory()
   {
-    MavenContext context = new EngineClassLoaderFactory.MavenContext(
+    return new EngineClassLoaderFactory(getMavenRepoContext());
+  }
+
+  protected final MavenContext getMavenRepoContext() {
+    return new EngineClassLoaderFactory.MavenContext(
             repository, localRepository, project, getLog());
-    return new EngineClassLoaderFactory(context);
   }
 
 }
