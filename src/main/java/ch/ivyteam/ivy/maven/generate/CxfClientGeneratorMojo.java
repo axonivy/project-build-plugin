@@ -24,31 +24,43 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.compiler.manager.CompilerManager;
 
-import ch.ivyteam.ivy.maven.compile.AbstractEngineInstanceMojo;
+import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
-import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.webservice.exec.cxf.codegen.CxfClientGenerator;
 import ch.ivyteam.ivy.webservice.exec.cxf.codegen.MavenCxfCompiler;
 
 /**
- * Generates CXF clients for SOAP webservices. 
+ * Generates CXF clients for SOAP webservices.
  *
  * @since 9.3
  */
 @Mojo(name = CxfClientGeneratorMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
-public class CxfClientGeneratorMojo extends AbstractEngineInstanceMojo
+public class CxfClientGeneratorMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "generate-cxf-client";
 
   @Component
   private CompilerManager compilerManager;
+
+  @Component
+  private RepositorySystem repository;
+
+  @Parameter(defaultValue = "${localRepository}")
+  private ArtifactRepository localRepository;
+
+  @Parameter(property = "project", required = true, readonly = true)
+  private MavenProject project;
 
   /**
    * the WSDL service descriptor
@@ -60,7 +72,7 @@ public class CxfClientGeneratorMojo extends AbstractEngineInstanceMojo
   String clientId;
 
   @Override
-  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
+  public void execute() throws MojoExecutionException ,org.apache.maven.plugin.MojoFailureException
   {
     MavenCxfCompiler compiler = new MavenCxfCompiler(compilerManager, getLog());
     List<File> jars = getCxfIvyJars();
@@ -68,9 +80,13 @@ public class CxfClientGeneratorMojo extends AbstractEngineInstanceMojo
       compiler.addClasspathEntry(jar.getAbsolutePath());
     });
 
-    new CxfClientGenerator()
-      .compiler(compiler)
-      .generate(wsdlUri, this::integrate);
+    try {
+      new CxfClientGenerator()
+        .compiler(compiler)
+        .generate(wsdlUri, this::integrate);
+    } catch (Exception ex) {
+      throw new MojoFailureException("Failed to compile CXF client "+clientId, ex);
+    }
   }
 
   private void integrate(File tmpJar) {
@@ -85,8 +101,9 @@ public class CxfClientGeneratorMojo extends AbstractEngineInstanceMojo
     }
   }
 
-  private List<File> getCxfIvyJars() throws MojoExecutionException, IOException {
-    MavenContext repoContext = getMavenRepoContext(); // TODO: can resolve from plugin context? though not a project dependency?
+  private List<File> getCxfIvyJars() throws MojoExecutionException {
+    MavenContext repoContext = new MavenContext(repository, localRepository, project, getLog());
+    // TODO: can resolve from plugin context? though not a project dependency?
     File lang3 = repoContext.getJar("org.apache.commons", "commons-lang3", "3.3.2");
     File annotate = repoContext.getJar("javax.annotation", "javax.annotation-api", "1.3.2");
     File jaxb = repoContext.getJar("javax.xml.bind", "jaxb-api", "2.3.1");
@@ -102,9 +119,11 @@ public class CxfClientGeneratorMojo extends AbstractEngineInstanceMojo
     return jars;
   }
 
-  private Optional<Path> getEngineJar(File enginePlugins, String jarNamePrefix) throws IOException {
+  private Optional<Path> getEngineJar(File enginePlugins, String jarNamePrefix) throws MojoExecutionException {
     try(var stream = Files.list(enginePlugins.toPath())) {
       return stream.filter(jar -> jar.getFileName().toString().startsWith(jarNamePrefix)).findAny();
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Failed to get ivyEngine jar with prefix "+jarNamePrefix, ex);
     }
   }
 }
