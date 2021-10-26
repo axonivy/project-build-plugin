@@ -34,6 +34,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.compiler.manager.CompilerManager;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
@@ -52,6 +53,9 @@ public class CxfClientGeneratorMojo extends AbstractEngineMojo
 
   @Component
   private CompilerManager compilerManager;
+
+  @Component
+  private BuildContext buildContext;
 
   @Component
   private RepositorySystem repository;
@@ -96,6 +100,7 @@ public class CxfClientGeneratorMojo extends AbstractEngineMojo
       Path clientJar = target.resolve("cxfClient_"+clientId+".jar");
       Files.move(tmpJar.toPath(), clientJar, StandardCopyOption.REPLACE_EXISTING);
       getLog().info("Created CXF client: "+clientJar);
+      buildContext.refresh(clientJar.toFile());
     } catch (IOException ex) {
       getLog().error("Failed to integrate CXF client "+tmpJar, ex);
     }
