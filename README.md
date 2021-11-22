@@ -11,7 +11,8 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 ## Release new version
 
-- Update the default engine version and check the minimal engine version need to be raised too: [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java).
+- Update the default engine version and check the minimal engine version need to be raised too: [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L39).
+- Update the engine version in the [pom.xml](pom.xml#L454)
 - Update the Readme badge versions.
 - Run the `project-build-plugin` pipeline with the `maven.central.release` profile.
 - Run the `ivy-core_release-raise-project-build-plugin-version` pipeline with the new release/snapshot versions.
