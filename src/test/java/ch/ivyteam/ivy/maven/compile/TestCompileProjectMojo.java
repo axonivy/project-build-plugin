@@ -36,7 +36,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
   public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<CompileProjectMojo>(CompileProjectMojo.GOAL)
   {
     @Override
-    protected void before() throws Throwable 
+    protected void before() throws Throwable
     {
       super.before();
       // use same project as first rule/mojo
@@ -44,55 +44,52 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
       configureMojo(testMojo);
     }
   };
-  
+
   @Test
   public void buildWithExistingProject() throws Exception
   {
     CompileProjectMojo mojo = compile.getMojo();
-    
+
     File dataClassDir = new File(mojo.project.getBasedir(), "src_dataClasses");
     File wsProcDir = new File(mojo.project.getBasedir(), "src_wsproc");
     File classDir = new File(mojo.project.getBasedir(), "classes");
     FileUtils.cleanDirectory(wsProcDir);
     FileUtils.cleanDirectory(dataClassDir);
-    
+
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication").toFile();
     mojo.execute();
-    
+
     assertThat(findFiles(dataClassDir, "java")).hasSize(2);
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
-    
+
     assertThat(findFiles(classDir, "txt"))
       .as("classes directory must be cleand by the builder before compilation")
       .isEmpty();
     assertThat(findFiles(classDir, "class"))
       .as("compiled classes must exist. but not contain any test class.")
       .hasSize(4);
-    assertThat(findFiles(classDir, "xml"))
-      .as("resources from the src folder must be copied to the classes folder")
-      .hasSize(1);
-    
+
     testMojo.execute();
     assertThat(findFiles(classDir, "class"))
       .as("compiled classes must contain test resources as well")
       .hasSize(5);
   }
-  
+
   @Test
   public void compilerSettingsFile_notFoundWarnings() throws Exception
   {
     LogCollector log = new LogCollector();
     CompileProjectMojo mojo = compile.getMojo();
     mojo.setLog(log);
-    
+
     mojo.compilerWarnings = false;
     mojo.compilerSettings = new File("path/to/oblivion");
-    
+
     mojo.execute();
     assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
-    
+
     mojo.compilerWarnings = true;
-    
+
     mojo.execute();
     assertThat(log.getWarnings().toString()).contains("Could not locate compiler settings file");
   }
