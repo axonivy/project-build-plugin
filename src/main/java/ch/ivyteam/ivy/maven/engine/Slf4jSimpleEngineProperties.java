@@ -23,70 +23,64 @@ import org.slf4j.impl.SimpleLogger;
 
 /**
  * Sets the logging properties for the ivy engine.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-public class Slf4jSimpleEngineProperties
-{
+public class Slf4jSimpleEngineProperties {
+
   private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
-          "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // engine start/stop
+          "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // legacy > engine start/stop: (up to 9.3)
+          "ch.ivyteam.ivy.server.build.InMemoryEngineController", // engine start/stop
           "ch.ivyteam.ivy.project.build.MavenProjectBuilder", // maven engine interface
           "ch.ivyteam.ivy.scripting.dataclass.internal.ProjectDataClassManager", // dataclass source generation
           "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
           "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice source generation
   );
   private static final String IVY_PREFIX = "ch.ivyteam.ivy";
-  
-  public static void install()
-  {
+
+  public static void install() {
     setDefaultProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, Boolean.FALSE.toString());
     setDefaultProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, Boolean.TRUE.toString());
     setDefaultProperty(SimpleLogger.SHOW_LOG_NAME_KEY, Boolean.FALSE.toString());
     setDefaultProperty(SimpleLogger.WARN_LEVEL_STRING_KEY, "WARNING");
-    
+
     // apply Maven log level to well known white-listed ivy loggers
     String mavenClientLogLevel = getDefaultLogLevel();
-    for(String loggerName : INTERESTING_LOGGERS)
-    {
-      System.setProperty(SimpleLogger.LOG_KEY_PREFIX+loggerName, mavenClientLogLevel);
+    for (String loggerName : INTERESTING_LOGGERS) {
+      System.setProperty(SimpleLogger.LOG_KEY_PREFIX + loggerName, mavenClientLogLevel);
     }
-    
-    // only log errors from unspecific engine loggers! 
-    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+IVY_PREFIX, Level.ERROR);
 
-    //Disable CXF warning at startup (missing META-INF/cxf/cxf.xml)
-    System.setProperty(SimpleLogger.LOG_KEY_PREFIX+"org.apache.cxf.bus.spring", Level.ERROR);
-    
-    // only warnings from any logger used by ivy third parties (e.g. org.apache.myfaces.xxx, org.apache.cxf, ...)
+    // only log errors from unspecific engine loggers!
+    System.setProperty(SimpleLogger.LOG_KEY_PREFIX + IVY_PREFIX, Level.ERROR);
+
+    // Disable CXF warning at startup (missing META-INF/cxf/cxf.xml)
+    System.setProperty(SimpleLogger.LOG_KEY_PREFIX + "org.apache.cxf.bus.spring", Level.ERROR);
+
+    // only warnings from any logger used by ivy third parties (e.g.
+    // org.apache.myfaces.xxx, org.apache.cxf, ...)
     System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
   }
-  
-  public static void reset()
-  {
-    for(String loggerName : INTERESTING_LOGGERS)
-    {
-      System.clearProperty(SimpleLogger.LOG_KEY_PREFIX+loggerName);
+
+  public static void reset() {
+    for (String loggerName : INTERESTING_LOGGERS) {
+      System.clearProperty(SimpleLogger.LOG_KEY_PREFIX + loggerName);
     }
-    System.clearProperty(SimpleLogger.LOG_KEY_PREFIX+IVY_PREFIX);
+    System.clearProperty(SimpleLogger.LOG_KEY_PREFIX + IVY_PREFIX);
   }
 
-  private static String getDefaultLogLevel()
-  {
+  private static String getDefaultLogLevel() {
     String mavenClientLogLevel = System.getProperty(DEFAULT_LOG_LEVEL);
     boolean isPreMaven31Client = mavenClientLogLevel == null;
-    if (isPreMaven31Client)
-    { // pre 31 clients we're not using sfl4j-simple for their own logs
+    if (isPreMaven31Client) { // pre 31 clients we're not using sfl4j-simple for their own logs
       return Level.INFO;
     }
     return mavenClientLogLevel;
   }
-  
-  private static void setDefaultProperty(String property, String value)
-  {
-    if (System.getProperty(property) == null)
-    {
+
+  private static void setDefaultProperty(String property, String value) {
+    if (System.getProperty(property) == null) {
       System.setProperty(property, value);
     }
   }
@@ -94,8 +88,7 @@ public class Slf4jSimpleEngineProperties
   /**
    * Valid levels as documented in {@link org.slf4j.impl.SimpleLogger}
    */
-  static interface Level
-  {
+  static interface Level {
     String TRACE = "trace";
     String DEBUG = "debug";
     String INFO = "info";
