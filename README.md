@@ -17,6 +17,10 @@ Maven plugin for the automated building of Axon Ivy Projects.
 - Run the `project-build-plugin` pipeline with the `maven.central.release` profile.
 - Run the `ivy-core_release-raise-project-build-plugin-version` pipeline with the new release/snapshot versions.
 
+After the release (on the next SNAPSHOT build):
+
+- Update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+
 ## License
 
 The Apache License, Version 2.0
