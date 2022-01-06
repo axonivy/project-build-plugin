@@ -17,6 +17,7 @@
 package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
@@ -24,6 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.apache.maven.plugin.logging.Log;
 
@@ -36,16 +43,18 @@ import org.apache.maven.plugin.logging.Log;
 public class MavenProjectBuilderProxy
 {
   private static final String FQ_DELEGATE_CLASS_NAME = "ch.ivyteam.ivy.project.build.MavenProjectBuilder";
-  private Object delegate;
-  private Class<?> delegateClass;
-  private File baseDirToBuildIn;
-  private String engineClasspath;
+  private final Object delegate;
+  private final Class<?> delegateClass;
+  private final File baseDirToBuildIn;
+  private final String engineClasspath;
   private final Log log;
 
   public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace, File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception
   {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
+    
+    logEngine();
     
     URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
@@ -55,6 +64,21 @@ public class MavenProjectBuilderProxy
 
     List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
     engineClasspath = getEngineClasspath(engineJars);
+  }
+
+  private void logEngine()
+          throws ReflectionException, IntrospectionException, MalformedObjectNameException
+  {
+    var cl = this.getClass().getClassLoader();
+    var message = "MavenProjectBuilderProxy instance " + System.identityHashCode(this) + 
+                  " created with class loader " + cl + " ("+System.identityHashCode(cl)+")";
+    try {
+      ManagementFactory.getPlatformMBeanServer().getMBeanInfo(new ObjectName("ivy Engine:type=Server"));
+      log.warn(message + " ivy engine is already running!");
+    }
+    catch (InstanceNotFoundException ex) {
+      log.debug(message + " ivy engine is not yet running");
+    }    
   }
 
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws Exception
@@ -171,7 +195,7 @@ public class MavenProjectBuilderProxy
   }
   
   
-  public static interface Options
+  public interface Options
   {
     String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
     String COMPILE_CLASSPATH = "maven.dependency.classpath";
@@ -181,7 +205,7 @@ public class MavenProjectBuilderProxy
     String JDT_OPTIONS = "jdt.options";
   }
   
-  public static interface Result
+  public interface Result
   {
     String TEST_OUTPUT_DIR = "ivy.project.test.output.dir";
   }
