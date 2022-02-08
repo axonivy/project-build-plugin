@@ -36,7 +36,7 @@ class OsgiRuntime
     this.engineDir = engineDir;
     this.log = log;
   }
-  
+
   Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds) throws Exception
   {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
@@ -51,7 +51,7 @@ class OsgiRuntime
     Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
     return bundleContext;
   }
-  
+
   void runThreadWithProperties(Callable<?> function, int timeoutEngineStartInSeconds) throws Exception
   {
     Map<String, String> properties = createOsgiConfigurationProps();
@@ -105,7 +105,7 @@ class OsgiRuntime
   private Map<String, String> createOsgiConfigurationProps()
   {
     Map<String, String> properties = new LinkedHashMap<>();
-    
+
     properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
     properties.put("user.dir", engineDir.getAbsolutePath());
     File osgiDir = new File(engineDir, OsgiDir.INSTALL_AREA);
@@ -115,15 +115,19 @@ class OsgiRuntime
             "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
             + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add log4j
             + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add slf4j
-            
-            + "javax.management,javax.management.openmbean,javax.xml.parsers," // since oxygen platform
-            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax," // since oxygen platform
-            + "org.w3c.dom," // since oxygen platform
-            + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath," // for java 11
+            + "javax.net.ssl," // validate openApi
+
+            // oxygen platform
+            + "javax.management,javax.management.openmbean,javax.xml.parsers,"
+            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax,"
+            + "org.w3c.dom,"
+
+            // for java 11
+            + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath,"
             + "org.xml.sax.ext,org.xml.sax.helpers,"
             + "javax.xml.stream,javax.xml.stream.events,javax.xml.stream.util"
             );
-    
+
     if (log.isDebugEnabled())
     {
       log.debug("Configuration OSGi system properties:");
