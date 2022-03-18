@@ -206,7 +206,7 @@
     <dependency>
       <groupId>org.apache.wink</groupId>
       <artifactId>wink-component-test-support</artifactId>
-      <version>1.3.0</version>
+      <version>1.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -324,7 +324,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <phase>site</phase>
