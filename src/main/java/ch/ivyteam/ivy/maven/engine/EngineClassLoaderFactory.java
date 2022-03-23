@@ -55,7 +55,7 @@ public class EngineClassLoaderFactory
   }
   
   /** must match version in pom.xml */
-  private static final String SLF4J_VERSION = "1.7.30";
+  private static final String SLF4J_VERSION = "1.7.36";
   
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
           OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
