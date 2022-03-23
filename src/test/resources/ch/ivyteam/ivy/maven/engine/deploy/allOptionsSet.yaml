@@ -1,4 +1,4 @@
-deployTestUsers: TRUE
+deployTestUsers: "TRUE"
 target:
   version: RELEASED
   state: ACTIVE

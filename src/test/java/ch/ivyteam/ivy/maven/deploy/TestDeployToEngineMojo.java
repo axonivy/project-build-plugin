@@ -112,7 +112,7 @@ public class TestDeployToEngineMojo
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
-              "deployTestUsers: TRUE\n" +
+              "deployTestUsers: \"TRUE\"\n" +
               "target:\n" +
               "  version: RELEASED\n" +
               "  state: INACTIVE\n"+
@@ -161,7 +161,7 @@ public class TestDeployToEngineMojo
       mockEngineDeployThread.failOnException();
     }
   }
-  
+
   private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
