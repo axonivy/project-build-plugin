@@ -42,17 +42,16 @@ import ch.ivyteam.ivy.maven.engine.download.EngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.MavenEngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 
 /**
  * Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version.
- * 
+ *
  * <p>Command line invocation is supported. E.g.</p>
  * <pre>mvn com.axonivy.ivy.ci:project-build-plugin:9.1.0:installEngine
  * -Divy.engine.directory=c:/axonviy/engine
  * -Divy.engine.version=9.1.0
  * -Divy.engine.os.arch=Linux_x64</pre>
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -66,9 +65,9 @@ public class InstallEngineMojo extends AbstractEngineMojo
   /**
    * Enables the engine artifact download via maven plugin repositories. If set to <code>false</code>,
    * the default URL download approach is used (see {@link #engineDownloadUrl} and {@link #engineListPageUrl} properties).
-   * 
-   * <p>As there exist no official maven repository containing the axonivy engine, 
-   * it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p> 
+   *
+   * <p>As there exist no official maven repository containing the axonivy engine,
+   * it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p>
    * <pre>
    *    groupId=com.axonivy.ivy
    *    artifactId=engine
@@ -96,18 +95,18 @@ public class InstallEngineMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.engine.download.url")
   URL engineDownloadUrl;
-  
-  /** 
-   * URL where a link to the ivy Engine in the expected {@link #ivyVersion} exists. 
+
+  /**
+   * URL where a link to the ivy Engine in the expected {@link #ivyVersion} exists.
    * The URL will be used to download the required engine if it does not yet exist.
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip"&gt; the engine&lt;/a&gt;</code>
    */
   @Parameter(property=ENGINE_LIST_URL_PROPERTY, defaultValue="https://developer.axonivy.com/download/maven.html")
   URL engineListPageUrl;
-  
-  /** 
-   * Engine type that will be downloaded if {@link #autoInstallEngine} is set and the engine must be 
+
+  /**
+   * Engine type that will be downloaded if {@link #autoInstallEngine} is set and the engine must be
    * retrieved from the {@link #engineListPageUrl}.
    * Possible values are:
    * <ul>
@@ -120,14 +119,14 @@ public class InstallEngineMojo extends AbstractEngineMojo
    */
   @Parameter(property="ivy.engine.os.arch", defaultValue=DEFAULT_ARCH)
   String osArchitecture;
-  
-  /** 
+
+  /**
    * Enables the automatic installation of an ivy Engine in the {@link #engineDirectory}.
    * If there is yet no engine installed, or the {@link #ivyVersion} does not match, the
    * engine will be downloaded from the {@link #engineDownloadUrl} and unpacked into the
    * {@link #engineDirectory}.
    */
-  @Parameter(property="ivy.engine.auto.install", defaultValue="true") 
+  @Parameter(property="ivy.engine.auto.install", defaultValue="true")
   boolean autoInstallEngine;
 
   @Override
@@ -152,8 +151,8 @@ public class InstallEngineMojo extends AbstractEngineMojo
         getRawEngineDirectory().mkdirs();
       }
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
-      
-      if (installedEngineVersion == null || 
+
+      if (installedEngineVersion == null ||
               !ivyVersionRange.containsVersion(installedEngineVersion))
       {
         handleWrongIvyVersion(installedEngineVersion);
@@ -167,7 +166,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
     boolean cleanEngineDir = false;
     downloadAndInstallEngine(cleanEngineDir);
   }
-  
+
   private void handleWrongIvyVersion(ArtifactVersion installedEngineVersion) throws MojoExecutionException
   {
     getLog().info("Installed engine in '"+getRawEngineDirectory()+"' has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
@@ -201,7 +200,7 @@ public class InstallEngineMojo extends AbstractEngineMojo
       {
         downloadZip.delete();
       }
-      
+
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       if (installedEngineVersion == null)
       {
@@ -266,22 +265,21 @@ public class InstallEngineMojo extends AbstractEngineMojo
 
   private void unpackEngine(File downloadZip) throws MojoExecutionException
   {
-    try
+    String targetLocation = getRawEngineDirectory().getAbsolutePath();
+    getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
+    try (var engineZip = new ZipFile(downloadZip))
     {
-      String targetLocation = getRawEngineDirectory().getAbsolutePath();
-      getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
-      ZipFile engineZip = new ZipFile(downloadZip);
       engineZip.extractAll(targetLocation);
     }
-    catch (ZipException ex)
+    catch (IOException ex)
     {
       throw new MojoExecutionException("Failed to unpack downloaded engine '" + downloadZip + "'.", ex);
     }
   }
-  
+
   File getDownloadDirectory()
   {
-    return SystemUtils.getJavaIoTmpDir(); 
+    return SystemUtils.getJavaIoTmpDir();
   }
 
 }

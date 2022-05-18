@@ -138,7 +138,7 @@ public class EngineControl
       cli.addArguments(context.vmOptions.additionalVmOptions, false);
     }
     EngineModuleHints.addToCmdLine(cli);
-    
+
     cli.addArgument("org.eclipse.equinox.launcher.Main")
             .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")
             .addArgument(command.toString());
@@ -240,7 +240,7 @@ public class EngineControl
     }
     return result;
   }
-  
+
   static String evaluateIvyContextFromUrl(String location)
   {
     return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
@@ -289,7 +289,6 @@ public class EngineControl
    * @param statusCmd
    * @return the output of the engine command.
    */
-  @SuppressWarnings("deprecation")
   private String executeSynch(CommandLine statusCmd)
   {
     String engineOutput = null;
