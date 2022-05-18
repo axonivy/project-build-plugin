@@ -155,7 +155,7 @@ public class TestInstallEngineMojo
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
 
-    mojo.ivyVersion = "[7.0.0,8.0.3]";
+    mojo.ivyVersion = "[7.0.0,8.0.26]";
     mojo.autoInstallEngine = true;
     final String downloadVersion = AbstractEngineMojo.DEFAULT_VERSION;
     mojo.engineDownloadUrl = createFakeEngineZip(downloadVersion).toURI().toURL();
