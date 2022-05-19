@@ -382,7 +382,7 @@
           </execution>
         </executions>
         <configuration>
-          <server>github.ivy-team</server>
+          <server>github.ivy-team.oauth</server>
           <merge>true</merge>
         </configuration>
       </plugin>
