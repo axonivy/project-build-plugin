@@ -63,10 +63,10 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
 
     assertThat(findFiles(classDir, "txt"))
-      .as("classes directory must be cleand by the builder before compilation")
-      .isEmpty();
+      .as("classes directory must only be cleand by the builder before compilation if class files are found")
+      .hasSize(1);
     assertThat(findFiles(classDir, "class"))
-      .as("compiled classes must exist. but not contain any test class.")
+      .as("compiled classes must exist. but not contain any test class or old class files.")
       .hasSize(4);
 
     testMojo.execute();
