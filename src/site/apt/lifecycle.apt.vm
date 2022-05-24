@@ -2,23 +2,28 @@ iar Lifecycle
 
  The project-build-plugin has a custom build lifecycle. It's enabled by setting the <<<\<packaging\>iar\</packaging\>>>> in your pom.xml.
 
-*-----*------*
- <<phase>>    | <<default executions>> 
-*-----*------*
- initialize   | ${project.groupId}:${project.artifactId}:{{{./installEngine-mojo.html}installEngine}}
-*-----*------*
- compile      | ${project.groupId}:${project.artifactId}:{{{./compileProject-mojo.html}compileProject}} 
-*-----*------*
- test-compile | ${project.groupId}:${project.artifactId}:{{{./test-compile-mojo.html}test-compile}} 
-*-----*------*
- test         | ${project.groupId}:${project.artifactId}:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
-              | org.apache.maven.plugins:maven-surefire-plugin:test 
-*-----*------*
- package      | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}} 
-              | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
-*-----*------*
- deploy       | org.apache.maven.plugins:maven-deploy-plugin:deploy 
-*-----*------*
+*--------*---------*
+ <<phase>>         | <<default executions>> 
+*--------*---------*
+ clean             | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-cleanup-mojo.html}maven-dependency-cleanup}}
+*--------*---------*
+ initialize        | ${project.groupId}:${project.artifactId}:{{{./installEngine-mojo.html}installEngine}}
+*--------*---------*
+ process-resources | ${project.groupId}:${project.artifactId}:{{{./ivy-resources-properties-mojo.html}ivy-resources-properties}}
+                   | org.apache.maven.plugins:maven-resources-plugin:resources
+*--------*---------*
+ compile           | ${project.groupId}:${project.artifactId}:{{{./compileProject-mojo.html}compileProject}} 
+*--------*---------*
+ test-compile      | ${project.groupId}:${project.artifactId}:{{{./test-compile-mojo.html}test-compile}} 
+*--------*---------*
+ test              | ${project.groupId}:${project.artifactId}:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
+                   | org.apache.maven.plugins:maven-surefire-plugin:test 
+*--------*---------*
+ package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}} 
+                   | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
+*--------*---------*
+ deploy            | org.apache.maven.plugins:maven-deploy-plugin:deploy 
+*--------*---------*
 
 
 
@@ -30,15 +35,15 @@ iar-integration-test Lifecycle
 
  The <<<iar-integration-test>>> lifecycle adds the following additional bindings to the normal <<<iar>>> lifecycle:
 
-*-----*------*
- pre-integration-test | ${project.groupId}:${project.artifactId}:{{{./start-test-engine-mojo.html}start-test-engine}}\
-              | ${project.groupId}:${project.artifactId}:{{{./deploy-to-test-engine-mojo.html}deploy-to-test-engine}} 
-*-----*------*ja
- integration-test | ${project.groupId}:${project.artifactId}:{{{./ivy-integration-test-properties-mojo.html}ivy-integration-test-properties}}\
-              | org.apache.maven.plugins:maven-failsafe-plugin:integration-test 
-*-----*------*
+*----------*-----------*
+ pre-integration-test  | ${project.groupId}:${project.artifactId}:{{{./start-test-engine-mojo.html}start-test-engine}}\
+                       | ${project.groupId}:${project.artifactId}:{{{./deploy-to-test-engine-mojo.html}deploy-to-test-engine}} 
+*----------*-----------*
+ integration-test      | ${project.groupId}:${project.artifactId}:{{{./ivy-integration-test-properties-mojo.html}ivy-integration-test-properties}}\
+                       | org.apache.maven.plugins:maven-failsafe-plugin:integration-test 
+*----------*-----------*
  post-integration-test | ${project.groupId}:${project.artifactId}:{{{./stop-test-engine-mojo.html}stop-test-engine}} 
-*-----*------*
- verify      | org.apache.maven.plugins:maven-failsafe-plugin:verify 
-*-----*------*
+*----------*-----------*
+ verify                | org.apache.maven.plugins:maven-failsafe-plugin:verify 
+*----------*-----------*
 
