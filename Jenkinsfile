@@ -85,7 +85,7 @@ pipeline {
           }
         }
         archiveArtifacts 'target/*.jar'
-        junit '**/target/surefire-reports/**/*.xml'
+        junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
       }
     }
   }
