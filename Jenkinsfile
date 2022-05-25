@@ -108,7 +108,7 @@ def setupGPGEnvironment() {
 
 def collectBuildArtifacts()  {
   archiveArtifacts 'target/*.jar'
-  junit '**/target/surefire-reports/**/*.xml'
+  junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], unstableTotalAll: 1, filters: [
     excludeType('site-maven-plugin:site'),
     excludeType('sonar-maven-plugin:sonar'),
