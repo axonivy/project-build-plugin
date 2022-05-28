@@ -19,7 +19,7 @@ pipeline {
 
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
-      defaultValue: 'https://jenkins.ivyteam.io/job/ivy-core_product/job/master/lastSuccessfulBuild/')
+      defaultValue: 'https://jenkins.ivyteam.io/job/core_product/job/master/lastSuccessfulBuild/')
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
