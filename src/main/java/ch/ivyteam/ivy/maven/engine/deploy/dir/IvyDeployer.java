@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2021 Axon Ivy AG
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ch.ivyteam.ivy.maven.engine.deploy.dir;
@@ -27,10 +27,10 @@ import org.apache.maven.plugin.logging.Log;
  * </ul>
  * @since 6.1.0
  */
-public interface IvyDeployer
-{
+public interface IvyDeployer {
   /**
-   * @param deployablePath the path to the deployable (uploaded). Must be relative the engines deploy directory.
+   * @param deployablePath the path to the deployable (uploaded). Must be
+   *          relative the engines deploy directory.
    * @param log mojo log
    * @throws MojoExecutionException if deployment fails
    */

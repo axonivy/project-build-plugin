@@ -20,39 +20,32 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-public class MavenProperties
-{
+public class MavenProperties {
   private final MavenProject project;
   private final Log log;
 
-  public MavenProperties(MavenProject project, Log log)
-  {
+  public MavenProperties(MavenProject project, Log log) {
     this.project = project;
     this.log = log;
   }
 
-  public void setMavenProperty(String key, String value)
-  {
+  public void setMavenProperty(String key, String value) {
     set(key, value);
   }
-  
-  public void set(String key, String value)
-  {
+
+  public void set(String key, String value) {
     log.debug("share property '" + key + "' with value '" + StringUtils.abbreviate(value, 500) + "'");
     project.getProperties().put(key, value);
   }
-  
+
   @SuppressWarnings("unchecked")
-  public <T extends Object> T get(String key)
-  {
+  public <T extends Object> T get(String key) {
     return (T) project.getProperties().get(key);
   }
-  
-  public void append(String key, String value)
-  {
+
+  public void append(String key, String value) {
     String current = get(key);
-    if (StringUtils.isNotEmpty(current))
-    {
+    if (StringUtils.isNotEmpty(current)) {
       value = current += value;
     }
     set(key, value);

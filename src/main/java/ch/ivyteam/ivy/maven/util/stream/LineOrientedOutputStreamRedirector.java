@@ -1,23 +1,22 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  *
  */
 
 package ch.ivyteam.ivy.maven.util.stream;
-
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,42 +28,44 @@ import java.io.OutputStream;
  * is particularly useful in combination with the OutputStreamFunneler so each
  * funneled stream get its line.
  *
- * <p style="color:red;">COPIED FROM ANT 1.9.5: org.apache.tools.ant.util.LineOrientedOutputStreamRedirector</p>
+ * <p style="color:red;">
+ * COPIED FROM ANT 1.9.5:
+ * org.apache.tools.ant.util.LineOrientedOutputStreamRedirector
+ * </p>
  */
 public class LineOrientedOutputStreamRedirector
         extends LineOrientedOutputStream {
 
-    private OutputStream stream;
+  private OutputStream stream;
 
-    // these should be in the ASCII range and hopefully are single bytes
-    // (for LF and CR respectively) for any encoding thrown at this class
-    private static final byte[] EOL =
-        System.getProperty("line.separator").getBytes();
+  // these should be in the ASCII range and hopefully are single bytes
+  // (for LF and CR respectively) for any encoding thrown at this class
+  private static final byte[] EOL = System.getProperty("line.separator").getBytes();
 
-    public LineOrientedOutputStreamRedirector(OutputStream stream) {
-        this.stream = stream;
-    }
+  public LineOrientedOutputStreamRedirector(OutputStream stream) {
+    this.stream = stream;
+  }
 
-    @Override
-    protected void processLine(byte[] b) throws IOException {
-        stream.write(b);
-        stream.write(EOL);
-    }
+  @Override
+  protected void processLine(byte[] b) throws IOException {
+    stream.write(b);
+    stream.write(EOL);
+  }
 
-    @Override
-    protected void processLine(String line) throws IOException {
-        stream.write((line + System.getProperty("line.separator")).getBytes());
-    }
+  @Override
+  protected void processLine(String line) throws IOException {
+    stream.write((line + System.getProperty("line.separator")).getBytes());
+  }
 
-    @Override
-    public void close() throws IOException {
-        super.close();
-        stream.close();
-    }
+  @Override
+  public void close() throws IOException {
+    super.close();
+    stream.close();
+  }
 
-    @Override
-    public void flush() throws IOException {
-        super.flush();
-        stream.flush();
-    }
+  @Override
+  public void flush() throws IOException {
+    super.flush();
+    stream.flush();
+  }
 }

@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2021 Axon Ivy AG
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ch.ivyteam.ivy.maven;
@@ -43,55 +43,64 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
  * @since 6.0.0
  */
 @Mojo(name = IarPackagingMojo.GOAL)
-public class IarPackagingMojo extends AbstractMojo
-{
+public class IarPackagingMojo extends AbstractMojo {
   public static final String GOAL = "pack-iar";
   private static final String[] DEFAULT_INCLUDES = new String[] {"**/*"};
   static final String[] DEFAULT_EXCLUDES = new String[] {"target", "%regex[target/(?!classes/).*]"};
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
-  
-  /** 
-   * Define additional IAR excludes with ANT-style exclusion declarations. 
+
+  /**
+   * Define additional IAR excludes with ANT-style exclusion declarations.
    * 
-   * <p>The default (always active) exclusions are:
+   * <p>
+   * The default (always active) exclusions are:
    * <ul>
-   * <li>All maven default excludes. See {@link AbstractScanner#DEFAULTEXCLUDES}</li>
+   * <li>All maven default excludes. See
+   * {@link AbstractScanner#DEFAULTEXCLUDES}</li>
    * <li>
-   * <pre><code>&lt;iarExcludes&gt;
+   * 
+   * <pre>
+   * <code>&lt;iarExcludes&gt;
    *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
    *    &lt;iarExclude&gt;%regex[target/(?!classes/).*]&lt;/iarExclude&gt;
-   *&lt;/iarExcludes&gt;</code></pre></li>
-   *</ul>
+   *&lt;/iarExcludes&gt;</code>
+   * </pre>
+   * 
+   * </li>
+   * </ul>
    */
   @Parameter
   String[] iarExcludes;
-  
-  /** 
-   * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion declarations. 
-   * <pre><code>&lt;iarFileSets&gt;
+
+  /**
+   * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion
+   * declarations.
+   * 
+   * <pre>
+   * <code>&lt;iarFileSets&gt;
    *    &lt;iarFileSet&gt;
    *        &lt;includes&gt;
    *            &lt;include&gt;**&#47;*&lt;/include&gt;
    *        &lt;/includes&gt;
    *    &lt;/iarFileSet&gt;
-   *&lt;/iarFileSets&gt;</code></pre>
+   *&lt;/iarFileSets&gt;</code>
+   * </pre>
    */
   @Parameter
   FileSet[] iarFileSets;
-  
-  /** 
-   * Includes empty directories in the packed IAR.
-   * If set to <code>false</code>, the IAR can not be re-imported as 
-   * Designer project as standard project artifacts (e.g. source folders) could be missing.
+
+  /**
+   * Includes empty directories in the packed IAR. If set to <code>false</code>,
+   * the IAR can not be re-imported as Designer project as standard project
+   * artifacts (e.g. source folders) could be missing.
    */
-  @Parameter(defaultValue="true")
+  @Parameter(defaultValue = "true")
   boolean iarIncludesEmptyDirs;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
-  {
+  public void execute() throws MojoExecutionException, MojoFailureException {
     String iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
     File iar = new File(project.getBuild().getDirectory(), iarName);
     createIvyArchive(project.getBasedir(), iar);
@@ -102,30 +111,24 @@ public class IarPackagingMojo extends AbstractMojo
     getLog().info("Attached " + artifact + ".");
   }
 
-  private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException
-  {
+  private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException {
     ZipArchiver archiver = new ZipArchiver();
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar);
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir());
-    for(org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets))
-    {
+    for (org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets)) {
       archiver.addFileSet(fs);
     }
     archiver.addFileSet(getDefaultFileset(sourceDir));
 
-    try
-    {
+    try {
       archiver.createArchive();
-    }
-    catch (ArchiverException | IOException ex)
-    {
+    } catch (ArchiverException | IOException ex) {
       throw new MojoExecutionException("Failed to create IAR: " + targetIar.getAbsolutePath(), ex);
     }
   }
 
-  private DefaultFileSet getDefaultFileset(File sourceDir)
-  {
+  private DefaultFileSet getDefaultFileset(File sourceDir) {
     DefaultFileSet fileSet = new DefaultFileSet();
     fileSet.setDirectory(sourceDir);
     fileSet.setIncludingEmptyDirectories(iarIncludesEmptyDirs);

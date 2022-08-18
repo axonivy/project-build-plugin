@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2021 Axon Ivy AG
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ch.ivyteam.ivy.maven.compile;
@@ -36,55 +36,50 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name=CompileProjectMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
-public class CompileProjectMojo extends AbstractProjectCompileMojo
-{
+@Mojo(name = CompileProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
+public class CompileProjectMojo extends AbstractProjectCompileMojo {
   public static final String GOAL = "compileProject";
-  
-  /** 
-   * Set to <code>true</code> to bypass the generation of <b>ivy data classes</b>+<b>webservice processes</b> and compilation of <b>java sources</b>.
+
+  /**
+   * Set to <code>true</code> to bypass the generation of <b>ivy data
+   * classes</b>+<b>webservice processes</b> and compilation of <b>java
+   * sources</b>.
    * @since 6.1.0
    */
-  @Parameter(property="ivy.compiler.skip", defaultValue="false")
+  @Parameter(property = "ivy.compiler.skip", defaultValue = "false")
   boolean skipCompilation;
 
-  /** 
-   * Set to <code>false</code> to perform the validation of ivyScript code within ivy processes.
+  /**
+   * Set to <code>false</code> to perform the validation of ivyScript code
+   * within ivy processes.
    * @since 8.0.3
    */
-  @Parameter(property="ivy.script.validation.skip", defaultValue="false")
+  @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
-  
+
   @Override
-  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception
-  {
-    if (skipCompilation)
-    {
+  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
+    if (skipCompilation) {
       return;
     }
-    
+
     getLog().info("Compiling ivy Project...");
     List<File> iarDependencies = getDependencies("iar");
     List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
-    
-    if (skipScriptValidation)
-    {
+
+    if (skipScriptValidation) {
       getLog().info("Skipping ivy script validation");
-    }
-    else
-    {
+    } else {
       projectBuilder.validate(project.getBasedir(), iarDependencies, options);
     }
-    
+
     writeDependencyIarJar(iarJars);
   }
-  
-  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException
-  {
-    if (iarJarDepenencies == null)
-    { // no dependencies
+
+  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException {
+    if (iarJarDepenencies == null) { // no dependencies
       return;
     }
     File jar = new SharedFile(project).getIarDependencyClasspathJar();

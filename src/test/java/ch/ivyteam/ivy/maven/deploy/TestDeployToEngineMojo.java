@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2021 Axon Ivy AG
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package ch.ivyteam.ivy.maven.deploy;
 
@@ -33,15 +33,14 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
 
-public class TestDeployToEngineMojo
-{
+public class TestDeployToEngineMojo {
   @Test
-  public void deployPackedIar() throws Throwable
-  {
+  public void deployPackedIar() throws Throwable {
     DeployToEngineMojo mojo = rule.getMojo();
 
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+"options.yaml");
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
+            deployedIar.getName() + "options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -58,19 +57,19 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-      .as("IAR should not exist in engine deploy directory")
-      .doesNotExist();
+            .as("IAR should not exist in engine deploy directory")
+            .doesNotExist();
   }
 
   @Test
-  public void deployWithExistingOptionsFile() throws Throwable
-  {
+  public void deployWithExistingOptionsFile() throws Throwable {
     rule.project.getProperties().setProperty("doDeploy.test.user", "true");
     DeployToEngineMojo mojo = rule.getMojo();
 
     mojo.deployOptionsFile = new File("src/test/resources/options.yaml");
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
+            deployedIar.getName() + ".options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -89,13 +88,12 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-      .as("IAR should not exist in engine deploy directory")
-      .doesNotExist();
+            .as("IAR should not exist in engine deploy directory")
+            .doesNotExist();
   }
 
   @Test
-  public void deployWithOptions() throws Throwable
-  {
+  public void deployWithOptions() throws Throwable {
     DeployToEngineMojo mojo = rule.getMojo();
     mojo.deployTestUsers = "true";
     mojo.deployTargetVersion = "RELEASED";
@@ -103,7 +101,8 @@ public class TestDeployToEngineMojo
     mojo.deployTargetFileFormat = "EXPANDED";
 
     File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(), deployedIar.getName()+".options.yaml");
+    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
+            deployedIar.getName() + ".options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -113,10 +112,10 @@ public class TestDeployToEngineMojo
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
               "deployTestUsers: \"TRUE\"\n" +
-              "target:\n" +
-              "  version: RELEASED\n" +
-              "  state: INACTIVE\n"+
-              "  fileFormat: EXPANDED");
+                      "target:\n" +
+                      "  version: RELEASED\n" +
+                      "  state: INACTIVE\n" +
+                      "  fileFormat: EXPANDED");
       deploymentOptionsFile.delete();
       assertThat(deployedIar).exists();
       Files.delete(deployedIar.toPath());
@@ -127,13 +126,12 @@ public class TestDeployToEngineMojo
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-      .as("IAR should not exist in engine deploy directory")
-      .doesNotExist();
+            .as("IAR should not exist in engine deploy directory")
+            .doesNotExist();
   }
 
   @Test
-  public void failOnEngineDeployError() throws Throwable
-  {
+  public void failOnEngineDeployError() throws Throwable {
     DeployToEngineMojo mojo = rule.getMojo();
     DeploymentFiles markers = new DeploymentFiles(getTarget(mojo.deployFile, mojo));
     File deployedIar = getTarget(mojo.deployFile, mojo);
@@ -147,23 +145,17 @@ public class TestDeployToEngineMojo
     };
 
     mockEngineDeployThread.execute(engineOperation);
-    try
-    {
+    try {
       mojo.execute();
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    }
-    catch (MojoExecutionException ex)
-    {
+    } catch (MojoExecutionException ex) {
       assertThat(ex).hasMessageContaining("failed!");
-    }
-    finally
-    {
+    } finally {
       mockEngineDeployThread.failOnException();
     }
   }
 
-  private static File getTarget(File iar, DeployToEngineMojo mojo)
-  {
+  private static File getTarget(File iar, DeployToEngineMojo mojo) {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
     File app = new File(deploy, mojo.deployToEngineApplication);
     File deployedIar = new File(app, iar.getName());
@@ -172,30 +164,24 @@ public class TestDeployToEngineMojo
 
   @Rule
   public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<DeployToEngineMojo>(
-          new File("src/test/resources/base"), DeployToEngineMojo.GOAL)
-  {
+          new File("src/test/resources/base"), DeployToEngineMojo.GOAL) {
     @Override
-    protected void before() throws Throwable
-    {
+    protected void before() throws Throwable {
       super.before();
 
       getMojo().deployEngineDirectory = createEngineDir();
       getMojo().deployToEngineApplication = "TestApp";
 
-      try
-      {
+      try {
         getMojo().deployFile.getParentFile().mkdir();
         getMojo().deployFile.createNewFile();
-      }
-      catch (IOException ex)
-      {
-        System.err.println("Failed to create IAR @ "+getMojo().deployFile.getAbsolutePath());
+      } catch (IOException ex) {
+        System.err.println("Failed to create IAR @ " + getMojo().deployFile.getAbsolutePath());
         throw ex;
       }
     }
 
-    private File createEngineDir()
-    {
+    private File createEngineDir() {
       File engine = new File("target/myTestIvyEngine");
       File deploy = new File(engine, "deploy");
       deploy.mkdirs();
@@ -203,37 +189,29 @@ public class TestDeployToEngineMojo
     }
 
     @Override
-    protected void after()
-    {
+    protected void after() {
       super.after();
       FileUtils.deleteQuietly(getMojo().deployEngineDirectory);
     }
   };
 
-  private static class DelayedOperation
-  {
+  private static class DelayedOperation {
     private final long delayMillis;
     private Throwable throwable;
     private Thread thread;
 
-    public DelayedOperation(long delay, TimeUnit unit)
-    {
+    public DelayedOperation(long delay, TimeUnit unit) {
       delayMillis = unit.toMillis(delay);
     }
 
-    public void execute(Callable<Void> delayedFunction)
-    {
-      thread = new Thread(){
+    public void execute(Callable<Void> delayedFunction) {
+      thread = new Thread() {
         @Override
-        public void run()
-        {
-          try
-          {
+        public void run() {
+          try {
             Thread.sleep(delayMillis);
             delayedFunction.call();
-          }
-          catch (Throwable functionThrowable)
-          {
+          } catch (Throwable functionThrowable) {
             functionThrowable.printStackTrace();
             DelayedOperation.this.throwable = functionThrowable;
           }
@@ -242,15 +220,12 @@ public class TestDeployToEngineMojo
       thread.start();
     }
 
-    public void failOnException() throws Throwable
-    {
+    public void failOnException() throws Throwable {
       assertThat(thread).as("Delayed operation thread has never been started.").isNotNull();
-      while(thread.isAlive())
-      {
+      while (thread.isAlive()) {
         Thread.sleep(10); // wait for result
       }
-      if (throwable != null)
-      {
+      if (throwable != null) {
         throw throwable;
       }
     }
