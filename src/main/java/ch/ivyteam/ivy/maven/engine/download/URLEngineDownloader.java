@@ -29,8 +29,8 @@ public class URLEngineDownloader implements EngineDownloader {
   private Log log;
   private File downloadDirectory;
 
-  public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture, String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory)
-  {
+  public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
+          String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory) {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
     this.osArchitecture = osArchitecture;
@@ -41,47 +41,38 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   @Override
-  public File downloadEngine() throws MojoExecutionException
-  {
-    URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl : findEngineDownloadUrlFromListPage();
+  public File downloadEngine() throws MojoExecutionException {
+    URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl
+            : findEngineDownloadUrlFromListPage();
     return downloadEngineFromUrl(downloadUrlToUse);
   }
 
-  private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
-  {
-    try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl))
-    {
+  private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException {
+    try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl)) {
       return findEngineDownloadUrl(pageStream);
-    }
-    catch (IOException ex)
-    {
-      throw new MojoExecutionException("Failed to find engine download link in list page "+engineListPageUrl, ex);
+    } catch (IOException ex) {
+      throw new MojoExecutionException(
+              "Failed to find engine download link in list page " + engineListPageUrl, ex);
     }
   }
 
-  private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
-  {
-    try
-    {
+  private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException {
+    try {
       File downloadZip = evaluateTargetFile(engineUrl);
-      log.info("Starting engine download from "+engineUrl);
+      log.info("Starting engine download from " + engineUrl);
       Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
       return downloadZip;
-    }
-    catch (IOException ex)
-    {
+    } catch (IOException ex) {
       throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
               + downloadDirectory + "'", ex);
     }
   }
 
-  private File evaluateTargetFile(URL engineUrl)
-  {
+  private File evaluateTargetFile(URL engineUrl) {
     zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
     File downloadZip = new File(downloadDirectory, zipFileName);
     int tempFileSuffix = 0;
-    while (downloadZip.exists())
-    {
+    while (downloadZip.exists()) {
       String suffixedZipFileName = zipFileName + "." + tempFileSuffix;
       downloadZip = new File(downloadDirectory, suffixedZipFileName);
       tempFileSuffix++;
@@ -90,58 +81,54 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   /**
-   * Extracts the name of the engine zip-file from the url used to download the engine.
-   * The zip-file name is only known <i>after</i> downloading the engine. Since the download-url might
-   * be extracted from an engine list-page.
-   * The returned zip-file name is not necessarily equal to the name of the downloaded zip-file, since the
-   * downloaded file could have been renamed to avoid name conflicts.
+   * Extracts the name of the engine zip-file from the url used to download the
+   * engine. The zip-file name is only known <i>after</i> downloading the
+   * engine. Since the download-url might be extracted from an engine list-page.
+   * The returned zip-file name is not necessarily equal to the name of the
+   * downloaded zip-file, since the downloaded file could have been renamed to
+   * avoid name conflicts.
    *
    * @return engine zip file-name
    */
   @Override
-  public String getZipFileNameFromDownloadLocation()
-  {
-    if (zipFileName == null)
-    {
+  public String getZipFileNameFromDownloadLocation() {
+    if (zipFileName == null) {
       throw new IllegalStateException("Engine zip file name is not set up.");
     }
     return zipFileName;
   }
-  
-  public URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
-  {
-      String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_"+osArchitecture+"\\.zip";
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?"+engineFileNameRegex+"[\"|']");
-      try(Scanner scanner = new Scanner(htmlStream))
-      {
-          String engineLink = null;
-          while (StringUtils.isBlank(engineLink))
-          {
-              String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
-              if (engineLinkMatch == null)
-              {
-                  throw new MojoExecutionException("Could not find a link to engine for version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
-              }
-              String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine", "_"+osArchitecture);
-              ArtifactVersion version = new DefaultArtifactVersion(EngineVersionEvaluator.toReleaseVersion(versionString));
-              if (ivyVersionRange.containsVersion(version))
-              {
-                  engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
-                  engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
-              }
-          }
-          return toAbsoluteLink(engineListPageUrl, engineLink);
+
+  public URL findEngineDownloadUrl(InputStream htmlStream)
+          throws MojoExecutionException, MalformedURLException {
+    String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_" + osArchitecture + "\\.zip";
+    Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?" + engineFileNameRegex + "[\"|']");
+    try (Scanner scanner = new Scanner(htmlStream)) {
+      String engineLink = null;
+      while (StringUtils.isBlank(engineLink)) {
+        String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
+        if (engineLinkMatch == null) {
+          throw new MojoExecutionException("Could not find a link to engine for version '" + ivyVersion
+                  + "' on site '" + engineListPageUrl + "'");
+        }
+        String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine",
+                "_" + osArchitecture);
+        ArtifactVersion version = new DefaultArtifactVersion(
+                EngineVersionEvaluator.toReleaseVersion(versionString));
+        if (ivyVersionRange.containsVersion(version)) {
+          engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
+          engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
+        }
       }
+      return toAbsoluteLink(engineListPageUrl, engineLink);
+    }
   }
 
-  private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException
-  {
-      boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
-      if (isAbsoluteLink)
-      {
-          return new URL(parsedEngineArchivLink);
-      }
-      return new URL(baseUrl, parsedEngineArchivLink);
+  private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException {
+    boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
+    if (isAbsoluteLink) {
+      return new URL(parsedEngineArchivLink);
+    }
+    return new URL(baseUrl, parsedEngineArchivLink);
   }
 
 }

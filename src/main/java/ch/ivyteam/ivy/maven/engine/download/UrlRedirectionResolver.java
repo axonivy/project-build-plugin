@@ -7,16 +7,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UrlRedirectionResolver
-{
+public class UrlRedirectionResolver {
   public List<URL> openedUrls = new ArrayList<>();
 
-  public InputStream followRedirections(URL url) throws IOException
-  {
+  public InputStream followRedirections(URL url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     openedUrls.add(url);
-    while (isRedirected(connection.getResponseCode()))
-    {
+    while (isRedirected(connection.getResponseCode())) {
       String newUrl = connection.getHeaderField("Location");
       url = new URL(newUrl);
       closeHttpUrlConnectionSilently(connection);
@@ -26,13 +23,11 @@ public class UrlRedirectionResolver
     return connection.getInputStream();
   }
 
-  public List<URL> getOpenedUrls()
-  {
+  public List<URL> getOpenedUrls() {
     return openedUrls;
   }
 
-  private static boolean isRedirected(int httpStatusCode)
-  {
+  private static boolean isRedirected(int httpStatusCode) {
     return httpStatusCode == HttpURLConnection.HTTP_MOVED_TEMP
             || httpStatusCode == HttpURLConnection.HTTP_MOVED_PERM
             || httpStatusCode == HttpURLConnection.HTTP_SEE_OTHER
@@ -40,17 +35,12 @@ public class UrlRedirectionResolver
             || httpStatusCode == 308;
   }
 
-  private static void closeHttpUrlConnectionSilently(HttpURLConnection connection)
-  {
-    try
-    {
-      if (connection != null && connection.getInputStream() != null)
-      {
+  private static void closeHttpUrlConnectionSilently(HttpURLConnection connection) {
+    try {
+      if (connection != null && connection.getInputStream() != null) {
         connection.getInputStream().close();
       }
-    }
-    catch (IOException e)
-    {
+    } catch (IOException e) {
       // silently
     }
   }

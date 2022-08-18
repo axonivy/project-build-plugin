@@ -31,8 +31,7 @@ import org.apache.maven.settings.Server;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
-public class HttpDeployer
-{
+public class HttpDeployer {
   private static final String DEPLOY_URI = "/system/api/apps/";
   private String serverUrl;
   private String targetApplication;
@@ -41,8 +40,8 @@ public class HttpDeployer
   private Server server;
   private SecDispatcher secDispatcher;
 
-  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication, File deployFile, File deploymentOptions)
-  {
+  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication,
+          File deployFile, File deploymentOptions) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
@@ -51,90 +50,72 @@ public class HttpDeployer
     this.deploymentOptions = deploymentOptions;
   }
 
-  public void deploy(Log log) throws MojoExecutionException
-  {
-    try (CloseableHttpClient client = HttpClientBuilder.create().build())
-    {
+  public void deploy(Log log) throws MojoExecutionException {
+    try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
       executeRequest(log, client);
-    }
-    catch (IOException ex)
-    {
+    } catch (IOException ex) {
       throw new MojoExecutionException("Failed to build request body", ex);
-    }
-    catch (URISyntaxException ex)
-    {
+    } catch (URISyntaxException ex) {
       throw new MojoExecutionException("Failed to build http credentials context", ex);
     }
   }
-  
-  private void executeRequest(Log log, CloseableHttpClient client) throws IOException, URISyntaxException, MojoExecutionException
-  {
+
+  private void executeRequest(Log log, CloseableHttpClient client)
+          throws IOException, URISyntaxException, MojoExecutionException {
     String url = serverUrl + DEPLOY_URI + targetApplication;
     HttpPost httpPost = new HttpPost(url);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
     httpPost.setEntity(getRequestData(deploymentOptions));
 
     HttpEntity resultEntity = null;
-    log.info("Uploading file "+deployFile+" to "+url);
-    try(CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url)))
-    {
+    log.info("Uploading file " + deployFile + " to " + url);
+    try (CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url))) {
       resultEntity = response.getEntity();
-      String deploymentLog = readDeploymentLog(resultEntity); 
+      String deploymentLog = readDeploymentLog(resultEntity);
       int status = response.getStatusLine().getStatusCode();
-      if (status != HttpStatus.SC_OK) 
-      {        
+      if (status != HttpStatus.SC_OK) {
         log.error(deploymentLog);
-        throw new MojoExecutionException("Deployment of file '" + deployFile.getName() + "' to engine failed (Status: " + status + ")");
+        throw new MojoExecutionException("Deployment of file '" + deployFile.getName()
+                + "' to engine failed (Status: " + status + ")");
       }
       log.debug(deploymentLog);
       log.info("Deployment finished");
-    }
-    finally
-    {
+    } finally {
       EntityUtils.consume(resultEntity);
     }
   }
 
-  private String readDeploymentLog(HttpEntity resultEntity) throws IOException
-  {
-    if (resultEntity ==  null) 
-    {
+  private String readDeploymentLog(HttpEntity resultEntity) throws IOException {
+    if (resultEntity == null) {
       return "";
     }
     return EntityUtils.toString(resultEntity);
   }
-  
-  private HttpEntity getRequestData(File resolvedOptionsFile)
-  {
+
+  private HttpEntity getRequestData(File resolvedOptionsFile) {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
     builder.addPart("fileToDeploy", new FileBody(deployFile));
-    if (resolvedOptionsFile != null)
-    {
+    if (resolvedOptionsFile != null) {
       builder.addPart("deploymentOptions", new FileBody(resolvedOptionsFile, ContentType.TEXT_PLAIN));
     }
     return builder.build();
   }
 
-  private HttpClientContext getRequestContext(String url) throws URISyntaxException, MojoExecutionException
-  {
+  private HttpClientContext getRequestContext(String url) throws URISyntaxException, MojoExecutionException {
     String username = "admin";
     String password = "admin";
-    if (server != null)
-    {
+    if (server != null) {
       username = server.getUsername();
-      try
-      {
+      try {
         password = secDispatcher.decrypt(server.getPassword());
-      }
-      catch (SecDispatcherException ex)
-      {
+      } catch (SecDispatcherException ex) {
         throw new MojoExecutionException("Could not decrypt maven password", ex);
       }
     }
     HttpHost httpHost = URIUtils.extractHost(new URI(url));
     CredentialsProvider credsProvider = new BasicCredentialsProvider();
     credsProvider.setCredentials(AuthScope.ANY,
-        new UsernamePasswordCredentials(username, password));
+            new UsernamePasswordCredentials(username, password));
     AuthCache authCache = new BasicAuthCache();
     authCache.put(httpHost, new BasicScheme());
     HttpClientContext context = HttpClientContext.create();

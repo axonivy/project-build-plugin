@@ -25,8 +25,7 @@ import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
-public class EngineMojoContext
-{
+public class EngineMojoContext {
   public final File engineDirectory;
   public final MavenProject project;
   public final Log log;
@@ -36,46 +35,40 @@ public class EngineMojoContext
   public final File engineLogFile;
   public final Integer timeoutInSeconds;
 
-  public EngineMojoContext(File engineDirectory, MavenProject project, Log log, File engineLogFile, EngineVmOptions vmOptions, Integer timeoutInSeconds)
-  {
+  public EngineMojoContext(File engineDirectory, MavenProject project, Log log, File engineLogFile,
+          EngineVmOptions vmOptions, Integer timeoutInSeconds) {
     this.engineDirectory = engineDirectory;
     this.project = project;
     this.log = log;
     this.engineLogFile = engineLogFile;
     this.vmOptions = vmOptions;
     this.timeoutInSeconds = timeoutInSeconds;
-    
+
     this.properties = new MavenProperties(project, log);
     this.engineClasspathJarPath = setupEngineClasspathJarIfNotExists();
 
-    if (!(new File(engineClasspathJarPath).exists()))
-    {
+    if (!(new File(engineClasspathJarPath).exists())) {
       throw new RuntimeException("Engine ClasspathJar " + engineClasspathJarPath + " does not exist.");
     }
-    if (!(engineDirectory.exists()))
-    {
+    if (!(engineDirectory.exists())) {
       throw new RuntimeException("Engine Directory " + engineDirectory + " does not exist.");
     }
   }
-  
-  private String setupEngineClasspathJarIfNotExists()
-  {
+
+  private String setupEngineClasspathJarIfNotExists() {
     File classpathJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
-    
-    if (!classpathJar.exists())
-    {
-      try
-      {
+
+    if (!classpathJar.exists()) {
+      try {
         log.info("Creating a classpath jar for starting the engine");
-        new ClasspathJar(classpathJar).createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
-      }
-      catch (Exception ex)
-      {
+        new ClasspathJar(classpathJar)
+                .createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
+      } catch (Exception ex) {
         throw new RuntimeException(
                 "Could not create engine classpath jar: '" + classpathJar.getAbsolutePath() + "'", ex);
       }
     }
-    
+
     return classpathJar.getAbsolutePath();
   }
 }

@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-public interface EngineDownloader 
-{
-    File downloadEngine() throws MojoExecutionException;
-    String getZipFileNameFromDownloadLocation() throws MojoExecutionException;
+public interface EngineDownloader {
+  File downloadEngine() throws MojoExecutionException;
+
+  String getZipFileNameFromDownloadLocation() throws MojoExecutionException;
 }
