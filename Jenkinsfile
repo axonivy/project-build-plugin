@@ -19,7 +19,7 @@ pipeline {
 
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
-      defaultValue: 'https://jenkins.ivyteam.io/job/ivy-core_product/job/master/lastSuccessfulBuild/')
+      defaultValue: 'https://jenkins.ivyteam.io/job/core_product/job/release%252F9.3/lastSuccessfulBuild/')
 
     choice(name: 'deployProfile',
       description: 'Choose where the built plugin should be deployed to',
@@ -39,7 +39,7 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
+            def phase = env.BRANCH_NAME == 'release/9.3' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -49,7 +49,7 @@ pipeline {
               "-Dmaven.test.failure.ignore=true"
 
           }
-          if (env.BRANCH_NAME == 'master') {
+          if (env.BRANCH_NAME == 'release/9.3') {
             maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
           }
           collectBuildArtifacts()
@@ -59,7 +59,7 @@ pipeline {
     
     stage('release build') {
       when {
-        branch 'master'
+        branch 'release/9.3'
         expression { params.deployProfile == 'maven.central.release' }
       }
       steps {
