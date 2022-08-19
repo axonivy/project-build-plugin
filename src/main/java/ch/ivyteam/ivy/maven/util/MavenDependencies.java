@@ -2,6 +2,7 @@ package ch.ivyteam.ivy.maven.util;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,21 +31,27 @@ public class MavenDependencies {
   }
 
   public List<File> localTransient() {
-    Stream<Artifact> artifacts = stream(project.getArtifacts())
-            .filter(this::isLocalDep);
-    return getFiles(artifacts);
+    return stream(project.getArtifacts())
+      .filter(this::isLocalDep)
+      .filter(this::include)
+      .map(Artifact::getFile)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   private boolean isLocalDep(Artifact artifact) {
     return artifact.getDependencyTrail().stream()
-            .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
-            .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
-            .findAny()
-            .isEmpty();
+      .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
+      .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
+      .findAny()
+      .isEmpty();
   }
 
   public List<File> all() {
-    return getFiles(stream(project.getArtifacts()));
+    return stream(project.getArtifacts())
+      .filter(this::include)
+      .map(this::toFile)
+      .collect(Collectors.toList());
   }
 
   private static Stream<Artifact> stream(Set<Artifact> deps) {
@@ -54,17 +61,10 @@ public class MavenDependencies {
     return deps.stream();
   }
 
-  private List<File> getFiles(Stream<Artifact> dependencies) {
-    return dependencies
-            .filter(this::include)
-            .map(this::toFile)
-            .collect(Collectors.toList());
-  }
-
   private File toFile(Artifact artifact) {
     return findReactorProject(artifact)
-            .map(MavenProject::getBasedir)
-            .orElse(artifact.getFile());
+      .map(MavenProject::getBasedir)
+      .orElse(artifact.getFile());
   }
 
   private boolean include(Artifact artifact) {
