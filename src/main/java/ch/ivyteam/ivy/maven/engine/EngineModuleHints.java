@@ -9,12 +9,14 @@ public class EngineModuleHints {
 
   /** hints adopted from engine <code>bin/launcher.sh</code> */
   private static final List<String> ADD_OPENS_HINTS = List.of(
-          // ignore illegal reflective access warning at startup because guice
+          // for javassist / ivy script and others
           "java.base/java.lang=ALL-UNNAMED",
-          // ignore illegal reflective access warning at rest deployment because
-          // ProjectJaxRsClassesScanner#hackReflectionHelperToNonOsgiMode()
           "java.base/java.lang.reflect=ALL-UNNAMED",
-          // on engine stop tomcat clears caches
+          // for com.thoughtworks.xstream.XStream (used by drools) / swagger
+          "java.base/java.text=ALL-UNNAMED",
+          "java.base/java.util=ALL-UNNAMED",
+          "java.desktop/java.awt.font=ALL-UNNAMED",
+          // on engine stop tomcat clears caches / ivy script serialization
           "java.base/java.io=ALL-UNNAMED",
           "java.rmi/sun.rmi.transport=ALL-UNNAMED",
           // allow ZipFileSystem readonly feature on engine with Java 11
