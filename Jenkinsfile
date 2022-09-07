@@ -8,7 +8,6 @@ pipeline {
   }
 
   triggers {
-    pollSCM '@hourly'
     cron '@midnight'
   }
 
@@ -67,8 +66,7 @@ pipeline {
           def nextDevVersionParam = createNextDevVersionJVMParam()
           setupGPGEnvironment()
           sh "git config --global user.name 'ivy-team'"
-          sh "git config --global user.email 'nobody@axonivy.com'"
-          
+          sh "git config --global user.email 'info@ivyteam.ch'"
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
