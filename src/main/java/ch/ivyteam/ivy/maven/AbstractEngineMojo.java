@@ -29,7 +29,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 
 /**
  * A MOJO that relies on an unpacked ivy engine.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -38,7 +38,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * keep synch with pom.xml &gt; reporting &gt; maven-plugin-plugin &gt;
    * requirements
    */
-  protected static final String MINIMAL_COMPATIBLE_VERSION = "9.3.0";
+  protected static final String MINIMAL_COMPATIBLE_VERSION = "9.4.0";
   protected static final String DEFAULT_VERSION = "9.4.0";
 
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
@@ -49,7 +49,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * <p>
    * If parameter is not set it will be a sub-directory of the
    * {@link #engineCacheDirectory}.
-   * 
+   *
    * <p>
    * If the Engine does not yet exist, it can be automatically downloaded.
    */

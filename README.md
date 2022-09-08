@@ -11,23 +11,37 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 ## Release new version
 
-- Update the default engine version and check the minimal engine version need to be raised too: [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L39).
-- Update the engine version in the [pom.xml](pom.xml#L454)
-- Update the Readme badge versions.
-- Run the `project-build-plugin` pipeline with the `maven.central.release` profile.
-- Run the `ivy-core_release-raise-project-build-plugin-version` pipeline with the new release/snapshot versions.
+#### Preparation
 
-After the release (on the next SNAPSHOT build):
+1. Update the default engine version and check the minimal engine version need to be raised too: [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L39).
+1. Update the engine version in the [pom.xml](pom.xml#L454)
+1. Update the README.md badge versions.
 
-- Update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+#### Release
+
+1. Run the release build on Jenkins: https://jenkins.ivyteam.io/job/project-build-plugin/job/master/
+	1. Toggle 'skip Github site': so that the plugin-docs wil be generated
+	2. Switch the profile to 'maven.central.release' for a non snapshot public release
+	3. Define the 'nextDevVersion' parameter, usually the current version +1
+
+#### Post-Release
+
+Wait until the maven central release is available: this may take several hours until it's fully distributed.
+
+1. Run the `ivy-core_release-raise-project-build-plugin-version` pipeline with the new release/snapshot versions.
+	1. Afterwards: merge the generated PRs on GitHub
+1. Release and update version in demo and sample projects for
+	1. unit-tester
+	2. web-tester
+1. Consider updating the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
 
 ## License
 
 The Apache License, Version 2.0
 
-[0]: https://img.shields.io/badge/project--build--plugin-9.3.1-green
+[0]: https://img.shields.io/badge/project--build--plugin-9.4.1-green
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/badge/project--build--plugin-9.4.0--SNAPSHOT-yellow
+[2]: https://img.shields.io/badge/project--build--plugin-9.4.2--SNAPSHOT-yellow
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
