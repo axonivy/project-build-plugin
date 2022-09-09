@@ -19,11 +19,11 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 #### Release
 
-1. Consider updating the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40) 
-2. Run the release build on Jenkins: https://jenkins.ivyteam.io/job/project-build-plugin/job/master/
-	1. Toggle 'skip Github site': so that the plugin-docs wil be generated
-	2. Switch the profile to 'maven.central.release' for a non snapshot public release
-	3. Define the 'nextDevVersion' parameter, usually the current version +1
+Run the release build on Jenkins: https://jenkins.ivyteam.io/job/project-build-plugin/job/master/
+
+1. Toggle 'skip Github site': so that the plugin-docs wil be generated
+1. Switch the profile to 'maven.central.release' for a non snapshot public release
+1. Define the 'nextDevVersion' parameter, usually the current version +1
 
 #### Post-Release
 
@@ -31,7 +31,8 @@ Wait until the maven central release is available: this may take several hours u
 
 1. Run the `https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/` pipeline with the new release/snapshot versions.
 	1. Afterwards: merge the generated PRs on GitHub
-2. Consider updating the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+1. If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+1. Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version! 
 
 ## License
 
