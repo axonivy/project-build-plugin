@@ -50,6 +50,8 @@
     <!-- only for release -->
     <!-- TODO -->
     <!-- <site.path>release</site.path> -->
+
+    <gpg.skip>true</gpg.skip>
   </properties>
 
   <distributionManagement>
@@ -252,6 +254,7 @@
             <configuration>
               <passphrase>${gpg.project-build.password}</passphrase>
               <keyname>72B12346</keyname>
+              <skip>${gpg.skip}</skip>
               <gpgArguments>
                 <arg>--pinentry-mode</arg>
                 <arg>loopback</arg>
