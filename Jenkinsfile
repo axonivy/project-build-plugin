@@ -27,7 +27,7 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
+            def phase = isReleaseOrMasterBranch() ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-Dgpg.skip=false " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -43,6 +43,10 @@ pipeline {
       }
     }
   }
+}
+
+def isReleaseOrMasterBranch() {
+  return env.BRANCH_NAME.startsWith('release/')  || env.BRANCH_NAME == 'master'
 }
 
 def setupGPGEnvironment() {

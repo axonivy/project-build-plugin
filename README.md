@@ -22,6 +22,7 @@ Maven plugin for the automated building of Axon Ivy Projects.
 Since 9.4: Releasing is only possible on a release branch.
 
 - Create a release branch if it does not exist yet (e.g. release/10.0)
+ - Update engineListUrl in [ci build](Jenkinsfile) and in [release build](build/release/Jenkinsfile)
 - Run the [release build](build/release/Jenkinsfile) on the release branch
 - Merge the Pull Request for next development iteration
 - If you have created a new release branch, then manually raise the version on the master branch to the next major or minor version by executing the following command in the root of this project:
