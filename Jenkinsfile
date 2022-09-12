@@ -13,7 +13,7 @@ pipeline {
 
   parameters {
     booleanParam(name: 'skipGitHubSite',
-      description: 'If checked the plugin documentation on GitHub will NOT be updated (ignored for release)',
+      description: 'If checked the plugin documentation on GitHub will NOT be updated',
       defaultValue: true)
 
     string(name: 'engineListUrl',
@@ -41,37 +41,6 @@ pipeline {
         }
       }
     }
-    
-    /*
-    stage('release build') {
-      when {
-        branch 'master'
-        expression { params.deployProfile == 'maven.central.release' }
-      }
-      steps {
-        script {
-          def nextDevVersionParam = createNextDevVersionJVMParam()
-          setupGPGEnvironment()
-          sh "git config --global user.name 'ivy-team'"
-          sh "git config --global user.email 'info@ivyteam.ch'"
-          withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
-              sshagent(credentials: ['github-axonivy']) {
-                maven cmd: "clean verify release:prepare release:perform " +
-                  "-P ${params.deployProfile} " +
-                  "${nextDevVersionParam} " +
-                  "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-                  "-Dgpg.skip=false " +
-                  "-Dmaven.test.skip=true " +
-                  "-Darguments=-Divy.engine.list.url=${params.engineListUrl} "
-              }
-            }
-          }
-          collectBuildArtifacts()
-        }
-      }
-    }
-    */
   }
 }
 
