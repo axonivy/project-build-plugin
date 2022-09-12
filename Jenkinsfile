@@ -19,10 +19,6 @@ pipeline {
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
       defaultValue: 'https://jenkins.ivyteam.io/job/core_product/job/master/lastSuccessfulBuild/')
-
-    string(name: 'nextDevVersion',
-      description: "Next development version used after release, e.g. '7.3.0' (no '-SNAPSHOT').\nNote: This is only used for release target; if not set next patch version will be raised by one",
-      defaultValue: '' )
   }
 
   stages {
