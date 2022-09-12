@@ -30,7 +30,6 @@ pipeline {
             def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-              "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"

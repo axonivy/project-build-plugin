@@ -1,0 +1,54 @@
+pipeline {
+  agent any
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '20'))
+  }
+
+  stages {    
+    stage('build') {
+      when {
+        expression { isReleaseBranch() }
+      }
+      steps {
+        script {
+          docker.build('maven').inside {
+            def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+            sh "git config --global user.name 'ivy-team'"
+            sh "git config --global user.email 'info@ivyteam.ch'"
+            sh "git checkout -b ${targetBranch}"
+
+            setupGPGEnvironment()
+            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {              
+              def dryRun = isReleaseBranch() ? '' : '-DdryRun=true'
+              def args = "-Dmaven.test.skip=true -Divy.engine.list.url=${params.engineListUrl}";
+              maven cmd: dryRun + ' -Dgpg.skip=false -Dgithub.site.skip=false -Dgpg.project-build.password=${env.GPG_PWD} -Darguments="' + args + '" release:prepare release:perform'
+            }
+
+            withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
+              sshagent(credentials: ['github-axonivy']) {
+                sh "git push -u origin ${targetBranch}"
+                def message = "Prepare for next development cycle (${env.BRANCH_NAME})"
+                withCredentials([file(credentialsId: 'github-ivyteam-token-repo-manager', variable: 'tokenFile')]) {
+                  sh "gh auth login --with-token < ${tokenFile}"
+                  sh "gh pr create --title '${message}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
+                }
+              }
+            }
+          }
+        }
+        archiveArtifacts '**/target/*.jar'
+      }
+    }
+  }
+}
+
+def isReleaseBranch() {
+  return env.BRANCH_NAME.startsWith('release/') 
+}
+
+def setupGPGEnvironment() {
+  withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
+    sh "gpg --batch --import ${env.GPG_FILE}"
+  }
+}
