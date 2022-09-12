@@ -19,20 +19,25 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 #### Release
 
-Run the release build on Jenkins: https://jenkins.ivyteam.io/job/project-build-plugin/job/master/
+Since 9.4: Releasing is only possible on a release branch.
 
-1. Toggle 'skip Github site': so that the plugin-docs wil be generated
-1. Switch the profile to 'maven.central.release' for a non snapshot public release
-1. Define the 'nextDevVersion' parameter, usually the current version +1
+- Create a release branch if it does not exist yet (e.g. release/10.0)
+- Run the [release build](build/release/Jenkinsfile) on the release branch
+- Merge the Pull Request for next development iteration
+- If you have created a new release branch, then manually raise the version on the master branch to the next major or minor version by executing the following command in the root of this project:
+
+```bash
+mvn versions:set -DnewVersion=10.0.0-SNAPSHOT -DprocessAllModules -DgenerateBackupPoms=false
+```
 
 #### Post-Release
 
 Wait until the maven central release is available: this may take several hours until it's fully distributed.
 
-1. Run the `https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/` pipeline with the new release/snapshot versions.
-	1. Afterwards: merge the generated PRs on GitHub
-1. If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
-1. Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version! 
+- Raise project-build-plugin in other repos by triggering this [build](https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/)
+	- Merge the generated PRs on GitHub
+- If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+- Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version! 
 
 ## License
 
