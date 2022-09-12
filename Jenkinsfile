@@ -20,33 +20,24 @@ pipeline {
       description: 'Engine to use for build',
       defaultValue: 'https://jenkins.ivyteam.io/job/core_product/job/master/lastSuccessfulBuild/')
 
-    choice(name: 'deployProfile',
-      description: 'Choose where the built plugin should be deployed to',
-      choices: ['sonatype.snapshots', 'maven.central.release'])
-
     string(name: 'nextDevVersion',
       description: "Next development version used after release, e.g. '7.3.0' (no '-SNAPSHOT').\nNote: This is only used for release target; if not set next patch version will be raised by one",
       defaultValue: '' )
   }
 
   stages {
-    stage('snapshot build') {
-      when {
-        expression { params.deployProfile != 'maven.central.release' }
-      }
+    stage('build') {
       steps {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
             def phase = env.BRANCH_NAME == 'master' ? 'deploy site-deploy' : 'verify'
             maven cmd: "clean ${phase} " +
-              "-P ${params.deployProfile} " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgpg.skip=false " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"
-
           }
           if (env.BRANCH_NAME == 'master') {
             maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
@@ -56,6 +47,7 @@ pipeline {
       }
     }
     
+    /*
     stage('release build') {
       when {
         branch 'master'
@@ -84,18 +76,8 @@ pipeline {
         }
       }
     }
+    */
   }
-}
-
-def createNextDevVersionJVMParam() {
-  def nextDevelopmentVersion = '' 
-  if (params.nextDevVersion.trim() =~ /\d+\.\d+\.\d+/) {
-    echo "nextDevVersion is set to ${params.nextDevVersion.trim()}"
-    nextDevelopmentVersion = "-DdevelopmentVersion=${params.nextDevVersion.trim()}-SNAPSHOT"
-  } else {
-    echo "nextDevVersion is NOT set or does not match version pattern - using default"
-  }
-  return nextDevelopmentVersion
 }
 
 def setupGPGEnvironment() {
