@@ -46,11 +46,6 @@
     <site.path>snapshot</site.path>
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <!-- only for release -->
-    <!-- TODO -->
-    <!-- <site.path>release</site.path> -->
-
     <gpg.skip>true</gpg.skip>
   </properties>
 
