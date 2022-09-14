@@ -16,7 +16,7 @@ Maven plugin for the automated building of Axon Ivy Projects.
 - Update the default engine version in:
 	- [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
 	- [pom.xml](pom.xml#L434)
-- Check the minimal engine version needs to be updated in:
+- Raise the minimal engine version needs to be updated at least if you introduce a new minor or major version:
 	- [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L41)
 - Update the badge versions in this file at the bottom.
 
