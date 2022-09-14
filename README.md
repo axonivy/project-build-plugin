@@ -44,9 +44,9 @@ Wait until the maven central release is available: this may take several hours u
 
 The Apache License, Version 2.0
 
-[0]: https://img.shields.io/badge/project--build--plugin-9.4.1-green
+[0]: https://img.shields.io/badge/project--build--plugin-9.4.2-green
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/badge/project--build--plugin-9.4.2--SNAPSHOT-yellow
+[2]: https://img.shields.io/badge/project--build--plugin-10.0.0--SNAPSHOT-yellow
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
