@@ -38,7 +38,7 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
 
 /**
  * Packs the compiled project as ivy-archive (IAR).
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -53,21 +53,21 @@ public class IarPackagingMojo extends AbstractMojo {
 
   /**
    * Define additional IAR excludes with ANT-style exclusion declarations.
-   * 
+   *
    * <p>
    * The default (always active) exclusions are:
    * <ul>
    * <li>All maven default excludes. See
    * {@link AbstractScanner#DEFAULTEXCLUDES}</li>
    * <li>
-   * 
+   *
    * <pre>
    * <code>&lt;iarExcludes&gt;
    *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
    *    &lt;iarExclude&gt;%regex[target/(?!classes/).*]&lt;/iarExclude&gt;
    *&lt;/iarExcludes&gt;</code>
    * </pre>
-   * 
+   *
    * </li>
    * </ul>
    */
@@ -77,7 +77,7 @@ public class IarPackagingMojo extends AbstractMojo {
   /**
    * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion
    * declarations.
-   * 
+   *
    * <pre>
    * <code>&lt;iarFileSets&gt;
    *    &lt;iarFileSet&gt;

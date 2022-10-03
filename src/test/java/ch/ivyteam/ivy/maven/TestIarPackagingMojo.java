@@ -54,8 +54,7 @@ public class TestIarPackagingMojo {
     }
 
     private void createEmptySrcDirs() throws IOException {
-      List<String> emptySrcDirNames = Arrays.asList("src_dataClasses", "src_hd", "src_rd", "src_ws",
-              "src_wsproc");
+      List<String> emptySrcDirNames = Arrays.asList("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
       for (String emptySrcDirName : emptySrcDirNames) {
         File srcDir = new File(projectDir, emptySrcDirName);
         FileUtils.deleteDirectory(srcDir);
@@ -95,8 +94,6 @@ public class TestIarPackagingMojo {
               .isNotNull();
       assertThat(archive.getEntry(".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(archive.getEntry(".svn")).as("'target'.svn should not be packed").isNull();
-      assertThat(archive.getEntry("classes/gugus.txt")).as("classes content should be included by default")
-              .isNotNull();
       assertThat(archive.getEntry("target/classes/gugus.txt"))
               .as("target/classes content should be included by default").isNotNull();
       assertThat(archive.getEntry("target/classesAnother/gugus.txt"))
