@@ -109,7 +109,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-archiver</artifactId>
-      <version>2.4.4</version>
+      <version>4.5.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -118,17 +118,17 @@
       <version>2.13.4</version>
     </dependency>
     <dependency>
-	  <groupId>org.apache.httpcomponents</groupId>
-	  <artifactId>httpclient</artifactId>
-	  <version>4.5.13</version>
-	  <scope>compile</scope>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.httpcomponents</groupId>
-	  <artifactId>httpmime</artifactId>
-	  <version>4.5.13</version>
-	  <scope>compile</scope>
-	</dependency>
+  	  <groupId>org.apache.httpcomponents</groupId>
+  	  <artifactId>httpclient</artifactId>
+  	  <version>4.5.13</version>
+  	  <scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  	  <groupId>org.apache.httpcomponents</groupId>
+  	  <artifactId>httpmime</artifactId>
+  	  <version>4.5.13</version>
+  	  <scope>compile</scope>
+  	</dependency>
 
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>
@@ -419,7 +419,17 @@
       </plugins>
     </pluginManagement>
   </build>
-
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>3.4.2</version><!-- make compliant with plexus-archiver:4x -->
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
   <reporting>
     <plugins>
       <plugin>
@@ -447,5 +457,4 @@
       </plugin>
     </plugins>
   </reporting>
-
 </project>
