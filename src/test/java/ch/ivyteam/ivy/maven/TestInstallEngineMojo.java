@@ -105,8 +105,9 @@ public class TestInstallEngineMojo {
   private static File createFakeEngineZip(String ivyVersion) throws IOException, ZipException {
     File zipDir = createFakeEngineDir(ivyVersion);
     File zipFile = new File(zipDir, "fake.zip");
-    ZipFile zip = new ZipFile(zipFile);
-    zip.createSplitZipFileFromFolder(new File(zipDir, OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
+    try(ZipFile zip = new ZipFile(zipFile)) {
+      zip.createSplitZipFileFromFolder(new File(zipDir, OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
+    }
     return zipFile;
   }
 
