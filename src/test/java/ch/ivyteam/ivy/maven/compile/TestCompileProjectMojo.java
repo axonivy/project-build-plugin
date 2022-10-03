@@ -49,7 +49,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
 
     File dataClassDir = new File(mojo.project.getBasedir(), "src_dataClasses");
     File wsProcDir = new File(mojo.project.getBasedir(), "src_wsproc");
-    File classDir = new File(mojo.project.getBasedir(), "classes");
+    File classDir = new File(mojo.project.getBasedir(), "target/classes");
     FileUtils.cleanDirectory(wsProcDir);
     FileUtils.cleanDirectory(dataClassDir);
 
