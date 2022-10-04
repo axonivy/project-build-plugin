@@ -1,5 +1,5 @@
 # Eclipse
-.settings/
+/.settings/
 
 # Java
 .class
@@ -9,6 +9,7 @@
 
 # Maven
 /log/
+/logs/
 /target/
 
 # Idea
