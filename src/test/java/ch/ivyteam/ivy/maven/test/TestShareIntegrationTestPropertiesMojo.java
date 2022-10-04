@@ -18,7 +18,6 @@ package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,14 +25,20 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.deploy.DeployToTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 
-public class TestShareIntegrationTestPropertiesMojo {
+public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMojoTest {
   @Rule
-  public ProjectMojoRule<SetupIntegrationTestPropertiesMojo> setupProps = new ProjectMojoRule<>(
-          new File("src/test/resources/base"), SetupIntegrationTestPropertiesMojo.GOAL);
+  public ProjectMojoRule<SetupIntegrationTestPropertiesMojo> setupProps = new TestProjectMojoRule();
+
+  private static class TestProjectMojoRule extends EngineMojoRule<SetupIntegrationTestPropertiesMojo> {
+    private TestProjectMojoRule() {
+      super(SetupIntegrationTestPropertiesMojo.GOAL);
+    }
+  }
 
   @Test
   public void shareFailsafeProps() throws MojoExecutionException, MojoFailureException {
@@ -50,7 +55,7 @@ public class TestShareIntegrationTestPropertiesMojo {
     String argLine = (String) props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
     assertThat(argLine).startsWith(
             "-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp");
-    assertThat(argLine).contains(" --add-opens ");
+    assertThat(argLine).contains(" --add-opens=");
   }
 
 }

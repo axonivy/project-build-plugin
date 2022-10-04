@@ -121,7 +121,7 @@ public class EngineControl {
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions)) {
       cli.addArguments(context.vmOptions.additionalVmOptions, false);
     }
-    EngineModuleHints.addToCmdLine(cli);
+    EngineModuleHints.loadFromJvmOptionsFile(context, cli);
 
     cli.addArgument("org.eclipse.equinox.launcher.Main")
             .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")

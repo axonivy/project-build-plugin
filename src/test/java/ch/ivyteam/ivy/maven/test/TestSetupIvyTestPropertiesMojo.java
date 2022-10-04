@@ -66,7 +66,7 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
 
     mojo.execute();
 
-    assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).contains(" --add-opens ");
+    assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).contains(" --add-opens=");
   }
 
   private String getProperty(String key) {
