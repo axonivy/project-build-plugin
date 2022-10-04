@@ -43,24 +43,24 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  * <p>
  * Local engine (using DIRECTORY deploy method):
  * </p>
- * 
+ *
  * <pre>
  * mvn com.axonivy.ivy.ci:project-build-plugin:8.0.0:deploy-to-engine
  * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal
  * </pre>
- * 
+ *
  * <p>
  * Remote Engine (using HTTP deploy method):
  * </p>
- * 
+ *
  * <pre>
- * mvn com.axonivy.ivy.ci:project-build-plugin:8.0.0:deploy-to-engine 
- * -Divy.deploy.file=myProject.iar 
- * -Divy.deploy.method=HTTP 
+ * mvn com.axonivy.ivy.ci:project-build-plugin:8.0.0:deploy-to-engine
+ * -Divy.deploy.file=myProject.iar
+ * -Divy.deploy.method=HTTP
  * -Divy.deploy.server.id=AxonIvyEngine
- * -Divy.deploy.engine.url=http://ivyhost:8080/ivy 
+ * -Divy.deploy.engine.url=http://ivyhost:8080/ivy
  * -Divy.deploy.engine.app=portal
  * </pre>
  *
@@ -92,7 +92,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
 
   /**
    * The deploy method
-   * 
+   *
    * <p>
    * Possible values:
    * </p>
@@ -128,7 +128,6 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    warnDeprectadIarProperty();
     if (checkSkip()) {
       return;
     }
@@ -225,16 +224,6 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       return new File(deployDirectory);
     }
     return new File(deployEngineDirectory, deployDirectory);
-  }
-
-  @SuppressWarnings("deprecation")
-  private void warnDeprectadIarProperty() {
-    String legacyIarFileProperty = System.getProperty(IarDeployMojo.PROPERTY_IVY_DEPLOY_IAR_FILE);
-    if (legacyIarFileProperty != null) {
-      getLog().warn("Ignoring deprecated property '" + IarDeployMojo.PROPERTY_IVY_DEPLOY_IAR_FILE
-              + "' with value '" + legacyIarFileProperty + "'.");
-      getLog().warn("Please migrate to the new property '" + PROPERTY_IVY_DEPLOY_FILE + "'.");
-    }
   }
 
   public static interface DefaultDeployOptions {
