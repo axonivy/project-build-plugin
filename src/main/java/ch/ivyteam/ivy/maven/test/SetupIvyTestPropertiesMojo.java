@@ -44,7 +44,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * Shares the classpath of the built ivy project and it's engine as public
  * property and tries to auto-configure 'maven-surefire-plugin' to use this
  * classpath.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.2
  */
@@ -125,7 +125,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   /**
    * defines properties that are interpreted by maven-surefire.
    */
-  private void configureMavenTestProperties(MavenProperties properties) {
+  private void configureMavenTestProperties(MavenProperties properties) throws MojoExecutionException {
     List<String> IVY_PROPS = List.of(
             Property.IVY_TEST_VM_RUNTIME,
             Property.IVY_ENGINE_CLASSPATH,
@@ -134,7 +134,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
             .map(property -> "${" + property + "}")
             .collect(Collectors.joining(","));
     properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
-    properties.append(Property.MAVEN_TEST_ARGLINE, EngineModuleHints.getCmdArgLine());
+    properties.append(Property.MAVEN_TEST_ARGLINE, EngineModuleHints.loadFromJvmOptionsFile(identifyAndGetEngineDirectory(), getLog()));
   }
 
   private void setTestOutputDirectory() {

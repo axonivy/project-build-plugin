@@ -39,7 +39,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
  * The property being set is called <code>argLine</code> and classically used by
  * the 'maven-failsafe-plugin'.
  * </p>
- * 
+ *
  * @since 9.1
  */
 @Mojo(name = SetupIntegrationTestPropertiesMojo.GOAL)
@@ -58,8 +58,8 @@ public class SetupIntegrationTestPropertiesMojo extends AbstractEngineMojo {
             EngineControl.Property.TEST_ENGINE_URL,
             EngineControl.Property.TEST_ENGINE_LOG,
             DeployToTestEngineMojo.Property.TEST_ENGINE_APP);
-    jmvArgs += EngineModuleHints.getCmdArgLine();
-    props.set(FAILSAFE_ARGLINE_PROPERTY, jmvArgs);
+    jmvArgs += EngineModuleHints.loadFromJvmOptionsFile(identifyAndGetEngineDirectory(), getLog());
+    props.append(FAILSAFE_ARGLINE_PROPERTY, jmvArgs);
   }
 
   private static String asJvmArgs(MavenProperties store, String... keys) {
