@@ -15,7 +15,7 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 - Update the default engine version in:
 	- [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
-	- [pom.xml](pom.xml#L434)
+	- [pom.xml](pom.xml#L449)
 - Raise the minimal engine version needs to be updated at least if you introduce a new minor or major version:
 	- [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L41)
 - Update the badge versions in this file at the bottom.
@@ -47,9 +47,9 @@ Wait until the maven central release is available: this may take several hours u
 
 The Apache License, Version 2.0
 
-[0]: https://img.shields.io/badge/project--build--plugin-9.4.2-green
+[0]: https://img.shields.io/badge/project--build--plugin-10.0.0-green
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/badge/project--build--plugin-10.0.0--SNAPSHOT-yellow
+[2]: https://img.shields.io/badge/project--build--plugin-11.1.0--SNAPSHOT-yellow
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
