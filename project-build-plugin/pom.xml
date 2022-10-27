@@ -303,6 +303,9 @@
           <projectsDirectory>../integration-tests/</projectsDirectory>
           <cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
           <cloneAllFiles>true</cloneAllFiles>
+          <properties>
+            <ivy.engine.list.url>${ivy.engine.list.url}</ivy.engine.list.url>
+          </properties>
         </configuration>
         <executions>
           <execution>
