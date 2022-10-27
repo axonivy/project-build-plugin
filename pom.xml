@@ -7,7 +7,6 @@
 
   <modules>
     <module>project-build-plugin</module>
-    <module>integration-tests</module>
   </modules>
 
   <build>
