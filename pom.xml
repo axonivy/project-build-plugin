@@ -47,6 +47,7 @@
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.skip>true</gpg.skip>
+    <unit.tests.skip>false</unit.tests.skip>
   </properties>
 
   <distributionManagement>
@@ -225,11 +226,38 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M7</version>
         <configuration>
+          <skipTests>${unit.tests.skip}</skipTests>
           <excludes>
             <exclude>base/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-invoker-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <projectsDirectory>integration-tests/</projectsDirectory>
+          <cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
+          <cloneAllFiles>true</cloneAllFiles>
+          <properties>
+            <ivy.engine.list.url>${ivy.engine.list.url}</ivy.engine.list.url>
+          </properties>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-test.build.plugin</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>install</goal>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
