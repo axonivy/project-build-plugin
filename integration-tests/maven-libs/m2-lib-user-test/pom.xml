@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.axonivy.test</groupId>
+  <artifactId>m2-lib-user-test</artifactId>
+  <version>11.1.0-SNAPSHOT</version>
+  <packaging>iar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>com.axonivy.test</groupId>
+      <artifactId>m2-lib-user</artifactId>
+      <version>${project.version}</version>
+      <type>iar</type>
+    </dependency>
+    <dependency>
+    	<groupId>com.axonivy.ivy.test</groupId>
+    	<artifactId>unit-tester</artifactId>
+    	<version>10.0.0</version>
+    	<scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <testSourceDirectory>src_test</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>com.axonivy.ivy.ci</groupId>
+        <artifactId>project-build-plugin</artifactId>
+        <version>${project.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.0.0-M1</version>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
