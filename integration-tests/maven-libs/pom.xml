@@ -4,6 +4,7 @@
   <artifactId>tests-m2e-libs</artifactId>
   <version>11.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>XIVY-9763 re-use m2 deps</name>
 
   <modules>
     <module>m2-lib-user</module>
