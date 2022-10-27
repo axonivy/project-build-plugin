@@ -1,16 +1,8 @@
-# Eclipse
-/.settings/
-
-# Java
-.class
-
 # Mac
 .DS_Store
 
 # Maven
 /log/
-/logs/
-/target/
 
 # Idea
 *.iml
