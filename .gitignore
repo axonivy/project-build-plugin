@@ -9,8 +9,8 @@
 
 # Maven
 /log/
-/logs/
-/target/
+**/logs/
+**/target/
 
 # Idea
 *.iml
