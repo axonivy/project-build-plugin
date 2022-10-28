@@ -1,0 +1,45 @@
+{
+  "format" : "10.0.0",
+  "id" : "1841968D7DF8814D",
+  "config" : {
+    "data" : "com.axonivy.m2.lib.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start.ivp",
+      "config" : {
+        "callSignature" : "start",
+        "outLink" : "start.ivp"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : { "id" : "f4", "to" : "f3" }
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 352, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "Script",
+      "name" : "create doc",
+      "config" : {
+        "output" : {
+          "code" : [
+            "import com.docusign.esign.model.Document;",
+            "import com.axonivy.docs.DocumentService;",
+            "",
+            "Document report = DocumentService.createDoc(\"salesReport\");",
+            "in.request.doc = report;"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "connect" : { "id" : "f2", "to" : "f1" }
+    } ]
+}
