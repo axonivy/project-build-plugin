@@ -475,7 +475,7 @@
             <others>
               <property>
                 <name>ivy engine</name>
-                <value>10.0</value>
+                <value>10.0.1</value>
               </property>
             </others>
           </requirements>
