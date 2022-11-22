@@ -244,6 +244,7 @@
           <properties>
             <project.build.plugin.version>${project.version}</project.build.plugin.version>
             <ivy.engine.list.url>${ivy.engine.list.url}</ivy.engine.list.url>
+            <ivy.engine.version>[10.0.0,11.0.0)</ivy.engine.version>
           </properties>
         </configuration>
         <executions>
