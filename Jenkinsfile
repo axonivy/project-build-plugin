@@ -18,7 +18,7 @@ pipeline {
 
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
-      defaultValue: 'https://product.ivyteam.io')
+      defaultValue: 'https://developer.axonivy.com/download/maven.html')
   }
 
   stages {
