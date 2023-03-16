@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -16,21 +16,27 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.wagon.providers.http.HttpWagon;
+import org.apache.maven.wagon.proxy.ProxyInfoProvider;
+import org.apache.maven.wagon.repository.Repository;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 
 public class URLEngineDownloader implements EngineDownloader {
+
+  private final URL engineDownloadUrl;
+  private final URL engineListPageUrl;
+  private final String osArchitecture;
+  private final String ivyVersion;
+  private final VersionRange ivyVersionRange;
+  private final Log log;
+  private final File downloadDirectory;
   private String zipFileName = null;
-  private URL engineDownloadUrl = null;
-  private URL engineListPageUrl = null;
-  private String osArchitecture = null;
-  private String ivyVersion = null;
-  private VersionRange ivyVersionRange;
-  private Log log;
-  private File downloadDirectory;
+  public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
-          String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory) {
+          String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,
+          ProxyInfoProvider proxies) {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
     this.osArchitecture = osArchitecture;
@@ -38,38 +44,49 @@ public class URLEngineDownloader implements EngineDownloader {
     this.ivyVersionRange = ivyVersionRange;
     this.log = log;
     this.downloadDirectory = downloadDirectory;
+    this.proxies = proxies;
   }
 
   @Override
   public File downloadEngine() throws MojoExecutionException {
-    URL downloadUrlToUse = (engineDownloadUrl != null) ? engineDownloadUrl
-            : findEngineDownloadUrlFromListPage();
+    URL downloadUrlToUse = engineDownloadUrl;
+    if (downloadUrlToUse == null) {
+      downloadUrlToUse = findEngineDownloadUrlFromListPage();
+    }
     return downloadEngineFromUrl(downloadUrlToUse);
   }
 
   private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException {
-    try (InputStream pageStream = new UrlRedirectionResolver().followRedirections(engineListPageUrl)) {
-      return findEngineDownloadUrl(pageStream);
+    try {
+      var repo = new Repository("engine.list.page", engineListPageUrl.toExternalForm());
+      Path index = Files.createTempFile("page", ".html");
+      wagonDownload(repo, "", index);
+      try (InputStream pageStream = Files.newInputStream(index)) {
+        return findEngineDownloadUrl(pageStream);
+      } finally {
+        Files.deleteIfExists(index);
+      }
     } catch (IOException ex) {
-      throw new MojoExecutionException(
-              "Failed to find engine download link in list page " + engineListPageUrl, ex);
+      throw new MojoExecutionException("Failed to find engine download link in list page " + engineListPageUrl, ex);
     }
   }
 
   private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException {
+    File downloadZip = evaluateTargetFile(engineUrl);
     try {
-      File downloadZip = evaluateTargetFile(engineUrl);
       log.info("Starting engine download from " + engineUrl);
-      Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      var repo = new Repository("engine.repo", StringUtils.substringBeforeLast(engineUrl.toExternalForm(), "/"));
+      var resource = StringUtils.substringAfterLast(engineUrl.getPath(), "/");
+      wagonDownload(repo, resource, downloadZip.toPath());
       return downloadZip;
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
               + downloadDirectory + "'", ex);
     }
   }
 
   private File evaluateTargetFile(URL engineUrl) {
-    zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
+    zipFileName = StringUtils.substringAfterLast(engineUrl.getPath(), "/");
     File downloadZip = new File(downloadDirectory, zipFileName);
     int tempFileSuffix = 0;
     while (downloadZip.exists()) {
@@ -78,6 +95,18 @@ public class URLEngineDownloader implements EngineDownloader {
       tempFileSuffix++;
     }
     return downloadZip;
+  }
+
+  private void wagonDownload(Repository repo, String resource, Path target) throws MojoExecutionException {
+    HttpWagon wagon = new HttpWagon();
+    try {
+      wagon.connect(repo, null, proxies);
+      wagon.get(resource, target.toFile());
+    } catch (Exception ex) {
+      throw new MojoExecutionException("Download failed from repo " + repo + " with resource " + resource, ex);
+    } finally {
+      wagon.closeConnection();
+    }
   }
 
   /**
