@@ -64,7 +64,7 @@ public class URLEngineDownloader implements EngineDownloader {
       try (InputStream pageStream = Files.newInputStream(index)) {
         return findEngineDownloadUrl(pageStream);
       } finally {
-        Files.delete(index);
+        Files.deleteIfExists(index);
       }
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to find engine download link in list page " + engineListPageUrl, ex);
