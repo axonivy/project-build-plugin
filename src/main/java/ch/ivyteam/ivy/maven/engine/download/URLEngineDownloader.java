@@ -31,8 +31,8 @@ public class URLEngineDownloader implements EngineDownloader {
   private final VersionRange ivyVersionRange;
   private final Log log;
   private final File downloadDirectory;
-  private final ProxyInfoProvider proxies;
   private String zipFileName = null;
+  public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
           String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,
@@ -64,7 +64,7 @@ public class URLEngineDownloader implements EngineDownloader {
       try (InputStream pageStream = Files.newInputStream(index)) {
         return findEngineDownloadUrl(pageStream);
       } finally {
-        Files.delete(index);
+        Files.deleteIfExists(index);
       }
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to find engine download link in list page " + engineListPageUrl, ex);
