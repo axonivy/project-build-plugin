@@ -35,3 +35,10 @@ Snapshots
  mvn clean install -Divy.engine.list.url=https://dev.axonivy.com/download/nightly
 +------------------------------------------------------------------------------------+
  
+Proxy
+
+ If your environment enforces the usage of a proxy to access the web, configure it in your settings.xml
+ as described here {{https://maven.apache.org/guides/mini/guide-proxies.html}}.
+ 
+ The maven proxy configuration is considered, when downloading the IvyEngine to compile projects.
+ 

@@ -32,6 +32,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.wagon.proxy.ProxyInfoProvider;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -49,7 +50,7 @@ import net.lingala.zip4j.ZipFile;
  * <p>
  * Command line invocation is supported. E.g.
  * </p>
- * 
+ *
  * <pre>
  * mvn com.axonivy.ivy.ci:project-build-plugin:9.1.0:installEngine
  * -Divy.engine.directory=c:/axonviy/engine
@@ -76,7 +77,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
    * it must be published manually to an accessible plugin repository. The
    * expected artifact descriptor is:
    * </p>
-   * 
+   *
    * <pre>
    *    groupId=com.axonivy.ivy
    *    artifactId=engine
@@ -84,7 +85,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
    *    classifier=!osArchitecture! (e.g. Slim_All_x64)
    *    extension=zip
    * </pre>
-   * 
+   *
    * @since 7.4
    */
   @Parameter(property = "ivy.engine.download.from.maven", defaultValue = "false")
@@ -141,6 +142,10 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   @Parameter(property = "ivy.engine.auto.install", defaultValue = "true")
   boolean autoInstallEngine;
 
+  @Component
+  @SuppressWarnings("deprecation")
+  org.apache.maven.artifact.manager.WagonManager wagonManager;
+
   @Override
   public void execute() throws MojoExecutionException {
     getLog().info("Provide engine for ivy version " + ivyVersion);
@@ -159,7 +164,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
 
       if (installedEngineVersion == null ||
-              !ivyVersionRange.containsVersion(installedEngineVersion)) {
+          !ivyVersionRange.containsVersion(installedEngineVersion)) {
         handleWrongIvyVersion(installedEngineVersion);
       }
     }
@@ -221,10 +226,12 @@ public class InstallEngineMojo extends AbstractEngineMojo {
     if (downloadUsingMaven) {
       return new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories,
               repositorySystem, repositorySession);
-    } else {
-      return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
-              getIvyVersionRange(), getLog(), getDownloadDirectory());
     }
+
+    @SuppressWarnings("deprecation")
+    ProxyInfoProvider proxies = wagonManager::getProxy;
+    return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
+            getIvyVersionRange(), getLog(), getDownloadDirectory(), proxies);
   }
 
   static String ivyEngineVersionOfZip(String engineZipFileName) {
