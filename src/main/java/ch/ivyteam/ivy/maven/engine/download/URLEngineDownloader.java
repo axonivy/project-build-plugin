@@ -31,8 +31,8 @@ public class URLEngineDownloader implements EngineDownloader {
   private final VersionRange ivyVersionRange;
   private final Log log;
   private final File downloadDirectory;
-  private final ProxyInfoProvider proxies;
   private String zipFileName = null;
+  public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
           String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,

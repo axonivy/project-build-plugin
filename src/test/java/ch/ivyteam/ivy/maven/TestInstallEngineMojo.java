@@ -30,6 +30,7 @@ import java.nio.file.Files;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.wink.client.MockHttpServer;
 import org.apache.wink.client.MockHttpServer.MockHttpServerResponse;
 import org.junit.After;
@@ -82,7 +83,7 @@ public class TestInstallEngineMojo {
     var listPageResponse = new MockHttpServerResponse();
     String defaultEngineName = "AxonIvyEngine" + DEFAULT_VERSION + ".46949_" + DEFAULT_ARCH;
     listPageResponse.setMockResponseContent(
-            "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>");
+      "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>");
     mockServer.setMockHttpServerResponses(listPageResponse, createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
 
     // test setup can not expand expression ${settings.localRepository}: so we
@@ -221,6 +222,40 @@ public class TestInstallEngineMojo {
   }
 
   @Test
+  public void testEngineDownload_overProxy() throws Exception {
+    mojo.engineDirectory = createTempDir("tmpEngine");
+
+    File alreadyExistingFile = new File(mojo.getDownloadDirectory(), "fakeEngine.zip");
+    alreadyExistingFile.createNewFile();
+
+    mojo.autoInstallEngine = true;
+    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
+
+    mojo.engineDownloadUrl = new URL("http://localhost:7123/fakeEngine.zip"); // not reachable: but proxy knows how :)
+    var downloader = (URLEngineDownloader) mojo.getDownloader();
+    try {
+      downloader.downloadEngine();
+      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
+    } catch (MojoExecutionException ex) {
+      assertThat(ex).hasMessageStartingWith("Failed to download engine from 'http://localhost");
+    }
+
+    downloader.proxies = this::localTestProxy;
+    File downloaded = downloader.downloadEngine();
+    assertThat(downloaded)
+      .as("served file via proxy")
+      .exists();
+  }
+
+  private ProxyInfo localTestProxy(@SuppressWarnings("unused") String protocol) {
+    var proxy = new ProxyInfo();
+    proxy.setHost("localhost");
+    proxy.setPort(mockServer.getServerPort());
+    proxy.setType("http");
+    return proxy;
+  }
+
+  @Test
   public void testEngineDownload_validatesDownloadedVersion() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = true;
@@ -289,28 +324,28 @@ public class TestInstallEngineMojo {
 
   @Test
   public void testEngineLinkFinder_wrongVersion() throws Exception {
-    mojo.ivyVersion = AbstractEngineMojo.DEFAULT_VERSION;
+    mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Windows_x86";
     try {
       findLink("<a href=\"6.2.0/AxonIvyEngine6.2.0.46949_Windows_x86.zip\">the latest engine</a>");
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
     } catch (MojoExecutionException ex) {
       assertThat(ex).hasMessageStartingWith(
-              "Could not find a link to engine for version '" + AbstractEngineMojo.DEFAULT_VERSION + "'");
+              "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
     }
   }
 
   @Test
   public void testEngineLinkFinder_wrongArchitecture() throws Exception {
-    mojo.ivyVersion = AbstractEngineMojo.DEFAULT_VERSION;
+    mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Linux_x86";
     try {
-      findLink("<a href=\"" + AbstractEngineMojo.DEFAULT_VERSION + "/AxonIvyEngine"
-              + AbstractEngineMojo.DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>");
+      findLink("<a href=\"" + DEFAULT_VERSION + "/AxonIvyEngine"
+              + DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>");
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
     } catch (MojoExecutionException ex) {
       assertThat(ex).hasMessageStartingWith(
-              "Could not find a link to engine for version '" + AbstractEngineMojo.DEFAULT_VERSION + "'");
+              "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
     }
   }
 
