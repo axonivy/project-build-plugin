@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.test</groupId>
   <artifactId>m2-lib-user-test</artifactId>
-  <version>11.1.0</version>
+  <version>11.1.1-SNAPSHOT</version>
   <packaging>iar</packaging>
   <properties>
     <project.build.plugin.version>${project.version}</project.build.plugin.version>
