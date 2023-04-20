@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.ivy.ci</groupId>
   <artifactId>tests-m2e-libs</artifactId>
-  <version>11.1.0-SNAPSHOT</version>
+  <version>11.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>XIVY-9763 re-use m2 deps</name>
 
