@@ -210,7 +210,7 @@
         <!-- Makes MOJO declaration trough Annotation possible. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.4</version>
+        <version>3.8.2</version>
         <configuration>
           <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
@@ -474,7 +474,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.4</version>
+        <version>3.8.2</version>
         <configuration>
           <requirements>
             <others>
