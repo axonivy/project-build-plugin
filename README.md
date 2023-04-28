@@ -39,7 +39,7 @@ Wait until the maven central release is available: this may take several hours u
 
 - Raise project-build-plugin in other repos by triggering this [build](https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/)
 	- Merge the generated PRs on GitHub
-- If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L40)
+- If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
 - Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version!
 - Raise ch.ivyteam.ivy.library.IvyProjectBuildPlugin.DEFAULT_VERSION in ivy core
 
