@@ -33,6 +33,7 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
+              "-Divy.engine.version='[11.0.0,11.1.2]' " +
               "-Dmaven.test.failure.ignore=true"
           }
           if (env.BRANCH_NAME == 'master') {
