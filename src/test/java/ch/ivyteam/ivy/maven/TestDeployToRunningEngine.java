@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.DeployToEngineMojo.DeployMethod;
+import ch.ivyteam.ivy.maven.engine.EngineControl;
 
 /**
  * @since 7.1.0
@@ -43,7 +44,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
   DeployToEngineMojo deployMojo;
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
-  
+
   @Before
   public void setup() throws MojoExecutionException
   {
@@ -54,10 +55,10 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     deployMojo.deployTimeoutInSeconds = 120;
     deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = "true";
-    
+
     System.setOut(new PrintStream(outContent));
   }
-  
+
   @After
   public void restoreStreams() {
       System.setOut(originalOut);
@@ -75,7 +76,11 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     Executor startedProcess = null;
     try
     {
+      System.setOut(originalOut);
       startedProcess = mojo.startEngine();
+      deployMojo.deployEngineUrl = rule.project.getProperties()
+         .getProperty(EngineControl.Property.TEST_ENGINE_URL);
+      System.setOut(new PrintStream(outContent));
 
       deployMojo.execute();
 
@@ -102,7 +107,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     addServerConnection("admin");
     deployIarRemoteAndAssert();
   }
-  
+
   @Test
   public void canDeployRemoteIar_encryptedSettingsPassword() throws Exception
   {
@@ -120,19 +125,19 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     deployMojo.session.getSettings().addServer(server);
     deployMojo.deployServerId = "test.server";
   }
-  
+
   private void deployIarRemoteAndAssert() throws Exception, MojoExecutionException, MojoFailureException
   {
     deployMojo.deployToEngineApplication = "test";
     deployMojo.deployMethod = DeployMethod.HTTP;
-    
+
     Executor startedProcess = null;
     try
     {
       startedProcess = mojo.startEngine();
 
       deployMojo.execute();
-      
+
       assertThat(outContent.toString()).contains("Start deploying project(s) of file")
               .contains("Application: test")
               .contains("Deploying users ...")
@@ -143,7 +148,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
       kill(startedProcess);
     }
   }
-  
+
   private static File getTarget(File iar, DeployToEngineMojo mojo)
   {
     File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
