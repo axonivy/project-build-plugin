@@ -46,7 +46,6 @@
     <site.path>snapshot</site.path>
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <gpg.skip>true</gpg.skip>
     <unit.tests.skip>false</unit.tests.skip>
   </properties>
 
@@ -68,6 +67,7 @@
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${maven.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -79,6 +79,7 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-filtering</artifactId>
       <version>3.2.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
@@ -193,14 +194,12 @@
   </dependencies>
 
   <build>
-  
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
           <release>${java.version}</release>
-
           <!-- needed for sonar (sonar plugin is not aware of 'release') -->
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -237,7 +236,6 @@
           </excludes>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
@@ -259,70 +257,6 @@
             <goals>
               <goal>install</goal>
               <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.1</version>
-        <configuration>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-          <releaseProfiles>release</releaseProfiles>
-          <goals>deploy site-deploy</goals>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-            <configuration>
-              <passphrase>${gpg.project-build.password}</passphrase>
-              <keyname>72B12346</keyname>
-              <skip>${gpg.skip}</skip>
-              <gpgArguments>
-                <arg>--pinentry-mode</arg>
-                <arg>loopback</arg>
-              </gpgArguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.0</version>
-        <configuration>
-          <release>${java.version}</release>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
             </goals>
           </execution>
         </executions>
@@ -363,49 +297,9 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>sonatype.snapshots</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <version>0.12</version>
-        <executions>
-          <execution>
-            <id>deploy.mojo.description.to.github</id>
-            <goals><goal>site</goal></goals>
-            <phase>site-deploy</phase>
-            <configuration>
-              <message>update maven plugin mojo description</message>
-              <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
-            </configuration>
-          </execution>
-          <execution>
-            <id>deploy.site.redirect.to.github</id>
-            <goals><goal>site</goal></goals>
-            <phase>site-deploy</phase>
-            <configuration>
-              <message>update maven plugin mojo redirect</message>
-              <path>${site.path}</path>
-              <outputDirectory>${project.build.directory}/site-redirect</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration>
-          <server>github.ivy-team.oauth</server>
-          <merge>true</merge>
-        </configuration>
-      </plugin>
+      
     </plugins>
-
+    
     <pluginManagement>
       <plugins>
         <!--This plugin's configuration is used to store Eclipse m2e settings only.
@@ -460,6 +354,122 @@
     </pluginManagement>
   </build>
   
+  <profiles>
+    <profile>
+      <id>ossrhDeploy</id>
+      <properties>
+        <site.path>release</site.path>
+        <maven.test.skip>true</maven.test.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>3.0.1</version>
+            <configuration>
+              <tagNameFormat>v@{project.version}</tagNameFormat>
+              <releaseProfiles>release</releaseProfiles>
+              <goals>deploy site-deploy</goals>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <passphrase>${gpg.project-build.password}</passphrase>
+                  <keyname>72B12346</keyname>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.6.0</version>
+            <configuration>
+              <release>${java.version}</release>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.13</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>sonatype.snapshots</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.github.github</groupId>
+            <artifactId>site-maven-plugin</artifactId>
+            <version>0.12</version>
+            <executions>
+              <execution>
+                <id>deploy.mojo.description.to.github</id>
+                <goals><goal>site</goal></goals>
+                <phase>site-deploy</phase>
+                <configuration>
+                  <message>update maven plugin mojo description</message>
+                  <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy.site.redirect.to.github</id>
+                <goals><goal>site</goal></goals>
+                <phase>site-deploy</phase>
+                <configuration>
+                  <message>update maven plugin mojo redirect</message>
+                  <path>${site.path}</path>
+                  <outputDirectory>${project.build.directory}/site-redirect</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration>
+              <server>github.ivy-team.oauth</server>
+              <merge>true</merge>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+    
   <dependencyManagement>
     <dependencies>
       <dependency>
