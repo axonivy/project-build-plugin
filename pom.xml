@@ -3,7 +3,7 @@
   <groupId>com.axonivy.ivy.ci</groupId>
   <artifactId>project-build-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>10.0.15</version>
+  <version>10.0.16-SNAPSHOT</version>
 
   <name>Axon Ivy Project Build Plugin</name>
   <description>Maven plugin for the automated building of Axon Ivy Projects. Referenced from the pom.xml of Axon Ivy Projects.</description>
@@ -30,7 +30,7 @@
     <connection>scm:git:git@github.com:axonivy/project-build-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:axonivy/project-build-plugin.git</developerConnection>
     <url>git@github.com:axonivy/project-build-plugin.git</url>
-    <tag>project-build-plugin-10.0.15</tag>
+    <tag>v8.0.3</tag>
   </scm>
 
   <organization>
