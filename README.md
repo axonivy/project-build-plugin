@@ -18,7 +18,6 @@ Maven plugin for the automated building of Axon Ivy Projects.
 	- [pom.xml](pom.xml#L483)
 - Raise the minimal engine version needs to be updated at least if you introduce a new minor or major version:
 	- [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L41)
-- Update the badge versions in this file at the bottom.
 
 #### Release
 
@@ -32,6 +31,7 @@ Since 9.4: Releasing is only possible on a release branch.
 ```bash
 mvn versions:set -DnewVersion=10.0.0-SNAPSHOT -DprocessAllModules -DgenerateBackupPoms=false
 ```
+- If the master reflects a new relese-cycle; reflect it in the `versionPrefix` query parameter on the badges below.
 
 #### Post-Release
 
@@ -47,9 +47,9 @@ Wait until the maven central release is available: this may take several hours u
 
 The Apache License, Version 2.0
 
-[0]: https://img.shields.io/badge/project--build--plugin-11.1.0-green
+[0]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=11&label=central&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/badge/project--build--plugin-11.2.0--SNAPSHOT-yellow
+[2]: https://img.shields.io/maven-metadata/v?versionPrefix=11&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
