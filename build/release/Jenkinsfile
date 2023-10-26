@@ -27,7 +27,7 @@ pipeline {
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {              
               def dryRun = isReleaseBranch() ? '' : '-DdryRun=true'
-              def args = " -P ossrhDeploy -Divy.engine.list.url=${params.engineListUrl} -Dgpg.project-build.password='${env.GPG_PWD}'";
+              def args = "-PossrhDeploy -Divy.engine.list.url=${params.engineListUrl} -Dgpg.project-build.password='${env.GPG_PWD}'";
               maven cmd: dryRun + ' -Darguments="' + args + '" -DpushChanges=false -DlocalCheckout=true release:prepare release:perform'
             }
 
