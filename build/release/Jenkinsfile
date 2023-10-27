@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('build') {
       when {
-        expression { isReleaseBranch() }
+        expression { isReleaseBranch() && isManualRun() }
       }
       steps {
         script {
@@ -52,6 +52,10 @@ pipeline {
 
 def isReleaseBranch() {
   return env.BRANCH_NAME.startsWith('release/') 
+}
+
+def isManualRun() {
+  return currentBuild.buildCauses.toString().contains('UserIdCause');
 }
 
 def setupGPGEnvironment() {
