@@ -7,6 +7,8 @@
   <name>XIVY-9763 re-use m2 deps</name>
 
   <modules>
+    <module>hibernate-validator</module>
+    <module>hibernate-validator-test</module>
     <module>m2-lib-user</module>
     <module>m2-lib-user-test</module>
   </modules>

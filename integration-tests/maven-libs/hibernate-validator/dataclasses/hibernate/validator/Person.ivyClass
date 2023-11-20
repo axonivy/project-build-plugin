@@ -1,0 +1,16 @@
+Person #class
+true #isEntity
+hibernate.validator #namespace
+id Integer #field
+id Identifier #fieldComment
+id PERSISTENT #fieldModifier
+id ID #fieldModifier
+id GENERATED #fieldModifier
+firstname String #field
+firstname PERSISTENT #fieldModifier
+lastname String #field
+lastname PERSISTENT #fieldModifier
+lastname 100 #dbFieldLength
+zip Integer #field
+zip ziiip #dbFieldName
+zip PERSISTENT #fieldModifier
