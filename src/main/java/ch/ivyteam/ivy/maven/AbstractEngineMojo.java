@@ -26,6 +26,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
+import ch.ivyteam.ivy.maven.engine.download.LatestMinorVersionRange;
 
 /**
  * A MOJO that relies on an unpacked ivy engine.
@@ -76,6 +77,10 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    */
   @Parameter(property = "ivy.engine.version", defaultValue = DEFAULT_VERSION, required = true)
   protected String ivyVersion;
+
+  /** If set to true it will download the latest available minor version */
+  @Parameter(property = "ivy.engine.version.latest.minor", defaultValue = "false")
+  Boolean useLatestMinor;
 
   /** testing only: avoid restriction to minimal version! */
   boolean restrictVersionToMinimalCompatible = true;
@@ -142,6 +147,10 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
       VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(ivyVersion);
       if (ivyVersionRange.getRecommendedVersion() != null) {
         ivyVersionRange = VersionRange.createFromVersionSpec("[" + ivyVersion + "]");
+      }
+
+      if (useLatestMinor) {
+        ivyVersionRange = new LatestMinorVersionRange(DEFAULT_VERSION).get();
       }
 
       if (restrictVersionToMinimalCompatible) {
