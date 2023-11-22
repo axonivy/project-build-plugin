@@ -101,6 +101,7 @@ public class BaseEngineProjectMojoTest {
       getMojo().engineCacheDirectory = new File(CACHE_DIR);
       getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
       getMojo().engineDirectory = evalEngineDir(getMojo());
+      getMojo().useLatestMinor = true;
       deleteOutdatedEngine();
       getMojo().execute();
       addTimestampToDownloadedEngine();
