@@ -247,7 +247,7 @@
           <properties>
             <project.build.plugin.version>${project.version}</project.build.plugin.version>
             <ivy.engine.list.url>${ivy.engine.list.url}</ivy.engine.list.url>
-            <ivy.engine.version>${ivy.engine.version}</ivy.engine.version>
+            <ivy.engine.version.latest.minor>true</ivy.engine.version.latest.minor>
           </properties>
         </configuration>
         <executions>
