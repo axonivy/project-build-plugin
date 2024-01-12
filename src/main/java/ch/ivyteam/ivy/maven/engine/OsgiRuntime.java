@@ -104,6 +104,14 @@ class OsgiRuntime {
                                                                                   // slf4j
                     + "javax.net.ssl," // validate openApi
 
+                    // jdt compiler
+                    + "javax.lang.model,"
+                    + "javax.annotation.processing,"
+                    + "javax.tools,"
+                    + "javax.lang.model.util,"
+                    + "javax.lang.model.element,"
+                    + "javax.lang.model.type,"
+
                     // oxygen platform
                     + "javax.management,javax.management.openmbean,javax.xml.parsers,"
                     + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax,"
