@@ -59,10 +59,10 @@ def collectBuildArtifacts()  {
   archiveArtifacts 'target/*.jar'
   archiveArtifacts 'target/its/**/build.log'
   junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
-  recordIssues tools: [mavenConsole()], unstableTotalAll: 1, filters: [
+  recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
     excludeType('sonar-maven-plugin:sonar'),
     excludeType('maven-surefire-plugin:test')
   ]
-  recordIssues tools: [eclipse()], unstableTotalAll: 1
+  recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
