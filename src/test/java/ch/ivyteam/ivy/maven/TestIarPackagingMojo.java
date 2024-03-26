@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -196,13 +198,36 @@ public class TestIarPackagingMojo {
     File iarFile = iarFiles.iterator().next();
     try (ZipFile archive = new ZipFile(iarFile)) {
       assertThat(archive.getEntry("target"))
-              .as("'target' will not be packed when there are no target/classes").isNull();
+        .as("'target' will not be packed when there are no target/classes").isNull();
+    }
+  }
+
+  @Test
+  public void includeTarget_srcHdGenerated() throws Exception {
+    IarPackagingMojo mojo = rule.getMojo();
+
+    var target = mojo.project.getBasedir().toPath().resolve("target");
+    var viewGenerated = target.resolve("src_hd")
+      .resolve("com").resolve("acme").resolve("FormDialog").resolve("FormDialog.xhtml");
+    Files.createDirectories(viewGenerated.getParent());
+    Files.writeString(viewGenerated, "<html/>", StandardOpenOption.CREATE_NEW);
+
+    mojo.execute();
+
+    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"),
+            new String[] {"iar"}, false);
+    assertThat(iarFiles).hasSize(1);
+
+    File iarFile = iarFiles.iterator().next();
+    try (ZipFile archive = new ZipFile(iarFile)) {
+      assertThat(archive.getEntry("target/src_hd/com/acme/FormDialog/FormDialog.xhtml"))
+        .as("generated jsf.dialog views are included").isNotNull();
     }
   }
 
   @Test
   public void validDefaultExcludePatternsForWindows() {
-    for (var defaultExclude : IarPackagingMojo.DEFAULT_EXCLUDES) {
+    for (var defaultExclude : IarPackagingMojo.Defaults.EXCLUDES) {
       defaultExclude = StringUtils.replace(defaultExclude, "/", "\\\\"); // see
                                                                          // org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
       var matchPattern = MatchPattern.fromString(defaultExclude);
@@ -212,7 +237,7 @@ public class TestIarPackagingMojo {
 
   @Test
   public void validDefaultExcludePatternsForLinux() {
-    for (var defaultExclude : IarPackagingMojo.DEFAULT_EXCLUDES) {
+    for (var defaultExclude : IarPackagingMojo.Defaults.EXCLUDES) {
       defaultExclude = StringUtils.replace(defaultExclude, "\\\\", "/"); // see
                                                                          // org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
       var matchPattern = MatchPattern.fromString(defaultExclude);

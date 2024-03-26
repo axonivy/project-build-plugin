@@ -38,38 +38,39 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
 
 /**
  * Packs the compiled project as ivy-archive (IAR).
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
 @Mojo(name = IarPackagingMojo.GOAL)
 public class IarPackagingMojo extends AbstractMojo {
   public static final String GOAL = "pack-iar";
-  private static final String[] DEFAULT_INCLUDES = new String[] {"**/*"};
-  static final String[] DEFAULT_EXCLUDES = new String[] {"target", "%regex[target/(?!classes/).*]"};
+
+  public static interface Defaults {
+    String[] INCLUDES = new String[] {"**/*"};
+    String[] EXCLUDES = new String[] {"target/"};
+    String[] TARGET_INCLUDES = new String[] {
+      "target/classes/**/*",
+      "target/src_hd/**/*"
+    };
+  }
+
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
   /**
    * Define additional IAR excludes with ANT-style exclusion declarations.
-   * 
-   * <p>
-   * The default (always active) exclusions are:
-   * <ul>
-   * <li>All maven default excludes. See
-   * {@link AbstractScanner#DEFAULTEXCLUDES}</li>
-   * <li>
-   * 
+   *
+   * For Maven default excludes. See {@link AbstractScanner#DEFAULTEXCLUDES}.
+   *
+   * Sample:
    * <pre>
    * <code>&lt;iarExcludes&gt;
-   *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
-   *    &lt;iarExclude&gt;%regex[target/(?!classes/).*]&lt;/iarExclude&gt;
-   *&lt;/iarExcludes&gt;</code>
+   *    &lt;iarExclude&gt;target/com/acme/scret/*&lt;/iarExclude&gt;
+   *    &lt;iarExclude&gt;src/&lt;/iarExclude&gt;
+   * &lt;/iarExcludes&gt;</code>
    * </pre>
-   * 
-   * </li>
-   * </ul>
    */
   @Parameter
   String[] iarExcludes;
@@ -77,7 +78,10 @@ public class IarPackagingMojo extends AbstractMojo {
   /**
    * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion
    * declarations.
-   * 
+   *
+   * From the 'target' directory only 'classes' and 'src_hd' are included by default.
+   * See {@link Defaults#TARGET_INCLUDES}.
+   *
    * <pre>
    * <code>&lt;iarFileSets&gt;
    *    &lt;iarFileSet&gt;
@@ -111,7 +115,7 @@ public class IarPackagingMojo extends AbstractMojo {
     getLog().info("Attached " + artifact + ".");
   }
 
-  private void createIvyArchive(File sourceDir, File targetIar) throws MojoExecutionException {
+  private void createIvyArchive(File projectDir, File targetIar) throws MojoExecutionException {
     ZipArchiver archiver = new ZipArchiver();
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar);
@@ -119,7 +123,8 @@ public class IarPackagingMojo extends AbstractMojo {
     for (org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets)) {
       archiver.addFileSet(fs);
     }
-    archiver.addFileSet(getDefaultFileset(sourceDir));
+    archiver.addFileSet(getIarFs_exceptTarget(projectDir));
+    archiver.addFileSet(getIarTargetFs(projectDir));
 
     try {
       archiver.createArchive();
@@ -128,12 +133,24 @@ public class IarPackagingMojo extends AbstractMojo {
     }
   }
 
-  private DefaultFileSet getDefaultFileset(File sourceDir) {
-    DefaultFileSet fileSet = new DefaultFileSet();
+  private DefaultFileSet getIarFs_exceptTarget(File projectDir) {
+    var fileSet = createFs(projectDir);
+    fileSet.setIncludes(Defaults.INCLUDES);
+    fileSet.setExcludes(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes));
+    return fileSet;
+  }
+
+  private DefaultFileSet getIarTargetFs(File projectDir) {
+    var fileSet = createFs(projectDir);
+    fileSet.setIncludes(Defaults.TARGET_INCLUDES);
+    fileSet.setExcludes(iarExcludes);
+    return fileSet;
+  }
+
+  private DefaultFileSet createFs(File sourceDir) {
+    var fileSet = new DefaultFileSet();
     fileSet.setDirectory(sourceDir);
     fileSet.setIncludingEmptyDirectories(iarIncludesEmptyDirs);
-    fileSet.setIncludes(DEFAULT_INCLUDES);
-    fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, iarExcludes));
     return fileSet;
   }
 
