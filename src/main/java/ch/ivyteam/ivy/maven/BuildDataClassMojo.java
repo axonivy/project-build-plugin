@@ -18,7 +18,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "build-data-class", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
+@Mojo(name = "build-data-class", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class BuildDataClassMojo extends AbstractMojo {
 
   @Component
