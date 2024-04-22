@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lifecycleMappingMetadata>
-  <lifecycleMappings>
-    <lifecycleMapping>
-      <packagingType>iar</packagingType>
-    </lifecycleMapping>
-    <lifecycleMapping>
-      <packagingType>iar-integration-test</packagingType>
-    </lifecycleMapping>
-  </lifecycleMappings>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>build-data-class</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <execute>
+          <runOnIncremental>true</runOnIncremental>
+          <runOnConfiguration>false</runOnConfiguration>
+        </execute>
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
 </lifecycleMappingMetadata>
-

@@ -9,59 +9,12 @@
       </implementation>
       <configuration>
         <phases>
-          <clean>com.axonivy.ivy.ci:project-build-plugin:maven-dependency-cleanup</clean>
-          <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
-          <process-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
-            org.apache.maven.plugins:maven-resources-plugin:resources
-          </process-resources>
-          <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
-          <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
-          <test>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
-            org.apache.maven.plugins:maven-surefire-plugin:test
-          </test>
           <package>
-            com.axonivy.ivy.ci:project-build-plugin:maven-dependency,
-            com.axonivy.ivy.ci:project-build-plugin:pack-iar
+            com.axonivy.ivy.ci:project-build-plugin-slim:pack-iar
           </package>
-          <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-          <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
-        </phases>
-      </configuration>
-    </component>
-    <component>
-      <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
-      <role-hint>iar-integration-test</role-hint>
-      <implementation>
-        org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
-      </implementation>
-      <configuration>
-        <phases>
-          <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
-          <process-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
-            org.apache.maven.plugins:maven-resources-plugin:resources
-          </process-resources>
-          <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
-          <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
-          <test>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
-            org.apache.maven.plugins:maven-surefire-plugin:test
-          </test>
-          <package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
-          <pre-integration-test>
-            com.axonivy.ivy.ci:project-build-plugin:start-test-engine,
-            com.axonivy.ivy.ci:project-build-plugin:deploy-to-test-engine
-          </pre-integration-test>
-          <integration-test>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-integration-test-properties,
-            org.apache.maven.plugins:maven-failsafe-plugin:integration-test
-          </integration-test>
-          <post-integration-test>com.axonivy.ivy.ci:project-build-plugin:stop-test-engine</post-integration-test>
-          <verify>org.apache.maven.plugins:maven-failsafe-plugin:verify</verify>
-          <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-          <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+          <generate-resources>
+            com.axonivy.ivy.ci:project-build-plugin-slim:build-data-class
+          </generate-resources>
         </phases>
       </configuration>
     </component>
@@ -75,14 +28,6 @@
         <addedToClasspath>true</addedToClasspath>
         <type>iar</type>
         <packaging>iar</packaging>
-        <extension>iar</extension>
-      </configuration>
-    </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>iar-integration-test</role-hint>
-      <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
-      <configuration>
         <extension>iar</extension>
       </configuration>
     </component>

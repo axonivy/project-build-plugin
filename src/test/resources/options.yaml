@@ -1,2 +1,0 @@
-deployTestUsers: ${doDeploy.test.user}
-target: AUTO

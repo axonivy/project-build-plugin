@@ -1,8 +1,0 @@
-# == Variables ==
-# 
-# You can define here your project Variables.
-# If you want to define/override a Variable for a specific Environment, 
-# please add a 'variables.yaml' in the sub directory '_<environment>'.
-#
-Variables:
-  #myVariable: value
