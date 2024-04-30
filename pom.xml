@@ -47,6 +47,7 @@
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <unit.tests.skip>false</unit.tests.skip>
+    <github.site.skip>true</github.site.skip>
   </properties>
 
   <distributionManagement>
@@ -297,7 +298,37 @@
           </execution>
         </executions>
       </plugin>
-      
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+        <version>0.12</version>
+        <executions>
+          <execution>
+            <id>deploy.mojo.description.to.github</id>
+            <goals><goal>site</goal></goals>
+            <phase>site-deploy</phase>
+            <configuration>
+              <message>update maven plugin mojo description</message>
+              <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
+            </configuration>
+          </execution>
+          <execution>
+            <id>deploy.site.redirect.to.github</id>
+            <goals><goal>site</goal></goals>
+            <phase>site-deploy</phase>
+            <configuration>
+              <message>update maven plugin mojo redirect</message>
+              <path>${site.path}</path>
+              <outputDirectory>${project.build.directory}/site-redirect</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <server>github.ivy-team.oauth</server>
+          <merge>true</merge>
+          <skip>${github.site.skip}</skip>
+        </configuration>
+      </plugin>
     </plugins>
     
     <pluginManagement>
@@ -433,36 +464,6 @@
               <serverId>sonatype.snapshots</serverId>
               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
               <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>com.github.github</groupId>
-            <artifactId>site-maven-plugin</artifactId>
-            <version>0.12</version>
-            <executions>
-              <execution>
-                <id>deploy.mojo.description.to.github</id>
-                <goals><goal>site</goal></goals>
-                <phase>site-deploy</phase>
-                <configuration>
-                  <message>update maven plugin mojo description</message>
-                  <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
-                </configuration>
-              </execution>
-              <execution>
-                <id>deploy.site.redirect.to.github</id>
-                <goals><goal>site</goal></goals>
-                <phase>site-deploy</phase>
-                <configuration>
-                  <message>update maven plugin mojo redirect</message>
-                  <path>${site.path}</path>
-                  <outputDirectory>${project.build.directory}/site-redirect</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-            <configuration>
-              <server>github.ivy-team.oauth</server>
-              <merge>true</merge>
             </configuration>
           </plugin>
         </plugins>
