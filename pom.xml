@@ -44,6 +44,8 @@
     <!-- version should match ivy Engine sfl4j version! And version in EngineClassLoaderFactory.SLF4J_VERSION -->
     <slf4j.version>1.7.36</slf4j.version>
     <site.path>snapshot</site.path>
+    <other.site.path>release</other.site.path>
+    <other.site.name>Stable</other.site.name>
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <unit.tests.skip>false</unit.tests.skip>
@@ -390,6 +392,8 @@
       <id>ossrhDeploy</id>
       <properties>
         <site.path>release</site.path>
+        <other.site.path>snapshot</other.site.path>
+        <other.site.name>Snapshot</other.site.name>
         <maven.test.skip>true</maven.test.skip>
       </properties>
       <build>
