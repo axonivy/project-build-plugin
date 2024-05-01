@@ -45,7 +45,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  * </p>
  *
  * <pre>
- * mvn com.axonivy.ivy.ci:project-build-plugin:11.2.0:deploy-to-engine
+ * mvn com.axonivy.ivy.ci:project-build-plugin:11.3.0:deploy-to-engine
  * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.engine.dir=c:/axonivy/engine
  * -Divy.deploy.engine.app=Portal
@@ -56,7 +56,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  * </p>
  *
  * <pre>
- * mvn com.axonivy.ivy.ci:project-build-plugin:11.2.0:deploy-to-engine
+ * mvn com.axonivy.ivy.ci:project-build-plugin:11.3.0:deploy-to-engine
  * -Divy.deploy.file=myProject.iar
  * -Divy.deploy.method=HTTP
  * -Divy.deploy.server.id=AxonIvyEngine
