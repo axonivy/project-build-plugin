@@ -2,13 +2,11 @@ package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.exec.CommandLine;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.logging.Log;
 
 public class EngineModuleHints {
@@ -22,20 +20,25 @@ public class EngineModuleHints {
   }
 
   private static List<String> loadJvmOptions(File engineDir, Log log) {
-    File jvmOptionsFile = new File(engineDir, "configuration/jvm-module.options");
-    if (!jvmOptionsFile.exists()) {
-      log.warn("Couldn't load jvm module options from '" + jvmOptionsFile + "' file.");
-      return Collections.emptyList();
+    var jvmOptionsFile = engineDir.toPath().resolve("bin").resolve("jvm-module.options");
+    if (!Files.exists(jvmOptionsFile)) {
+      // Fallback: It was placed in another place in Axon Ivy Engine before 11.4.0
+      log.info("File does not exist '" + jvmOptionsFile + "'");
+      jvmOptionsFile = engineDir.toPath().resolve("configuration").resolve("jvm-module.options");
+      if (!Files.exists(jvmOptionsFile)) {
+        log.warn("Couldn't load jvm module options from '" + jvmOptionsFile + "' file.");
+        return List.of();
+      }
     }
 
     try {
-      return FileUtils.readLines(jvmOptionsFile, StandardCharsets.UTF_8).stream()
+      return Files.readAllLines(jvmOptionsFile).stream()
               .filter(line -> !line.isBlank())
               .filter(line -> !line.matches("^\\s*#.*$"))
               .collect(Collectors.toList());
     } catch (IOException ex) {
       log.warn("Couldn't read the jvm module options from '" + jvmOptionsFile + "' file.", ex);
-      return Collections.emptyList();
+      return List.of();
     }
   }
 }
