@@ -22,13 +22,8 @@ public class EngineModuleHints {
   private static List<String> loadJvmOptions(File engineDir, Log log) {
     var jvmOptionsFile = engineDir.toPath().resolve("bin").resolve("jvm-module.options");
     if (!Files.exists(jvmOptionsFile)) {
-      // Fallback: It was placed in another place in Axon Ivy Engine before 11.4.0
-      log.info("File does not exist '" + jvmOptionsFile + "'");
-      jvmOptionsFile = engineDir.toPath().resolve("configuration").resolve("jvm-module.options");
-      if (!Files.exists(jvmOptionsFile)) {
-        log.warn("Couldn't load jvm module options from '" + jvmOptionsFile + "' file.");
-        return List.of();
-      }
+      log.warn("Couldn't load jvm module options from '" + jvmOptionsFile + "' file.");
+      return List.of();
     }
 
     try {
