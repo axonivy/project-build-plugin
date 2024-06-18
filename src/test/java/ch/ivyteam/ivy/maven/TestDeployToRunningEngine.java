@@ -134,7 +134,11 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest
     Executor startedProcess = null;
     try
     {
+      System.setOut(originalOut);
       startedProcess = mojo.startEngine();
+      deployMojo.deployEngineUrl = (String) rule.project.getProperties()
+              .get(EngineControl.Property.TEST_ENGINE_URL);
+      System.setOut(new PrintStream(outContent));
 
       deployMojo.execute();
 
