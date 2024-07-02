@@ -3,7 +3,7 @@ package ch.ivyteam.ivy.maven;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.slf4j.impl.SimpleLogger;
+import org.slf4j.simple.SimpleLogger;
 
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 
