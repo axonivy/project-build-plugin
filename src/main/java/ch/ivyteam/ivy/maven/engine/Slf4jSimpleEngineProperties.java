@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Axon Ivy AG
+ * Copyright (C) 2024 Axon Ivy AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,11 +19,11 @@ package ch.ivyteam.ivy.maven.engine;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.impl.SimpleLogger;
+import org.slf4j.simple.SimpleLogger;
 
 /**
  * Sets the logging properties for the ivy engine.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -91,7 +91,7 @@ public class Slf4jSimpleEngineProperties {
   }
 
   /**
-   * Valid levels as documented in {@link org.slf4j.impl.SimpleLogger}
+   * Valid levels as documented in {@link org.slf4j.simple.SimpleLogger}
    */
   static interface Level {
     String TRACE = "trace";
