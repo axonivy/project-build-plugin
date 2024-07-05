@@ -42,7 +42,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * Factory that provides an {@link URLClassLoader} for ivy Engine class access.
  * This makes invocation of engine parts possible without starting a new java
  * process.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 25.09.2014
  */
@@ -54,7 +54,7 @@ public class EngineClassLoaderFactory {
   }
 
   /** must match version in pom.xml */
-  private static final String SLF4J_VERSION = "2.0.12";
+  private static final String SLF4J_VERSION = "2.0.13";
 
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
           OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
@@ -102,9 +102,7 @@ public class EngineClassLoaderFactory {
 
   private static void addToClassPath(List<File> classPathFiles, File dir, IOFileFilter fileFilter) {
     if (dir.isDirectory()) {
-      for (File jar : FileUtils.listFiles(dir, fileFilter, null)) {
-        classPathFiles.add(jar);
-      }
+      classPathFiles.addAll(FileUtils.listFiles(dir, fileFilter, null));
     }
   }
 
@@ -115,9 +113,7 @@ public class EngineClassLoaderFactory {
       if (!jarDir.isDirectory()) {
         continue;
       }
-      for (File jar : FileUtils.listFiles(jarDir, new String[] {"jar"}, true)) {
-        classPathFiles.add(jar);
-      }
+      classPathFiles.addAll(FileUtils.listFiles(jarDir, new String[] {"jar"}, true));
     }
     return classPathFiles;
   }
