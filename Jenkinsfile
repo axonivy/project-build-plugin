@@ -63,7 +63,9 @@ def collectBuildArtifacts()  {
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
     excludeType('sonar-maven-plugin:sonar'),
-    excludeType('maven-surefire-plugin:test')
+    excludeType('maven-surefire-plugin:test'),
+    // printed to console by test. was since ever the case but they are now real maven warnings
+    excludeMessage('.*Uncaught exception in thread Thread.*'),
   ]
   recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
