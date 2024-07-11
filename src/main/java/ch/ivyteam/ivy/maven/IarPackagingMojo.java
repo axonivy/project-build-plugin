@@ -80,7 +80,7 @@ public class IarPackagingMojo extends AbstractMojo {
    * declarations.
    *
    * From the 'target' directory only 'classes' and 'src_hd' are included by default.
-   * See {@link Defaults#TARGET_INCLUDES}.
+   * See {@link ch.ivyteam.ivy.maven.IarPackagingMojo.Defaults#TARGET_INCLUDES}.
    *
    * <pre>
    * <code>&lt;iarFileSets&gt;
