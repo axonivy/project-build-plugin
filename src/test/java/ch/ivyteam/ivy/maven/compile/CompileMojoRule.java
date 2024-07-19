@@ -16,14 +16,6 @@
 
 package ch.ivyteam.ivy.maven.compile;
 
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.DefaultArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.plugin.internal.DefaultLegacySupport;
-
-import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.EngineMojoRule;
 
 public class CompileMojoRule<T extends AbstractEngineInstanceMojo> extends EngineMojoRule<T> {
@@ -35,31 +27,5 @@ public class CompileMojoRule<T extends AbstractEngineInstanceMojo> extends Engin
   protected void before() throws Throwable {
     super.before();
     configureMojo(getMojo());
-  }
-
-  public void configureMojo(AbstractEngineInstanceMojo newMojo) throws IllegalAccessException {
-    newMojo.localRepository = provideLocalRepository();
-  }
-
-  /**
-   * maven-plugin-testing-harness can not inject local repositories (though the
-   * real runtime supports it). and the default stubs have no sufficient
-   * implementation of getPath():
-   * @see "http://maven.apache.org/plugin-testing/maven-plugin-testing-harness/examples/repositories.html"
-   */
-  private ArtifactRepository provideLocalRepository() throws IllegalAccessException {
-    DefaultArtifactRepositoryFactory factory = new DefaultArtifactRepositoryFactory();
-    setVariableValueToObject(factory, "factory",
-            new org.apache.maven.repository.legacy.repository.DefaultArtifactRepositoryFactory());
-
-    LegacySupport legacySupport = new DefaultLegacySupport();
-    setVariableValueToObject(factory, "legacySupport", legacySupport);
-
-    ArtifactRepository localRepository = factory.createArtifactRepository("local", "http://localhost",
-            new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
-
-    setVariableValueToObject(localRepository, "basedir", BaseEngineProjectMojoTest.LOCAL_REPOSITORY);
-
-    return localRepository;
   }
 }

@@ -30,7 +30,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -141,25 +141,27 @@ public class EngineClassLoaderFactory {
 
   public static class MavenContext {
     private final RepositorySystem repoSystem;
-    private final ArtifactRepository localRepository;
     private final MavenProject project;
     private final Log log;
 
-    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, MavenProject project,
+    public MavenContext(RepositorySystem repoSystem, MavenProject project,
             Log log) {
       this.repoSystem = repoSystem;
-      this.localRepository = localRepository;
       this.project = project;
       this.log = log;
     }
 
     public File getJar(String groupId, String artifactId, String version) {
       Artifact artifact = repoSystem.createArtifact(groupId, artifactId, version, "jar");
-      File jar = new File(localRepository.getBasedir(), localRepository.pathOf(artifact));
-      if (!jar.exists()) {
-        log.warn("Failed to resolve '" + artifactId + "' from local repository in '" + jar + "'.");
+      var request = new ArtifactResolutionRequest();
+      request.setArtifact(artifact);
+      var response = repoSystem.resolve(request);
+      if (response.isSuccess()) {
+        return response.getArtifacts().iterator().next().getFile();
+      } else {
+        log.warn("Failed to resolve '" + artifactId + "' from local repository.");
       }
-      return jar;
+      return null;
     }
   }
 

@@ -18,13 +18,13 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 
 import ch.ivyteam.ivy.maven.AbstractEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
@@ -53,8 +53,8 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
   @Component
   private RepositorySystem repository;
 
-  @Parameter(defaultValue = "${localRepository}")
-  public ArtifactRepository localRepository;
+  @Parameter( defaultValue = "${repositorySystemSession}", readonly = true, required = true )
+  protected RepositorySystemSession repoSession;
 
   private static MavenProjectBuilderProxy builder;
 
@@ -97,8 +97,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
   }
 
   public final EngineClassLoaderFactory getEngineClassloaderFactory() {
-    MavenContext context = new EngineClassLoaderFactory.MavenContext(
-            repository, localRepository, project, getLog());
+    MavenContext context = new EngineClassLoaderFactory.MavenContext(repository, project, getLog());
     return new EngineClassLoaderFactory(context);
   }
 
