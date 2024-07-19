@@ -73,8 +73,10 @@ public class EngineClassLoaderFactory {
 
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException {
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
-    addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS),
-            new WildcardFileFilter("org.eclipse.osgi_*.jar"));
+    var filter = WildcardFileFilter.builder()
+            .setWildcards("org.eclipse.osgi_*.jar")
+            .get();
+    addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS), filter);
     osgiClasspath.addAll(0, getSlf4jJars());
     if (maven.log.isDebugEnabled()) {
       maven.log.debug("Configuring OSGi engine classpath:");
@@ -130,11 +132,11 @@ public class EngineClassLoaderFactory {
   }
 
   private static URL[] toUrls(List<File> ivyEngineClassPathFiles) throws MalformedURLException {
-    List<URL> classPathUrls = new ArrayList<>();
+    var classPathUrls = new ArrayList<URL>();
     for (File file : ivyEngineClassPathFiles) {
-      classPathUrls.add(new URL(file.toURI().toASCIIString()));
+      classPathUrls.add(file.toURI().toURL());
     }
-    return classPathUrls.toArray(new URL[classPathUrls.size()]);
+    return classPathUrls.toArray(URL[]::new);
   }
 
   public static class MavenContext {

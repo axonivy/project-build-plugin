@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -75,7 +77,7 @@ public class TestInstallEngineMojo {
   }
 
   private URL mockEngineZip() throws MalformedURLException {
-    return new URL(mockBaseUrl+"/fakeEngine.zip");
+    return URI.create(mockBaseUrl + "/fakeEngine.zip").toURL();
   }
 
   @Test
@@ -89,7 +91,7 @@ public class TestInstallEngineMojo {
     // test setup can not expand expression ${settings.localRepository}: so we
     // setup an explicit temp dir!
     mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo").toFile();
-    mojo.engineListPageUrl = new URL(mockBaseUrl + "/listPageUrl.html");
+    mojo.engineListPageUrl = URI.create(mockBaseUrl + "/listPageUrl.html").toURL();
 
     File defaultEngineDir = new File(mojo.engineCacheDirectory, DEFAULT_VERSION);
     assertThat(defaultEngineDir).doesNotExist();
@@ -149,7 +151,7 @@ public class TestInstallEngineMojo {
 
     mojo.ivyVersion = "[7.0.0,800.0.0)";
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new URL("http://localhost/fakeUri");
+    mojo.engineDownloadUrl = URI.create("http://localhost/fakeUri").toURL();
 
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
@@ -231,7 +233,7 @@ public class TestInstallEngineMojo {
     mojo.autoInstallEngine = true;
     mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
 
-    mojo.engineDownloadUrl = new URL("http://localhost:7123/fakeEngine.zip"); // not reachable: but proxy knows how :)
+    mojo.engineDownloadUrl = URI.create("http://localhost:7123/fakeEngine.zip").toURL(); // not reachable: but proxy knows how :)
     var downloader = (URLEngineDownloader) mojo.getDownloader();
     try {
       downloader.downloadEngine();
@@ -307,7 +309,7 @@ public class TestInstallEngineMojo {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
-    mojo.engineListPageUrl = new URL("http://localhost/");
+    mojo.engineListPageUrl = URI.create("http://localhost/").toURL();
     assertThat(findLink("<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>"))
       .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
   }
@@ -354,7 +356,7 @@ public class TestInstallEngineMojo {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Linux_x86";
-    mojo.engineListPageUrl = new URL("http://localhost/");
+    mojo.engineListPageUrl = URI.create("http://localhost/").toURL();
 
     assertThat(findLink(
             "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>" // windows
@@ -362,7 +364,7 @@ public class TestInstallEngineMojo {
       .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip");
   }
 
-  private String findLink(String html) throws MojoExecutionException, MalformedURLException {
+  private String findLink(String html) throws MojoExecutionException, MalformedURLException, URISyntaxException {
     return getUrlDownloader().findEngineDownloadUrl(IOUtils.toInputStream(html, StandardCharsets.UTF_8)).toExternalForm();
   }
 

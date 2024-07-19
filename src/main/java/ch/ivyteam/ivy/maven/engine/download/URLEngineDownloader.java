@@ -1,9 +1,10 @@
 package ch.ivyteam.ivy.maven.engine.download;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,7 +67,7 @@ public class URLEngineDownloader implements EngineDownloader {
       } finally {
         Files.deleteIfExists(index);
       }
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       throw new MojoExecutionException("Failed to find engine download link in list page " + engineListPageUrl, ex);
     }
   }
@@ -128,7 +129,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   public URL findEngineDownloadUrl(InputStream htmlStream)
-          throws MojoExecutionException, MalformedURLException {
+          throws MojoExecutionException, MalformedURLException, URISyntaxException {
     String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_" + osArchitecture + "\\.zip";
     Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?" + engineFileNameRegex + "[\"|']");
     try (Scanner scanner = new Scanner(htmlStream)) {
@@ -152,12 +153,11 @@ public class URLEngineDownloader implements EngineDownloader {
     }
   }
 
-  private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException {
+  private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException, URISyntaxException {
     boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
     if (isAbsoluteLink) {
-      return new URL(parsedEngineArchivLink);
+      return URI.create(parsedEngineArchivLink).toURL();
     }
-    return new URL(baseUrl, parsedEngineArchivLink);
+    return baseUrl.toURI().resolve(parsedEngineArchivLink).toURL();
   }
-
 }
