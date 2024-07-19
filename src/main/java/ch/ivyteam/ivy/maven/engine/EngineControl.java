@@ -113,13 +113,12 @@ public class EngineControl {
       classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
     }
 
-    File osgiDir = new File(context.engineDirectory, OsgiDir.INSTALL_AREA);
-
+    var osgiDir = context.engineDirectory.resolve(OsgiDir.INSTALL_AREA);
     CommandLine cli = new CommandLine(new File(getJavaExec()))
             .addArgument("-classpath").addArgument(classpath)
             .addArgument("-Divy.engine.testheadless=true")
             .addArgument("-Djava.awt.headless=true")
-            .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
+            .addArgument("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
 
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions)) {
       cli.addArguments(context.vmOptions.additionalVmOptions, false);
@@ -134,7 +133,7 @@ public class EngineControl {
 
   private Executor createEngineExecutor() {
     return DefaultExecutor.builder()
-            .setWorkingDirectory(context.engineDirectory)
+            .setWorkingDirectory(context.engineDirectory.toFile())
             .get();
   }
 

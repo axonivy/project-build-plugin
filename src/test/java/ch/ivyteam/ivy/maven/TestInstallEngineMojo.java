@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -90,10 +91,10 @@ public class TestInstallEngineMojo {
 
     // test setup can not expand expression ${settings.localRepository}: so we
     // setup an explicit temp dir!
-    mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo").toFile();
+    mojo.engineCacheDirectory = Files.createTempDirectory("tmpRepo");
     mojo.engineListPageUrl = URI.create(mockBaseUrl + "/listPageUrl.html").toURL();
 
-    File defaultEngineDir = new File(mojo.engineCacheDirectory, DEFAULT_VERSION);
+    File defaultEngineDir = new File(mojo.engineCacheDirectory.toFile(), DEFAULT_VERSION);
     assertThat(defaultEngineDir).doesNotExist();
     assertThat(mojo.engineDownloadUrl)
       .as("Default config should favour to download an engine from the 'list page url'.")
@@ -120,26 +121,26 @@ public class TestInstallEngineMojo {
   }
 
   private static File createFakeEngineZip(String ivyVersion) throws IOException, ZipException {
-    File zipDir = createFakeEngineDir(ivyVersion);
-    File zipFile = new File(zipDir, "fake.zip");
+    var zipDir = createFakeEngineDir(ivyVersion);
+    File zipFile = new File(zipDir.toFile(), "fake.zip");
     try(ZipFile zip = new ZipFile(zipFile)) {
-      zip.createSplitZipFileFromFolder(new File(zipDir, OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
+      zip.createSplitZipFileFromFolder(new File(zipDir.toFile(), OsgiDir.INSTALL_AREA), new ZipParameters(), false, 0);
     }
     return zipFile;
   }
 
-  private static File createFakeEngineDir(String ivyVersion) throws IOException {
-    File fakeDir = createTempDir("fake");
-    File fakeLibToDeclareVersion = new File(fakeDir, getFakeLibraryPath(ivyVersion));
+  private static Path createFakeEngineDir(String ivyVersion) throws IOException {
+    var fakeDir = createTempDir("fake");
+    File fakeLibToDeclareVersion = new File(fakeDir.toFile(), getFakeLibraryPath(ivyVersion));
     fakeLibToDeclareVersion.getParentFile().mkdirs();
     fakeLibToDeclareVersion.createNewFile();
     return fakeDir;
   }
 
-  private static File createTempDir(String namePrefix) throws IOException {
+  private static Path createTempDir(String namePrefix) throws IOException {
     File tmpDir = Files.createTempDirectory(namePrefix).toFile();
     tmpDir.deleteOnExit();
-    return tmpDir;
+    return tmpDir.toPath();
   }
 
   @Test
@@ -147,15 +148,15 @@ public class TestInstallEngineMojo {
     final String version = AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION;
     mojo.engineDirectory = createFakeEngineDir(version);
     assertThat(mojo.engineDirectory).isDirectory();
-    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(version))).exists();
+    assertThat(new File(mojo.engineDirectory.toFile(), getFakeLibraryPath(version))).exists();
 
     mojo.ivyVersion = "[7.0.0,800.0.0)";
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = URI.create("http://localhost/fakeUri").toURL();
 
     mojo.execute();
-    assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
-    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(version))).exists();
+    assertThat(mojo.engineDirectory.toFile().listFiles()).isNotEmpty();
+    assertThat(new File(mojo.engineDirectory.toFile(), getFakeLibraryPath(version))).exists();
   }
 
   @Test
@@ -165,30 +166,30 @@ public class TestInstallEngineMojo {
     final String outdatedVersion = "6.5.1";
     mojo.engineDirectory = createFakeEngineDir(outdatedVersion);
     assertThat(mojo.engineDirectory).isDirectory();
-    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).exists();
+    assertThat(new File(mojo.engineDirectory.toFile(), getFakeLibraryPath(outdatedVersion))).exists();
 
     mojo.ivyVersion = "[11.3.0,11.4.0]";
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = mockEngineZip();
 
     mojo.execute();
-    assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
-    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(outdatedVersion))).doesNotExist();
-    assertThat(new File(mojo.engineDirectory, getFakeLibraryPath(DEFAULT_VERSION))).exists();
+    assertThat(mojo.engineDirectory.toFile().listFiles()).isNotEmpty();
+    assertThat(new File(mojo.engineDirectory.toFile(), getFakeLibraryPath(outdatedVersion))).doesNotExist();
+    assertThat(new File(mojo.engineDirectory.toFile(), getFakeLibraryPath(DEFAULT_VERSION))).exists();
   }
 
   @Test
   public void testEngineDownload_ifNotExisting() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     assertThat(mojo.engineDirectory).isDirectory();
-    assertThat(mojo.engineDirectory.listFiles()).isEmpty();
+    assertThat(mojo.engineDirectory.toFile().listFiles()).isEmpty();
 
     mojo.autoInstallEngine = true;
     mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
     mojo.engineDownloadUrl = mockEngineZip();
 
     mojo.execute();
-    assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
+    assertThat(mojo.engineDirectory.toFile().listFiles()).isNotEmpty();
   }
 
   @Test
@@ -199,12 +200,12 @@ public class TestInstallEngineMojo {
     mojo.autoInstallEngine = true;
 
     // OSGi
-    new File(mojo.engineCacheDirectory, "7.0.0" + File.separator + getFakeLibraryPath("7.0.0")).mkdirs();
+    new File(mojo.engineCacheDirectory.toFile(), "7.0.0" + File.separator + getFakeLibraryPath("7.0.0")).mkdirs();
     // non-OSGi
-    new File(mojo.engineCacheDirectory, "7.1.0").mkdirs();
+    new File(mojo.engineCacheDirectory.toFile(), "7.1.0").mkdirs();
 
     mojo.execute();
-    assertThat(mojo.engineDirectory.getName()).isEqualTo("7.0.0");
+    assertThat(mojo.engineDirectory.toFile().getName()).isEqualTo("7.0.0");
   }
 
   @Test

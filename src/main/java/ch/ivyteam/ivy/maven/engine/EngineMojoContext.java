@@ -17,6 +17,8 @@
 package ch.ivyteam.ivy.maven.engine;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -26,7 +28,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class EngineMojoContext {
-  public final File engineDirectory;
+  public final Path engineDirectory;
   public final MavenProject project;
   public final Log log;
   public final EngineVmOptions vmOptions;
@@ -35,7 +37,7 @@ public class EngineMojoContext {
   public final File engineLogFile;
   public final Integer timeoutInSeconds;
 
-  public EngineMojoContext(File engineDirectory, MavenProject project, Log log, File engineLogFile,
+  public EngineMojoContext(Path engineDirectory, MavenProject project, Log log, File engineLogFile,
           EngineVmOptions vmOptions, Integer timeoutInSeconds) {
     this.engineDirectory = engineDirectory;
     this.project = project;
@@ -50,7 +52,7 @@ public class EngineMojoContext {
     if (!(new File(engineClasspathJarPath).exists())) {
       throw new RuntimeException("Engine ClasspathJar " + engineClasspathJarPath + " does not exist.");
     }
-    if (!(engineDirectory.exists())) {
+    if (!(Files.exists(engineDirectory))) {
       throw new RuntimeException("Engine Directory " + engineDirectory + " does not exist.");
     }
   }

@@ -79,19 +79,19 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
   protected MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception {
     EngineClassLoaderFactory classLoaderFactory = getEngineClassloaderFactory();
 
-    File engineDir = identifyAndGetEngineDirectory();
+    var engineDir = identifyAndGetEngineDirectory();
     if (builder == null) {
       builder = new MavenProjectBuilderProxy(
               classLoaderFactory,
               buildApplicationDirectory,
-              engineDir,
+              engineDir.toFile(),
               getLog(),
               timeoutEngineStartInSeconds);
     }
     classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null) {
-      project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.getAbsolutePath());
+      project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.toAbsolutePath().toString());
     }
     return builder;
   }

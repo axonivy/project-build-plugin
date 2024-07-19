@@ -218,7 +218,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
   private File getDeployDirectory() throws MojoExecutionException {
     if (deployEngineDirectory == null || engineToTarget()) { // re-use engine
                                                              // used to build
-      deployEngineDirectory = getEngineDir(project);
+      deployEngineDirectory = getEngineDir(project).toFile();
     }
     if (Paths.get(deployDirectory).isAbsolute()) {
       return new File(deployDirectory);

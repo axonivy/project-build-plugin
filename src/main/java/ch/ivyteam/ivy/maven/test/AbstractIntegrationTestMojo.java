@@ -1,6 +1,6 @@
 package ch.ivyteam.ivy.maven.test;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo {
   @Parameter(property = "ivy.test.engine", defaultValue = TestEngineLocation.COPY_FROM_CACHE)
   String testEngine;
 
-  public final File getEngineDir(MavenProject project) throws MojoExecutionException {
+  public final Path getEngineDir(MavenProject project) throws MojoExecutionException {
     if (engineToTarget()) {
       return getTargetDir(project);
     }
@@ -52,15 +52,15 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo {
   }
 
   private boolean isCachedEngine() throws MojoExecutionException {
-    File engineDir = identifyAndGetEngineDirectory();
+    var engineDir = identifyAndGetEngineDirectory();
     if (engineDir == null) {
       return false;
     }
-    return Objects.equals(engineDir.getParentFile(), engineCacheDirectory);
+    return Objects.equals(engineDir.getParent(), engineCacheDirectory);
   }
 
-  File getTargetDir(MavenProject project) {
-    return new File(project.getBuild().getDirectory(), "ivyEngine");
+  Path getTargetDir(MavenProject project) {
+    return Path.of(project.getBuild().getDirectory()).resolve("ivyEngine");
   }
 
   static interface TestEngineLocation {

@@ -60,15 +60,15 @@ public class TestShareEngineClasspathMojo {
     }
 
     protected void configureMojo(AbstractEngineMojo newMojo) throws IOException {
-      File engineDir = Files.createTempDirectory("tmpEngineDir").toFile();
+      var engineDir = Files.createTempDirectory("tmpEngineDir");
       newMojo.engineDirectory = engineDir;
     }
 
     private void writeEngineLibDir() {
       try {
-        File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
+        var engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
         FileUtils.touch(
-                new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT + "/dummy-boot.jar"));
+                new File(engineDirectory.toFile(), OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT + "/dummy-boot.jar"));
       } catch (IOException | MojoExecutionException ex) {
         throw new RuntimeException("Cannot create server jars", ex);
       }

@@ -153,8 +153,8 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
   private void deployTestApp() throws MojoExecutionException {
     File resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
     try {
-      File deployDir = new File(getEngineDir(project), DeployToEngineMojo.DEPLOY_DEFAULT);
-      deployToDirectory(resolvedOptionsFile, deployDir);
+      var deployDir = getEngineDir(project).resolve(DeployToEngineMojo.DEPLOY_DEFAULT);
+      deployToDirectory(resolvedOptionsFile, deployDir.toFile());
     } finally {
       removeTemporaryDeploymentOptionsFile(resolvedOptionsFile);
     }

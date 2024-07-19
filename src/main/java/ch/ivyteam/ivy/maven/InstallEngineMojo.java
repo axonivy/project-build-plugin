@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -159,7 +160,11 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       handleNoInstalledEngine();
     } else {
       if (engineDirectoryIsEmpty()) {
-        getRawEngineDirectory().mkdirs();
+        try {
+          Files.createDirectories(getRawEngineDirectory());
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Could not create directories " + getRawEngineDirectory(), ex);
+        }
       }
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
 
@@ -195,8 +200,12 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
       if (!isEngineDirectoryIdentified()) {
         String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
-        engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
-        engineDirectory.mkdirs();
+        engineDirectory = engineCacheDirectory.resolve(ivyEngineVersionOfZip(engineZipFileName));
+        try {
+          Files.createDirectories(engineDirectory);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Could not create directories " + engineDirectory, ex);
+        }
       }
 
       unpackEngine(downloadZip);
@@ -247,7 +256,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
   private void removeOldEngineContent() throws MojoExecutionException {
     try {
-      FileUtils.cleanDirectory(getRawEngineDirectory());
+      FileUtils.cleanDirectory(getRawEngineDirectory().toFile());
     } catch (IOException ex) {
       throw new MojoExecutionException(
               "Failed to clean outdated ivy Engine directory '" + getRawEngineDirectory() + "'.", ex);
@@ -255,11 +264,11 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   }
 
   private boolean engineDirectoryIsEmpty() {
-    return !getRawEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getRawEngineDirectory().listFiles());
+    return !Files.isDirectory(getRawEngineDirectory()) || ArrayUtils.isEmpty(getRawEngineDirectory().toFile().listFiles());
   }
 
   private void unpackEngine(File downloadZip) throws MojoExecutionException {
-    String targetLocation = getRawEngineDirectory().getAbsolutePath();
+    String targetLocation = getRawEngineDirectory().toAbsolutePath().toString();
     getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
     try (var engineZip = new ZipFile(downloadZip)) {
       engineZip.extractAll(targetLocation);

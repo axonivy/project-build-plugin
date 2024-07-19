@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Collection;
@@ -80,7 +81,7 @@ public class BaseEngineProjectMojoTest {
   }
 
   private static final File evalEngineDir(AbstractEngineMojo mojo) {
-    return new File(mojo.engineCacheDirectory,
+    return new File(mojo.engineCacheDirectory.toFile(),
             System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION));
   }
 
@@ -98,9 +99,9 @@ public class BaseEngineProjectMojoTest {
       if (alternateEngineListPageUrl != null) {
         getMojo().engineListPageUrl = URI.create(alternateEngineListPageUrl).toURL();
       }
-      getMojo().engineCacheDirectory = new File(CACHE_DIR);
+      getMojo().engineCacheDirectory = Path.of(CACHE_DIR);
       getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
-      getMojo().engineDirectory = evalEngineDir(getMojo());
+      getMojo().engineDirectory = evalEngineDir(getMojo()).toPath();
       getMojo().useLatestMinor = true;
       deleteOutdatedEngine();
       getMojo().execute();
@@ -108,15 +109,15 @@ public class BaseEngineProjectMojoTest {
     }
 
     private void deleteOutdatedEngine() throws IOException {
-      File engineDir = getMojo().getRawEngineDirectory();
-      if (engineDir == null || !engineDir.exists()) {
+      var engineDir = getMojo().getRawEngineDirectory();
+      if (engineDir == null || !Files.exists(engineDir)) {
         return;
       }
 
-      File timestampFile = new File(engineDir, TIMESTAMP_FILE_NAME);
-      if (isOlderThan24h(timestampFile)) {
+      var timestampFile = engineDir.resolve(TIMESTAMP_FILE_NAME);
+      if (isOlderThan24h(timestampFile.toFile())) {
         System.out.println("Deleting cached outdated engine.");
-        FileUtils.deleteDirectory(engineDir);
+        FileUtils.deleteDirectory(engineDir.toFile());
       }
     }
 
@@ -139,12 +140,12 @@ public class BaseEngineProjectMojoTest {
     }
 
     private void addTimestampToDownloadedEngine() throws IOException {
-      File engineDir = getMojo().getRawEngineDirectory();
-      if (engineDir == null || !engineDir.exists()) {
+      var engineDir = getMojo().getRawEngineDirectory();
+      if (engineDir == null || !Files.exists(engineDir)) {
         return;
       }
-      File timestampFile = new File(engineDir, TIMESTAMP_FILE_NAME);
-      timestampFile.createNewFile();
+      var timestampFile = engineDir.resolve(TIMESTAMP_FILE_NAME);
+      timestampFile.toFile().createNewFile();
     }
   };
 
@@ -160,8 +161,8 @@ public class BaseEngineProjectMojoTest {
     }
 
     protected void configureMojo(AbstractEngineMojo newMojo) {
-      newMojo.engineCacheDirectory = new File(CACHE_DIR);
-      newMojo.engineDirectory = evalEngineDir(getMojo());
+      newMojo.engineCacheDirectory = Path.of(CACHE_DIR);
+      newMojo.engineDirectory = evalEngineDir(getMojo()).toPath();
       newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
     }
   }

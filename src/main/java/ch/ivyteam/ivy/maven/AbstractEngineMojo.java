@@ -17,6 +17,8 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
@@ -55,7 +57,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * If the Engine does not yet exist, it can be automatically downloaded.
    */
   @Parameter(property = ENGINE_DIRECTORY_PROPERTY)
-  public File engineDirectory;
+  public Path engineDirectory;
 
   /**
    * Location where ivy engines in required version can be extracted to.
@@ -63,7 +65,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * If the Engine does not yet exist, it can be automatically downloaded.
    */
   @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property = "ivy.engine.cache.directory")
-  public File engineCacheDirectory;
+  public Path engineCacheDirectory;
 
   /**
    * The ivy Engine version or version-range that must be used. Must be equal or
@@ -95,11 +97,11 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * 'directory' could be yet invalid!
    * @return the raw engine directory
    */
-  protected final File getRawEngineDirectory() {
+  protected final Path getRawEngineDirectory() {
     return engineDirectory;
   }
 
-  protected final File identifyAndGetEngineDirectory() throws MojoExecutionException {
+  protected final Path identifyAndGetEngineDirectory() throws MojoExecutionException {
     if (!isEngineDirectoryIdentified()) {
       engineDirectory = findMatchingEngineInCacheDirectory();
     }
@@ -110,19 +112,19 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
     return engineDirectory != null;
   }
 
-  protected final File findMatchingEngineInCacheDirectory() throws MojoExecutionException {
-    if (engineCacheDirectory == null || !engineCacheDirectory.exists()) {
+  protected final Path findMatchingEngineInCacheDirectory() throws MojoExecutionException {
+    if (engineCacheDirectory == null || !Files.exists(engineCacheDirectory)) {
       return null;
     }
 
     File engineDirToTake = null;
     ArtifactVersion versionOfEngineToTake = null;
-    for (File engineDirCandidate : engineCacheDirectory.listFiles()) {
+    for (File engineDirCandidate : engineCacheDirectory.toFile().listFiles()) {
       if (!engineDirCandidate.isDirectory()) {
         continue;
       }
 
-      ArtifactVersion candidateVersion = getInstalledEngineVersion(engineDirCandidate);
+      ArtifactVersion candidateVersion = getInstalledEngineVersion(engineDirCandidate.toPath());
       if (candidateVersion == null || !getIvyVersionRange().containsVersion(candidateVersion)) {
         continue;
       }
@@ -131,12 +133,15 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
         versionOfEngineToTake = candidateVersion;
       }
     }
-    return engineDirToTake;
+    if (engineDirToTake == null) {
+      return null;
+    }
+    return engineDirToTake.toPath();
   }
 
-  protected final ArtifactVersion getInstalledEngineVersion(File engineDir) throws MojoExecutionException {
+  protected final ArtifactVersion getInstalledEngineVersion(Path engineDir) throws MojoExecutionException {
     try {
-      return new EngineVersionEvaluator(getLog(), engineDir).evaluateVersion();
+      return new EngineVersionEvaluator(getLog(), engineDir.toFile()).evaluateVersion();
     } catch (Exception ex) {
       throw new MojoExecutionException("Cannot evaluate engine version", ex);
     }

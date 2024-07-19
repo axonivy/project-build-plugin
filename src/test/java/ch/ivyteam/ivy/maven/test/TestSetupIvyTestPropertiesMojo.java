@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
   @Test
   public void ivyTestRuntimeIO() throws IOException {
     IvyTestRuntime rt = new IvyTestRuntime();
-    rt.setProductDir(new File("/tmp/myEngine"));
+    rt.setProductDir(Path.of("/tmp/myEngine"));
     File ivyTestVm = rt.store(rule.project);
     assertThat(ivyTestVm.getParentFile().getName()).isEqualTo("target");
   }

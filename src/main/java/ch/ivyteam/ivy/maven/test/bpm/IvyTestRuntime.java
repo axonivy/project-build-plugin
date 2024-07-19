@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -21,8 +22,8 @@ public class IvyTestRuntime {
 
   private final Properties props = new Properties();
 
-  public void setProductDir(File engineDir) {
-    props.put(Key.PRODUCT_DIR, engineDir.getAbsolutePath());
+  public void setProductDir(Path engineDir) {
+    props.put(Key.PRODUCT_DIR, engineDir.toAbsolutePath().toString());
   }
 
   public void setProjectLocations(List<URI> locations) {
