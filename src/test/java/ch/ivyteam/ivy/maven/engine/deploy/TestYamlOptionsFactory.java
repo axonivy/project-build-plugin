@@ -3,18 +3,17 @@ package ch.ivyteam.ivy.maven.engine.deploy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
 
-public class TestYamlOptionsFactory {
+class TestYamlOptionsFactory {
+
   @Test
-  public void yamlWithAllNonDefaultOptions() throws Exception {
+  void yamlWithAllNonDefaultOptions() throws Exception {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = "true";
     config.deployTargetVersion = "RELEASED";
@@ -26,13 +25,13 @@ public class TestYamlOptionsFactory {
   }
 
   private String getFileContent(String file) throws IOException {
-    try (InputStream is = getClass().getResourceAsStream(file)) {
-      return IOUtils.toString(is, StandardCharsets.UTF_8);
+    try (var in = getClass().getResourceAsStream(file)) {
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 
   @Test
-  public void yamlWithAllDefaultOptions() throws Exception {
+  void yamlWithAllDefaultOptions() throws Exception {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = DefaultDeployOptions.DEPLOY_TEST_USERS;
     config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;

@@ -17,42 +17,47 @@
 package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.log.LogCollector.LogEntry;
 
-public class TestFileLogForwarder {
+class TestFileLogForwarder {
+
+  @TempDir
+  Path tempDir;
 
   @Test
-  public void fileToMavenLog() throws Exception {
-    File fakeEngineLog = Files.createTempFile("myProject.iar", ".deploymentLog").toFile();
-    LogCollector mavenLog = new LogCollector();
-    FileLogForwarder logForwarder = new FileLogForwarder(fakeEngineLog, mavenLog,
-            new EngineLogLineHandler(mavenLog));
+  void fileToMavenLog() throws Exception {
+    var fakeEngineLog = tempDir.resolve("myProject.iar.deploymentLog");
+    Files.createFile(fakeEngineLog);
+    var mavenLog = new LogCollector();
+    var logForwarder = new FileLogForwarder(fakeEngineLog.toFile(), mavenLog, new EngineLogLineHandler(mavenLog));
+    var log = new FakeLogger(fakeEngineLog);
 
     try {
       logForwarder.activate();
 
-      logAndWait(fakeEngineLog, "WARNING: starting");
-      assertThat(mavenLog.getWarnings()).hasSize(1);
+      log.write("WARNING: starting");
+      await().untilAsserted(() -> assertThat(mavenLog.getWarnings()).hasSize(1));
       LogEntry firstEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size() - 1);
       assertThat(firstEntry.toString()).isEqualTo(" ENGINE: starting");
 
-      logAndWait(fakeEngineLog, "WARNING: finished");
-      assertThat(mavenLog.getWarnings()).hasSize(2);
+      log.write("WARNING: finished");
+      await().untilAsserted(() -> assertThat(mavenLog.getWarnings()).hasSize(2));
       LogEntry lastEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size() - 1);
       assertThat(lastEntry.toString()).isEqualTo(" ENGINE: finished");
 
-      logAndWait(fakeEngineLog, "INFO: hi");
-      assertThat(mavenLog.getDebug()).hasSize(1);
+      log.write("INFO: hi");
+      await().untilAsserted(() -> assertThat(mavenLog.getDebug()).hasSize(1));
       LogEntry debugEntry = mavenLog.getDebug().get(mavenLog.getDebug().size() - 1);
       assertThat(debugEntry.toString()).isEqualTo(" ENGINE: hi");
 
@@ -60,14 +65,24 @@ public class TestFileLogForwarder {
       logForwarder.deactivate();
     }
 
-    logAndWait(fakeEngineLog, "WARNING: illegal");
-    assertThat(mavenLog.getWarnings()).hasSize(2);
+    log.write("WARNING: illegal");
+    await().untilAsserted(() -> assertThat(mavenLog.getWarnings()).hasSize(2));
   }
 
-  private static void logAndWait(File fakeEngineLog, String log) throws IOException, InterruptedException {
-    boolean append = true;
-    FileUtils.write(fakeEngineLog, log, StandardCharsets.UTF_8, append);
-    Thread.sleep(1000);
-  }
+  private static final class FakeLogger {
 
+    private final Path file;
+
+    private FakeLogger(Path file) {
+      this.file = file;
+    }
+
+    private void write(String log) {
+      try {
+        Files.writeString(file, log, StandardOpenOption.APPEND);
+      } catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+  }
 }
