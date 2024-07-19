@@ -81,13 +81,9 @@ public class MavenDependencies {
     if (session == null) {
       return Optional.empty();
     }
-    var projects = session.getProjectMap();
-    if (projects == null) {
-      return Optional.empty();
-    }
-    String artifactKey = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
-    MavenProject reactorProject = projects.get(artifactKey);
-    return Optional.ofNullable(reactorProject);
+    return session.getAllProjects().stream()
+            .filter(p -> p.getArtifact().equals(artifact))
+            .findAny();
   }
 
 }

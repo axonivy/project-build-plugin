@@ -198,6 +198,7 @@
         <version>3.13.0</version>
         <configuration>
           <release>${java.version}</release>
+          <showDeprecation>true</showDeprecation>
         </configuration>
       </plugin>
       <plugin>

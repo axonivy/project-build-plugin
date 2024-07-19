@@ -62,5 +62,5 @@ def collectBuildArtifacts()  {
     // printed to console by test. was since ever the case but they are now real maven warnings
     excludeMessage('.*Uncaught exception in thread Thread.*'),
   ]
-  recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
+  recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }

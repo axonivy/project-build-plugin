@@ -83,7 +83,10 @@ public class EngineControl {
 
     Executor executor = createEngineExecutor();
     executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
-    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
+    var watchdog = ExecuteWatchdog.builder()
+            .setTimeout(ExecuteWatchdog.INFINITE_TIMEOUT_DURATION)
+            .get();
+    executor.setWatchdog(watchdog);
     executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
     executor.execute(startCmd, asynchExecutionHandler());
     waitForEngineStart(executor);
@@ -130,9 +133,9 @@ public class EngineControl {
   }
 
   private Executor createEngineExecutor() {
-    DefaultExecutor executor = new DefaultExecutor();
-    executor.setWorkingDirectory(context.engineDirectory);
-    return executor;
+    return DefaultExecutor.builder()
+            .setWorkingDirectory(context.engineDirectory)
+            .get();
   }
 
   private PumpStreamHandler createEngineLogStreamForwarder(Consumer<String> logLineHandler)

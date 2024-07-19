@@ -18,7 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
@@ -96,7 +96,7 @@ public class BaseEngineProjectMojoTest {
 
       String alternateEngineListPageUrl = System.getProperty(InstallEngineMojo.ENGINE_LIST_URL_PROPERTY);
       if (alternateEngineListPageUrl != null) {
-        getMojo().engineListPageUrl = new URL(alternateEngineListPageUrl);
+        getMojo().engineListPageUrl = URI.create(alternateEngineListPageUrl).toURL();
       }
       getMojo().engineCacheDirectory = new File(CACHE_DIR);
       getMojo().ivyVersion = ENGINE_VERSION_TO_TEST;
