@@ -48,7 +48,6 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <unit.tests.skip>false</unit.tests.skip>
     <github.site.skip>true</github.site.skip>
   </properties>
 
@@ -221,16 +220,6 @@
             <goals><goal>helpmojo</goal></goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.3.1</version>
-        <configuration>
-          <skipTests>${unit.tests.skip}</skipTests>
-          <excludes>
-            <exclude>base/**/*</exclude>
-          </excludes>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
