@@ -198,9 +198,6 @@
         <version>3.13.0</version>
         <configuration>
           <release>${java.version}</release>
-          <!-- needed for sonar (sonar plugin is not aware of 'release') -->
-          <source>${java.version}</source>
-          <target>${java.version}</target>
         </configuration>
       </plugin>
       <plugin>
