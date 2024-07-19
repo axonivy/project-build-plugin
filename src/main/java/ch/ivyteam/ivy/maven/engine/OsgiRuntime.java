@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.plugin.logging.Log;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
 /**
@@ -54,7 +52,13 @@ class OsgiRuntime {
     Map<String, String> properties = createOsgiConfigurationProps();
     Map<String, String> oldProperties = setSystemProperties(properties);
     try {
-      ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Init Engine Thread").build();
+      ThreadFactory threadFactory = new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+          return new Thread(r, "Init Engine Thread");
+        }
+      };
       ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor(threadFactory);
       Future<?> result = singleThreadExecutor.submit(function);
       try {
