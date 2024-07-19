@@ -43,6 +43,7 @@
     <maven.version>3.6.3</maven.version>
     <!-- version should match ivy Engine sfl4j version! And version in EngineClassLoaderFactory.SLF4J_VERSION -->
     <slf4j.version>2.0.13</slf4j.version>
+    <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <site.path>snapshot</site.path>
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
@@ -164,15 +165,27 @@
 
     <!-- TEST scoped -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.26.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.2.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
