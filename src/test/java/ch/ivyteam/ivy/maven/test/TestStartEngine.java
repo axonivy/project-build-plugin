@@ -19,14 +19,14 @@ package ch.ivyteam.ivy.maven.test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.io.Files;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
@@ -78,12 +78,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * do not copy 2. If engine
    * {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists
    * -> do not copy
+   * @throws IOException
    */
   @Test
-  public void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException {
+  public void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
-    mojo.engineDirectory = Files.createTempDir();
+    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
     assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using configured engine do not copy")
             .isFalse();
   }
@@ -101,12 +102,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * do copy 2. If engine
    * {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists
    * -> do copy
+   * @throws IOException
    */
   @Test
-  public void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException {
+  public void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
-    mojo.engineDirectory = Files.createTempDir();
+    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
     assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using configured engine do copy")
             .isTrue();
   }
@@ -124,12 +126,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * do not copy 2. If engine
    * {@link ch.ivyteam.ivy.maven.AbstractEngineMojo#engineCacheDirectory} exists
    * -> do copy
+   * @throws IOException
    */
   @Test
-  public void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException {
+  public void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
-    mojo.engineDirectory = Files.createTempDir();
+    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
     assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using configured engine do not copy")
             .isFalse();
   }
