@@ -35,10 +35,6 @@ pipeline {
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"
           }
-          //disable for the moment, because sonar fails
-          //if (env.BRANCH_NAME == 'master') {
-          //  maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
-          //}
           collectBuildArtifacts()
         }
       }
@@ -62,7 +58,6 @@ def collectBuildArtifacts()  {
   junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
-    excludeType('sonar-maven-plugin:sonar'),
     excludeType('maven-surefire-plugin:test'),
     // printed to console by test. was since ever the case but they are now real maven warnings
     excludeMessage('.*Uncaught exception in thread Thread.*'),
