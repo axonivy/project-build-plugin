@@ -18,38 +18,42 @@ package ch.ivyteam.ivy.maven.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 
-public class TestClasspathJar {
+class TestClasspathJar {
+
+  @TempDir
+  Path tempDir;
 
   @Test
-  public void readWriteClasspath() throws IOException {
-    File jarFile = Files.createTempFile("my", ".jar").toFile();
-    ClasspathJar jar = new ClasspathJar(jarFile);
-    File content = Files.createTempFile("content", ".jar").toFile();
-    jar.createFileEntries(Arrays.asList(content));
+  void readWriteClasspath() throws IOException {
+    var jarFile = tempDir.resolve("my.jar");
+    Files.createFile(jarFile);
+    ClasspathJar jar = new ClasspathJar(jarFile.toFile());
+    var content = tempDir.resolve("content.jar");
+    Files.createFile(content);
+    jar.createFileEntries(List.of(content.toFile()));
 
-    assertThat(jar.getClasspathFiles()).contains(content.getName());
+    assertThat(jar.getClasspathFiles()).contains(content.getFileName().toString());
 
-    ZipInputStream jarStream = new ZipInputStream(new FileInputStream(jarFile));
-    ZipEntry first = jarStream.getNextEntry();
-    assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");
-    String manifest = IOUtils.toString(jarStream, StandardCharsets.UTF_8);
-    assertThat(manifest)
-            .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
-            .startsWith("Manifest-Version:");
+    try (var in = new ZipInputStream(Files.newInputStream(jarFile))) {
+      ZipEntry first = in.getNextEntry();
+      assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");
+      String manifest = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+      assertThat(manifest)
+              .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
+              .startsWith("Manifest-Version:");
+    }
   }
-
 }

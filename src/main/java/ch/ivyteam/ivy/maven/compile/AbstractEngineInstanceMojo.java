@@ -32,6 +32,7 @@ import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
   @Parameter(property = "project", required = true, readonly = true)
   public MavenProject project;
