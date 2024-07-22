@@ -106,7 +106,7 @@ public class TestInstallEngineMojo {
     assertThat(defaultEngineDir)
       .as("Engine must be automatically downloaded")
       .exists().isDirectory();
-    assertThat(defaultEngineDir)
+    assertThat(defaultEngineDir.toPath())
       .as("Engine directory should automatically be set to subdir of the local repository cache.")
       .isEqualTo(mojo.getRawEngineDirectory());
   }
