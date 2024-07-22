@@ -9,7 +9,7 @@
   <description>Maven plugin for the automated building of Axon Ivy Projects. Referenced from the pom.xml of Axon Ivy Projects.</description>
   <url>https://github.com/axonivy/project-build-plugin</url>
   <prerequisites>
-    <maven>${maven.version}</maven>
+    <maven>3.9.0</maven>
   </prerequisites>
   <licenses>
     <license>
@@ -40,7 +40,7 @@
 
   <properties>
     <java.version>21</java.version>
-    <maven.version>3.6.3</maven.version>
+    <maven.version>3.9.8</maven.version>
     <!-- version should match ivy Engine sfl4j version! And version in EngineClassLoaderFactory.SLF4J_VERSION -->
     <slf4j.version>2.0.13</slf4j.version>
     <junit-jupiter.version>5.10.3</junit-jupiter.version>
@@ -81,7 +81,7 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-filtering</artifactId>
-      <version>3.2.0</version>
+      <version>3.3.2</version>
       <!--NOT provided: will fail on consuming builds -->
     </dependency>
     <dependency>
@@ -126,7 +126,6 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-archiver</artifactId>
       <version>4.10.0</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -134,17 +133,17 @@
       <version>2.17.2</version>
     </dependency>
     <dependency>
-  	  <groupId>org.apache.httpcomponents</groupId>
-  	  <artifactId>httpclient</artifactId>
-  	  <version>4.5.14</version>
-  	  <scope>compile</scope>
-  	</dependency>
-  	<dependency>
-  	  <groupId>org.apache.httpcomponents</groupId>
-  	  <artifactId>httpmime</artifactId>
-  	  <version>4.5.14</version>
-  	  <scope>compile</scope>
-  	</dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.14</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>4.5.14</version>
+      <scope>compile</scope>
+    </dependency>
 
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>

@@ -46,6 +46,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 25.09.2014
  */
+@SuppressWarnings("deprecation")
 public class EngineClassLoaderFactory {
   public interface OsgiDir {
     String INSTALL_AREA = "system";
