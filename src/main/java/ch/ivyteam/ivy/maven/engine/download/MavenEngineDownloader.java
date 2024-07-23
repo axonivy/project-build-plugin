@@ -1,6 +1,6 @@
 package ch.ivyteam.ivy.maven.engine.download;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -46,9 +46,9 @@ public class MavenEngineDownloader implements EngineDownloader {
   }
 
   @Override
-  public File downloadEngine() throws MojoExecutionException {
+  public Path downloadEngine() throws MojoExecutionException {
     log.info("Downloading engine " + engineArtifact.getVersion() + " using maven plugin repositories");
-    return resolveArtifact().getArtifact().getFile();
+    return resolveArtifact().getArtifact().getFile().toPath();
   }
 
   @Override

@@ -16,7 +16,7 @@
 
 package ch.ivyteam.ivy.maven.compile;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -42,7 +42,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
    * temporary deployed.
    */
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
-  protected File buildApplicationDirectory;
+  protected Path buildApplicationDirectory;
 
   /**
    * Defines the timeout how long to wait for an engine start to compile.
@@ -80,7 +80,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
   protected MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception {
     EngineClassLoaderFactory classLoaderFactory = getEngineClassloaderFactory();
 
-    File engineDir = identifyAndGetEngineDirectory();
+    var engineDir = identifyAndGetEngineDirectory();
     if (builder == null) {
       builder = new MavenProjectBuilderProxy(
               classLoaderFactory,
@@ -92,7 +92,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
     classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null) {
-      project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.getAbsolutePath());
+      project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.toAbsolutePath().toString());
     }
     return builder;
   }

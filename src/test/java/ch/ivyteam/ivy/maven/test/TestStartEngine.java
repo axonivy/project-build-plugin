@@ -18,9 +18,9 @@ package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
@@ -49,7 +49,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
       startedProcess = mojo.startEngine();
       assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://")
               .endsWith("/");
-      assertThat(new File(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
+      assertThat(Path.of(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     } finally {
       kill(startedProcess);
     }
@@ -62,8 +62,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     try {
       startedProcess = mojo.startEngine();
       assertThat(startedProcess.getProcessDestroyer()).isInstanceOf(ShutdownHookProcessDestroyer.class);
-      ShutdownHookProcessDestroyer jvmShutdownHoock = (ShutdownHookProcessDestroyer) startedProcess
-              .getProcessDestroyer();
+      var jvmShutdownHoock = (ShutdownHookProcessDestroyer) startedProcess.getProcessDestroyer();
       assertThat(jvmShutdownHoock.size())
               .as("One started engine process must be killed on VM end.")
               .isEqualTo(1);
@@ -84,7 +83,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   public void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
-    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
+    mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using configured engine do not copy")
             .isFalse();
   }
@@ -108,7 +107,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   public void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
-    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
+    mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using configured engine do copy")
             .isTrue();
   }
@@ -132,7 +131,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   public void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException, IOException {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
-    mojo.engineDirectory = Files.createTempDirectory("test").toFile();
+    mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using configured engine do not copy")
             .isFalse();
   }
@@ -150,7 +149,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     Executor startedProcess = null;
     try {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
-      File engineDirTarget = mojo.getEngineDir(mojo.project);
+      var engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
 
       assertThat(engineDirTarget).doesNotExist();
@@ -169,7 +168,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
 
     Executor startedProcess = null;
     try {
-      File engineDirTarget = mojo.getEngineDir(mojo.project);
+      var engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
 
       assertThat(engineDirTarget).doesNotExist();
@@ -194,23 +193,23 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     Executor startedProcess = null;
     try {
-      File cacheEngine = mojo.engineDirectory;
-      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch"));
-      assertFileExecutable(new File(cacheEngine, "elasticsearch/bin/elasticsearch.bat"));
+      var cacheEngine = mojo.engineDirectory;
+      assertFileExecutable(cacheEngine.resolve("elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(cacheEngine.resolve("elasticsearch/bin/elasticsearch.bat"));
 
       startedProcess = mojo.startEngine();
-
-      File engineTarget = mojo.getEngineDir(mojo.project);
-      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch"));
-      assertFileExecutable(new File(engineTarget, "elasticsearch/bin/elasticsearch.bat"));
+      var engineTarget = mojo.getEngineDir(mojo.project);
+      assertFileExecutable(engineTarget.resolve("elasticsearch/bin/elasticsearch"));
+      assertFileExecutable(engineTarget.resolve("elasticsearch/bin/elasticsearch.bat"));
     } finally {
       kill(startedProcess);
     }
   }
 
-  private void assertFileExecutable(File file) {
-    assertThat(file).exists();
-    assertThat(file.canExecute()).isTrue();
+  private void assertFileExecutable(Path file) {
+    assertThat(file)
+            .exists()
+            .isExecutable();
   }
 
   private static void kill(Executor startedProcess) {
@@ -232,5 +231,4 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
       getMojo().maxmem = "2048m";
     }
   };
-
 }

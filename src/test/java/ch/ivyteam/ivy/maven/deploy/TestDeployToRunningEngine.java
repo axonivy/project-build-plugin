@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
+import java.nio.file.Path;
 
 import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -54,7 +54,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     deployMojo.deployToEngineApplication = "MyTestApp";
     deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project);
     deployMojo.deployTimeoutInSeconds = 120;
-    deployMojo.deployFile = new File("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
+    deployMojo.deployFile = Path.of("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = "true";
 
     System.setOut(new PrintStream(outContent));
@@ -68,22 +68,17 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
   @Test
   public void canDeployIar() throws Exception {
     deployMojo.deployToEngineApplication = "Portal";
-
-    File deployedIar = getTarget(deployMojo.deployFile, deployMojo);
-    File deployedIarFlagFile = new File(deployedIar.getParent(), deployedIar.getName() + ".deployed");
-    File deployedIarLogFile = new File(deployedIar.getParent(), deployedIar.getName() + ".deploymentLog");
-
+    var deployedIar = getTarget(deployMojo.deployFile, deployMojo);
+    var deployedIarFlagFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deployed");
+    var deployedIarLogFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deploymentLog");
     Executor startedProcess = null;
     try {
       startedProcess = mojo.startEngine();
-
       deployMojo.execute();
-
       assertThat(deployedIar).doesNotExist();
       assertThat(deployedIarFlagFile).exists();
       assertThat(deployedIarLogFile).exists();
-      assertThat(linesOf(deployedIarLogFile)).haveAtLeast(1,
-              new Condition<>(s -> s.contains("Deploying users ..."), ""));
+      assertThat(linesOf(deployedIarLogFile)).haveAtLeast(1, new Condition<>(s -> s.contains("Deploying users ..."), ""));
     } finally {
       kill(startedProcess);
     }
@@ -140,11 +135,11 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     }
   }
 
-  private static File getTarget(File iar, DeployToEngineMojo mojo) {
-    File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
-    File app = new File(deploy, mojo.deployToEngineApplication);
-    File deployedIar = new File(app, iar.getName());
-    return deployedIar;
+  private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
+    return mojo.deployEngineDirectory
+            .resolve(mojo.deployDirectory)
+            .resolve(mojo.deployToEngineApplication)
+            .resolve(iar.getFileName().toString());
   }
 
   private static void kill(Executor startedProcess) {
@@ -159,6 +154,6 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
 
   @Rule
   public ProjectMojoRule<DeployToEngineMojo> deployRule = new ProjectMojoRule<DeployToEngineMojo>(
-          new File("src/test/resources/base"), DeployToEngineMojo.GOAL);
+          Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL);
 
 }

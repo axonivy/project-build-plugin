@@ -18,8 +18,6 @@ package ch.ivyteam.ivy.maven.engine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -28,6 +26,7 @@ import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -108,21 +107,22 @@ public class EngineControl {
   }
 
   private CommandLine toEngineCommand(Command command) {
-    String classpath = context.engineClasspathJarPath;
-    if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath)) {
-      classpath += File.pathSeparator + context.vmOptions.additionalClasspath;
+    var classpath = context.engineClasspathJarPath.toString();
+    if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath())) {
+      classpath += File.pathSeparator + context.vmOptions.additionalClasspath();
     }
 
-    File osgiDir = new File(context.engineDirectory, OsgiDir.INSTALL_AREA);
+    var osgiDir = context.engineDirectory.resolve(OsgiDir.INSTALL_AREA);
 
     CommandLine cli = new CommandLine(new File(getJavaExec()))
-            .addArgument("-classpath").addArgument(classpath)
+            .addArgument("-classpath")
+            .addArgument(classpath)
             .addArgument("-Divy.engine.testheadless=true")
             .addArgument("-Djava.awt.headless=true")
-            .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
+            .addArgument("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
 
-    if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions)) {
-      cli.addArguments(context.vmOptions.additionalVmOptions, false);
+    if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions())) {
+      cli.addArguments(context.vmOptions.additionalVmOptions(), false);
     }
     EngineModuleHints.loadFromJvmOptionsFile(context, cli);
 
@@ -134,12 +134,12 @@ public class EngineControl {
 
   private Executor createEngineExecutor() {
     return DefaultExecutor.builder()
-            .setWorkingDirectory(context.engineDirectory)
+            .setWorkingDirectory(context.engineDirectory.toFile())
             .get();
   }
 
   private PumpStreamHandler createEngineLogStreamForwarder(Consumer<String> logLineHandler)
-          throws FileNotFoundException {
+          throws IOException {
     OutputStream output = getEngineLogTarget();
     OutputStream engineLogStream = new LineOrientedOutputStreamRedirector(output) {
       @Override
@@ -163,15 +163,17 @@ public class EngineControl {
     return streamHandler;
   }
 
-  private OutputStream getEngineLogTarget() throws FileNotFoundException {
+  private OutputStream getEngineLogTarget() throws IOException {
     if (context.engineLogFile == null) {
       context.log.info("Do not forward engine output to a persistent location");
       return new ByteArrayOutputStream();
     }
 
-    context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, context.engineLogFile.getAbsolutePath());
-    context.log.info("Forwarding engine logs to: " + context.engineLogFile.getAbsolutePath());
-    return new FileOutputStream(context.engineLogFile.getAbsolutePath());
+    var logFile = context.engineLogFile;
+    var logFilePath = logFile.toAbsolutePath().toString();
+    context.properties.setMavenProperty(Property.TEST_ENGINE_LOG, logFilePath);
+    context.log.info("Forwarding engine logs to: " + logFilePath);
+    return Files.newOutputStream(logFile);
   }
 
   private String getJavaExec() {

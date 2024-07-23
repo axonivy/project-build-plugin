@@ -16,7 +16,8 @@
 
 package ch.ivyteam.ivy.maven.deploy;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +82,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
    * <code>\\myRemoteHost\myEngineShare</code>
    */
   @Parameter(property = "ivy.deploy.engine.dir", defaultValue = DEPLOY_ENGINE_DIR_DEFAULT)
-  File deployEngineDirectory;
+  Path deployEngineDirectory;
 
   /**
    * The auto deployment directory of the engine. Must match the ivy engine
@@ -136,7 +137,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
               "The parameter 'deployToEngineApplication' for goal " + GOAL + " is missing.");
     }
 
-    File resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
+    var resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
     try {
       deployWithOptions(resolvedOptionsFile);
     } finally {
@@ -144,8 +145,8 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     }
   }
 
-  private void deployWithOptions(File resolvedOptionsFile) throws MojoExecutionException {
-    getLog().info("Deploying project " + deployFile.getName());
+  private void deployWithOptions(Path resolvedOptionsFile) throws MojoExecutionException {
+    getLog().info("Deploying project " + deployFile.getFileName());
     if (DeployMethod.DIRECTORY.equals(deployMethod)) {
       deployToDirectory(resolvedOptionsFile);
     } else if (DeployMethod.HTTP.equals(deployMethod)) {
@@ -157,26 +158,24 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     }
   }
 
-  private void deployToDirectory(File resolvedOptionsFile) throws MojoExecutionException {
-    File deployDir = getDeployDirectory();
+  private void deployToDirectory(Path resolvedOptionsFile) throws MojoExecutionException {
+    var deployDir = getDeployDirectory();
     if (deployEngineDirectory == null) {
       getLog().warn("Skipping deployment, target engine could not be evaluated." +
               "Please configure an existing engine to deploy to with argument <deployEngineDirectory>.");
       return;
     }
 
-    if (!deployDir.exists()) {
+    if (!Files.exists(deployDir)) {
       getLog().warn("Skipping deployment to engine '" + deployEngineDirectory + "'. The directory '"
               + deployDir + "' does not exist.");
       return;
     }
-
     checkDirParams();
-
     deployToDirectory(resolvedOptionsFile, deployDir);
   }
 
-  private void deployToRestService(File resolvedOptionsFile) throws MojoExecutionException {
+  private void deployToRestService(Path resolvedOptionsFile) throws MojoExecutionException {
     checkHttpParams();
 
     Server server = session.getSettings().getServer(deployServerId);
@@ -184,8 +183,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId
               + "' is not definied. Try to deploy with default username, password");
     }
-    HttpDeployer httpDeployer = new HttpDeployer(secDispatcher, server,
-            deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
+    var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
     httpDeployer.deploy(getLog());
   }
 
@@ -195,8 +193,8 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     }
     Object defaultDeployEngineDirectory = project.getProperties().get(ENGINE_DIRECTORY_PROPERTY);
     if (deployEngineDirectory != null
-            && !deployEngineDirectory.getPath().equals(defaultDeployEngineDirectory)) {
-      logParameterIgnoredByMethod("deployEngineDirectory", deployEngineDirectory.getPath(),
+            && !deployEngineDirectory.toFile().getPath().equals(defaultDeployEngineDirectory)) {
+      logParameterIgnoredByMethod("deployEngineDirectory", deployEngineDirectory.toFile().getPath(),
               DeployMethod.HTTP);
     }
   }
@@ -215,15 +213,14 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
             + " deployment.");
   }
 
-  private File getDeployDirectory() throws MojoExecutionException {
-    if (deployEngineDirectory == null || engineToTarget()) { // re-use engine
-                                                             // used to build
+  private Path getDeployDirectory() throws MojoExecutionException {
+    if (deployEngineDirectory == null || engineToTarget()) { // re-use engine used to build
       deployEngineDirectory = getEngineDir(project);
     }
     if (Paths.get(deployDirectory).isAbsolute()) {
-      return new File(deployDirectory);
+      return Paths.get(deployDirectory);
     }
-    return new File(deployEngineDirectory, deployDirectory);
+    return deployEngineDirectory.resolve(deployDirectory);
   }
 
   public static interface DefaultDeployOptions {
@@ -237,5 +234,4 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     String DIRECTORY = "DIRECTORY";
     String HTTP = "HTTP";
   }
-
 }

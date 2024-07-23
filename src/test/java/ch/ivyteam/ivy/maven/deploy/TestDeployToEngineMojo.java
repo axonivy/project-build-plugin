@@ -18,10 +18,9 @@ package ch.ivyteam.ivy.maven.deploy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -34,13 +33,13 @@ import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
 
 public class TestDeployToEngineMojo {
+
   @Test
   public void deployPackedIar() throws Throwable {
     DeployToEngineMojo mojo = rule.getMojo();
 
-    File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
-            deployedIar.getName() + "options.yaml");
+    var deployedIar = getTarget(mojo.deployFile, mojo);
+    var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -49,7 +48,7 @@ public class TestDeployToEngineMojo {
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).doesNotExist();
       assertThat(deployedIar).exists();
-      deployedIar.delete();
+      Files.delete(deployedIar);
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -66,10 +65,9 @@ public class TestDeployToEngineMojo {
     rule.project.getProperties().setProperty("doDeploy.test.user", "true");
     DeployToEngineMojo mojo = rule.getMojo();
 
-    mojo.deployOptionsFile = new File("src/test/resources/options.yaml");
-    File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
-            deployedIar.getName() + ".options.yaml");
+    mojo.deployOptionsFile = Path.of("src/test/resources/options.yaml");
+    var deployedIar = getTarget(mojo.deployFile, mojo);
+    var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -78,9 +76,9 @@ public class TestDeployToEngineMojo {
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent("deployTestUsers: true\ntarget: AUTO");
-      deploymentOptionsFile.delete();
+      Files.delete(deploymentOptionsFile);
       assertThat(deployedIar).exists();
-      Files.delete(deployedIar.toPath());
+      Files.delete(deployedIar);
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -100,9 +98,8 @@ public class TestDeployToEngineMojo {
     mojo.deployTargetState = "INACTIVE";
     mojo.deployTargetFileFormat = "EXPANDED";
 
-    File deployedIar = getTarget(mojo.deployFile, mojo);
-    File deploymentOptionsFile = new File(deployedIar.getParentFile(),
-            deployedIar.getName() + ".options.yaml");
+    var deployedIar = getTarget(mojo.deployFile, mojo);
+    var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
 
     assertThat(deployedIar).doesNotExist();
     assertThat(deploymentOptionsFile).doesNotExist();
@@ -111,14 +108,15 @@ public class TestDeployToEngineMojo {
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
-              "deployTestUsers: \"TRUE\"\n" +
-                      "target:\n" +
-                      "  version: RELEASED\n" +
-                      "  state: INACTIVE\n" +
-                      "  fileFormat: EXPANDED");
-      deploymentOptionsFile.delete();
+                      """
+                      deployTestUsers: "TRUE"
+                      target:
+                        version: RELEASED
+                        state: INACTIVE
+                        fileFormat: EXPANDED""");
+      Files.delete(deploymentOptionsFile);
       assertThat(deployedIar).exists();
-      Files.delete(deployedIar.toPath());
+      Files.delete(deployedIar);
       return null;
     };
     mockEngineDeployThread.execute(engineOperation);
@@ -134,13 +132,13 @@ public class TestDeployToEngineMojo {
   public void failOnEngineDeployError() throws Throwable {
     DeployToEngineMojo mojo = rule.getMojo();
     DeploymentFiles markers = new DeploymentFiles(getTarget(mojo.deployFile, mojo));
-    File deployedIar = getTarget(mojo.deployFile, mojo);
+    var deployedIar = getTarget(mojo.deployFile, mojo);
 
     DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
     Callable<Void> engineOperation = () -> {
-      FileUtils.write(markers.errorLog(), "validation errors", StandardCharsets.UTF_8);
+      Files.writeString(markers.errorLog(), "validation errors");
       assertThat(deployedIar).exists();
-      deployedIar.delete();
+      Files.delete(deployedIar);
       return null;
     };
 
@@ -155,16 +153,16 @@ public class TestDeployToEngineMojo {
     }
   }
 
-  private static File getTarget(File iar, DeployToEngineMojo mojo) {
-    File deploy = new File(mojo.deployEngineDirectory, mojo.deployDirectory);
-    File app = new File(deploy, mojo.deployToEngineApplication);
-    File deployedIar = new File(app, iar.getName());
-    return deployedIar;
+  private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
+    return mojo.deployEngineDirectory
+            .resolve(mojo.deployDirectory)
+            .resolve(mojo.deployToEngineApplication)
+            .resolve(iar.getFileName().toString());
   }
 
   @Rule
   public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<DeployToEngineMojo>(
-          new File("src/test/resources/base"), DeployToEngineMojo.GOAL) {
+          Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL) {
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -173,25 +171,25 @@ public class TestDeployToEngineMojo {
       getMojo().deployToEngineApplication = "TestApp";
 
       try {
-        getMojo().deployFile.getParentFile().mkdir();
-        getMojo().deployFile.createNewFile();
+        getMojo().deployFile.toFile().getParentFile().mkdir();
+        getMojo().deployFile.toFile().createNewFile();
       } catch (IOException ex) {
-        System.err.println("Failed to create IAR @ " + getMojo().deployFile.getAbsolutePath());
+        System.err.println("Failed to create IAR @ " + getMojo().deployFile.toAbsolutePath());
         throw ex;
       }
     }
 
-    private File createEngineDir() {
-      File engine = new File("target/myTestIvyEngine");
-      File deploy = new File(engine, "deploy");
-      deploy.mkdirs();
-      return engine.getAbsoluteFile();
+    private Path createEngineDir() throws IOException {
+      var engine = Path.of("target/myTestIvyEngine");
+      var deploy = engine.resolve("deploy");
+      Files.createDirectories(deploy);
+      return engine.toAbsolutePath();
     }
 
     @Override
     protected void after() {
       super.after();
-      FileUtils.deleteQuietly(getMojo().deployEngineDirectory);
+      FileUtils.deleteQuietly(getMojo().deployEngineDirectory.toFile());
     }
   };
 

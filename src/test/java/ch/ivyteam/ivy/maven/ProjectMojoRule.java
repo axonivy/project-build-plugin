@@ -16,9 +16,9 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
@@ -29,19 +29,20 @@ import org.apache.maven.project.MavenProject;
  * Simple rule that can provide a real set-up MOJO that works on a copy of the
  * given projectDirectory. This simplifies TEST dramatically whenever your MOJO
  * relies on real Maven Models like (Project, Artifact, ...)
- * 
+ *
  * @author Reguel Wermelinger
  * @since 03.10.2014
  * @param <T>
  */
 public class ProjectMojoRule<T extends Mojo> extends MojoRule {
-  protected File projectDir;
+
+  protected Path projectDir;
   private T mojo;
   private String mojoName;
-  private File templateProjectDir;
+  private Path templateProjectDir;
   public MavenProject project;
 
-  public ProjectMojoRule(File srcDir, String mojoName) {
+  public ProjectMojoRule(Path srcDir, String mojoName) {
     this.templateProjectDir = srcDir;
     this.mojoName = mojoName;
   }
@@ -49,16 +50,16 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule {
   @Override
   @SuppressWarnings("unchecked")
   protected void before() throws Throwable {
-    projectDir = Files.createTempDirectory("MyBaseProject").toFile();
-    FileUtils.copyDirectory(templateProjectDir, projectDir);
-    project = readMavenProject(projectDir);
+    projectDir = Files.createTempDirectory("MyBaseProject");
+    FileUtils.copyDirectory(templateProjectDir.toFile(), projectDir.toFile());
+    project = readMavenProject(projectDir.toFile());
     mojo = (T) lookupConfiguredMojo(project, mojoName);
   }
 
   @Override
   protected void after() {
     try {
-      FileUtils.deleteDirectory(projectDir);
+      FileUtils.deleteDirectory(projectDir.toFile());
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

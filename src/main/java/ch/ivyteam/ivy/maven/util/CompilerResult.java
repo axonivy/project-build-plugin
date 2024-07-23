@@ -16,10 +16,8 @@
 
 package ch.ivyteam.ivy.maven.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -38,17 +36,17 @@ public class CompilerResult {
     for (Entry<String, Object> entry : result.entrySet()) {
       properties.setProperty(entry.getKey(), entry.getValue().toString());
     }
-    File propertyFile = new SharedFile(project).getCompileResultProperties();
-    try (FileOutputStream fos = new FileOutputStream(propertyFile)) {
-      properties.store(fos, "ivy project build results");
+    var propertyFile = new SharedFile(project).getCompileResultProperties();
+    try (var out = Files.newOutputStream(propertyFile)) {
+      properties.store(out, "ivy project build results");
     }
   }
 
   public static CompilerResult load(MavenProject project) throws IOException {
-    File propertyFile = new SharedFile(project).getCompileResultProperties();
+    var propertyFile = new SharedFile(project).getCompileResultProperties();
     Properties compileResults = new Properties();
-    try (FileInputStream fis = new FileInputStream(propertyFile)) {
-      compileResults.load(fis);
+    try (var in = Files.newInputStream(propertyFile)) {
+      compileResults.load(in);
     }
     return new CompilerResult(compileResults);
   }
@@ -65,5 +63,4 @@ public class CompilerResult {
     }
     return result.getProperty(Result.TEST_OUTPUT_DIR);
   }
-
 }

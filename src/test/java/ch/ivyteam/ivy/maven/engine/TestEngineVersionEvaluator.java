@@ -18,13 +18,13 @@ class TestEngineVersionEvaluator {
 
   @Test
   void isOSGiEngine_invalid() {
-    assertThat(EngineVersionEvaluator.isOSGiEngine(tempDir.toFile())).isFalse();
+    assertThat(EngineVersionEvaluator.isOSGiEngine(tempDir)).isFalse();
   }
 
   @Test
   void isOSGiEngine_valid() throws IOException {
     var systemDir = tempDir.resolve(OsgiDir.INSTALL_AREA);
     Files.createDirectories(systemDir);
-    assertThat(EngineVersionEvaluator.isOSGiEngine(tempDir.toFile())).isTrue();
+    assertThat(EngineVersionEvaluator.isOSGiEngine(tempDir)).isTrue();
   }
 }

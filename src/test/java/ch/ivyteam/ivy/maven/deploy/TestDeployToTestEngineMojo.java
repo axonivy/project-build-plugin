@@ -17,7 +17,6 @@ package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -45,25 +44,25 @@ public class TestDeployToTestEngineMojo {
     Path reactorProject = workspace.resolve("myReactorProject");
     Files.createDirectories(reactorProject);
     Path superPom = reactorProject.resolve("pom.xml");
-    Files.copy(new File("src/test/resources/base/pom.xml").toPath(), superPom);
+    Files.copy(Path.of("src/test/resources/base/pom.xml"), superPom);
 
     Path builtTarget = workspace.resolve("myPackedReactorProject").resolve("target");
     Files.createDirectories(builtTarget);
     Files.createFile(builtTarget.resolve("alreadyPacked.iar"));
 
-    File appZip = mojo.createFullAppZip(List.of(
-            Files.createFile(workspace.resolve("demo.iar")).toFile(),
-            Files.createFile(workspace.resolve("demoTest.iar")).toFile(),
-            reactorProject.toFile(),
-            builtTarget.getParent().toFile()));
-    assertThat(appZip.getName()).isEqualTo("myApp-app.zip");
-    assertThat(DeployToTestEngineMojo.findPackedIar(builtTarget.getParent().toFile())).isPresent();
+    var appZip = mojo.createFullAppZip(List.of(
+            Files.createFile(workspace.resolve("demo.iar")),
+            Files.createFile(workspace.resolve("demoTest.iar")),
+            reactorProject,
+            builtTarget.getParent()));
+    assertThat(appZip.getFileName().toString()).isEqualTo("myApp-app.zip");
+    assertThat(DeployToTestEngineMojo.findPackedIar(builtTarget.getParent())).isPresent();
     assertThat(getRootFiles(appZip))
             .containsOnly("demo.iar", "demoTest.iar", "myReactorProject", "alreadyPacked.iar");
   }
 
-  private static List<String> getRootFiles(File zip) throws IOException {
-    java.net.URI uri = java.net.URI.create("jar:" + zip.toPath().toUri());
+  private static List<String> getRootFiles(Path zip) throws IOException {
+    java.net.URI uri = java.net.URI.create("jar:" + zip.toUri());
     try (FileSystem zipFsCr = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
       Path root = zipFsCr.getPath("/");
       try (Stream<Path> paths = Files.list(root)) {
@@ -81,6 +80,6 @@ public class TestDeployToTestEngineMojo {
 
   @Rule
   public ProjectMojoRule<DeployToTestEngineMojo> deploy = new ProjectMojoRule<>(
-          new File("src/test/resources/base"), DeployToTestEngineMojo.TEST_GOAL);
+          Path.of("src/test/resources/base"), DeployToTestEngineMojo.TEST_GOAL);
 
 }

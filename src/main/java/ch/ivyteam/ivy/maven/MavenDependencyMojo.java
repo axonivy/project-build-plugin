@@ -16,7 +16,6 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -35,7 +34,7 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
 /**
  * Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven
  * dependencies</a> to a specific folder.
- * 
+ *
  * <p>
  * To reduce the size of your ivy archives, make sure that your dependencies are
  * configured correctly:
@@ -45,7 +44,7 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
  * <li><a href="https://maven.apache.org/pom.html#exclusions">Exclude transient
  * dependencies</a> which are already delivered by the core</li>
  * </ul>
- * 
+ *
  * @since 9.2.0
  */
 @Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -79,15 +78,15 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo {
     getLog().info("Maven dependecies: " + copied + " copied.");
   }
 
-  private int copyDependency(Path mvnLibDir, List<File> deps) {
+  private int copyDependency(Path mvnLibDir, List<Path> deps) {
     var count = 0;
     for (var dep : deps) {
       try {
-        Files.copy(dep.toPath(), mvnLibDir.resolve(dep.getName()));
-        getLog().debug("Copied dependency: " + dep.getName());
+        Files.copy(dep, mvnLibDir.resolve(dep.getFileName().toString()));
+        getLog().debug("Copied dependency: " + dep.getFileName());
         count++;
       } catch (FileAlreadyExistsException ex) {
-        getLog().debug("Ignore dependecy '" + dep.getName() + "' as it already exists at: " + mvnLibDir);
+        getLog().debug("Ignore dependecy '" + dep.getFileName() + "' as it already exists at: " + mvnLibDir);
       } catch (IOException ex) {
         getLog().warn("Couldn't copy depedency '" + deps + "' to: " + mvnLibDir, ex);
       }

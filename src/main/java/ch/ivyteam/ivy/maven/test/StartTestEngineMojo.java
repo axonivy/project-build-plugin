@@ -16,7 +16,6 @@
 
 package ch.ivyteam.ivy.maven.test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,14 +35,14 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Starts the Axon Ivy Engine for integration testing.
- * 
+ *
  * <p>
  * After starting the engine, this goal provides the url of the engine as
  * property <code>test.engine.url</code>. You can use this property to configure
  * your 'maven-failsafe-plugin' to work against this test engine. However, in an
  * <code>iar-integration-test</code> lifecycle this is already provided by the
  * 'ivy-integration-test-properties' goal.
- * 
+ *
  * <pre>
  * {@code
  *   <artifactId>maven-failsafe-plugin</artifactId>
@@ -53,7 +52,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
  *   </configuration>
  * }
  * </pre>
- * 
+ *
  * @since 6.2.0
  */
 @Mojo(name = StartTestEngineMojo.GOAL)
@@ -83,7 +82,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
 
   /** The file where the engine start is logged **/
   @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
-  File engineLogFile;
+  Path engineLogFile;
 
   /** The maximum amount of seconds that we wait for a engine to start */
   @Parameter(property = IVY_ENGINE_START_TIMEOUT_SECONDS, defaultValue = "120")
@@ -108,21 +107,24 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
   }
 
   public Executor startEngine() throws Exception {
-    File engineDir = identifyAndGetEngineDirectory();
-
-    if (engineToTarget()) {
-      engineDir = copyEngineToTarget(engineDir);
-    }
-
-    EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-    EngineControl engineControl = new EngineControl(new EngineMojoContext(
-            engineDir, project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds));
+    var engineDir = engineDir();
+    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions);
+    var ctx = new EngineMojoContext(engineDir, project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds);
+    var engineControl = new EngineControl(ctx);
     return engineControl.start();
   }
 
-  private File copyEngineToTarget(File cachedEngineDir) {
-    File targetEngine = getTargetDir(project);
-    if (targetEngine.exists()) {
+  private Path engineDir() throws MojoExecutionException {
+    var engineDir = identifyAndGetEngineDirectory();
+    if (engineToTarget()) {
+      return copyEngineToTarget(engineDir);
+    }
+    return engineDir;
+  }
+
+  private Path copyEngineToTarget(Path cachedEngineDir) {
+    var targetEngine = getTargetDir(project);
+    if (Files.exists(targetEngine)) {
       getLog().warn("Skipping copy of engine to " + targetEngine
               + " it already exists. Use \"mvn clean\" to ensure a clean engine each cycle.");
       return targetEngine;
@@ -132,7 +134,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
       getLog().info("Parameter <testEngine> is set to " + testEngine +
               ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
 
-      copyEngine(cachedEngineDir.toPath(), targetEngine.toPath());
+      copyEngine(cachedEngineDir, targetEngine);
       return targetEngine;
     } catch (IOException ex) {
       getLog().warn("Could not copy engine from: " + cachedEngineDir + " to " + targetEngine, ex);

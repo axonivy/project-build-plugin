@@ -1,9 +1,9 @@
 package ch.ivyteam.ivy.maven.engine.deploy.http;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -35,13 +35,13 @@ public class HttpDeployer {
   private static final String DEPLOY_URI = "/system/api/apps/";
   private String serverUrl;
   private String targetApplication;
-  private File deployFile;
-  private File deploymentOptions;
+  private Path deployFile;
+  private Path deploymentOptions;
   private Server server;
   private SecDispatcher secDispatcher;
 
   public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication,
-          File deployFile, File deploymentOptions) {
+          Path deployFile, Path deploymentOptions) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
@@ -75,8 +75,7 @@ public class HttpDeployer {
       int status = response.getStatusLine().getStatusCode();
       if (status != HttpStatus.SC_OK) {
         log.error(deploymentLog);
-        throw new MojoExecutionException("Deployment of file '" + deployFile.getName()
-                + "' to engine failed (Status: " + status + ")");
+        throw new MojoExecutionException("Deployment of file '" + deployFile.getFileName() + "' to engine failed (Status: " + status + ")");
       }
       log.debug(deploymentLog);
       log.info("Deployment finished");
@@ -92,11 +91,11 @@ public class HttpDeployer {
     return EntityUtils.toString(resultEntity);
   }
 
-  private HttpEntity getRequestData(File resolvedOptionsFile) {
+  private HttpEntity getRequestData(Path resolvedOptionsFile) {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-    builder.addPart("fileToDeploy", new FileBody(deployFile));
+    builder.addPart("fileToDeploy", new FileBody(deployFile.toFile()));
     if (resolvedOptionsFile != null) {
-      builder.addPart("deploymentOptions", new FileBody(resolvedOptionsFile, ContentType.TEXT_PLAIN));
+      builder.addPart("deploymentOptions", new FileBody(resolvedOptionsFile.toFile(), ContentType.TEXT_PLAIN));
     }
     return builder.build();
   }

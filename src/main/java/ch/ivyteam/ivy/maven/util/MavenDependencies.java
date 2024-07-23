@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.maven.util;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,11 +31,12 @@ public class MavenDependencies {
     return this;
   }
 
-  public List<File> localTransient() {
+  public List<Path> localTransient() {
     return stream(project.getArtifacts())
       .filter(this::isLocalDep)
       .filter(this::include)
       .map(Artifact::getFile)
+      .map(File::toPath)
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
@@ -47,10 +49,11 @@ public class MavenDependencies {
       .isEmpty();
   }
 
-  public List<File> all() {
+  public List<Path> all() {
     return stream(project.getArtifacts())
       .filter(this::include)
       .map(this::toFile)
+      .map(File::toPath)
       .collect(Collectors.toList());
   }
 

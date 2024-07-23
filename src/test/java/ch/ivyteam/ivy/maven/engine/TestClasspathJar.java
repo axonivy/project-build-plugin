@@ -40,16 +40,17 @@ class TestClasspathJar {
   void readWriteClasspath() throws IOException {
     var jarFile = tempDir.resolve("my.jar");
     Files.createFile(jarFile);
-    ClasspathJar jar = new ClasspathJar(jarFile.toFile());
+    var jar = new ClasspathJar(jarFile);
     var content = tempDir.resolve("content.jar");
     Files.createFile(content);
-    jar.createFileEntries(List.of(content.toFile()));
+    jar.createFileEntries(List.of(content));
 
     assertThat(jar.getClasspathFiles()).contains(content.getFileName().toString());
 
     try (var in = new ZipInputStream(Files.newInputStream(jarFile))) {
       ZipEntry first = in.getNextEntry();
       assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");
+
       String manifest = new String(in.readAllBytes(), StandardCharsets.UTF_8);
       assertThat(manifest)
               .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")

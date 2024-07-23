@@ -19,6 +19,7 @@ package ch.ivyteam.ivy.maven.engine.deploy.dir;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -33,7 +34,7 @@ import org.apache.maven.plugin.logging.Log;
  * @since 6.1.0
  */
 class FileLogForwarder {
-  private final File engineLog;
+  private final Path engineLog;
   private final Log mavenLog;
 
   private FileAlterationMonitor monitor;
@@ -43,7 +44,7 @@ class FileLogForwarder {
    * @param engineLog the log file to watch for new lines
    * @param mavenLog the target logger
    */
-  FileLogForwarder(File engineLog, Log mavenLog, LogLineHandler handler) {
+  FileLogForwarder(Path engineLog, Log mavenLog, LogLineHandler handler) {
     this.engineLog = engineLog;
     this.mavenLog = mavenLog;
     this.logLineHandler = handler;
@@ -52,8 +53,8 @@ class FileLogForwarder {
   public synchronized void activate() throws MojoExecutionException {
     IOFileFilter logFilter = FileFilterUtils.and(
             FileFilterUtils.fileFileFilter(),
-            FileFilterUtils.nameFileFilter(engineLog.getName()));
-    FileAlterationObserver fileObserver = new FileAlterationObserver(engineLog.getParent(), logFilter);
+            FileFilterUtils.nameFileFilter(engineLog.getFileName().toString()));
+    FileAlterationObserver fileObserver = new FileAlterationObserver(engineLog.getParent().toFile(), logFilter);
     fileObserver.addListener(new LogModificationListener());
     monitor = new FileAlterationMonitor(100);
     monitor.addObserver(fileObserver);

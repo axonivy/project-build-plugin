@@ -18,9 +18,10 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -32,7 +33,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Compiles an ivy Project with an ivyEngine.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -64,8 +65,8 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     }
 
     getLog().info("Compiling ivy Project...");
-    List<File> iarDependencies = getDependencies("iar");
-    List<File> iarJars = projectBuilder.createIarJars(iarDependencies);
+    var iarDependencies = getDependencies("iar").stream().map(Path::toFile).collect(Collectors.toList());
+    var iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir(), iarJars, options);
 
@@ -74,16 +75,14 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     } else {
       projectBuilder.validate(project.getBasedir(), iarDependencies, options);
     }
-
-    writeDependencyIarJar(iarJars);
+    writeDependencyIarJar(iarJars.stream().map(File::toPath).collect(Collectors.toList()));
   }
 
-  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException {
+  private void writeDependencyIarJar(Collection<Path> iarJarDepenencies) throws IOException {
     if (iarJarDepenencies == null) { // no dependencies
       return;
     }
-    File jar = new SharedFile(project).getIarDependencyClasspathJar();
+    var jar = new SharedFile(project).getIarDependencyClasspathJar();
     new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
   }
-
 }

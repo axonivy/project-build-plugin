@@ -17,13 +17,12 @@
 package ch.ivyteam.ivy.maven.util;
 
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,16 +38,17 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Jar with only a Manifest.MF that defines the classpath.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.2
  */
 public class ClasspathJar {
+
   private static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
-  private final File jar;
+  private final Path jar;
   private String mainClass;
 
-  public ClasspathJar(File jar) {
+  public ClasspathJar(Path jar) {
     this.jar = jar;
   }
 
@@ -57,14 +57,14 @@ public class ClasspathJar {
   }
 
   public void create(List<String> classpathEntries) throws IOException {
-    jar.getParentFile().mkdir();
-    try (ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(jar))) {
-      String name = StringUtils.substringBeforeLast(jar.getName(), ".");
-      writeManifest(name, zipStream, classpathEntries);
+    Files.createDirectories(jar.getParent());
+    try (var out = new ZipOutputStream(Files.newOutputStream(jar))) {
+      String name = StringUtils.substringBeforeLast(jar.getFileName().toString(), ".");
+      writeManifest(name, out, classpathEntries);
     }
   }
 
-  public void createFileEntries(Collection<File> classpathEntries) throws IOException {
+  public void createFileEntries(Collection<Path> classpathEntries) throws IOException {
     create(getClassPathUris(classpathEntries));
   }
 
@@ -83,21 +83,21 @@ public class ClasspathJar {
     manifest.write(jarStream);
   }
 
-  private static List<String> getClassPathUris(Collection<File> classpathEntries) {
+  private static List<String> getClassPathUris(Collection<Path> classpathEntries) {
     return classpathEntries.stream()
-            .map(file -> file.toURI().toASCIIString())
+            .map(file -> file.toUri().toASCIIString())
             .collect(Collectors.toList());
   }
 
-  public List<File> getFiles() {
+  public List<Path> getFiles() {
     String urlClasspath = getClasspathUrlEntries();
     if (StringUtils.isBlank(urlClasspath)) {
       return Collections.emptyList();
     }
 
-    List<File> files = new ArrayList<>();
+    var files = new ArrayList<Path>();
     for (String entry : urlClasspath.split(" ")) {
-      files.add(new File(uriToAbsoluteFilePath(entry)));
+      files.add(Path.of(uriToAbsoluteFilePath(entry)));
     }
     return files;
   }
@@ -115,8 +115,8 @@ public class ClasspathJar {
   }
 
   public String getClasspathUrlEntries() {
-    try (ZipInputStream is = new ZipInputStream(new FileInputStream(jar))) {
-      Manifest manifest = new Manifest(getInputStream(is, MANIFEST_MF));
+    try (var in = new ZipInputStream(Files.newInputStream(jar))) {
+      Manifest manifest = new Manifest(getInputStream(in, MANIFEST_MF));
       return manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
     } catch (IOException ex) {
       return null;

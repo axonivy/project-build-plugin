@@ -1,42 +1,50 @@
 package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
-import java.io.File;
-import java.util.Arrays;
-
-import org.apache.commons.io.FileUtils;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Engine status files from deployment.
  */
 public class DeploymentFiles {
+
   private static final String LOG = ".deploymentLog";
   private static final String ERROR_LOG = ".deploymentError";
 
-  private File deployable;
+  private final Path deployable;
 
-  public DeploymentFiles(File deployable) {
+  public DeploymentFiles(Path deployable) {
     this.deployable = deployable;
   }
 
-  File getDeployCandidate() {
+  Path getDeployCandidate() {
     return deployable;
   }
 
-  public File log() {
-    return getFile(LOG);
+  public Path log() {
+    return toFile(LOG);
   }
 
-  public File errorLog() {
-    return getFile(ERROR_LOG);
+  public Path errorLog() {
+    return toFile(ERROR_LOG);
   }
 
-  private File getFile(String markerExtension) {
-    return new File(deployable.getParent(), deployable.getName() + markerExtension);
+  private Path toFile(String ext) {
+    return deployable.resolveSibling(deployable.getFileName() + ext);
   }
 
   public void clearAll() {
-    for (String markerExtension : Arrays.asList(LOG, ERROR_LOG)) {
-      FileUtils.deleteQuietly(getFile(markerExtension));
+    for (var ext : List.of(LOG, ERROR_LOG)) {
+      var file = toFile(ext);
+      if (Files.exists(file)) {
+        try {
+          Files.delete(file);
+        } catch (IOException ex) {
+          throw new RuntimeException("Could not delete " + file, ex);
+        }
+      }
     }
   }
 }

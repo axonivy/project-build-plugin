@@ -18,9 +18,9 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -50,8 +50,8 @@ public class TestShareEngineClasspathMojo {
   }
 
   @Rule
-  public ProjectMojoRule<ShareEngineCoreClasspathMojo> rule = new ProjectMojoRule<ShareEngineCoreClasspathMojo>(
-          new File("src/test/resources/base"), ShareEngineCoreClasspathMojo.GOAL) {
+  public ProjectMojoRule<ShareEngineCoreClasspathMojo> rule = new ProjectMojoRule<ShareEngineCoreClasspathMojo>(Path.of("src/test/resources/base"), ShareEngineCoreClasspathMojo.GOAL) {
+
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -60,15 +60,15 @@ public class TestShareEngineClasspathMojo {
     }
 
     protected void configureMojo(AbstractEngineMojo newMojo) throws IOException {
-      File engineDir = Files.createTempDirectory("tmpEngineDir").toFile();
+      var engineDir = Files.createTempDirectory("tmpEngineDir");
       newMojo.engineDirectory = engineDir;
     }
 
     private void writeEngineLibDir() {
       try {
-        File engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
-        FileUtils.touch(
-                new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT + "/dummy-boot.jar"));
+        var engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
+        var dummy = engineDirectory.resolve(OsgiDir.INSTALL_AREA).resolve(OsgiDir.LIB_BOOT).resolve("dummy-boot.jar");
+        FileUtils.touch(dummy.toFile());
       } catch (IOException | MojoExecutionException ex) {
         throw new RuntimeException("Cannot create server jars", ex);
       }

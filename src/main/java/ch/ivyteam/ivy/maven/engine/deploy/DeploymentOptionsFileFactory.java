@@ -3,9 +3,9 @@ package ch.ivyteam.ivy.maven.engine.deploy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -14,23 +14,24 @@ import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 
 public class DeploymentOptionsFileFactory {
-  private static final String YAML = "yaml";
-  private final File deployableArtifact;
 
-  public DeploymentOptionsFileFactory(File deployableArtifact) {
+  private static final String YAML = "yaml";
+  private final Path deployableArtifact;
+
+  public DeploymentOptionsFileFactory(Path deployableArtifact) {
     this.deployableArtifact = deployableArtifact;
   }
 
-  public File createFromTemplate(File optionsFile, MavenProject project, MavenSession session,
+  public Path createFromTemplate(Path optionsFile, MavenProject project, MavenSession session,
           MavenFileFilter fileFilter) throws MojoExecutionException {
-    if (!isOptionsFile(optionsFile)) {
+    if (!isOptionsFile(optionsFile.toFile())) {
       return null;
     }
 
-    String fileFormat = FilenameUtils.getExtension(optionsFile.getName());
-    File targetFile = getTargetFile(fileFormat);
+    String fileFormat = FilenameUtils.getExtension(optionsFile.getFileName().toString());
+    var targetFile = getTargetFile(fileFormat);
     try {
-      fileFilter.copyFile(optionsFile, targetFile, true, project, Collections.emptyList(), false,
+      fileFilter.copyFile(optionsFile.toFile(), targetFile.toFile(), true, project, Collections.emptyList(), false,
               StandardCharsets.UTF_8.name(), session);
     } catch (MavenFilteringException ex) {
       throw new MojoExecutionException("Failed to resolve templates in options file", ex);
@@ -45,20 +46,19 @@ public class DeploymentOptionsFileFactory {
             optionsFile.canRead();
   }
 
-  public File createFromConfiguration(String options) throws MojoExecutionException {
-    File yamlOptionsFile = getTargetFile(YAML);
+  public Path createFromConfiguration(String options) throws MojoExecutionException {
+    var yamlOptionsFile = getTargetFile(YAML);
     try {
-      FileUtils.write(yamlOptionsFile, options, StandardCharsets.UTF_8);
+      java.nio.file.Files.writeString(yamlOptionsFile, options);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to write options file '" + yamlOptionsFile + "'.", ex);
     }
     return yamlOptionsFile;
   }
 
-  private File getTargetFile(String fileFormat) {
-    String prefix = deployableArtifact.getName() + ".options.";
-    String targetFileName = prefix + fileFormat;
-    return new File(deployableArtifact.getParentFile(), targetFileName);
+  private Path getTargetFile(String fileFormat) {
+    var prefix = deployableArtifact.getFileName().toString() + ".options.";
+    var targetFileName = prefix + fileFormat;
+    return deployableArtifact.resolveSibling(targetFileName);
   }
-
 }

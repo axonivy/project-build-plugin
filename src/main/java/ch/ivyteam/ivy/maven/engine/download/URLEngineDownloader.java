@@ -1,6 +1,5 @@
 package ch.ivyteam.ivy.maven.engine.download;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -31,12 +30,12 @@ public class URLEngineDownloader implements EngineDownloader {
   private final String ivyVersion;
   private final VersionRange ivyVersionRange;
   private final Log log;
-  private final File downloadDirectory;
+  private final Path downloadDirectory;
   private String zipFileName = null;
   public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
-          String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,
+          String ivyVersion, VersionRange ivyVersionRange, Log log, Path downloadDirectory,
           ProxyInfoProvider proxies) {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
@@ -49,7 +48,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   @Override
-  public File downloadEngine() throws MojoExecutionException {
+  public Path downloadEngine() throws MojoExecutionException {
     URL downloadUrlToUse = engineDownloadUrl;
     if (downloadUrlToUse == null) {
       downloadUrlToUse = findEngineDownloadUrlFromListPage();
@@ -72,13 +71,13 @@ public class URLEngineDownloader implements EngineDownloader {
     }
   }
 
-  private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException {
-    File downloadZip = evaluateTargetFile(engineUrl);
+  private Path downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException {
+    var downloadZip = evaluateTargetFile(engineUrl);
     try {
       log.info("Starting engine download from " + engineUrl);
       var repo = new Repository("engine.repo", StringUtils.substringBeforeLast(engineUrl.toExternalForm(), "/"));
       var resource = StringUtils.substringAfterLast(engineUrl.getPath(), "/");
-      wagonDownload(repo, resource, downloadZip.toPath());
+      wagonDownload(repo, resource, downloadZip);
       return downloadZip;
     } catch (Exception ex) {
       throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
@@ -86,13 +85,13 @@ public class URLEngineDownloader implements EngineDownloader {
     }
   }
 
-  private File evaluateTargetFile(URL engineUrl) {
+  private Path evaluateTargetFile(URL engineUrl) {
     zipFileName = StringUtils.substringAfterLast(engineUrl.getPath(), "/");
-    File downloadZip = new File(downloadDirectory, zipFileName);
+    var downloadZip = downloadDirectory.resolve(zipFileName);
     int tempFileSuffix = 0;
-    while (downloadZip.exists()) {
+    while (Files.exists(downloadZip)) {
       String suffixedZipFileName = zipFileName + "." + tempFileSuffix;
-      downloadZip = new File(downloadDirectory, suffixedZipFileName);
+      downloadZip = downloadDirectory.resolve(suffixedZipFileName);
       tempFileSuffix++;
     }
     return downloadZip;

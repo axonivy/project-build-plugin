@@ -18,6 +18,8 @@ package ch.ivyteam.ivy.maven.deploy;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.ReadOnlyFileSystemException;
 
 import org.apache.commons.io.FileUtils;
@@ -46,7 +48,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    * from the {@link IarPackagingMojo#GOAL} is used.
    */
   @Parameter(property = PROPERTY_IVY_DEPLOY_FILE, defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}.iar")
-  protected File deployFile;
+  protected Path deployFile;
 
   /**
    * If set to <code>true</code> then test users defined in the projects are
@@ -151,7 +153,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    * </p>
    *
    * Example options file content:
-   * 
+   *
    * <pre>
    * <code>deployTestUsers: auto
    *target:
@@ -163,7 +165,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    * Inside the options file you can use property placeholders. The options file
    * may look like this:
    * </p>
-   * 
+   *
    * <pre>
    * <code>deployTestUsers: ${ivy.deploy.test.users}
    *target:
@@ -185,7 +187,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    *      Guide</a>
    */
   @Parameter(property = "ivy.deploy.options.file", required = false)
-  protected File deployOptionsFile;
+  protected Path deployOptionsFile;
 
   @Component
   private MavenFileFilter fileFilter;
@@ -218,14 +220,14 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
       getLog().info("Skipping deployment to engine.");
       return true;
     }
-    if (!deployFile.exists()) {
+    if (!Files.exists(deployFile)) {
       getLog().warn("Skipping deployment of '" + deployFile + "' to engine. The file does not exist.");
       return true;
     }
     return false;
   }
 
-  protected final File createDeployOptionsFile(DeploymentOptionsFileFactory optionsFileFactory)
+  protected final Path createDeployOptionsFile(DeploymentOptionsFileFactory optionsFileFactory)
           throws MojoExecutionException {
     if (deployOptionsFile != null) {
       return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
@@ -242,23 +244,25 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
     return null;
   }
 
-  protected static final void removeTemporaryDeploymentOptionsFile(File deploymentOptionsFile) {
-    FileUtils.deleteQuietly(deploymentOptionsFile);
+  protected static final void removeTemporaryDeploymentOptionsFile(Path deploymentOptionsFile) {
+    FileUtils.deleteQuietly(toFile(deploymentOptionsFile));
   }
 
-  protected final void deployToDirectory(File resolvedOptionsFile, File deployDir)
+  private static File toFile(Path file) {
+    return file == null ? null : file.toFile();
+  }
+
+  protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir)
           throws MojoExecutionException {
-    File targetDeployableFile = createTargetDeployableFile(deployDir);
-    String deployablePath = deployDir.toPath().relativize(targetDeployableFile.toPath()).toString();
-    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds,
-            deployFile, targetDeployableFile);
+    var targetDeployableFile = createTargetDeployableFile(deployDir);
+    String deployablePath = deployDir.relativize(targetDeployableFile).toString();
+    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
 
-  private final File createTargetDeployableFile(File deployDir) {
-    File deployApp = new File(deployDir, deployToEngineApplication);
-    File targetDeployableFile = new File(deployApp, deployFile.getName());
-    return targetDeployableFile;
+  private final Path createTargetDeployableFile(Path deployDir) {
+    return deployDir
+            .resolve(deployToEngineApplication)
+            .resolve(deployFile.getFileName().toString());
   }
-
 }

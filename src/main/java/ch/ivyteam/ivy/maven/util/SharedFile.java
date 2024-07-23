@@ -16,36 +16,36 @@
 
 package ch.ivyteam.ivy.maven.util;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.maven.project.MavenProject;
 
 /**
  * A file that is used by multiple Mojos/Goals during the build lifecycle.
- * 
+ *
  * @since 6.0.3
  */
 public class SharedFile {
-  private File targetDir;
+
+  private final Path targetDir;
 
   public SharedFile(MavenProject project) {
-    targetDir = new File(project.getBuild().getDirectory());
+    targetDir = Path.of(project.getBuild().getDirectory());
   }
 
-  public File getEngineOSGiBootClasspathJar() {
-    return new File(targetDir, "ivy.engine.osgi.boot.classpath.jar");
+  public Path getEngineOSGiBootClasspathJar() {
+    return targetDir.resolve("ivy.engine.osgi.boot.classpath.jar");
   }
 
-  public File getEngineClasspathJar() {
-    return new File(targetDir, "ivy.engine.classpath.jar");
+  public Path getEngineClasspathJar() {
+    return targetDir.resolve("ivy.engine.classpath.jar");
   }
 
-  public File getIarDependencyClasspathJar() {
-    return new File(targetDir, "ivy.project.dependency.classpath.jar");
+  public Path getIarDependencyClasspathJar() {
+    return targetDir.resolve("ivy.project.dependency.classpath.jar");
   }
 
-  public File getCompileResultProperties() {
-    return new File(targetDir, "ivy.project.compile.result.properties");
+  public Path getCompileResultProperties() {
+    return targetDir.resolve("ivy.project.compile.result.properties");
   }
-
 }

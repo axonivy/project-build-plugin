@@ -18,8 +18,8 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   @Rule
   public ProjectMojoRule<MavenDependencyCleanupMojo> compile = new ProjectMojoRule<MavenDependencyCleanupMojo>(
-          new File("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
+          Path.of("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
 
   @Test
   public void noMavenDepsDir() throws Exception {
@@ -43,8 +43,7 @@ public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
     var mojo = compile.getMojo();
     var mvnLibDir = Files
             .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
-    var mvnDep = Files.copy(new File("src/test/resources/jjwt-0.9.1.jar").toPath(),
-            mvnLibDir.resolve("jjwt-0.9.1.jar"));
+    var mvnDep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), mvnLibDir.resolve("jjwt-0.9.1.jar"));
     assertThat(mvnLibDir).exists();
     assertThat(mvnDep).exists();
     mojo.execute();
@@ -55,13 +54,11 @@ public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   public void dontCleanManualLibs() throws Exception {
     var mojo = compile.getMojo();
     var libDir = Files.createDirectories(mojo.project.getBasedir().toPath().resolve("lib"));
-    var dep = Files.copy(new File("src/test/resources/jjwt-0.9.1.jar").toPath(),
-            libDir.resolve("jjwt-0.9.1.jar"));
+    var dep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), libDir.resolve("jjwt-0.9.1.jar"));
     assertThat(libDir).exists();
     assertThat(dep).exists();
     mojo.execute();
     assertThat(libDir).exists();
     assertThat(dep).exists();
   }
-
 }

@@ -16,7 +16,8 @@
 
 package ch.ivyteam.ivy.maven.test;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -30,11 +31,12 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
 
 /**
  * Stops the Axon Ivy Engine after integration testing
- * 
+ *
  * @since 6.2.0
  */
 @Mojo(name = StopTestEngineMojo.GOAL)
 public class StopTestEngineMojo extends AbstractIntegrationTestMojo {
+
   public static final String GOAL = "stop-test-engine";
 
   @Parameter(property = "project", required = true, readonly = true)
@@ -78,15 +80,17 @@ public class StopTestEngineMojo extends AbstractIntegrationTestMojo {
   }
 
   public EngineControl createEngineController() throws MojoExecutionException {
-    File engineDir = getEngineDir(project);
-    if (engineDir == null || !engineDir.exists()) {
-      engineDir = identifyAndGetEngineDirectory();
-    }
-
-    EngineVmOptions vmOptions = new EngineVmOptions(maxmem, additionalClasspath, additionalVmOptions);
-    EngineControl engineControl = new EngineControl(new EngineMojoContext(
-            engineDir, project, getLog(), null, vmOptions, stopTimeoutInSeconds));
-    return engineControl;
+    var engineDir = engineDir();
+    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions);
+    var ctx = new EngineMojoContext(engineDir, project, getLog(), null, vmOptions, stopTimeoutInSeconds);
+    return new EngineControl(ctx);
   }
 
+  private Path engineDir() throws MojoExecutionException {
+    var engineDir = getEngineDir(project);
+    if (engineDir == null || !Files.exists(engineDir)) {
+      return identifyAndGetEngineDirectory();
+    }
+    return engineDir;
+  }
 }

@@ -1,8 +1,8 @@
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,12 +15,12 @@ public class EngineModuleHints {
     loadJvmOptions(context.engineDirectory, context.log).stream().forEach(option -> cli.addArgument(option));
   }
 
-  public static String loadFromJvmOptionsFile(File identifyAndGetEngineDirectory, Log log) {
+  public static String loadFromJvmOptionsFile(Path identifyAndGetEngineDirectory, Log log) {
     return loadJvmOptions(identifyAndGetEngineDirectory, log).stream().collect(Collectors.joining(" ", " ", " "));
   }
 
-  private static List<String> loadJvmOptions(File engineDir, Log log) {
-    var jvmOptionsFile = engineDir.toPath().resolve("bin").resolve("jvm-module.options");
+  private static List<String> loadJvmOptions(Path engineDir, Log log) {
+    var jvmOptionsFile = engineDir.resolve("bin").resolve("jvm-module.options");
     if (!Files.exists(jvmOptionsFile)) {
       log.warn("Couldn't load jvm module options from '" + jvmOptionsFile + "' file.");
       return List.of();
