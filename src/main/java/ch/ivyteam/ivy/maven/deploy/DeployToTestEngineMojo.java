@@ -85,7 +85,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
     var props = new MavenProperties(project, getLog());
     props.set(Property.TEST_ENGINE_APP, deployToEngineApplication);
 
-    boolean isDefaultFile = deployFile.getName()
+    boolean isDefaultFile = deployFile.getFileName()
             .endsWith(project.getArtifactId() + "-" + project.getVersion() + ".iar");
     if (isDefaultFile && deployDepsAsApp) {
       provideDepsAsAppZip();
@@ -99,36 +99,36 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
   }
 
   private void provideDepsAsAppZip() {
-    List<File> deps = MavenRuntime.getDependencies(project, session, "iar");
+    var deps = MavenRuntime.getDependencies(project, session, "iar");
     if (deps.isEmpty()) {
       return;
     }
 
     deps.add(deployFile);
     try {
-      File appZip = createFullAppZip(deps);
-      getLog().info("Using " + appZip.getName()
-              + " with all IAR dependencies of this test project for deployments.");
+      var appZip = createFullAppZip(deps);
+      getLog().info("Using " + appZip.getFileName() + " with all IAR dependencies of this test project for deployments.");
       deployFile = appZip;
     } catch (ArchiverException | IOException ex) {
       getLog().error("Failed to write deployable application ", ex);
     }
   }
 
-  File createFullAppZip(List<File> deps) throws ArchiverException, IOException {
-    File appZip = new File(project.getBuild().getDirectory(), deployToEngineApplication + "-app.zip");
+  Path createFullAppZip(List<Path> deps) throws ArchiverException, IOException {
+    var appZip = Path.of(project.getBuild().getDirectory()).resolve(deployToEngineApplication + "-app.zip");
     ZipArchiver appZipper = new ZipArchiver();
-    appZipper.setDestFile(appZip);
-    for (File dep : deps) {
-      if (dep.isFile() && dep.getName().endsWith("iar")) {
-        appZipper.addFile(dep, dep.getName());
-      } else if (dep.isDirectory()) {
+    appZipper.setDestFile(appZip.toFile());
+    for (var dep : deps) {
+      var d = dep.toFile();
+      if (d.isFile() && d.getName().endsWith("iar")) {
+        appZipper.addFile(d, d.getName());
+      } else if (d.isDirectory()) {
         Optional<Path> packedIar = findPackedIar(dep);
         if (packedIar.isPresent()) {
           File iar = packedIar.get().toFile();
           appZipper.addFile(iar, iar.getName());
         } else {
-          appZipper.addDirectory(dep, dep.getName() + "/");
+          appZipper.addDirectory(d, d.getName() + "/");
         }
       } else {
         getLog().warn("Can not add dependency to app zip '" + dep + "'. \n "
@@ -139,8 +139,8 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
     return appZip;
   }
 
-  static Optional<Path> findPackedIar(File dep) throws IOException {
-    Path target = dep.toPath().resolve("target");
+  static Optional<Path> findPackedIar(Path dep) throws IOException {
+    var target = dep.resolve("target");
     if (!Files.isDirectory(target)) {
       return Optional.empty();
     }
@@ -151,13 +151,12 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
   }
 
   private void deployTestApp() throws MojoExecutionException {
-    File resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
+    var resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
     try {
-      File deployDir = new File(getEngineDir(project), DeployToEngineMojo.DEPLOY_DEFAULT);
+      var deployDir = getEngineDir(project).resolve(DeployToEngineMojo.DEPLOY_DEFAULT);
       deployToDirectory(resolvedOptionsFile, deployDir);
     } finally {
       removeTemporaryDeploymentOptionsFile(resolvedOptionsFile);
     }
   }
-
 }

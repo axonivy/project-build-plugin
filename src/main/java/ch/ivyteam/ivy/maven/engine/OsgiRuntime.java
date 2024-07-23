@@ -1,8 +1,8 @@
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -25,10 +25,11 @@ import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
  * @since 7.0
  */
 class OsgiRuntime {
-  private final File engineDir;
+
+  private final Path engineDir;
   private final Log log;
 
-  OsgiRuntime(File engineDir, Log log) {
+  OsgiRuntime(Path engineDir, Log log) {
     this.engineDir = engineDir;
     this.log = log;
   }
@@ -96,9 +97,9 @@ class OsgiRuntime {
     Map<String, String> properties = new LinkedHashMap<>();
 
     properties.put("osgi.framework.useSystemProperties", Boolean.TRUE.toString());
-    properties.put("user.dir", engineDir.getAbsolutePath());
-    File osgiDir = new File(engineDir, OsgiDir.INSTALL_AREA);
-    properties.put("osgi.install.area", osgiDir.getAbsolutePath());
+    properties.put("user.dir", engineDir.toAbsolutePath().toString());
+    var osgiDir = engineDir.resolve(OsgiDir.INSTALL_AREA);
+    properties.put("osgi.install.area", osgiDir.toAbsolutePath().toString());
     properties.put("org.osgi.framework.bundle.parent", "framework");
     properties.put("org.osgi.framework.bootdelegation",
             "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original

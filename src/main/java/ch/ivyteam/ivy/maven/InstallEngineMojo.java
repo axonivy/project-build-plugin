@@ -16,9 +16,10 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -159,7 +160,12 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       handleNoInstalledEngine();
     } else {
       if (engineDirectoryIsEmpty()) {
-        getRawEngineDirectory().mkdirs();
+        var rawEngineDir = getRawEngineDirectory();
+        try {
+          Files.createDirectories(rawEngineDir);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Could not create directories " + rawEngineDir, ex);
+        }
       }
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
 
@@ -187,7 +193,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
     if (autoInstallEngine) {
       getLog().info("Will automatically download Engine now.");
       final EngineDownloader engineDownloader = getDownloader();
-      File downloadZip = engineDownloader.downloadEngine();
+      var downloadZip = engineDownloader.downloadEngine();
 
       if (cleanEngineDir) {
         removeOldEngineContent();
@@ -195,14 +201,22 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
       if (!isEngineDirectoryIdentified()) {
         String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
-        engineDirectory = new File(engineCacheDirectory, ivyEngineVersionOfZip(engineZipFileName));
-        engineDirectory.mkdirs();
+        engineDirectory = engineCacheDirectory.resolve(ivyEngineVersionOfZip(engineZipFileName));
+        try {
+          Files.createDirectories(engineDirectory);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Could not create directories " + engineDirectory, ex);
+        }
       }
 
       unpackEngine(downloadZip);
 
       if (!downloadUsingMaven) {
-        downloadZip.delete();
+        try {
+          Files.delete(downloadZip);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Could not delete file " + downloadZip.toAbsolutePath(), ex);
+        }
       }
 
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
@@ -246,30 +260,32 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   }
 
   private void removeOldEngineContent() throws MojoExecutionException {
+    var dir = getRawEngineDirectory();
     try {
-      FileUtils.cleanDirectory(getRawEngineDirectory());
+      if (dir != null) {
+        FileUtils.cleanDirectory(dir.toFile());
+      }
     } catch (IOException ex) {
       throw new MojoExecutionException(
-              "Failed to clean outdated ivy Engine directory '" + getRawEngineDirectory() + "'.", ex);
+              "Failed to clean outdated ivy Engine directory '" + dir + "'.", ex);
     }
   }
 
   private boolean engineDirectoryIsEmpty() {
-    return !getRawEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getRawEngineDirectory().listFiles());
+    return !Files.isDirectory(getRawEngineDirectory()) || ArrayUtils.isEmpty(getRawEngineDirectory().toFile().listFiles());
   }
 
-  private void unpackEngine(File downloadZip) throws MojoExecutionException {
-    String targetLocation = getRawEngineDirectory().getAbsolutePath();
-    getLog().info("Unpacking engine " + downloadZip.getAbsolutePath() + " to " + targetLocation);
-    try (var engineZip = new ZipFile(downloadZip)) {
+  private void unpackEngine(Path downloadZip) throws MojoExecutionException {
+    String targetLocation = getRawEngineDirectory().toAbsolutePath().toString();
+    getLog().info("Unpacking engine " + downloadZip.toAbsolutePath() + " to " + targetLocation);
+    try (var engineZip = new ZipFile(downloadZip.toFile())) {
       engineZip.extractAll(targetLocation);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to unpack downloaded engine '" + downloadZip + "'.", ex);
     }
   }
 
-  File getDownloadDirectory() {
-    return SystemUtils.getJavaIoTmpDir();
+  Path getDownloadDirectory() {
+    return SystemUtils.getJavaIoTmpDir().toPath();
   }
-
 }

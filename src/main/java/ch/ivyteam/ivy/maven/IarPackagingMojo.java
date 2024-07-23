@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.artifact.Artifact;
@@ -106,20 +107,20 @@ public class IarPackagingMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     String iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
-    File iar = new File(project.getBuild().getDirectory(), iarName);
+    var iar = Path.of(project.getBuild().getDirectory()).resolve(iarName);
     createIvyArchive(project.getBasedir(), iar);
 
     Artifact artifact = project.getArtifact();
-    artifact.setFile(iar);
+    artifact.setFile(iar.toFile());
     project.setArtifact(artifact);
     getLog().info("Attached " + artifact + ".");
   }
 
-  private void createIvyArchive(File projectDir, File targetIar) throws MojoExecutionException {
+  private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
     ZipArchiver archiver = new ZipArchiver();
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
-    archiver.setDestFile(targetIar);
-    FileSetConverter fsConverter = new FileSetConverter(project.getBasedir());
+    archiver.setDestFile(targetIar.toFile());
+    FileSetConverter fsConverter = new FileSetConverter(project.getBasedir().toPath());
     for (org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets)) {
       archiver.addFileSet(fs);
     }
@@ -129,7 +130,7 @@ public class IarPackagingMojo extends AbstractMojo {
     try {
       archiver.createArchive();
     } catch (ArchiverException | IOException ex) {
-      throw new MojoExecutionException("Failed to create IAR: " + targetIar.getAbsolutePath(), ex);
+      throw new MojoExecutionException("Failed to create IAR: " + targetIar.toAbsolutePath(), ex);
     }
   }
 

@@ -17,7 +17,8 @@ package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -27,20 +28,20 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 public class FileDeployer implements IvyDeployer {
-  private final File deployDir;
+
+  private final Path deployDir;
+  private final Path deploymentOptionsFile;
   private final Integer timeoutInSeconds;
+  private final Path deployFile;
+  private final Path targetDeployableFile;
 
   private Log log;
   private DeploymentFiles deploymentFiles;
 
-  private File deployFile;
-  private File targetDeployableFile;
-  private File deploymentOptionsFile;
 
-  public FileDeployer(File deployDir, File deploymentOptions, Integer deployTimeoutInSeconds, File deployFile,
-          File targetDeployableFile) {
+  public FileDeployer(Path deployDir, Path deploymentOptionsFile, Integer deployTimeoutInSeconds, Path deployFile, Path targetDeployableFile) {
     this.deployDir = deployDir;
-    this.deploymentOptionsFile = deploymentOptions;
+    this.deploymentOptionsFile = deploymentOptionsFile;
     this.timeoutInSeconds = deployTimeoutInSeconds;
 
     this.deployFile = deployFile;
@@ -50,10 +51,9 @@ public class FileDeployer implements IvyDeployer {
   @Override
   @SuppressWarnings("hiding")
   public void deploy(String deployableFilePath, Log log) throws MojoExecutionException {
-    File deployableFile = new File(deployDir, deployableFilePath);
+    var deployableFile = deployDir.resolve(deployableFilePath);
     this.deploymentFiles = new DeploymentFiles(deployableFile);
     this.log = log;
-
     deployInternal();
   }
 
@@ -71,9 +71,10 @@ public class FileDeployer implements IvyDeployer {
   private void initDeployment() throws MojoExecutionException {
     try {
       if (deploymentOptionsFile != null) {
-        File engineOption = new File(deploymentFiles.getDeployCandidate().getParentFile(),
-                deploymentOptionsFile.getName());
-        FileUtils.copyFile(deploymentOptionsFile, engineOption);
+        //var engineOption = deploymentFiles.getDeployCandidate().resolveSibling(deploymentOptionsFile.getName());
+        //Files.copy(deploymentOptionsFile.toPath(), engineOption);
+        File engineOption = new File(deploymentFiles.getDeployCandidate().getParent().toFile(), deploymentOptionsFile.getFileName().toString());
+        FileUtils.copyFile(deploymentOptionsFile.toFile(), engineOption);
       }
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file",
@@ -84,19 +85,18 @@ public class FileDeployer implements IvyDeployer {
   private void copyDeployableToEngine() throws MojoExecutionException {
     try {
       log.info("Uploading file " + deployFile + " to " + targetDeployableFile);
-      FileUtils.copyFile(deployFile, targetDeployableFile);
+      FileUtils.copyFile(deployFile.toFile(), targetDeployableFile.toFile());
     } catch (IOException ex) {
-      throw new MojoExecutionException("Upload of file '" + deployFile.getName() + "' to engine failed.", ex);
+      throw new MojoExecutionException("Upload of file '" + deployFile.getFileName().toString() + "' to engine failed.", ex);
     }
   }
 
   private void determineDeployResult() throws MojoExecutionException {
-    FileLogForwarder logForwarder = new FileLogForwarder(deploymentFiles.log(), log,
-            new EngineLogLineHandler(log));
+    var logForwarder = new FileLogForwarder(deploymentFiles.log(), log, new EngineLogLineHandler(log));
     try {
       logForwarder.activate();
       log.debug("Deployment candidate " + deploymentFiles.getDeployCandidate());
-      wait(() -> !deploymentFiles.getDeployCandidate().exists(), timeoutInSeconds, TimeUnit.SECONDS);
+      wait(() -> !Files.exists(deploymentFiles.getDeployCandidate()), timeoutInSeconds, TimeUnit.SECONDS);
     } catch (TimeoutException ex) {
       throw new MojoExecutionException("Deployment result does not exist", ex);
     } finally {
@@ -108,14 +108,15 @@ public class FileDeployer implements IvyDeployer {
   }
 
   private void failOnError() throws MojoExecutionException {
-    if (deploymentFiles.errorLog().exists()) {
+    var errorLog = deploymentFiles.errorLog();
+    if (Files.exists(errorLog)) {
       try {
-        log.error(FileUtils.readFileToString(deploymentFiles.errorLog(), StandardCharsets.UTF_8));
+        var content = Files.readString(errorLog);
+        log.error(content);
       } catch (IOException ex) {
         log.error("Failed to resolve deployment error cause", ex);
       }
-      throw new MojoExecutionException(
-              "Deployment of '" + deploymentFiles.getDeployCandidate().getName() + "' failed!");
+      throw new MojoExecutionException("Deployment of '" + deploymentFiles.getDeployCandidate().getFileName() + "' failed!");
     }
   }
 

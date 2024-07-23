@@ -24,15 +24,16 @@ import org.apache.maven.plugin.logging.Log;
 
 /**
  * Simple Test logger built to make simple assertions on occurred logs.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 05.11.2014
  */
 public class LogCollector implements Log {
-  private List<LogEntry> debuggings = new ArrayList<>();
-  private List<LogEntry> infos = new ArrayList<>();
-  private List<LogEntry> warnings = new ArrayList<>();
-  private List<LogEntry> errors = new ArrayList<>();
+
+  private final List<LogEntry> debuggings = new ArrayList<>();
+  private final List<LogEntry> infos = new ArrayList<>();
+  private final List<LogEntry> warnings = new ArrayList<>();
+  private final List<LogEntry> errors = new ArrayList<>();
 
   public static class LogEntry {
     private String message;

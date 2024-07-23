@@ -18,8 +18,8 @@ package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -47,13 +47,13 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   public void buildWithExistingProject() throws Exception {
     CompileProjectMojo mojo = compile.getMojo();
 
-    File dataClassDir = new File(mojo.project.getBasedir(), "src_dataClasses");
-    File wsProcDir = new File(mojo.project.getBasedir(), "src_wsproc");
-    File classDir = new File(mojo.project.getBasedir(), "classes");
-    FileUtils.cleanDirectory(wsProcDir);
-    FileUtils.cleanDirectory(dataClassDir);
+    var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_dataClasses");
+    var wsProcDir = mojo.project.getBasedir().toPath().resolve("src_wsproc");
+    var classDir = mojo.project.getBasedir().toPath().resolve("classes");
+    FileUtils.cleanDirectory(wsProcDir.toFile());
+    FileUtils.cleanDirectory(dataClassDir.toFile());
 
-    mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication").toFile();
+    mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication");
     mojo.execute();
 
     assertThat(findFiles(dataClassDir, "java")).hasSize(2);
@@ -79,15 +79,13 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     mojo.setLog(log);
 
     mojo.compilerWarnings = false;
-    mojo.compilerSettings = new File("path/to/oblivion");
+    mojo.compilerSettings = Path.of("path/to/oblivion");
 
     mojo.execute();
     assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
 
     mojo.compilerWarnings = true;
-
     mojo.execute();
     assertThat(log.getWarnings().toString()).contains("Could not locate compiler settings file");
   }
-
 }

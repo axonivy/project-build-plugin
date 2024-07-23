@@ -1,10 +1,9 @@
 package ch.ivyteam.ivy.maven.test.bpm;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.maven.project.MavenProject;
 
 public class IvyTestRuntime {
+
   public static final String RUNTIME_PROPS_RESOURCE = "ivyTestRuntime.properties";
 
   public static interface Key {
@@ -21,8 +21,8 @@ public class IvyTestRuntime {
 
   private final Properties props = new Properties();
 
-  public void setProductDir(File engineDir) {
-    props.put(Key.PRODUCT_DIR, engineDir.getAbsolutePath());
+  public void setProductDir(Path engineDir) {
+    props.put(Key.PRODUCT_DIR, engineDir.toAbsolutePath().toString());
   }
 
   public void setProjectLocations(List<URI> locations) {
@@ -34,20 +34,18 @@ public class IvyTestRuntime {
     props.setProperty(Key.PROJECT_LOCATIONS, joinedUris);
   }
 
-  public File store(MavenProject project) throws IOException {
-    File target = new File(project.getBuild().getDirectory());
-    File tstVmDir = new File(target, "ivyTestVm");
-    tstVmDir.mkdir();
+  public Path store(MavenProject project) throws IOException {
+    var tstVmDir = Path.of(project.getBuild().getDirectory()).resolve("ivyTestVm");
+    Files.createDirectories(tstVmDir);
     store(tstVmDir);
     return tstVmDir;
   }
 
-  private File store(File dir) throws IOException {
-    File propsFile = new File(dir, RUNTIME_PROPS_RESOURCE);
-    try (OutputStream os = new FileOutputStream(propsFile)) {
-      props.store(os, "ivy test vm runtime properties");
+  private Path store(Path dir) throws IOException {
+    var propsFile = dir.resolve(RUNTIME_PROPS_RESOURCE);
+    try (var out = Files.newOutputStream(propsFile)) {
+      props.store(out, "ivy test vm runtime properties");
     }
     return propsFile;
   }
-
 }

@@ -21,10 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +47,8 @@ public class TestIarPackagingMojo {
 
   @Rule
   public ProjectMojoRule<IarPackagingMojo> rule = new ProjectMojoRule<IarPackagingMojo>(
-          new File("src/test/resources/base"), IarPackagingMojo.GOAL) {
+          Path.of("src/test/resources/base"), IarPackagingMojo.GOAL) {
+
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -56,28 +56,28 @@ public class TestIarPackagingMojo {
     }
 
     private void createEmptySrcDirs() throws IOException {
-      List<String> emptySrcDirNames = Arrays.asList("src_dataClasses", "src_hd", "src_rd", "src_ws",
-              "src_wsproc");
-      for (String emptySrcDirName : emptySrcDirNames) {
-        File srcDir = new File(projectDir, emptySrcDirName);
-        FileUtils.deleteDirectory(srcDir);
-        srcDir.mkdir();
+      var emptySrcDirNames = List.of("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
+      for (var emptySrcDirName : emptySrcDirNames) {
+        var srcDir = projectDir.resolve(emptySrcDirName);
+        FileUtils.deleteDirectory(srcDir.toFile());
+        Files.createDirectories(srcDir);
       }
     }
   };
 
   /**
    * Happy path creation tests
-   * @throws Exception
    */
   @Test
   public void archiveCreationDefault() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
-    File svn = new File(mojo.project.getBasedir(), ".svn/svn.txt");
-    FileUtils.write(svn, "svn", StandardCharsets.UTF_8);
+    var dir = mojo.project.getBasedir().toPath().resolve(".svn");
+    Files.createDirectories(dir);
+    var svn = dir.resolve("svn.txt");
+    Files.writeString(svn, "svn");
     mojo.execute();
-    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"),
-            new String[] {"iar"}, false);
+    var targetDir = mojo.project.getBasedir().toPath().resolve("target").toFile();
+    Collection<File> iarFiles = FileUtils.listFiles(targetDir, new String[] {"iar"}, false);
     assertThat(iarFiles).hasSize(1);
 
     File iarFile = iarFiles.iterator().next();
@@ -112,7 +112,7 @@ public class TestIarPackagingMojo {
   public void canDefineCustomExclusions() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
     String filterCandidate = "private/notPublic.txt";
-    assertThat(new File(mojo.project.getBasedir(), filterCandidate)).exists();
+    assertThat(mojo.project.getBasedir().toPath().resolve(filterCandidate)).exists();
 
     mojo.iarExcludes = new String[] {"private", "private/**/*"};
     mojo.execute();
@@ -126,13 +126,13 @@ public class TestIarPackagingMojo {
   @Test
   public void canDefineCustomInclusions() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
-    File outputDir = new File(mojo.project.getBasedir(), "target");
-    File customPomXml = new File(outputDir, "myCustomPom.xml");
-    FileUtils.write(customPomXml, "customPomContent", StandardCharsets.UTF_8);
+    var outputDir = mojo.project.getBasedir().toPath().resolve("target");
+    var customPomXml = outputDir.resolve("myCustomPom.xml");
+    Files.writeString(customPomXml, "customPomContent");
 
-    String relativeCustomIncludePath = "target/" + customPomXml.getName();
+    String relativeCustomIncludePath = "target/" + customPomXml.getFileName().toString();
     FileSet fs = new FileSet();
-    fs.setIncludes(Arrays.asList(relativeCustomIncludePath));
+    fs.setIncludes(List.of(relativeCustomIncludePath));
     mojo.iarFileSets = new FileSet[] {fs};
 
     mojo.execute();
@@ -145,13 +145,13 @@ public class TestIarPackagingMojo {
   @Test
   public void canOverwriteDefaultInclusions() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
-    File outputDir = new File(mojo.project.getBasedir(), "target");
-    File flatPomXML = new File(outputDir, "pom.xml");
-    FileUtils.write(flatPomXML, "<artifactId>flattened</artifactId>", StandardCharsets.UTF_8);
+    var outputDir = mojo.project.getBasedir().toPath().resolve("target");
+    var flatPomXML = outputDir.resolve("pom.xml");
+    Files.writeString(flatPomXML, "<artifactId>flattened</artifactId>");
 
     FileSet fs = new FileSet();
     fs.setDirectory("target");
-    fs.setIncludes(Arrays.asList(flatPomXML.getName()));
+    fs.setIncludes(List.of(flatPomXML.getFileName().toString()));
     mojo.iarFileSets = new FileSet[] {fs};
 
     mojo.execute();
@@ -187,12 +187,12 @@ public class TestIarPackagingMojo {
   @Test
   public void doNotPackTargetFolderIfThereAreNoTargetClasses() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
-    File targetClasses = new File(mojo.project.getBasedir(), "target/classes");
-    FileUtils.deleteDirectory(targetClasses);
+    var targetClasses = mojo.project.getBasedir().toPath().resolve("target/classes");
+    FileUtils.deleteDirectory(targetClasses.toFile());
     mojo.execute();
 
-    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"),
-            new String[] {"iar"}, false);
+    var dir = mojo.project.getBasedir().toPath().resolve("target");
+    Collection<File> iarFiles = FileUtils.listFiles(dir.toFile(), new String[] {"iar"}, false);
     assertThat(iarFiles).hasSize(1);
 
     File iarFile = iarFiles.iterator().next();
@@ -214,8 +214,8 @@ public class TestIarPackagingMojo {
 
     mojo.execute();
 
-    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"),
-            new String[] {"iar"}, false);
+    var dir = mojo.project.getBasedir().toPath().resolve("target");
+    Collection<File> iarFiles = FileUtils.listFiles(dir.toFile(), new String[] {"iar"}, false);
     assertThat(iarFiles).hasSize(1);
 
     File iarFile = iarFiles.iterator().next();

@@ -11,6 +11,7 @@ import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 
 public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest {
+
   @Rule
   public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<StopTestEngineMojo>(
           StopTestEngineMojo.GOAL);
@@ -33,7 +34,6 @@ public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest 
     StopTestEngineMojo mojo = new StopTestEngineMojo();
     mojo.project = rule.project;
     mojo.engineDirectory = rule.getMojo().engineCacheDirectory;
-
     assertThat(mojo.createEngineController()).isNotNull();
   }
 }

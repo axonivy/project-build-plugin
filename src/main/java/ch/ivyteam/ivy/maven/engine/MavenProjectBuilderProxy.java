@@ -21,6 +21,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -37,7 +38,7 @@ import org.apache.maven.plugin.logging.Log;
 /**
  * Provides project build functionality that can only be accessed trough
  * reflection on an ivy Engine classloader.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
@@ -45,12 +46,12 @@ public class MavenProjectBuilderProxy {
   private static final String FQ_DELEGATE_CLASS_NAME = "ch.ivyteam.ivy.project.build.MavenProjectBuilder";
   private final Object delegate;
   private final Class<?> delegateClass;
-  private final File baseDirToBuildIn;
+  private final Path baseDirToBuildIn;
   private final String engineClasspath;
   private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace,
-          File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, Path workspace,
+          Path baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
 
@@ -60,9 +61,9 @@ public class MavenProjectBuilderProxy {
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
 
-    delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
+    delegate = executeInEngineDir(() -> constructor.newInstance(workspace.toFile()));
 
-    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
+    var engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
     engineClasspath = getEngineClasspath(engineJars);
   }
 
@@ -105,9 +106,9 @@ public class MavenProjectBuilderProxy {
     throw new RuntimeException("Failed to resolve bundle with symbolice name '" + symbolicName + "'.");
   }
 
-  private static String getEngineClasspath(List<File> jars) {
+  private static String getEngineClasspath(List<Path> jars) {
     return jars.stream()
-            .map(file -> file.getAbsolutePath())
+            .map(file -> file.toAbsolutePath().toString())
             .collect(Collectors.joining(File.pathSeparator));
   }
 
@@ -168,7 +169,7 @@ public class MavenProjectBuilderProxy {
 
   private <T> T executeInEngineDir(Callable<T> function) throws Exception {
     String originalBaseDirectory = System.getProperty("user.dir");
-    System.setProperty("user.dir", baseDirToBuildIn.getAbsolutePath());
+    System.setProperty("user.dir", baseDirToBuildIn.toAbsolutePath().toString());
     try {
       return function.call();
     } finally {

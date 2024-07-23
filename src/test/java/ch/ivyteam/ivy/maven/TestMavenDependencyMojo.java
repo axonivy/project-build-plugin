@@ -18,7 +18,6 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,7 +64,7 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
     artifact.setDependencyTrail(List.of(mojo.project.getArtifact().toString()));
-    artifact.setFile(new File("src/test/resources/jjwt-0.9.1.jar"));
+    artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
     mojo.project.setArtifacts(Set.of(artifact));
     mojo.execute();
     assertThat(mvnLibDir).exists();
@@ -79,7 +78,7 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
     var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
-    artifact.setFile(new File("src/test/resources/jjwt-0.9.1.jar"));
+    artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
     artifact.setDependencyTrail(
             List.of(mojo.project.getArtifact().toString(), "other.group:other.artifact:iar:1.0.0"));
     mojo.project.setArtifacts(Set.of(artifact));

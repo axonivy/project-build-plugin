@@ -40,7 +40,7 @@ class TestFileLogForwarder {
     var fakeEngineLog = tempDir.resolve("myProject.iar.deploymentLog");
     Files.createFile(fakeEngineLog);
     var mavenLog = new LogCollector();
-    var logForwarder = new FileLogForwarder(fakeEngineLog.toFile(), mavenLog, new EngineLogLineHandler(mavenLog));
+    var logForwarder = new FileLogForwarder(fakeEngineLog, mavenLog, new EngineLogLineHandler(mavenLog));
     var log = new FakeLogger(fakeEngineLog);
 
     try {

@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,19 +12,20 @@ import org.apache.maven.plugin.logging.Log;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
 public class EngineVersionEvaluator {
+
   public static final String LIBRARY_ID = "ch.ivyteam.util";
 
   private Log log;
-  private File engineDir;
+  private Path engineDir;
 
-  public EngineVersionEvaluator(Log log, File engineDir) {
+  public EngineVersionEvaluator(Log log, Path engineDir) {
     this.log = log;
     this.engineDir = engineDir;
   }
 
   public ArtifactVersion evaluateVersion() {
     if (!isOSGiEngine(engineDir)) {
-      String absolutePath = engineDir == null ? "" : engineDir.getAbsolutePath();
+      String absolutePath = engineDir == null ? "" : engineDir.toAbsolutePath().toString();
       log.info("Can not evaluate version of a non-OSGi engine in directory '" + absolutePath + "'");
       return null;
     }
@@ -37,9 +39,9 @@ public class EngineVersionEvaluator {
     return new DefaultArtifactVersion(toReleaseVersion(version));
   }
 
-  public static boolean isOSGiEngine(File engineDir) {
-    File folder = new File(engineDir, OsgiDir.INSTALL_AREA);
-    return folder.exists();
+  public static boolean isOSGiEngine(Path engineDir) {
+    var folder = engineDir.resolve(OsgiDir.INSTALL_AREA);
+    return Files.exists(folder);
   }
 
   public static String toReleaseVersion(String version) { // 6.1.0.51869 ->
@@ -52,12 +54,12 @@ public class EngineVersionEvaluator {
   }
 
   private String getLibraryFileName(String libraryId) {
-    File ivyLibs = new File(engineDir, OsgiDir.PLUGINS);
-    if (!ivyLibs.exists()) {
+    var ivyLibs = engineDir.resolve(OsgiDir.PLUGINS);
+    if (!Files.exists(ivyLibs)) {
       return null;
     }
 
-    String[] libraryNames = ivyLibs.list();
+    String[] libraryNames = ivyLibs.toFile().list();
     if (libraryNames == null) {
       return null;
     }
@@ -69,5 +71,4 @@ public class EngineVersionEvaluator {
     }
     return null;
   }
-
 }

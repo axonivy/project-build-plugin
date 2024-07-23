@@ -16,9 +16,10 @@
 
 package ch.ivyteam.ivy.maven.test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,21 +89,21 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
 
   private void setIvyProperties(MavenProperties properties) throws MojoExecutionException {
     SharedFile shared = new SharedFile(project);
-    File engineCp = shared.getEngineClasspathJar();
-    if (engineCp.exists()) {
+    var engineCp = shared.getEngineClasspathJar();
+    if (Files.exists(engineCp)) {
       properties.setMavenProperty(Property.IVY_ENGINE_CLASSPATH, getClasspath(engineCp));
     }
 
-    File iarCp = shared.getIarDependencyClasspathJar();
-    if (iarCp.exists()) {
+    var iarCp = shared.getIarDependencyClasspathJar();
+    if (Files.exists(iarCp)) {
       properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
     }
 
-    File tstVmDir = createTestVmRuntime();
-    properties.setMavenProperty(Property.IVY_TEST_VM_RUNTIME, tstVmDir.getAbsolutePath());
+    var tstVmDir = createTestVmRuntime();
+    properties.setMavenProperty(Property.IVY_TEST_VM_RUNTIME, tstVmDir.toAbsolutePath().toString());
   }
 
-  private File createTestVmRuntime() throws MojoExecutionException {
+  private Path createTestVmRuntime() throws MojoExecutionException {
     IvyTestRuntime testRuntime = new IvyTestRuntime();
     testRuntime.setProductDir(identifyAndGetEngineDirectory());
     testRuntime.setProjectLocations(getProjects());
@@ -114,11 +115,11 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   }
 
   private List<URI> getProjects() {
-    List<File> deps = new ArrayList<>();
-    deps.add(project.getBasedir());
+    var deps = new ArrayList<Path>();
+    deps.add(project.getBasedir().toPath());
     deps.addAll(MavenRuntime.getDependencies(project, session, "iar"));
     return deps.stream()
-            .map(file -> file.toURI())
+            .map(file -> file.toUri())
             .collect(Collectors.toList());
   }
 
@@ -141,16 +142,15 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
     try {
       String testOutputDirectory = CompilerResult.load(project).getTestOutputDirectory();
       if (testOutputDirectory != null) {
-        project.getBuild().setTestOutputDirectory(
-                new File(project.getBasedir(), testOutputDirectory).getAbsolutePath());
+        var dir = project.getBasedir().toPath().resolve(testOutputDirectory).toAbsolutePath();
+        project.getBuild().setTestOutputDirectory(dir.toString());
       }
     } catch (IOException ex) {
       getLog().warn("Failed to set up ${project.build.testOutputDirectory}", ex);
     }
   }
 
-  private static String getClasspath(File jar) {
+  private static String getClasspath(Path jar) {
     return new ClasspathJar(jar).getClasspathFiles();
   }
-
 }

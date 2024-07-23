@@ -18,6 +18,8 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
    * @since 8.0.3
    */
   @Parameter(property = "ivy.compiler.settings", defaultValue = ".settings/org.eclipse.jdt.core.prefs")
-  File compilerSettings;
+  Path compilerSettings;
 
   /**
    * Define compiler options. <br>
@@ -88,13 +90,14 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
 
   private String getDependencyClasspath() {
     return StringUtils.join(getDependencies("jar").stream()
+            .map(Path::toFile)
             .map(jar -> jar.getAbsolutePath())
             .collect(Collectors.toList()), File.pathSeparatorChar);
   }
 
   private File getCompilerSettings() {
-    if (compilerSettings.exists()) {
-      return compilerSettings;
+    if (Files.exists(compilerSettings)) {
+      return compilerSettings.toFile();
     } else if (compilerWarnings) {
       getLog().warn("Could not locate compiler settings file: " + compilerSettings
               + " continuing with default compiler settings");
@@ -102,7 +105,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
     return null;
   }
 
-  protected final List<File> getDependencies(String type) {
+  protected final List<Path> getDependencies(String type) {
     return MavenRuntime.getDependencies(project, type);
   }
 

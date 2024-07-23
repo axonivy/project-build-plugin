@@ -31,6 +31,7 @@ import ch.ivyteam.ivy.maven.deploy.DeployToTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 
 public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMojoTest {
+
   @Rule
   public ProjectMojoRule<SetupIntegrationTestPropertiesMojo> setupProps = new TestProjectMojoRule();
 
@@ -50,12 +51,11 @@ public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMoj
     props.setProperty(EngineControl.Property.TEST_ENGINE_LOG, "/var/logs/ivy.log");
     props.setProperty(DeployToTestEngineMojo.Property.TEST_ENGINE_APP, "myTstApp");
 
-    SetupIntegrationTestPropertiesMojo mojo = setupProps.getMojo();
+    var mojo = setupProps.getMojo();
     mojo.execute();
     String argLine = (String) props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
-    assertThat(argLine).startsWith(
-            "-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp");
-    assertThat(argLine).contains(" --add-opens=");
+    assertThat(argLine)
+            .startsWith("-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp")
+            .contains(" --add-opens=");
   }
-
 }
