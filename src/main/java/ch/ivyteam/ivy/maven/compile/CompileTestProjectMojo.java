@@ -18,11 +18,9 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -66,7 +64,7 @@ public class CompileTestProjectMojo extends AbstractProjectCompileMojo {
     if (!Files.exists(iarJarClasspath)) {
       return Collections.emptyList();
     }
-    var iarJars = new ClasspathJar(iarJarClasspath).getFiles();
-    return iarJars.stream().map(Path::toFile).collect(Collectors.toList());
+    var iarJars = new ClasspathJar(iarJarClasspath.toFile()).getFiles();
+    return iarJars;
   }
 }

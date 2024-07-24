@@ -16,6 +16,7 @@
 
 package ch.ivyteam.ivy.maven.compile;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -84,17 +85,21 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
     if (builder == null) {
       builder = new MavenProjectBuilderProxy(
               classLoaderFactory,
-              buildApplicationDirectory,
-              engineDir,
+              toFile(buildApplicationDirectory),
+              toFile(engineDir),
               getLog(),
               timeoutEngineStartInSeconds);
     }
-    classLoaderFactory.writeEngineClasspathJar(engineDir);
+    classLoaderFactory.writeEngineClasspathJar(toFile(engineDir));
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null) {
       project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.toAbsolutePath().toString());
     }
     return builder;
+  }
+
+  private File toFile(Path path) {
+    return path == null ? null : path.toFile();
   }
 
   public final EngineClassLoaderFactory getEngineClassloaderFactory() {

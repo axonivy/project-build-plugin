@@ -38,7 +38,7 @@ public class TestLoggerIntegration extends BaseEngineProjectMojoTest {
     var engineClassLoader = compile.getMojo().getEngineClassloaderFactory();
     var slf4jJars = engineClassLoader.getSlf4jJars();
     assertThat(slf4jJars).hasSize(3);
-    assertThat(slf4jJars.get(0).getFileName().toString()).startsWith("slf4j-api-");
+    assertThat(slf4jJars.get(0).getName()).startsWith("slf4j-api-");
     assertThat(outContent.toString())
             .as("no warnings must be printed during slf4j library re-solving from local repo")
             .isEmpty();

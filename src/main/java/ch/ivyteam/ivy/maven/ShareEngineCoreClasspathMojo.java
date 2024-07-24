@@ -16,8 +16,10 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.util.stream.Collectors;
+import java.io.File;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -45,11 +47,11 @@ public class ShareEngineCoreClasspathMojo extends AbstractEngineMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    var value = EngineClassLoaderFactory.getIvyEngineClassPathFiles(identifyAndGetEngineDirectory())
-            .stream()
-            .map(p -> p.toAbsolutePath().toString())
-            .collect(Collectors.joining(","));
-    var properties = new MavenProperties(project, getLog());
-    properties.setMavenProperty(IVY_ENGINE_CORE_CLASSPATH_PROPERTY, value);
+    List<File> ivyEngineClassPathFiles = EngineClassLoaderFactory
+            .getIvyEngineClassPathFiles(identifyAndGetEngineDirectory().toFile());
+    String propertyValue = StringUtils.join(ivyEngineClassPathFiles, ",");
+
+    MavenProperties properties = new MavenProperties(project, getLog());
+    properties.setMavenProperty(IVY_ENGINE_CORE_CLASSPATH_PROPERTY, propertyValue);
   }
 }
