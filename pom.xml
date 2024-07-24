@@ -9,7 +9,7 @@
   <description>Maven plugin for the automated building of Axon Ivy Projects. Referenced from the pom.xml of Axon Ivy Projects.</description>
   <url>https://github.com/axonivy/project-build-plugin</url>
   <prerequisites>
-    <maven>3.9.0</maven>
+    <maven>3.9.6</maven>
   </prerequisites>
   <licenses>
     <license>
