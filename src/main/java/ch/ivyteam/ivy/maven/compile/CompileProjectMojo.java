@@ -75,14 +75,14 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     } else {
       projectBuilder.validate(project.getBasedir(), iarDependencies, options);
     }
-    writeDependencyIarJar(iarJars.stream().map(File::toPath).collect(Collectors.toList()));
+    writeDependencyIarJar(iarJars);
   }
 
-  private void writeDependencyIarJar(Collection<Path> iarJarDepenencies) throws IOException {
+  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException {
     if (iarJarDepenencies == null) { // no dependencies
       return;
     }
     var jar = new SharedFile(project).getIarDependencyClasspathJar();
-    new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
+    new ClasspathJar(jar.toFile()).createFileEntries(iarJarDepenencies);
   }
 }

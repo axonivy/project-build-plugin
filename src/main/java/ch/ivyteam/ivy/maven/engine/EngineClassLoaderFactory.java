@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -49,22 +48,23 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  */
 @SuppressWarnings("deprecation")
 public class EngineClassLoaderFactory {
-
   public interface OsgiDir {
-    Path INSTALL_AREA = Path.of("system");
-    Path PLUGINS = INSTALL_AREA.resolve("plugins");
-    Path LIB_BOOT = Path.of("lib/boot");
+    String INSTALL_AREA = "system";
+    String PLUGINS = INSTALL_AREA + "/plugins";
+    String LIB_BOOT = "lib/boot";
   }
 
   /** must match version in pom.xml */
   private static final String SLF4J_VERSION = "2.0.13";
 
-  private static final List<Path> ENGINE_LIB_DIRECTORIES = List.of(
-          OsgiDir.INSTALL_AREA.resolve(OsgiDir.LIB_BOOT),
+  private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
+          OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
           OsgiDir.PLUGINS,
-          // unpacked jars from OSGI bundles
-          OsgiDir.INSTALL_AREA.resolve("configuration").resolve("org.eclipse.osgi"),
-          Path.of("webapps").resolve("ivy").resolve("WEB-INF").resolve("lib"));
+          OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
+                                                                    // jars from
+                                                                    // OSGI
+                                                                    // bundles
+          "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
 
   private MavenContext maven;
 
@@ -72,76 +72,70 @@ public class EngineClassLoaderFactory {
     this.maven = mavenContext;
   }
 
-  public URLClassLoader createEngineClassLoader(Path engineDirectory) throws IOException {
-    var osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
+  public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException {
+    List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
     var filter = WildcardFileFilter.builder()
             .setWildcards("org.eclipse.osgi_*.jar")
             .get();
-    var pluginsDir = engineDirectory.resolve(OsgiDir.PLUGINS);
-    addToClassPath(osgiClasspath, pluginsDir, filter);
+    addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS), filter);
     osgiClasspath.addAll(0, getSlf4jJars());
     if (maven.log.isDebugEnabled()) {
       maven.log.debug("Configuring OSGi engine classpath:");
-      osgiClasspath.stream().forEach(file -> maven.log.debug(" + " + file.toAbsolutePath()));
+      osgiClasspath.stream().forEach(file -> maven.log.debug(" + " + file.getAbsolutePath()));
     }
     return new URLClassLoader(toUrls(osgiClasspath));
   }
 
-  public List<Path> getSlf4jJars() {
+  public List<File> getSlf4jJars() {
     return List.of(
             maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
             maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
             maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
   }
 
-  public static List<Path> getOsgiBootstrapClasspath(Path engineDirectory) {
-    if (engineDirectory == null || !Files.isDirectory(engineDirectory)) {
+  public static List<File> getOsgiBootstrapClasspath(File engineDirectory) {
+    if (engineDirectory == null || !engineDirectory.isDirectory()) {
       throw new RuntimeException("The engineDirectory is missing: " + engineDirectory);
     }
-    var classPathFiles = new ArrayList<Path>();
-    var libBootDir = engineDirectory.resolve(OsgiDir.INSTALL_AREA).resolve(OsgiDir.LIB_BOOT);
-    var jarFilter = new SuffixFileFilter(".jar");
-    addToClassPath(classPathFiles, libBootDir, jarFilter);
+    List<File> classPathFiles = new ArrayList<>();
+    addToClassPath(classPathFiles, new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT),
+            new SuffixFileFilter(".jar"));
     return classPathFiles;
   }
 
-  private static void addToClassPath(List<Path> classPathFiles, Path dir, IOFileFilter fileFilter) {
-    if (Files.isDirectory(dir)) {
-      classPathFiles.addAll(FileUtils.listFiles(dir.toFile(), fileFilter, null).stream().map(f -> f.toPath()).toList());
+  private static void addToClassPath(List<File> classPathFiles, File dir, IOFileFilter fileFilter) {
+    if (dir.isDirectory()) {
+      classPathFiles.addAll(FileUtils.listFiles(dir, fileFilter, null));
     }
   }
 
-  public static List<Path> getIvyEngineClassPathFiles(Path engineDirectory) {
-    if (engineDirectory == null) {
-      return List.of();
-    }
-
-    var classPathFiles = new ArrayList<Path>();
-    for (var libDirPath : ENGINE_LIB_DIRECTORIES) {
-      var jarDir = engineDirectory.resolve(libDirPath);
-      if (!Files.isDirectory(jarDir)) {
+  public static List<File> getIvyEngineClassPathFiles(File engineDirectory) {
+    List<File> classPathFiles = new ArrayList<>();
+    for (String libDirPath : ENGINE_LIB_DIRECTORIES) {
+      File jarDir = new File(engineDirectory, libDirPath + File.separator);
+      if (!jarDir.isDirectory()) {
         continue;
       }
-      classPathFiles.addAll(FileUtils.listFiles(jarDir.toFile(), new String[] {"jar"}, true).stream().map(f -> f.toPath()).toList());
+      classPathFiles.addAll(FileUtils.listFiles(jarDir, new String[] {"jar"}, true));
     }
     return classPathFiles;
   }
 
-  public void writeEngineClasspathJar(Path engineDirectory) throws IOException {
+  public void writeEngineClasspathJar(File engineDirectory) throws IOException {
     writeEngineClasspathJar(getIvyEngineClassPathFiles(engineDirectory));
   }
 
-  private void writeEngineClasspathJar(List<Path> ivyEngineClassPathFiles) throws IOException {
-    var classPathJar = new SharedFile(maven.project).getEngineClasspathJar();
-    var jar = new ClasspathJar(classPathJar);
+  private void writeEngineClasspathJar(List<File> ivyEngineClassPathFiles) throws IOException {
+    File classPathJar = new SharedFile(maven.project).getEngineClasspathJar().toFile();
+    ClasspathJar jar = new ClasspathJar(classPathJar);
     jar.setMainClass("ch.ivyteam.ivy.server.ServerLauncher");
     jar.createFileEntries(ivyEngineClassPathFiles);
   }
 
-  private static URL[] toUrls(List<Path> ivyEngineClassPathFiles) throws MalformedURLException {
+  private static URL[] toUrls(List<File> ivyEngineClassPathFiles) throws MalformedURLException {
     var classPathUrls = new ArrayList<URL>();
-    for (var file : ivyEngineClassPathFiles) {
-      classPathUrls.add(file.toUri().toURL());
+    for (File file : ivyEngineClassPathFiles) {
+      classPathUrls.add(file.toURI().toURL());
     }
     return classPathUrls.toArray(URL[]::new);
   }
@@ -160,13 +154,14 @@ public class EngineClassLoaderFactory {
       this.log = log;
     }
 
-    public Path getJar(String groupId, String artifactId, String version) {
+    public File getJar(String groupId, String artifactId, String version) {
       Artifact artifact = repoSystem.createArtifact(groupId, artifactId, version, "jar");
       File jar = new File(localRepository.getBasedir(), localRepository.pathOf(artifact));
       if (!jar.exists()) {
         log.warn("Failed to resolve '" + artifactId + "' from local repository in '" + jar + "'.");
       }
-      return jar.toPath();
+      return jar;
     }
   }
+
 }

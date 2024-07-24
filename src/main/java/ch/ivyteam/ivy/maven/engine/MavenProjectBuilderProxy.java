@@ -21,7 +21,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -46,12 +45,12 @@ public class MavenProjectBuilderProxy {
   private static final String FQ_DELEGATE_CLASS_NAME = "ch.ivyteam.ivy.project.build.MavenProjectBuilder";
   private final Object delegate;
   private final Class<?> delegateClass;
-  private final Path baseDirToBuildIn;
+  private final File baseDirToBuildIn;
   private final String engineClasspath;
   private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, Path workspace,
-          Path baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace,
+          File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
 
@@ -61,9 +60,9 @@ public class MavenProjectBuilderProxy {
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
 
-    delegate = executeInEngineDir(() -> constructor.newInstance(workspace.toFile()));
+    delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
 
-    var engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
+    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
     engineClasspath = getEngineClasspath(engineJars);
   }
 
@@ -82,7 +81,7 @@ public class MavenProjectBuilderProxy {
 
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader,
           int timeoutEngineStartInSeconds) throws Exception {
-    Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader,
+    Object bundleContext = new OsgiRuntime(baseDirToBuildIn.toPath(), log).startEclipseOsgiImpl(ivyEngineClassLoader,
             timeoutEngineStartInSeconds);
     hackProvokeEagerStartOfJdt(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
@@ -106,9 +105,9 @@ public class MavenProjectBuilderProxy {
     throw new RuntimeException("Failed to resolve bundle with symbolice name '" + symbolicName + "'.");
   }
 
-  private static String getEngineClasspath(List<Path> jars) {
+  private static String getEngineClasspath(List<File> jars) {
     return jars.stream()
-            .map(file -> file.toAbsolutePath().toString())
+            .map(file -> file.getAbsolutePath())
             .collect(Collectors.joining(File.pathSeparator));
   }
 
@@ -169,7 +168,7 @@ public class MavenProjectBuilderProxy {
 
   private <T> T executeInEngineDir(Callable<T> function) throws Exception {
     String originalBaseDirectory = System.getProperty("user.dir");
-    System.setProperty("user.dir", baseDirToBuildIn.toAbsolutePath().toString());
+    System.setProperty("user.dir", baseDirToBuildIn.getAbsolutePath());
     try {
       return function.call();
     } finally {
