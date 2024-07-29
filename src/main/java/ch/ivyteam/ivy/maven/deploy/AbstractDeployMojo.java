@@ -16,13 +16,12 @@
 
 package ch.ivyteam.ivy.maven.deploy;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ReadOnlyFileSystemException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -244,12 +243,14 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
     return null;
   }
 
-  protected static final void removeTemporaryDeploymentOptionsFile(Path deploymentOptionsFile) {
-    FileUtils.deleteQuietly(toFile(deploymentOptionsFile));
-  }
-
-  private static File toFile(Path file) {
-    return file == null ? null : file.toFile();
+  protected static void deleteFile(Path file) {
+    if (file != null && Files.exists(file)) {
+      try {
+        Files.delete(file);
+      } catch (IOException ex) {
+        throw new UncheckedIOException("Could not delete " + file, ex);
+      }
+    }
   }
 
   protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir)

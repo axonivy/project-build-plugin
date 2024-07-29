@@ -24,13 +24,13 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
+import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestDeployToEngineMojo {
 
@@ -180,7 +180,7 @@ public class TestDeployToEngineMojo {
     }
 
     private Path createEngineDir() throws IOException {
-      var engine = Path.of("target/myTestIvyEngine");
+      var engine = Path.of("target").resolve("myTestIvyEngine");
       var deploy = engine.resolve("deploy");
       Files.createDirectories(deploy);
       return engine.toAbsolutePath();
@@ -189,7 +189,7 @@ public class TestDeployToEngineMojo {
     @Override
     protected void after() {
       super.after();
-      FileUtils.deleteQuietly(getMojo().deployEngineDirectory.toFile());
+      PathUtils.delete(getMojo().deployEngineDirectory);
     }
   };
 

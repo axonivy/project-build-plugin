@@ -20,6 +20,7 @@ import static ch.ivyteam.ivy.maven.InstallEngineMojo.DEFAULT_ARCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -29,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.wink.client.MockHttpServer;
@@ -369,8 +369,10 @@ public class TestInstallEngineMojo {
       .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip");
   }
 
-  private String findLink(String html) throws MojoExecutionException, MalformedURLException, URISyntaxException {
-    return getUrlDownloader().findEngineDownloadUrl(IOUtils.toInputStream(html, StandardCharsets.UTF_8)).toExternalForm();
+  private String findLink(String html) throws MojoExecutionException, URISyntaxException, IOException {
+    try (var in = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8))) {
+      return getUrlDownloader().findEngineDownloadUrl(in).toExternalForm();
+    }
   }
 
   @Test

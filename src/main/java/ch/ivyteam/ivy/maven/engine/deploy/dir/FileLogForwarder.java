@@ -34,6 +34,7 @@ import org.apache.maven.plugin.logging.Log;
  * @since 6.1.0
  */
 class FileLogForwarder {
+
   private final Path engineLog;
   private final Log mavenLog;
 
@@ -102,5 +103,4 @@ class FileLogForwarder {
   static interface LogLineHandler {
     void handleLine(String newLogLine);
   }
-
 }

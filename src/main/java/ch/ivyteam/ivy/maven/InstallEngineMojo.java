@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
@@ -42,6 +41,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
 import ch.ivyteam.ivy.maven.engine.download.EngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.MavenEngineDownloader;
 import ch.ivyteam.ivy.maven.engine.download.URLEngineDownloader;
+import ch.ivyteam.ivy.maven.util.PathUtils;
 import net.lingala.zip4j.ZipFile;
 
 /**
@@ -263,11 +263,10 @@ public class InstallEngineMojo extends AbstractEngineMojo {
     var dir = getRawEngineDirectory();
     try {
       if (dir != null) {
-        FileUtils.cleanDirectory(dir.toFile());
+        PathUtils.clean(dir);
       }
-    } catch (IOException ex) {
-      throw new MojoExecutionException(
-              "Failed to clean outdated ivy Engine directory '" + dir + "'.", ex);
+    } catch (Exception ex) {
+      throw new MojoExecutionException("Failed to clean outdated ivy Engine directory '" + dir + "'.", ex);
     }
   }
 

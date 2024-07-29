@@ -17,13 +17,15 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
+
+import ch.ivyteam.ivy.maven.util.PathUtils;
 
 /**
  * Simple rule that can provide a real set-up MOJO that works on a copy of the
@@ -51,21 +53,41 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule {
   @SuppressWarnings("unchecked")
   protected void before() throws Throwable {
     projectDir = Files.createTempDirectory("MyBaseProject");
-    FileUtils.copyDirectory(templateProjectDir.toFile(), projectDir.toFile());
+    copyDirectory(templateProjectDir, projectDir);
     project = readMavenProject(projectDir.toFile());
     mojo = (T) lookupConfiguredMojo(project, mojoName);
   }
 
   @Override
   protected void after() {
-    try {
-      FileUtils.deleteDirectory(projectDir.toFile());
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
+    PathUtils.delete(projectDir);
   }
 
   public T getMojo() {
     return mojo;
+  }
+
+  private static void copyDirectory(Path source, Path target) {
+    try (var walker = Files.walk(source)) {
+      walker.forEach(fileToCopy -> {
+        if (fileToCopy.equals(source)) {
+          return;
+        }
+        var destination = source.relativize(fileToCopy);
+        var fileToMove = target.resolve(destination);
+
+        try {
+          var dirToMove = fileToMove.getParent();
+          if (!Files.exists(dirToMove)) {
+            Files.createDirectories(dirToMove);
+          }
+          Files.copy(fileToCopy, fileToMove);
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+      });
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 }

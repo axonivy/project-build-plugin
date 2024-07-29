@@ -63,7 +63,7 @@ public class EngineMojoContext {
       try {
         log.info("Creating a classpath jar for starting the engine");
         new ClasspathJar(classpathJar.toFile())
-                .createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory.toFile()));
+                .createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
       } catch (Exception ex) {
         throw new RuntimeException(
                 "Could not create engine classpath jar: '" + classpathJar + "'", ex);

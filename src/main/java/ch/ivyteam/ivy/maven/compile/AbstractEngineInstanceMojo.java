@@ -90,7 +90,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
               getLog(),
               timeoutEngineStartInSeconds);
     }
-    classLoaderFactory.writeEngineClasspathJar(toFile(engineDir));
+    classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
     if (engineDir != null) {
       project.getProperties().put(AbstractEngineMojo.ENGINE_DIRECTORY_PROPERTY, engineDir.toAbsolutePath().toString());

@@ -56,13 +56,13 @@ public class MavenProjectBuilderProxy {
 
     logEngine();
 
-    URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
+    URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn.toPath());
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
     Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
 
     delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
 
-    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
+    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn.toPath());
     engineClasspath = getEngineClasspath(engineJars);
   }
 

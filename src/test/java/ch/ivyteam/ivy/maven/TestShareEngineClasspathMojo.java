@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +29,7 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
 public class TestShareEngineClasspathMojo {
+
   @Test
   public void engineClasspathIsSharedAsProperty() throws Exception {
     ShareEngineCoreClasspathMojo mojo = rule.getMojo();
@@ -38,7 +38,6 @@ public class TestShareEngineClasspathMojo {
             .isNullOrEmpty();
 
     mojo.execute();
-
     assertThat(getEngineClasspathProperty())
             .as("used classpath must be shared as property so that other mojos can access it")
             .contains("dummy-boot.jar");
@@ -68,11 +67,11 @@ public class TestShareEngineClasspathMojo {
       try {
         var engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
         var dummy = engineDirectory.resolve(OsgiDir.INSTALL_AREA).resolve(OsgiDir.LIB_BOOT).resolve("dummy-boot.jar");
-        FileUtils.touch(dummy.toFile());
+        Files.createDirectories(dummy.getParent());
+        Files.createFile(dummy);
       } catch (IOException | MojoExecutionException ex) {
         throw new RuntimeException("Cannot create server jars", ex);
       }
-
     }
   };
 }
