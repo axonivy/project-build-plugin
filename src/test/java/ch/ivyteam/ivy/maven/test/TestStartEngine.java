@@ -47,7 +47,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     Executor startedProcess = null;
     try {
       startedProcess = mojo.startEngine();
-      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).startsWith("http://")
+      assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL))
+              .startsWith("http://")
               .endsWith("/");
       assertThat(Path.of(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     } finally {
@@ -150,9 +151,10 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     try {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
       var engineDirTarget = mojo.getEngineDir(mojo.project);
-      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
+      assertThat(engineDirTarget)
+        .endsWithRaw(Path.of("target").resolve("ivyEngine"))
+        .doesNotExist();
 
-      assertThat(engineDirTarget).doesNotExist();
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
     } finally {
@@ -169,9 +171,9 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     Executor startedProcess = null;
     try {
       var engineDirTarget = mojo.getEngineDir(mojo.project);
-      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
-
-      assertThat(engineDirTarget).doesNotExist();
+      assertThat(engineDirTarget)
+        .endsWithRaw(Path.of("target").resolve("ivyEngine"))
+        .doesNotExist();
       assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
 
       startedProcess = mojo.startEngine();
