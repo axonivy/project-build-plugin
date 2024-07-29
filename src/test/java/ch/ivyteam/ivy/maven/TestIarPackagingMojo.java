@@ -18,26 +18,25 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.FileSet;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.MatchPattern;
 import org.codehaus.plexus.util.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+
+import ch.ivyteam.ivy.maven.util.PathUtils;
 
 /**
  * @author Reguel Wermelinger
@@ -55,12 +54,11 @@ public class TestIarPackagingMojo {
       createEmptySrcDirs();
     }
 
-    private void createEmptySrcDirs() throws IOException {
+    private void createEmptySrcDirs() {
       var emptySrcDirNames = List.of("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
       for (var emptySrcDirName : emptySrcDirNames) {
         var srcDir = projectDir.resolve(emptySrcDirName);
-        FileUtils.deleteDirectory(srcDir.toFile());
-        Files.createDirectories(srcDir);
+        PathUtils.clean(srcDir);
       }
     }
   };
@@ -76,17 +74,18 @@ public class TestIarPackagingMojo {
     var svn = dir.resolve("svn.txt");
     Files.writeString(svn, "svn");
     mojo.execute();
-    var targetDir = mojo.project.getBasedir().toPath().resolve("target").toFile();
-    Collection<File> iarFiles = FileUtils.listFiles(targetDir, new String[] {"iar"}, false);
+    var targetDir = mojo.project.getBasedir().toPath().resolve("target");
+
+    var iarFiles = iarFiles(targetDir);
     assertThat(iarFiles).hasSize(1);
 
-    File iarFile = iarFiles.iterator().next();
-    assertThat(iarFile.getName()).isEqualTo("base-1.0.0.iar");
+    var iarFile = iarFiles.getFirst();
+    assertThat(iarFile).hasFileName("base-1.0.0.iar");
     assertThat(mojo.project.getArtifact().getFile())
             .as("Created IAR must be registered as artifact for later repository installation.")
-            .isEqualTo(iarFile);
+            .isEqualTo(iarFile.toFile());
 
-    try (ZipFile archive = new ZipFile(iarFile)) {
+    try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry(".classpath")).as(".classpath must be packed for internal binary retrieval")
               .isNotNull();
       assertThat(archive.getEntry("src_hd")).as("Empty directories should be included (by default) "
@@ -105,6 +104,12 @@ public class TestIarPackagingMojo {
               .as("target/classesAnother should not be packed by default").isNull();
       assertThat(archive.getEntry("target/anythingelse/gugus.txt"))
               .as("target/anythingelse should not be packed by default").isNull();
+    }
+  }
+
+  private List<Path> iarFiles(Path dir) throws IOException {
+    try (var dirs = Files.list(dir)) {
+      return dirs.filter(p -> p.getFileName().toString().endsWith(".iar")).toList();
     }
   }
 
@@ -157,7 +162,7 @@ public class TestIarPackagingMojo {
     mojo.execute();
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       try (InputStream is = archive.getInputStream(archive.getEntry("pom.xml"))) {
-        String pomInArchive = IOUtil.toString(is);
+        String pomInArchive = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         assertThat(pomInArchive)
                 .as("customer should be able to overwrite pre-defined resource with their own includes.")
                 .contains("flattened");
@@ -188,17 +193,17 @@ public class TestIarPackagingMojo {
   public void doNotPackTargetFolderIfThereAreNoTargetClasses() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
     var targetClasses = mojo.project.getBasedir().toPath().resolve("target/classes");
-    FileUtils.deleteDirectory(targetClasses.toFile());
+    PathUtils.delete(targetClasses);
     mojo.execute();
 
     var dir = mojo.project.getBasedir().toPath().resolve("target");
-    Collection<File> iarFiles = FileUtils.listFiles(dir.toFile(), new String[] {"iar"}, false);
+    var iarFiles = iarFiles(dir);
     assertThat(iarFiles).hasSize(1);
 
-    File iarFile = iarFiles.iterator().next();
-    try (ZipFile archive = new ZipFile(iarFile)) {
+    var iarFile = iarFiles.getFirst();
+    try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry("target"))
-        .as("'target' will not be packed when there are no target/classes").isNull();
+              .as("'target' will not be packed when there are no target/classes").isNull();
     }
   }
 
@@ -215,13 +220,13 @@ public class TestIarPackagingMojo {
     mojo.execute();
 
     var dir = mojo.project.getBasedir().toPath().resolve("target");
-    Collection<File> iarFiles = FileUtils.listFiles(dir.toFile(), new String[] {"iar"}, false);
+    var iarFiles = iarFiles(dir);
     assertThat(iarFiles).hasSize(1);
 
-    File iarFile = iarFiles.iterator().next();
-    try (ZipFile archive = new ZipFile(iarFile)) {
+    var iarFile = iarFiles.getFirst();
+    try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry("target/src_hd/com/acme/FormDialog/FormDialog.xhtml"))
-        .as("generated jsf.dialog views are included").isNotNull();
+              .as("generated jsf.dialog views are included").isNotNull();
     }
   }
 

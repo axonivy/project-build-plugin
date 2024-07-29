@@ -6,12 +6,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
+
+import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class DeploymentOptionsFileFactory {
 
@@ -28,8 +29,8 @@ public class DeploymentOptionsFileFactory {
       return null;
     }
 
-    String fileFormat = FilenameUtils.getExtension(optionsFile.getFileName().toString());
-    var targetFile = getTargetFile(fileFormat);
+    var ext = PathUtils.toExtension(optionsFile);
+    var targetFile = getTargetFile(ext);
     try {
       fileFilter.copyFile(optionsFile.toFile(), targetFile.toFile(), true, project, Collections.emptyList(), false,
               StandardCharsets.UTF_8.name(), session);

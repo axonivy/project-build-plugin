@@ -23,17 +23,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.Rule;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
+import ch.ivyteam.ivy.maven.util.PathUtils;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 public class BaseEngineProjectMojoTest {
@@ -73,13 +71,6 @@ public class BaseEngineProjectMojoTest {
     return defaultHomePath.toString();
   }
 
-  protected final static Collection<File> findFiles(Path dir, String fileExtension) {
-    if (!Files.exists(dir)) {
-      return Collections.emptyList();
-    }
-    return FileUtils.listFiles(dir.toFile(), new String[] {fileExtension}, true);
-  }
-
   private static final Path evalEngineDir(AbstractEngineMojo mojo) {
     return mojo.engineCacheDirectory.resolve(System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION));
   }
@@ -107,7 +98,7 @@ public class BaseEngineProjectMojoTest {
       addTimestampToDownloadedEngine();
     }
 
-    private void deleteOutdatedEngine() throws IOException {
+    private void deleteOutdatedEngine() {
       var engineDir = getMojo().getRawEngineDirectory();
       if (engineDir == null || !Files.exists(engineDir)) {
         return;
@@ -116,7 +107,7 @@ public class BaseEngineProjectMojoTest {
       var timestampFile = engineDir.resolve(TIMESTAMP_FILE_NAME);
       if (isOlderThan24h(timestampFile.toFile())) {
         System.out.println("Deleting cached outdated engine.");
-        FileUtils.deleteDirectory(engineDir.toFile());
+        PathUtils.delete(engineDir);
       }
     }
 
@@ -181,7 +172,7 @@ public class BaseEngineProjectMojoTest {
     private void provideClasspathJar() throws IOException {
       var cpJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
       new ClasspathJar(cpJar.toFile()).createFileEntries(EngineClassLoaderFactory
-              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory().toFile()));
+              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
 
     @Override

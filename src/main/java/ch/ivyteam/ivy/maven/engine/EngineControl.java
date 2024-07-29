@@ -277,8 +277,6 @@ public class EngineControl {
       //executor.execute(statusCmd);
     } catch (IOException ex) { // expected!
     } finally {
-      //engineOutput = outputStream.toString();
-      //IOUtils.closeQuietly(outputStream);
     }
     return engineOutput;
   }
