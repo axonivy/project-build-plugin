@@ -1,0 +1,51 @@
+pipeline {
+  agent {
+    label 'windows'
+  }
+
+  tools {
+    jdk 'temurin-jdk-21.0.3.9'
+    maven '3.9'
+  }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '10'))
+  }
+
+  triggers {
+    cron '@midnight'
+  }
+
+  parameters {
+    string(name: 'engineListUrl',
+      description: 'Engine to use for build',
+      defaultValue: 'https://product.ivyteam.io')
+  }
+
+  stages {
+    stage('build') {
+      steps {
+        script {
+            maven cmd: "clean verify " +
+              "-Divy.engine.list.url=${params.engineListUrl} " +
+              "-Dmaven.test.failure.ignore=true"
+        }
+        collectBuildArtifacts()        
+      }
+    }
+  }
+}
+
+def collectBuildArtifacts()  {
+  archiveArtifacts 'target/*.jar'
+  archiveArtifacts 'target/its/**/build.log'
+  // skipMarkingBuildUnstable: true for the mean time until tests are fixed
+  junit skipMarkingBuildUnstable: true, testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
+  recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 20, type: 'TOTAL']], filters: [
+    excludeType('site-maven-plugin:site'),
+    excludeType('maven-surefire-plugin:test'),
+    // printed to console by test. was since ever the case but they are now real maven warnings
+    excludeMessage('.*Uncaught exception in thread Thread.*'),
+  ]
+  recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
+}
