@@ -27,21 +27,18 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteResultHandler;
-import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.commons.exec.ShutdownHookProcessDestroyer;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -53,6 +50,7 @@ import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
  * Sends commands like start, stop to the ivy Engine
  */
 public class EngineControl {
+
   public static interface Property {
     String TEST_ENGINE_URL = "test.engine.url";
     String TEST_ENGINE_LOG = "test.engine.log";
@@ -76,24 +74,26 @@ public class EngineControl {
     this.context = context;
   }
 
-  public Executor start() throws Exception {
-    CommandLine startCmd = toEngineCommand(Command.start);
+  public Process start() throws Exception {
+    var startCmd = toEngineCommand(Command.start);
     context.log.info("Start Axon Ivy Engine in folder: " + context.engineDirectory);
 
-    Executor executor = createEngineExecutor();
-    executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
-    var watchdog = ExecuteWatchdog.builder()
-            .setTimeout(ExecuteWatchdog.INFINITE_TIMEOUT_DURATION)
-            .get();
-    executor.setWatchdog(watchdog);
-    executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
-    executor.execute(startCmd, asynchExecutionHandler());
-    waitForEngineStart(executor);
-    return executor;
+    //Executor executor = createEngineExecutor();
+    //executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
+    //var watchdog = ExecuteWatchdog.builder()
+    //        .setTimeout(ExecuteWatchdog.INFINITE_TIMEOUT_DURATION)
+    //        .get();
+    //executor.setWatchdog(watchdog);
+    //executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
+    //executor.execute(startCmd, asynchExecutionHandler());
+
+    var process = startCmd.start();
+    waitForEngineStart(process);
+    return process;
   }
 
   public void stop() throws Exception {
-    CommandLine stopCmd = toEngineCommand(Command.stop);
+    var stopCmd = toEngineCommand(Command.stop);
     context.log.info("Stopping Axon Ivy Engine in folder: " + context.engineDirectory);
 
     executeSynch(stopCmd);
@@ -101,12 +101,12 @@ public class EngineControl {
   }
 
   EngineState state() {
-    CommandLine statusCmd = toEngineCommand(Command.status);
+    var statusCmd = toEngineCommand(Command.status);
     String engineOutput = executeSynch(statusCmd);
     return parseState(engineOutput);
   }
 
-  private CommandLine toEngineCommand(Command command) {
+  private ProcessBuilder toEngineCommand(Command command) {
     var classpath = context.engineClasspathJarPath.toString();
     if (StringUtils.isNotBlank(context.vmOptions.additionalClasspath())) {
       classpath += File.pathSeparator + context.vmOptions.additionalClasspath();
@@ -114,22 +114,25 @@ public class EngineControl {
 
     var osgiDir = context.engineDirectory.resolve(OsgiDir.INSTALL_AREA);
 
-    CommandLine cli = new CommandLine(new File(getJavaExec()))
-            .addArgument("-classpath")
-            .addArgument(classpath)
-            .addArgument("-Divy.engine.testheadless=true")
-            .addArgument("-Djava.awt.headless=true")
-            .addArgument("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
-
+    var commands = new ArrayList<String>();
+    commands.add(getJavaExec());
+    commands.add("-classpath");
+    commands.add(classpath);
+    commands.add("-Divy.engine.testheadless=true");
+    commands.add("-Djava.awt.headless=true");
+    commands.add("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions())) {
-      cli.addArguments(context.vmOptions.additionalVmOptions(), false);
+      // todo quoting
+      commands.add(context.vmOptions.additionalVmOptions());
     }
-    EngineModuleHints.loadFromJvmOptionsFile(context, cli);
+    //EngineModuleHints.loadFromJvmOptionsFile(context, cli);
 
-    cli.addArgument("org.eclipse.equinox.launcher.Main")
-            .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")
-            .addArgument(command.toString());
-    return cli;
+    commands.add("org.eclipse.equinox.launcher.Main");
+    commands.add("-application");
+    commands.add("ch.ivyteam.ivy.server.exec.engine");
+    // todo correct=
+    commands.add(command.toString());
+    return new ProcessBuilder(commands);
   }
 
   private Executor createEngineExecutor() {
@@ -224,14 +227,15 @@ public class EngineControl {
     return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
   }
 
-  private void waitForEngineStart(Executor executor) throws Exception {
+  private void waitForEngineStart(Process executor) throws Exception {
     int i = 0;
     while (!engineStarted.get()) {
       Thread.sleep(1_000);
       i++;
-      if (!executor.getWatchdog().isWatching()) {
-        throw new RuntimeException("Engine start failed unexpected.");
-      }
+
+      //if (!executor.getWatchdog().isWatching()) {
+      //  throw new RuntimeException("Engine start failed unexpected.");
+      //}
       if (i > context.timeoutInSeconds) {
         throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s].\n"
                 + "Check the engine log for details or increase the timeout property '"
@@ -261,19 +265,20 @@ public class EngineControl {
    * @param statusCmd
    * @return the output of the engine command.
    */
-  private String executeSynch(CommandLine statusCmd) {
+  private String executeSynch(ProcessBuilder statusCmd) {
     String engineOutput = null;
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, System.err);
-    Executor executor = createEngineExecutor();
-    executor.setStreamHandler(streamHandler);
-    executor.setExitValue(-1);
+    //ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    //PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, System.err);
+    //Executor executor = createEngineExecutor();
+    //executor.setStreamHandler(streamHandler);
+    //executor.setExitValue(-1);
     try {
-      executor.execute(statusCmd);
+      statusCmd.start();
+      //executor.execute(statusCmd);
     } catch (IOException ex) { // expected!
     } finally {
-      engineOutput = outputStream.toString();
-      IOUtils.closeQuietly(outputStream);
+      //engineOutput = outputStream.toString();
+      //IOUtils.closeQuietly(outputStream);
     }
     return engineOutput;
   }

@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
-import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.settings.Server;
@@ -71,7 +70,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     var deployedIar = getTarget(deployMojo.deployFile, deployMojo);
     var deployedIarFlagFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deployed");
     var deployedIarLogFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deploymentLog");
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       startedProcess = mojo.startEngine();
       deployMojo.execute();
@@ -116,7 +115,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     deployMojo.deployToEngineApplication = "test";
     deployMojo.deployMethod = DeployMethod.HTTP;
 
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       System.setOut(originalOut);
       startedProcess = mojo.startEngine();
@@ -142,9 +141,9 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
             .resolve(iar.getFileName().toString());
   }
 
-  private static void kill(Executor startedProcess) {
+  private static void kill(Process startedProcess) {
     if (startedProcess != null) {
-      startedProcess.getWatchdog().destroyProcess();
+      startedProcess.destroy();
     }
   }
 
