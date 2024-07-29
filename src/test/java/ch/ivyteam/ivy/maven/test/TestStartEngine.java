@@ -150,7 +150,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     try {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
       var engineDirTarget = mojo.getEngineDir(mojo.project);
-      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
+      assertThat(engineDirTarget).endsWith(Path.of("target").resolve("ivyEngine"));
 
       assertThat(engineDirTarget).doesNotExist();
       startedProcess = mojo.startEngine();
@@ -169,7 +169,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     Executor startedProcess = null;
     try {
       var engineDirTarget = mojo.getEngineDir(mojo.project);
-      assertThat(engineDirTarget.toString()).contains("/target/ivyEngine");
+      assertThat(engineDirTarget).endsWith(Path.of("/target/ivyEngine"));
 
       assertThat(engineDirTarget).doesNotExist();
       assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
