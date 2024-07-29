@@ -156,7 +156,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
       var deployDir = getEngineDir(project).resolve(DeployToEngineMojo.DEPLOY_DEFAULT);
       deployToDirectory(resolvedOptionsFile, deployDir);
     } finally {
-      removeTemporaryDeploymentOptionsFile(resolvedOptionsFile);
+      deleteFile(resolvedOptionsFile);
     }
   }
 }

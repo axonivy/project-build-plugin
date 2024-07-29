@@ -141,7 +141,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     try {
       deployWithOptions(resolvedOptionsFile);
     } finally {
-      removeTemporaryDeploymentOptionsFile(resolvedOptionsFile);
+      deleteFile(resolvedOptionsFile);
     }
   }
 

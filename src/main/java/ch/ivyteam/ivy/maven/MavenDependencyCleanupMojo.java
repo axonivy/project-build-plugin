@@ -16,9 +16,6 @@
 
 package ch.ivyteam.ivy.maven;
 
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -26,13 +23,16 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.util.PathUtils;
+
 /**
  * Delete copied maven dependencies in the lib/mvn-deps folder.
- * 
+ *
  * @since 9.2.0
  */
 @Mojo(name = MavenDependencyCleanupMojo.GOAL)
 public class MavenDependencyCleanupMojo extends AbstractMojo {
+
   public static final String GOAL = "maven-dependency-cleanup";
 
   @Parameter(property = "project", required = true, readonly = true)
@@ -51,12 +51,11 @@ public class MavenDependencyCleanupMojo extends AbstractMojo {
       return;
     }
     var mvnLibDir = project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
-    getLog().info("Deleting " + mvnLibDir.toString());
+    getLog().info("Deleting " + mvnLibDir);
     try {
-      FileUtils.deleteDirectory(mvnLibDir.toFile());
-    } catch (IOException ex) {
-      getLog().warn("Couldn't delete: " + mvnLibDir.toString(), ex);
+      PathUtils.delete(mvnLibDir);
+    } catch (Exception ex) {
+      getLog().warn("Couldn't delete: " + mvnLibDir, ex);
     }
   }
-
 }

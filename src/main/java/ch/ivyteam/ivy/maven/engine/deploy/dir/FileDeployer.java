@@ -15,7 +15,6 @@
  */
 package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -71,21 +69,20 @@ public class FileDeployer implements IvyDeployer {
   private void initDeployment() throws MojoExecutionException {
     try {
       if (deploymentOptionsFile != null) {
-        //var engineOption = deploymentFiles.getDeployCandidate().resolveSibling(deploymentOptionsFile.getName());
-        //Files.copy(deploymentOptionsFile.toPath(), engineOption);
-        File engineOption = new File(deploymentFiles.getDeployCandidate().getParent().toFile(), deploymentOptionsFile.getFileName().toString());
-        FileUtils.copyFile(deploymentOptionsFile.toFile(), engineOption);
+        var engineOption = deploymentFiles.getDeployCandidate().resolveSibling(deploymentOptionsFile.getFileName().toString());
+        Files.createDirectories(engineOption.getParent());
+        Files.copy(deploymentOptionsFile, engineOption);
       }
     } catch (IOException ex) {
-      throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file",
-              ex);
+      throw new MojoExecutionException("Failed to initialize engine deployment, could not copy options file", ex);
     }
   }
 
   private void copyDeployableToEngine() throws MojoExecutionException {
     try {
       log.info("Uploading file " + deployFile + " to " + targetDeployableFile);
-      FileUtils.copyFile(deployFile.toFile(), targetDeployableFile.toFile());
+      Files.createDirectories(targetDeployableFile.getParent());
+      Files.copy(deployFile, targetDeployableFile);
     } catch (IOException ex) {
       throw new MojoExecutionException("Upload of file '" + deployFile.getFileName().toString() + "' to engine failed.", ex);
     }

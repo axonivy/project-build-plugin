@@ -18,15 +18,17 @@ package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.log.LogCollector;
+import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   private CompileTestProjectMojo testMojo;
@@ -50,8 +52,8 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_dataClasses");
     var wsProcDir = mojo.project.getBasedir().toPath().resolve("src_wsproc");
     var classDir = mojo.project.getBasedir().toPath().resolve("classes");
-    FileUtils.cleanDirectory(wsProcDir.toFile());
-    FileUtils.cleanDirectory(dataClassDir.toFile());
+    PathUtils.clean(wsProcDir);
+    PathUtils.clean(dataClassDir);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication");
     mojo.execute();
@@ -70,6 +72,17 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     assertThat(findFiles(classDir, "class"))
             .as("compiled classes must contain test resources as well")
             .hasSize(5);
+  }
+
+  private static List<Path> findFiles(Path dir, String fileExtension) throws IOException {
+    if (!Files.exists(dir)) {
+      return List.of();
+    }
+    try (var stream = Files.walk(dir)) {
+      return stream
+              .filter(p -> p.getFileName().toString().endsWith("." + fileExtension))
+              .toList();
+    }
   }
 
   @Test

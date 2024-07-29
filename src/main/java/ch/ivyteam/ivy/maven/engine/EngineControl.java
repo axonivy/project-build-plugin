@@ -41,7 +41,6 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -272,8 +271,15 @@ public class EngineControl {
       executor.execute(statusCmd);
     } catch (IOException ex) { // expected!
     } finally {
+      try {
       engineOutput = outputStream.toString();
-      IOUtils.closeQuietly(outputStream);
+      } finally {
+        try {
+          outputStream.close();
+        } catch (IOException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
     }
     return engineOutput;
   }
