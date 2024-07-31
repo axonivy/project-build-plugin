@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven.test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -53,9 +54,18 @@ public class StopTestEngineMojo extends AbstractIntegrationTestMojo {
   /**
    * Additional options for the JVM that stops the Engine. To modify the
    * classpath or the max heap use the provided properties.
+   * @deprecated use {@link #additionalVmArgs}
    **/
   @Parameter(property = "ivy.engine.stop.additional.vmoptions", required = false, defaultValue = "")
+  @Deprecated(since = "12.0.0", forRemoval = true)
   String additionalVmOptions;
+
+  /**
+   * Additional arguments for the JVM that runs the Engine. To modify the
+   * classpath or the max heap use the provided properties.
+   **/
+  @Parameter
+  List<String> additionalVmArgs;
 
   /** The maximum amount of seconds that we wait for a engine to stop */
   @Parameter(property = "ivy.engine.stop.timeout.seconds", defaultValue = "45")
@@ -81,7 +91,7 @@ public class StopTestEngineMojo extends AbstractIntegrationTestMojo {
 
   public EngineControl createEngineController() throws MojoExecutionException {
     var engineDir = engineDir();
-    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions);
+    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions, additionalVmArgs);
     var ctx = new EngineMojoContext(engineDir, project, getLog(), null, vmOptions, stopTimeoutInSeconds);
     return new EngineControl(ctx);
   }
