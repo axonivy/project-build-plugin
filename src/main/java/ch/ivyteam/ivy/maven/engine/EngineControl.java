@@ -31,7 +31,6 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -133,10 +132,7 @@ public class EngineControl {
     cmds.add("-Djava.awt.headless=true");
     cmds.add("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
 
-    if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions())) {
-      var multipleCommands = context.vmOptions.additionalVmOptions().split(" ");
-      Arrays.stream(multipleCommands).forEach(o -> cmds.add(o));
-    }
+    context.vmOptions.additionalVmArgs(context.log).stream().forEach(arg -> cmds.add(arg));
     new EngineModuleHints(context.engineDirectory, context.log).asStream().forEach(option -> cmds.add(option));
 
     cmds.add("org.eclipse.equinox.launcher.Main");

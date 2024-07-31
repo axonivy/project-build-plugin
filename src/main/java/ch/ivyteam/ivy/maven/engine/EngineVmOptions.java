@@ -16,6 +16,28 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
-public record EngineVmOptions(String additionalClasspath, String additionalVmOptions) {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
+import org.apache.maven.plugin.logging.Log;
+
+public record EngineVmOptions(String additionalClasspath, String additionalVmOptions, List<String> additionalVmArgs) {
+
+  @Deprecated(since = "12.0.0", forRemoval = true)
+  public String additionalVmOptions() {
+    return additionalVmOptions;
+  }
+
+  public List<String> additionalVmArgs(Log log) {
+    var args = new ArrayList<String>();
+    if (additionalVmOptions != null && !additionalVmOptions.isEmpty()) {
+      log.warn("additionalVmOptions set which is deprecated. Use additionalVmArgs.");
+      args.addAll(Stream.of(additionalVmOptions.split(" ")).toList());
+    }
+    if (additionalVmArgs != null) {
+      args.addAll(additionalVmArgs);
+    }
+    return args;
+  }
 }

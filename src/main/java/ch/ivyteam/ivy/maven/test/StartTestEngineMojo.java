@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -75,9 +76,18 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
   /**
    * Additional options for the JVM that runs the Engine. To modify the
    * classpath or the max heap use the provided properties.
+   * @deprecated use {@link #additionalVmArgs}
    **/
   @Parameter(property = "ivy.engine.start.additional.vmoptions", required = false, defaultValue = "")
+  @Deprecated(since = "12.0.0", forRemoval = true)
   String additionalVmOptions;
+
+  /**
+   * Additional arguments for the JVM that runs the Engine. To modify the
+   * classpath or the max heap use the provided properties.
+   **/
+  @Parameter
+  List<String> additionalVmArgs;
 
   /** The file where the engine start is logged **/
   @Parameter(property = "ivy.engine.start.log", required = false, defaultValue = "${project.build.directory}/testEngineOut.log")
@@ -107,7 +117,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
 
   public Process startEngine() throws Exception {
     var engineDir = engineDir();
-    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions);
+    var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions, additionalVmArgs);
     var ctx = new EngineMojoContext(engineDir, project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds);
     var engineControl = new EngineControl(ctx);
     return engineControl.start();
