@@ -83,6 +83,6 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
       return;
     }
     var jar = new SharedFile(project).getIarDependencyClasspathJar();
-    new ClasspathJar(jar.toFile()).createFileEntries(iarJarDepenencies);
+    new ClasspathJar(jar).createFileEntries(iarJarDepenencies);
   }
 }

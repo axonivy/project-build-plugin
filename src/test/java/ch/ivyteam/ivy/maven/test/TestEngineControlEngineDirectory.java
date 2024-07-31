@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 
@@ -23,7 +22,7 @@ public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest 
     mojo.setLog(log);
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
 
-    EngineControl controller = mojo.createEngineController();
+    var controller = mojo.createEngineController();
     controller.stop();
     assertThat(log.getWarnings()).isEmpty();
     assertThat(log.getErrors()).isEmpty();

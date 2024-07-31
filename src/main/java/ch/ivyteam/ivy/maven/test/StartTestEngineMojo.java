@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
-import org.apache.commons.exec.Executor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -106,7 +105,7 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
     }
   }
 
-  public Executor startEngine() throws Exception {
+  public Process startEngine() throws Exception {
     var engineDir = engineDir();
     var vmOptions = new EngineVmOptions(additionalClasspath, additionalVmOptions);
     var ctx = new EngineMojoContext(engineDir, project, getLog(), engineLogFile, vmOptions, startTimeoutInSeconds);

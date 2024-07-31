@@ -28,31 +28,34 @@ import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.StopTestEngineMojo;
 
 public class TestEngineControl extends BaseEngineProjectMojoTest {
+
   @Rule
   public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<StopTestEngineMojo>(
           StopTestEngineMojo.GOAL);
 
   @Test
   public void resolveEngineState() throws MojoExecutionException {
-    EngineControl controller = rule.getMojo().createEngineController();
+    var controller = rule.getMojo().createEngineController();
     assertThat(controller.state()).isNotNull();
   }
 
   @Test
   public void stopNotRunningEngine() throws Exception {
-    EngineControl controller = rule.getMojo().createEngineController();
+    var controller = rule.getMojo().createEngineController();
     controller.stop();
     assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
   }
 
   @Test
   public void startAndStop() throws Exception {
-    LogCollector log = new LogCollector();
+    var log = new LogCollector();
     rule.getMojo().setLog(log);
-    EngineControl controller = rule.getMojo().createEngineController();
+    var controller = rule.getMojo().createEngineController();
     assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
+
     controller.start();
     assertThat(controller.state()).isEqualTo(EngineState.RUNNING);
+
     controller.stop();
     assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
     assertThat(log.getErrors()).isEmpty();
@@ -66,5 +69,4 @@ public class TestEngineControl extends BaseEngineProjectMojoTest {
     assertThat(EngineControl.evaluateIvyContextFromUrl("/ivy/sys/test")).isEqualTo("ivy/");
     assertThat(EngineControl.evaluateIvyContextFromUrl("")).isEmpty();
   }
-
 }

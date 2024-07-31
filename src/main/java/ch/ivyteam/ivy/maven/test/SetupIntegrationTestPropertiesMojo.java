@@ -58,7 +58,7 @@ public class SetupIntegrationTestPropertiesMojo extends AbstractEngineMojo {
             EngineControl.Property.TEST_ENGINE_URL,
             EngineControl.Property.TEST_ENGINE_LOG,
             DeployToTestEngineMojo.Property.TEST_ENGINE_APP);
-    jmvArgs += EngineModuleHints.loadFromJvmOptionsFile(identifyAndGetEngineDirectory(), getLog());
+    jmvArgs += new EngineModuleHints(identifyAndGetEngineDirectory(), getLog()).asString();
     props.append(FAILSAFE_ARGLINE_PROPERTY, jmvArgs);
   }
 
