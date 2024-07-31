@@ -58,9 +58,7 @@ def collectBuildArtifacts()  {
   junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
-    excludeType('maven-surefire-plugin:test'),
-    // printed to console by test. was since ever the case but they are now real maven warnings
-    excludeMessage('.*Uncaught exception in thread Thread.*'),
+    excludeType('maven-surefire-plugin:test')
   ]
   recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }

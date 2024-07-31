@@ -171,7 +171,7 @@ public class BaseEngineProjectMojoTest {
 
     private void provideClasspathJar() throws IOException {
       var cpJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
-      new ClasspathJar(cpJar.toFile()).createFileEntries(EngineClassLoaderFactory
+      new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
               .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
 

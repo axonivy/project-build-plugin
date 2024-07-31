@@ -135,7 +135,8 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
             .map(property -> "${" + property + "}")
             .collect(Collectors.joining(","));
     properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
-    properties.append(Property.MAVEN_TEST_ARGLINE, EngineModuleHints.loadFromJvmOptionsFile(identifyAndGetEngineDirectory(), getLog()));
+    var jvmOptions = new EngineModuleHints(identifyAndGetEngineDirectory(), getLog());
+    properties.append(Property.MAVEN_TEST_ARGLINE, jvmOptions.asString());
   }
 
   private void setTestOutputDirectory() {
@@ -151,6 +152,6 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   }
 
   private static String getClasspath(Path jar) {
-    return new ClasspathJar(jar.toFile()).getClasspathFiles();
+    return new ClasspathJar(jar).getClasspathFiles();
   }
 }

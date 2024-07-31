@@ -64,7 +64,7 @@ public class CompileTestProjectMojo extends AbstractProjectCompileMojo {
     if (!Files.exists(iarJarClasspath)) {
       return Collections.emptyList();
     }
-    var iarJars = new ClasspathJar(iarJarClasspath.toFile()).getFiles();
+    var iarJars = new ClasspathJar(iarJarClasspath).getFiles();
     return iarJars;
   }
 }

@@ -125,7 +125,7 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
 
     private void writeTestClasspathJar() throws IOException {
       var classPathJar = new SharedFile(getMojo().project).getEngineClasspathJar();
-      new ClasspathJar(classPathJar.toFile()).createFileEntries(List.of(
+      new ClasspathJar(classPathJar).createFileEntries(List.of(
               Files.createTempFile("dummy", ".jar").toFile(),
               Files.createTempFile("dummy2", ".jar").toFile()));
     }

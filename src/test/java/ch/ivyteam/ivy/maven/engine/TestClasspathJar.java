@@ -40,7 +40,7 @@ class TestClasspathJar {
   void readWriteClasspath() throws IOException {
     var jarFile = tempDir.resolve("my.jar");
     Files.createFile(jarFile);
-    var jar = new ClasspathJar(jarFile.toFile());
+    var jar = new ClasspathJar(jarFile);
     var content = tempDir.resolve("content.jar");
     Files.createFile(content);
     jar.createFileEntries(List.of(content.toFile()));

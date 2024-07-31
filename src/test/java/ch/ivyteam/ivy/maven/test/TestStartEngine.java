@@ -17,13 +17,12 @@
 package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.exec.Executor;
-import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,29 +43,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).isNull();
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_LOG)).isNull();
 
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       startedProcess = mojo.startEngine();
       assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL))
               .startsWith("http://")
               .endsWith("/");
       assertThat(Path.of(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
-    } finally {
-      kill(startedProcess);
-    }
-  }
-
-  @Test
-  public void testKillEngineOnVmExit() throws Exception {
-    StartTestEngineMojo mojo = rule.getMojo();
-    Executor startedProcess = null;
-    try {
-      startedProcess = mojo.startEngine();
-      assertThat(startedProcess.getProcessDestroyer()).isInstanceOf(ShutdownHookProcessDestroyer.class);
-      var jvmShutdownHoock = (ShutdownHookProcessDestroyer) startedProcess.getProcessDestroyer();
-      assertThat(jvmShutdownHoock.size())
-              .as("One started engine process must be killed on VM end.")
-              .isEqualTo(1);
     } finally {
       kill(startedProcess);
     }
@@ -147,7 +130,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   @Test
   public void startEngine_copyEngineToTarget() throws Exception {
     StartTestEngineMojo mojo = rule.getMojo();
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
       var engineDirTarget = mojo.getEngineDir(mojo.project);
@@ -168,7 +151,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.setLog(log);
 
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       var engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget)
@@ -179,8 +162,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
       assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
-
       kill(startedProcess);
+
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
       assertThat(log.getWarnings().toString()).contains("Skipping copy");
@@ -193,7 +176,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   public void startEngine_copiedEngine_executable() throws Exception {
     StartTestEngineMojo mojo = rule.getMojo();
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
-    Executor startedProcess = null;
+    Process startedProcess = null;
     try {
       var cacheEngine = mojo.engineDirectory;
       assertFileExecutable(cacheEngine.resolve("elasticsearch/bin/elasticsearch"));
@@ -214,9 +197,12 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
             .isExecutable();
   }
 
-  private static void kill(Executor startedProcess) {
+  private static void kill(Process startedProcess) {
     if (startedProcess != null) {
-      startedProcess.getWatchdog().destroyProcess();
+      startedProcess.destroy();
+      await().untilAsserted(() ->
+        assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse()
+      );
     }
   }
 
