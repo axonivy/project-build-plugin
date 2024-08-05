@@ -16,13 +16,16 @@
 
 package ch.ivyteam.ivy.maven.engine.deploy.dir;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
+import java.io.RandomAccessFile;
 import java.nio.file.Path;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -35,7 +38,7 @@ class FileLogForwarder {
   private final Path engineLog;
   private final Log mavenLog;
 
-  private LogFileReader handler;
+  private FileAlterationMonitor monitor;
   private LogLineHandler logLineHandler;
 
   /**
@@ -48,82 +51,52 @@ class FileLogForwarder {
     this.logLineHandler = handler;
   }
 
-  public synchronized void activate() {
-    handler = new LogFileReader(engineLog);
-    handler.start();
-  }
-
-  private final class LogFileReader {
-
-    private final Path path;
-    private InputStream out;
-    private Thread thread;
-
-    private LogFileReader(Path path) {
-      this.path = path;
-    }
-
-    public void start() {
-      try {
-        out = Files.newInputStream(path);
-      } catch (IOException ex) {
-        mavenLog.warn("Failed to get engine deploy log content", ex);
-        return;
-      }
-      thread = new OutputReaderThread(out);
-      thread.start();
-    }
-
-    public void stop() {
-      if (thread != null) {
-        thread.interrupt();
-      }
-      if (out != null) {
-        try {
-          out.close();
-        } catch (IOException ex) {
-          // silent
-        }
-      }
-    }
-  }
-
-  private final class OutputReaderThread extends Thread {
-
-    private final BufferedReader reader;
-
-    private OutputReaderThread(InputStream inputStream) {
-      this.reader = new BufferedReader(new InputStreamReader(inputStream));
-    }
-
-    @Override
-    public void run() {
-      try {
-        while (!isInterrupted()) {
-          var line = reader.readLine();
-          if (line == null) {
-            continue;
-          }
-          logLineHandler.handleLine(line);
-        }
-      } catch (IOException ex) {
-        mavenLog.warn("Failed to get engine deploy log content", ex);
-        throw new RuntimeException(ex);
-      } finally {
-        handler.stop();
-      }
+  public synchronized void activate() throws MojoExecutionException {
+    IOFileFilter logFilter = FileFilterUtils.and(
+            FileFilterUtils.fileFileFilter(),
+            FileFilterUtils.nameFileFilter(engineLog.getFileName().toString()));
+    FileAlterationObserver fileObserver = new FileAlterationObserver(engineLog.getParent().toFile(), logFilter);
+    fileObserver.addListener(new LogModificationListener());
+    monitor = new FileAlterationMonitor(100);
+    monitor.addObserver(fileObserver);
+    try {
+      monitor.start();
+    } catch (Exception ex) {
+      throw new MojoExecutionException("Failed to activate deploy log forwarder", ex);
     }
   }
 
   public synchronized void deactivate() throws MojoExecutionException {
     try {
-      if (handler != null) {
-        handler.stop();
+      if (monitor != null) {
+        monitor.stop(0);
       }
     } catch (Exception ex) {
       throw new MojoExecutionException("Failed to deactivate deploy log forwarder", ex);
     } finally {
-      handler = null;
+      monitor = null;
+    }
+  }
+
+  private class LogModificationListener extends FileAlterationListenerAdaptor {
+    private long lastReadPosition = 0;
+
+    @Override
+    public void onFileChange(File log) {
+      try (RandomAccessFile readableLog = new RandomAccessFile(log, "r")) {
+        readableLog.seek(lastReadPosition);
+        readNewLines(readableLog);
+        lastReadPosition = readableLog.getFilePointer();
+      } catch (Exception ex) {
+        mavenLog.warn("Failed to get engine deploy log content", ex);
+      }
+    }
+
+    private void readNewLines(RandomAccessFile readableLog) throws IOException {
+      String line = null;
+      while ((line = readableLog.readLine()) != null) {
+        logLineHandler.handleLine(line);
+      }
     }
   }
 
