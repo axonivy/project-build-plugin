@@ -230,11 +230,11 @@ public class EngineControl {
 
     while (!condition.get()) {
       Thread.sleep(500);
-      if (watch.getTime() > timeout) {
+      if (watch.getDuration().toMillis() > timeout) {
         throw new TimeoutException("Condition not reached in " + duration + " " + unit);
       }
     }
-    return watch.getTime();
+    return watch.getDuration().toMillis();
   }
 
 
