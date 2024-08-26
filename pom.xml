@@ -448,8 +448,8 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.13.1</version>
+        <artifactId>maven-plugin-report-plugin</artifactId>
+        <version>3.14.0</version>
         <configuration>
           <requirements>
             <others>
