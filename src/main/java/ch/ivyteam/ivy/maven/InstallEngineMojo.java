@@ -24,12 +24,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.wagon.proxy.ProxyInfoProvider;
@@ -98,7 +99,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
   List<RemoteRepository> pluginRepositories;
 
-  @Component
+  @Inject
   private RepositorySystem repositorySystem;
 
   /**
@@ -143,7 +144,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   @Parameter(property = "ivy.engine.auto.install", defaultValue = "true")
   boolean autoInstallEngine;
 
-  @Component
+  @Inject
   @SuppressWarnings("deprecation")
   org.apache.maven.artifact.manager.WagonManager wagonManager;
 

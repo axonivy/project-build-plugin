@@ -22,10 +22,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ReadOnlyFileSystemException;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.filtering.MavenFileFilter;
@@ -188,7 +189,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   @Parameter(property = "ivy.deploy.options.file", required = false)
   protected Path deployOptionsFile;
 
-  @Component
+  @Inject
   private MavenFileFilter fileFilter;
   @Parameter(property = "project", required = false, readonly = true)
   protected MavenProject project;
