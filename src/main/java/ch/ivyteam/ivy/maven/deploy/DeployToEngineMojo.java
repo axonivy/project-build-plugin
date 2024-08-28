@@ -20,10 +20,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
@@ -124,7 +125,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
   @Parameter(property = "ivy.deploy.engine.url", defaultValue = HTTP_ENGINE_URL_DEFAULT)
   String deployEngineUrl;
 
-  @Component(role = org.sonatype.plexus.components.sec.dispatcher.SecDispatcher.class, hint = "default")
+  @Inject
   private SecDispatcher secDispatcher;
 
   @Override
