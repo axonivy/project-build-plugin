@@ -28,7 +28,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.codehaus.plexus.components.secdispatcher.SecDispatcher;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
