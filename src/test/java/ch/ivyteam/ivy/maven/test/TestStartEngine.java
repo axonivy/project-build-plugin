@@ -179,13 +179,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     Process startedProcess = null;
     try {
       var cacheEngine = mojo.engineDirectory;
-      assertFileExecutable(cacheEngine.resolve("elasticsearch/bin/elasticsearch"));
-      assertFileExecutable(cacheEngine.resolve("elasticsearch/bin/elasticsearch.bat"));
+      assertFileExecutable(cacheEngine.resolve("opensearch/bin/opensearch"));
+      assertFileExecutable(cacheEngine.resolve("opensearch/bin/opensearch.bat"));
 
       startedProcess = mojo.startEngine();
       var engineTarget = mojo.getEngineDir(mojo.project);
-      assertFileExecutable(engineTarget.resolve("elasticsearch/bin/elasticsearch"));
-      assertFileExecutable(engineTarget.resolve("elasticsearch/bin/elasticsearch.bat"));
+      assertFileExecutable(engineTarget.resolve("opensearch/bin/opensearch"));
+      assertFileExecutable(engineTarget.resolve("opensearch/bin/opensearch.bat"));
     } finally {
       kill(startedProcess);
     }
