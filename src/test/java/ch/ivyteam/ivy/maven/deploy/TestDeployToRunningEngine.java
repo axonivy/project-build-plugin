@@ -96,6 +96,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
 
   @Test
   public void canDeployRemoteIar_encryptedSettingsPassword() throws Exception {
+    System.setProperty("mySecret", "{6WlTulMQMcoHxrDwOe2HsWLAK691wYqfu+BQdByC+SU=}");
     addServerConnection("{VUpeDRRbfD4Hmk9WLKzhqLkLttTCsWfLtr75Nt9K/3k=}");
     System.setProperty("settings.security",
             TestDeployToRunningEngine.class.getResource("settings-security.xml").getPath());
