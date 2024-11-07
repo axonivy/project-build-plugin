@@ -20,10 +20,18 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
+import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+
+import com.google.inject.Binder;
+import com.google.inject.Module;
 
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
@@ -45,6 +53,30 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule {
   public MavenProject project;
 
   public ProjectMojoRule(Path srcDir, String mojoName) {
+
+    super(new AbstractMojoTestCase() {
+
+      @Override
+      protected void addGuiceModules(List<Module> modules) {
+        // TODO Auto-generated method stub
+        modules.add(new Module() {
+
+          @Override
+          public void configure(Binder binder) {
+            binder.bind(SettingsDecrypter.class).toInstance(new SettingsDecrypter() {
+
+              @Override
+              public SettingsDecryptionResult decrypt(SettingsDecryptionRequest request) {
+                return null;
+
+              }
+            });
+          }
+        });
+      }
+
+    });
+
     this.templateProjectDir = srcDir;
     this.mojoName = mojoName;
   }
