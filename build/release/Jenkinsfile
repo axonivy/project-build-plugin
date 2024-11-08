@@ -28,6 +28,11 @@ pipeline {
             
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
+                sh '''
+                  echo change > change.txt
+                  git add .
+                  git commit -m "fake change"
+                '''
                 sh "git push origin --tags"
                 sh "git push -u origin ${targetBranch}"
                 def message = "Prepare for next development cycle (${env.BRANCH_NAME})"
@@ -39,7 +44,6 @@ pipeline {
             }
           }
         }
-        archiveArtifacts '**/target/*.jar'
       }
     }
   }
