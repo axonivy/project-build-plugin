@@ -1,7 +1,7 @@
-name-template: 'v$RESOLVED_VERSION 🧪'
+name-template: 'v$RESOLVED_VERSION 👨‍🔧'
 tag-template: 'v$RESOLVED_VERSION'
 filter-by-commitish: true
-commitish: master
+commitish: release/12.0
 categories:
   - title: '🚀 Features'
     labels:
