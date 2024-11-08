@@ -40,3 +40,6 @@ template: |
   ## Changes
 
   $CHANGES
+references:
+  - master
+  - v.+
