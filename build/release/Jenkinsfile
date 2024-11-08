@@ -25,13 +25,7 @@ pipeline {
             sh "git checkout -b ${targetBranch}"
 
             setupGPGEnvironment()
-            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {              
-              def dryRun = isReleaseBranch() ? '' : '-DdryRun=true'
-              def args = "-PossrhDeploy -Divy.engine.list.url=${params.engineListUrl} -Dgpg.project-build.password='${env.GPG_PWD}'"+
-                " -Dgithub.site.skip=false";
-              maven cmd: dryRun + ' -Darguments="' + args + '" -DpushChanges=false -DlocalCheckout=true release:prepare release:perform'
-            }
-
+            
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
                 sh "git push origin --tags"
@@ -52,7 +46,7 @@ pipeline {
 }
 
 def isReleaseBranch() {
-  return env.BRANCH_NAME.startsWith('release/') 
+  return env.BRANCH_NAME.startsWith('release/')  || env.BRANCH_NAME.startsWith('fixReleasePipe')
 }
 
 def setupGPGEnvironment() {
