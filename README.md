@@ -31,7 +31,7 @@ Since 9.4: Releasing is only possible on a release branch.
 ```bash
 mvn versions:set -DnewVersion=10.0.0-SNAPSHOT -DprocessAllModules -DgenerateBackupPoms=false
 ```
-- If the master reflects a new relese-cycle; reflect it in the `versionPrefix` query parameter on the badges below.
+- If the master reflects a new release-cycle; reflect it in the `versionPrefix` query parameter on the badges below.
 
 #### Post-Release
 
@@ -54,7 +54,7 @@ The Apache License, Version 2.0
 
 [0]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=12&label=central&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/maven-metadata/v?versionPrefix=12&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[2]: https://img.shields.io/maven-metadata/v?versionPrefix=13&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
