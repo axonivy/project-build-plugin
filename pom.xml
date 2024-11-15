@@ -49,7 +49,6 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>true</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <github.site.skip>true</github.site.skip>
   </properties>
 
   <distributionManagement>
@@ -63,6 +62,10 @@
       <name>Sonatype Releases Repo</name>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
+    <site>
+      <id>github</id>
+      <url>scm:git:git@github.com:axonivy/project-build-plugin.git</url>
+    </site>
   </distributionManagement>
 
   <dependencies>
@@ -284,6 +287,9 @@
             <id>gh-pages.redirect.page</id>
             <configuration>
               <target>
+                <move todir="${project.build.directory}/site/${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}" >
+                  <fileset dir="${project.build.directory}/site" />
+                </move>
                 <copy todir="${project.build.directory}/site/${site.path}/" >
                   <fileset dir="src/site/gh/pages/" />
                   <filterset id="replaceProductAndVersion">
@@ -296,34 +302,12 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <version>0.12</version>
-        <executions>
-          <execution>
-            <id>deploy.mojo.description.to.github</id>
-            <goals><goal>site</goal></goals>
-            <phase>site-deploy</phase>
-            <configuration>
-              <message>update maven plugin mojo description</message>
-              <path>${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</path>
-            </configuration>
-          </execution>
-          <execution>
-            <id>deploy.site.redirect.to.github</id>
-            <goals><goal>site</goal></goals>
-            <phase>site-deploy</phase>
-            <configuration>
-              <message>update maven plugin mojo redirect</message>
-              <path>${site.path}</path>
-              <outputDirectory>${project.build.directory}/site-redirect</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-publish-plugin</artifactId>
+        <version>3.3.0</version>
         <configuration>
-          <server>github.ivy-team.oauth</server>
-          <merge>true</merge>
-          <skip>${github.site.skip}</skip>
+          <scmBranch>gh-pages</scmBranch>
+          <skipDeletedFiles>true</skipDeletedFiles>
         </configuration>
       </plugin>
     </plugins>
@@ -341,9 +325,6 @@
               </configuration>
             </execution>
           </executions>
-          <configuration>
-            <outputDirectory>${project.build.directory}/site/${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</outputDirectory>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -352,7 +333,7 @@
           <configuration>
             <tagNameFormat>v@{project.version}</tagNameFormat>
             <releaseProfiles>release</releaseProfiles>
-            <goals>deploy site-deploy</goals>
+            <goals>deploy site</goals>
           </configuration>
         </plugin>
       </plugins>
