@@ -284,7 +284,7 @@
             <id>gh-pages.redirect.page</id>
             <configuration>
               <target>
-                <copy todir="${project.build.directory}/site-redirect">
+                <copy todir="${project.build.directory}/site/${site.path}/" >
                   <fileset dir="src/site/gh/pages/" />
                   <filterset id="replaceProductAndVersion">
                     <filter token="version" value="${pluginVersion.majorVersion}.${pluginVersion.minorVersion}" />
@@ -341,6 +341,9 @@
               </configuration>
             </execution>
           </executions>
+          <configuration>
+            <outputDirectory>${project.build.directory}/site/${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}</outputDirectory>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
