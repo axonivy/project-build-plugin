@@ -41,6 +41,8 @@ pipeline {
                   sh "gh auth login --with-token < ${tokenFile}"
                   sh "gh pr create --title '${message}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
                 }
+                // publish site from 'mvn release' run
+                maven cmd: "site:stage scm-publish:publish-scm"
               }
             }
           }
