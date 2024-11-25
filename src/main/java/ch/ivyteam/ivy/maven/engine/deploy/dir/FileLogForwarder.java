@@ -26,6 +26,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.io.monitor.FileEntry;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -55,11 +56,14 @@ class FileLogForwarder {
     IOFileFilter logFilter = FileFilterUtils.and(
             FileFilterUtils.fileFileFilter(),
             FileFilterUtils.nameFileFilter(engineLog.getFileName().toString()));
-    FileAlterationObserver fileObserver = new FileAlterationObserver(engineLog.getParent().toFile(), logFilter);
-    fileObserver.addListener(new LogModificationListener());
-    monitor = new FileAlterationMonitor(100);
-    monitor.addObserver(fileObserver);
     try {
+      FileAlterationObserver fileObserver = FileAlterationObserver.builder()
+        .setRootEntry(new FileEntry(engineLog.getParent().toFile()))
+        .setFileFilter(logFilter)
+        .get();
+      fileObserver.addListener(new LogModificationListener());
+      monitor = new FileAlterationMonitor(100);
+      monitor.addObserver(fileObserver);
       monitor.start();
     } catch (Exception ex) {
       throw new MojoExecutionException("Failed to activate deploy log forwarder", ex);
