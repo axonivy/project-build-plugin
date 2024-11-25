@@ -23,7 +23,7 @@ jobs:
       # Drafts your next Release notes as Pull Requests are merged into "release/12.0"
       - uses: release-drafter/release-drafter@v6
         with:
-          # the drafter template lives on 'master', no need to add it to this release branch!
-          config-name: release-drafter-lts12.yml
+          config-name: release-drafter.yml
+          commitish: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -37,11 +37,11 @@ mvn versions:set -DnewVersion=10.0.0-SNAPSHOT -DprocessAllModules -DgenerateBack
 
 Wait until the maven central release is available: this may take several hours until it's fully distributed.
 
-- Publish the latest [draft release](https://github.com/axonivy/project-build-plugin/releases) do preserve the current changelog.
-    - Select the tag which was created for this release by the release-pipeline
-	- Verify that the title is correct
-	- Set the release as 'latest release'
-	- Publish it
+- Release-Drafter changes, if a new-release train was introduced:
+  
+  - on github UI (PR View):  flag the latest PR which was only merged to master with the label `major`.  
+    ... now release-drafter action runs should create new draft PRs for the new release; without overwriting the existing master drafts.
+
 - Raise project-build-plugin in other repos by triggering this [build](https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/)
 	- Merge the generated PRs on GitHub
 - If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
