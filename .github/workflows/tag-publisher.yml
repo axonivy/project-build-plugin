@@ -1,0 +1,29 @@
+name: Tag Publisher
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: the tag-ref to release e.g. 'v12.0.0'
+      publish:
+        type: boolean
+        default: false
+        description: publish the drafted release as final version?
+    
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/draft-pub.yml
+    with:
+      version: ${{ inputs.tag }}
+      # The 'publish' input parameter is used to control whether the release should be published automatically.
+      # Uncomment and set to 'false' if you want to prevent the release from being published immediately.
+      publish: ${{ inputs.publish == null && true || inputs.publish }}

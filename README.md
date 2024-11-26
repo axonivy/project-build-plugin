@@ -43,35 +43,10 @@ Since 9.4: Releasing is only possible on a release branch.
 
 Wait until the maven central release is available: this may take several hours until it's fully distributed.
 
-- Publish the latest [draft release](https://github.com/axonivy/project-build-plugin/releases) do preserve the current changelog.
-  
-  - Select the tag which was created for this release by the release-pipeline
-  - Verify that the title is correct
-  - Set the release as 'latest release'
-  - Publish it
-
 - Release-Drafter changes, if a new-release train was introduced:
   
-  - on `master` branch: 
-    
-    - add a new release-drafter template for this new release by duplicating the existing and adding a release postfix e.g.`.github/release-drafter-lts14.yml`
-    
-    - adjust the content of the duplicated file: 
-      
-      ```yaml
-      filter-by-commitish: true
-      commitish: release/14.0
-      ```
-  
-  - on the release branch: 
-    
-    - change the `.github/workflow/release-drafter.yml` to listen only for changes  from ~~master~~ to `release/XYZ` and refer the new template from master by name in the [config-name](.github/workflow/release-drafter.yml#32) part (e.g. `release-drafter-lts14.yml` )
-  
-  - on github UI (PR View): 
-    
-    - flag the latest PR which was only merged to master with the label `major` 
-  
-  - ... now release-drafter action runs should create new draft PRs for the new release; without overwriting the existing master drafts.
+  - on github UI (PR View):  flag the latest PR which was only merged to master with the label `major`.  
+    ... now release-drafter action runs should create new draft PRs for the new release; without overwriting the existing master drafts.
 
 - Raise project-build-plugin in other repos by triggering this [build](https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/)
   
