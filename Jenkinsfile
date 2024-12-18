@@ -36,7 +36,7 @@ pipeline {
     }
     stage('deploy-site') {
       when {
-        expression { isReleaseOrMasterBranch() }
+        expression { isReleaseOrMasterBranch() && currentBuild.changeSets.size() > 0 }
       }
       steps {
         script {
