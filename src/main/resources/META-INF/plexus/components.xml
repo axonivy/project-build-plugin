@@ -10,6 +10,7 @@
       <configuration>
         <phases>
           <clean>com.axonivy.ivy.ci:project-build-plugin:maven-dependency-cleanup</clean>
+          <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
@@ -38,6 +39,7 @@
       </implementation>
       <configuration>
         <phases>
+          <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
