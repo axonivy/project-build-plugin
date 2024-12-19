@@ -19,6 +19,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+/**
+ * Validates that only one version of the project-build-plugin is active in one maven reactor.
+ *
+ * @since 12.0.1
+ */
 @Mojo(name = ValidateMojo.GOAL, requiresProject = true)
 public class ValidateMojo extends AbstractMojo {
 
