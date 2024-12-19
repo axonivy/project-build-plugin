@@ -7,6 +7,8 @@ iar Lifecycle
 *--------*---------*
  clean             | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-cleanup-mojo.html}maven-dependency-cleanup}}
 *--------*---------*
+ validate          | ${project.groupId}:${project.artifactId}:{{{./validate-mojo.html}validate}}
+*--------*---------*
  initialize        | ${project.groupId}:${project.artifactId}:{{{./installEngine-mojo.html}installEngine}}
 *--------*---------*
  process-resources | ${project.groupId}:${project.artifactId}:{{{./ivy-resources-properties-mojo.html}ivy-resources-properties}}\
