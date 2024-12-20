@@ -8,14 +8,6 @@
 	<version>0.0.0.3</version>
 	<name>TestPersistence</name>
 
-	<repositories>
-		<repository>
-			<id>zugprorepo.buildIntegration</id>
-			<name>Internal Build Integration Repository</name>
-			<url>http://zugprorepo/repository/buildIntegration/</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>
