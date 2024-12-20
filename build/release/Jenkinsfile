@@ -42,7 +42,7 @@ pipeline {
                   sh "gh pr create --title '${message}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
                 }
                 // publish site from 'mvn release' run
-                maven cmd: "site:stage scm-publish:publish-scm"
+                maven cmd: "site site:stage scm-publish:publish-scm -PossrhDeploy"
               }
             }
           }
