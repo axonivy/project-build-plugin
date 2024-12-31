@@ -33,7 +33,7 @@ public class FileSetConverter {
   }
 
   public List<org.codehaus.plexus.archiver.FileSet> toPlexusFileSets(
-          org.apache.maven.model.FileSet[] mavenFileSets) {
+      org.apache.maven.model.FileSet[] mavenFileSets) {
     if (mavenFileSets == null) {
       return Collections.emptyList();
     }

@@ -36,7 +36,6 @@ public class FileDeployer implements IvyDeployer {
   private Log log;
   private DeploymentFiles deploymentFiles;
 
-
   public FileDeployer(Path deployDir, Path deploymentOptionsFile, Integer deployTimeoutInSeconds, Path deployFile, Path targetDeployableFile) {
     this.deployDir = deployDir;
     this.deploymentOptionsFile = deploymentOptionsFile;
@@ -118,7 +117,7 @@ public class FileDeployer implements IvyDeployer {
   }
 
   private static void wait(Supplier<Boolean> condition, long duration, TimeUnit unit)
-          throws TimeoutException {
+      throws TimeoutException {
     long waitMs = unit.toMillis(duration);
     long startMs = System.currentTimeMillis();
     long maxMs = waitMs + startMs;
@@ -128,8 +127,7 @@ public class FileDeployer implements IvyDeployer {
           throw new TimeoutException("Operation reached timeout of " + duration + " " + unit);
         }
         Thread.sleep(100);
-      } catch (InterruptedException ex) {
-      }
+      } catch (InterruptedException ex) {}
     }
   }
 

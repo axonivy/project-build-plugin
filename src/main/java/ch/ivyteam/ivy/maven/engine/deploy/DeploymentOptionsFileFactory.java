@@ -24,7 +24,7 @@ public class DeploymentOptionsFileFactory {
   }
 
   public Path createFromTemplate(Path optionsFile, MavenProject project, MavenSession session,
-          MavenFileFilter fileFilter) throws MojoExecutionException {
+      MavenFileFilter fileFilter) throws MojoExecutionException {
     if (!isOptionsFile(optionsFile.toFile())) {
       return null;
     }
@@ -33,7 +33,7 @@ public class DeploymentOptionsFileFactory {
     var targetFile = getTargetFile(ext);
     try {
       fileFilter.copyFile(optionsFile.toFile(), targetFile.toFile(), true, project, Collections.emptyList(), false,
-              StandardCharsets.UTF_8.name(), session);
+          StandardCharsets.UTF_8.name(), session);
     } catch (MavenFilteringException ex) {
       throw new MojoExecutionException("Failed to resolve templates in options file", ex);
     }
@@ -42,9 +42,9 @@ public class DeploymentOptionsFileFactory {
 
   private static boolean isOptionsFile(File optionsFile) {
     return optionsFile != null &&
-            optionsFile.exists() &&
-            optionsFile.isFile() &&
-            optionsFile.canRead();
+        optionsFile.exists() &&
+        optionsFile.isFile() &&
+        optionsFile.canRead();
   }
 
   public Path createFromConfiguration(String options) throws MojoExecutionException {

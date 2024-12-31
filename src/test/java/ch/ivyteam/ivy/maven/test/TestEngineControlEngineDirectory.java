@@ -12,8 +12,8 @@ import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest {
 
   @Rule
-  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<StopTestEngineMojo>(
-          StopTestEngineMojo.GOAL);
+  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<>(
+      StopTestEngineMojo.GOAL);
 
   @Test
   public void engineControl_engineDir_doesNotExist() throws Exception {

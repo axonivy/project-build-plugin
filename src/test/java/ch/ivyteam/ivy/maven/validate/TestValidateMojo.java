@@ -16,13 +16,12 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 
-
 public class TestValidateMojo {
   private ValidateMojo mojo;
 
   @Rule
-  public ProjectMojoRule<ValidateMojo> rule = new ProjectMojoRule<ValidateMojo>(
-          Path.of("src/test/resources/base"), ValidateMojo.GOAL) {
+  public ProjectMojoRule<ValidateMojo> rule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), ValidateMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -39,9 +38,9 @@ public class TestValidateMojo {
     mojo.validateConsistentPluginVersion(List.of(p1, p2));
     assertThat(log.getDebug()).hasSize(2);
     assertThat(log.getDebug().get(0).toString())
-      .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project1:12.0.0-SNAPSHOT");
+        .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project1:12.0.0-SNAPSHOT");
     assertThat(log.getDebug().get(1).toString())
-      .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project2:12.0.0-SNAPSHOT");
+        .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project2:12.0.0-SNAPSHOT");
     assertThat(log.getErrors()).isEmpty();
   }
 
@@ -52,13 +51,13 @@ public class TestValidateMojo {
     var p1 = createMavenProject("project1", "12.0.0");
     var p2 = createMavenProject("project2", "12.0.1");
     assertThatThrownBy(() -> mojo.validateConsistentPluginVersion(List.of(p1, p2)))
-      .isInstanceOf(MojoExecutionException.class);
+        .isInstanceOf(MojoExecutionException.class);
     assertThat(log.getErrors()).hasSize(1);
     assertThat(log.getErrors().get(0).toString())
-      .isEqualTo("""
-        Several versions of project-build-plugins are configured [12.0.0, 12.0.1]:
-        12.0.0 -> [project1]
-        12.0.1 -> [project2]""");
+        .isEqualTo("""
+          Several versions of project-build-plugins are configured [12.0.0, 12.0.1]:
+          12.0.0 -> [project1]
+          12.0.1 -> [project2]""");
   }
 
   private MavenProject createMavenProject(String projectId, String version) {

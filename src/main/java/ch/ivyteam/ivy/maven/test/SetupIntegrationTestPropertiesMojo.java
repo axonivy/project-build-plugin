@@ -55,17 +55,17 @@ public class SetupIntegrationTestPropertiesMojo extends AbstractEngineMojo {
   public void execute() throws MojoExecutionException, MojoFailureException {
     var props = new MavenProperties(project, getLog());
     String jmvArgs = asJvmArgs(props,
-            EngineControl.Property.TEST_ENGINE_URL,
-            EngineControl.Property.TEST_ENGINE_LOG,
-            DeployToTestEngineMojo.Property.TEST_ENGINE_APP);
+        EngineControl.Property.TEST_ENGINE_URL,
+        EngineControl.Property.TEST_ENGINE_LOG,
+        DeployToTestEngineMojo.Property.TEST_ENGINE_APP);
     jmvArgs += new EngineModuleHints(identifyAndGetEngineDirectory(), getLog()).asString();
     props.append(FAILSAFE_ARGLINE_PROPERTY, jmvArgs);
   }
 
   private static String asJvmArgs(MavenProperties store, String... keys) {
     return Arrays.stream(keys)
-            .map(key -> "-D" + key + "=" + store.get(key))
-            .collect(Collectors.joining(" "));
+        .map(key -> "-D" + key + "=" + store.get(key))
+        .collect(Collectors.joining(" "));
   }
 
 }

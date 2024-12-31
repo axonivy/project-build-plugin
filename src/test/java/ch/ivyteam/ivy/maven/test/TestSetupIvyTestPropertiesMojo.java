@@ -48,14 +48,14 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
   public void engineClasspathIsSharedAsProperty() throws Exception {
     var mojo = rule.getMojo();
     assertThat(getProperty(Property.IVY_ENGINE_CLASSPATH))
-            .as("used classpath has not been evaluated.")
-            .isNullOrEmpty();
+        .as("used classpath has not been evaluated.")
+        .isNullOrEmpty();
     assertThat(getProperty(Property.MAVEN_TEST_ARGLINE)).isNullOrEmpty();
 
     mojo.execute();
     assertThat(getProperty(Property.IVY_ENGINE_CLASSPATH))
-            .as("used classpath must be shared as property so that other mojos can access it")
-            .isNotEmpty();
+        .as("used classpath must be shared as property so that other mojos can access it")
+        .isNotEmpty();
   }
 
   @Test
@@ -77,11 +77,11 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
 
     MavenProject project = rule.getMojo().project;
     assertThat(project.getBuild().getTestOutputDirectory())
-            .isEqualTo(project.getBasedir().toPath().resolve("classes-test").toAbsolutePath().toString());
+        .isEqualTo(project.getBasedir().toPath().resolve("classes-test").toAbsolutePath().toString());
     assertThat(project.getProperties().get(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH))
-            .isEqualTo("${" + Property.IVY_TEST_VM_RUNTIME + "},"
-                    + "${" + Property.IVY_ENGINE_CLASSPATH + "},"
-                    + "${" + Property.IVY_PROJECT_IAR_CLASSPATH + "}");
+        .isEqualTo("${" + Property.IVY_TEST_VM_RUNTIME + "},"
+            + "${" + Property.IVY_ENGINE_CLASSPATH + "},"
+            + "${" + Property.IVY_PROJECT_IAR_CLASSPATH + "}");
   }
 
   @Test
@@ -91,13 +91,13 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
     MavenProject project = rule.getMojo().project;
     String vmRtEntry = project.getProperties().getProperty(Property.IVY_TEST_VM_RUNTIME);
     Properties props = new Properties();
-    try (var loader = new URLClassLoader(new URL[] { Path.of(vmRtEntry).toUri().toURL()}, null);
-         var is = loader.getResourceAsStream(IvyTestRuntime.RUNTIME_PROPS_RESOURCE)) {
+    try (var loader = new URLClassLoader(new URL[] {Path.of(vmRtEntry).toUri().toURL()}, null);
+        var is = loader.getResourceAsStream(IvyTestRuntime.RUNTIME_PROPS_RESOURCE)) {
       props.load(is);
     }
     assertThat(props.getProperty(Key.PRODUCT_DIR)).isNotEmpty();
     assertThat(props.getProperty(Key.PROJECT_LOCATIONS))
-            .isEqualTo("<" + rule.getMojo().project.getBasedir().toPath().toUri() + ">");
+        .isEqualTo("<" + rule.getMojo().project.getBasedir().toPath().toUri() + ">");
   }
 
   @Test
@@ -126,8 +126,8 @@ public class TestSetupIvyTestPropertiesMojo extends BaseEngineProjectMojoTest {
     private void writeTestClasspathJar() throws IOException {
       var classPathJar = new SharedFile(getMojo().project).getEngineClasspathJar();
       new ClasspathJar(classPathJar).createFileEntries(List.of(
-              Files.createTempFile("dummy", ".jar").toFile(),
-              Files.createTempFile("dummy2", ".jar").toFile()));
+          Files.createTempFile("dummy", ".jar").toFile(),
+          Files.createTempFile("dummy2", ".jar").toFile()));
     }
 
     private void writeTestCompileResult() throws IOException {

@@ -47,7 +47,7 @@ import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
  * Sends commands like start, stop to the ivy Engine
  */
 public class EngineControl {
-  public static interface Property {
+  public interface Property {
     String TEST_ENGINE_URL = "test.engine.url";
     String TEST_ENGINE_LOG = "test.engine.log";
   }
@@ -59,9 +59,8 @@ public class EngineControl {
     STOPPED, STARTING, RUNNING, STOPPING, UNREGISTERED, FAILED;
   }
 
-  private EngineMojoContext context;
-  private AtomicBoolean engineStarted = new AtomicBoolean(false);
-
+  private final EngineMojoContext context;
+  private final AtomicBoolean engineStarted = new AtomicBoolean(false);
 
   private enum Command {
     start, stop, status
@@ -84,10 +83,10 @@ public class EngineControl {
       streamHandler.start();
 
       process.onExit()
-        .thenAccept(p -> context.log.info("Engine process stopped."))
-        .exceptionally(ex -> {
-          throw new RuntimeException("Engine operation failed.", ex);
-      });
+          .thenAccept(p -> context.log.info("Engine process stopped."))
+          .exceptionally(ex -> {
+            throw new RuntimeException("Engine operation failed.", ex);
+          });
 
       waitForEngineStarted();
       return process;
@@ -179,8 +178,8 @@ public class EngineControl {
       i++;
       if (i / 2 > context.timeoutInSeconds) {
         throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s].\n"
-                + "Check the engine log for details or increase the timeout property '"
-                + StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS + "'");
+            + "Check the engine log for details or increase the timeout property '"
+            + StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS + "'");
       }
     }
     context.log.info("Engine started after " + i / 2 + " [s]");
@@ -204,10 +203,10 @@ public class EngineControl {
 
   private EngineState parseState(String engineOut) {
     var state = engineOut.lines()
-            .map(line -> parse(line))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        .map(this::parse)
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
     if (state == null) {
       context.log.error("Failed to evaluate engine state of engine in directory " + context.engineDirectory);
     }
@@ -236,7 +235,6 @@ public class EngineControl {
     }
     return watch.getDuration().toMillis();
   }
-
 
   private final class ProcessStreamHandler {
 

@@ -39,7 +39,7 @@ class FileLogForwarder {
   private final Log mavenLog;
 
   private FileAlterationMonitor monitor;
-  private LogLineHandler logLineHandler;
+  private final LogLineHandler logLineHandler;
 
   /**
    * @param engineLog the log file to watch for new lines
@@ -100,7 +100,7 @@ class FileLogForwarder {
     }
   }
 
-  static interface LogLineHandler {
+  interface LogLineHandler {
     void handleLine(String newLogLine);
   }
 }

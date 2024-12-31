@@ -34,22 +34,22 @@ public class TestShareEngineClasspathMojo {
   public void engineClasspathIsSharedAsProperty() throws Exception {
     ShareEngineCoreClasspathMojo mojo = rule.getMojo();
     assertThat(getEngineClasspathProperty())
-            .as("used classpath has not been evaluated.")
-            .isNullOrEmpty();
+        .as("used classpath has not been evaluated.")
+        .isNullOrEmpty();
 
     mojo.execute();
     assertThat(getEngineClasspathProperty())
-            .as("used classpath must be shared as property so that other mojos can access it")
-            .contains("dummy-boot.jar");
+        .as("used classpath must be shared as property so that other mojos can access it")
+        .contains("dummy-boot.jar");
   }
 
   private String getEngineClasspathProperty() {
     return (String) rule.getMojo().project.getProperties()
-            .get(ShareEngineCoreClasspathMojo.IVY_ENGINE_CORE_CLASSPATH_PROPERTY);
+        .get(ShareEngineCoreClasspathMojo.IVY_ENGINE_CORE_CLASSPATH_PROPERTY);
   }
 
   @Rule
-  public ProjectMojoRule<ShareEngineCoreClasspathMojo> rule = new ProjectMojoRule<ShareEngineCoreClasspathMojo>(Path.of("src/test/resources/base"), ShareEngineCoreClasspathMojo.GOAL) {
+  public ProjectMojoRule<ShareEngineCoreClasspathMojo> rule = new ProjectMojoRule<ShareEngineCoreClasspathMojo>(Path.of("src/test/resources/base"), ShareEngineCoreClasspathMojo.GOAL){
 
     @Override
     protected void before() throws Throwable {

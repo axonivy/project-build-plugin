@@ -60,9 +60,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
 
   private static MavenProjectBuilderProxy builder;
 
-  public AbstractEngineInstanceMojo() {
-    super();
-  }
+  public AbstractEngineInstanceMojo() {}
 
   @Override
   public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -84,11 +82,11 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
     var engineDir = identifyAndGetEngineDirectory();
     if (builder == null) {
       builder = new MavenProjectBuilderProxy(
-              classLoaderFactory,
-              toFile(buildApplicationDirectory),
-              toFile(engineDir),
-              getLog(),
-              timeoutEngineStartInSeconds);
+          classLoaderFactory,
+          toFile(buildApplicationDirectory),
+          toFile(engineDir),
+          getLog(),
+          timeoutEngineStartInSeconds);
     }
     classLoaderFactory.writeEngineClasspathJar(engineDir);
     // share engine directory as property for custom follow up plugins:
@@ -104,7 +102,7 @@ public abstract class AbstractEngineInstanceMojo extends AbstractEngineMojo {
 
   public final EngineClassLoaderFactory getEngineClassloaderFactory() {
     MavenContext context = new EngineClassLoaderFactory.MavenContext(
-            repository, localRepository, project, getLog());
+        repository, localRepository, project, getLog());
     return new EngineClassLoaderFactory(context);
   }
 

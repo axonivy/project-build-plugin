@@ -51,12 +51,11 @@ public class BaseEngineProjectMojoTest {
   private static String getNextMajor(String version) {
     DefaultArtifactVersion parsed = new DefaultArtifactVersion(version);
     int majorVersion = parsed.getMajorVersion();
-    String nextMajor = new StringBuilder()
-            .append(majorVersion + 1).append('.')
-            .append(parsed.getMinorVersion()).append('.')
-            .append(parsed.getIncrementalVersion())
-            .toString();
-    return nextMajor;
+    return new StringBuilder()
+        .append(majorVersion + 1).append('.')
+        .append(parsed.getMinorVersion()).append('.')
+        .append(parsed.getIncrementalVersion())
+        .toString();
   }
 
   private static String getLocalRepoPath() {
@@ -66,8 +65,8 @@ public class BaseEngineProjectMojoTest {
     }
 
     StringBuilder defaultHomePath = new StringBuilder(SystemUtils.USER_HOME)
-            .append(File.separatorChar).append(".m2")
-            .append(File.separatorChar).append("repository");
+        .append(File.separatorChar).append(".m2")
+        .append(File.separatorChar).append("repository");
     return defaultHomePath.toString();
   }
 
@@ -76,8 +75,8 @@ public class BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<InstallEngineMojo>(
-          Path.of("src/test/resources/base"), InstallEngineMojo.GOAL) {
+  public ProjectMojoRule<InstallEngineMojo> installUpToDateEngineRule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), InstallEngineMojo.GOAL){
 
     private static final String TIMESTAMP_FILE_NAME = "downloadtimestamp";
 
@@ -122,8 +121,7 @@ public class BaseEngineProjectMojoTest {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
         long yesterday = cal.getTimeInMillis();
-        boolean cachedEngineIsOlderThan24h = yesterday > createTimeMillis;
-        return cachedEngineIsOlderThan24h;
+        return yesterday > createTimeMillis;
       } catch (IOException ex) { // corrupt state - trigger re-download
         return true;
       }
@@ -172,7 +170,7 @@ public class BaseEngineProjectMojoTest {
     private void provideClasspathJar() throws IOException {
       var cpJar = new SharedFile(project).getEngineOSGiBootClasspathJar();
       new ClasspathJar(cpJar).createFileEntries(EngineClassLoaderFactory
-              .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
+          .getOsgiBootstrapClasspath(installUpToDateEngineRule.getMojo().getRawEngineDirectory()));
     }
 
     @Override

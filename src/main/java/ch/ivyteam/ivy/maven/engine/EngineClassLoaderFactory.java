@@ -57,15 +57,15 @@ public class EngineClassLoaderFactory {
   private static final String SLF4J_VERSION = "2.0.13";
 
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-          OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
-          OsgiDir.PLUGINS,
-          OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
-                                                                    // jars from
-                                                                    // OSGI
-                                                                    // bundles
-          "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
+      OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
+      OsgiDir.PLUGINS,
+      OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
+                                                                // jars from
+                                                                // OSGI
+                                                                // bundles
+      "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
 
-  private MavenContext maven;
+  private final MavenContext maven;
 
   public EngineClassLoaderFactory(MavenContext mavenContext) {
     this.maven = mavenContext;
@@ -85,9 +85,9 @@ public class EngineClassLoaderFactory {
 
   public List<File> getSlf4jJars() {
     return List.of(
-            maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
-            maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
-            maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+        maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
+        maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
+        maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
   }
 
   public static List<File> getOsgiBootstrapClasspath(Path engineDirectory) {
@@ -104,9 +104,9 @@ public class EngineClassLoaderFactory {
     if (Files.isDirectory(dir)) {
       try (var stream = Files.list(dir)) {
         var files = stream
-                .filter(filter)
-                .map(p -> p.toFile())
-                .toList();
+            .filter(filter)
+            .map(Path::toFile)
+            .toList();
         classPathFiles.addAll(files);
       } catch (IOException ex) {
         throw new RuntimeException(ex);
@@ -127,9 +127,9 @@ public class EngineClassLoaderFactory {
       }
       try (var walker = Files.walk(jarDir)) {
         var jars = walker
-          .filter(p -> p.getFileName().toString().endsWith(".jar"))
-          .map(p -> p.toFile())
-          .toList();
+            .filter(p -> p.getFileName().toString().endsWith(".jar"))
+            .map(Path::toFile)
+            .toList();
         classPathFiles.addAll(jars);
       } catch (IOException ex) {
         throw new RuntimeException(ex);
@@ -164,7 +164,7 @@ public class EngineClassLoaderFactory {
     private final Log log;
 
     public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, MavenProject project,
-            Log log) {
+        Log log) {
       this.repoSystem = repoSystem;
       this.localRepository = localRepository;
       this.project = project;

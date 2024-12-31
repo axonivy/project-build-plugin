@@ -23,7 +23,7 @@ import org.apache.maven.plugin.logging.Log;
 
 /**
  * Logs only log lines with a well known severity into maven log.
- * 
+ *
  * <p>
  * {@link Level#INFO} is logged as debug, as it contains information to trace
  * the detailed deployment steps which are too detailed for a normal deployment
@@ -47,21 +47,21 @@ class EngineLogLineHandler implements FileLogForwarder.LogLineHandler {
       String message = matcher.group(2);
       message = " ENGINE:" + message;
 
-      if (level.equalsIgnoreCase(Level.INFO)) { // infos are too detailed, but
+      if (Level.INFO.equalsIgnoreCase(level)) { // infos are too detailed, but
                                                 // users can trace in debug -X
                                                 // mode.
         log.debug(message);
       }
-      if (level.equalsIgnoreCase(Level.WARNING)) {
+      if (Level.WARNING.equalsIgnoreCase(level)) {
         log.warn(message);
       }
-      if (level.equalsIgnoreCase(Level.ERROR)) {
+      if (Level.ERROR.equalsIgnoreCase(level)) {
         log.error(message);
       }
     }
   }
 
-  static interface Level {
+  interface Level {
     String INFO = "info";
     String WARNING = "warning";
     String ERROR = "error";

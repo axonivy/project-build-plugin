@@ -56,8 +56,8 @@ public class TestDeployToEngineMojo {
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-            .as("IAR should not exist in engine deploy directory")
-            .doesNotExist();
+        .as("IAR should not exist in engine deploy directory")
+        .doesNotExist();
   }
 
   @Test
@@ -86,8 +86,8 @@ public class TestDeployToEngineMojo {
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-            .as("IAR should not exist in engine deploy directory")
-            .doesNotExist();
+        .as("IAR should not exist in engine deploy directory")
+        .doesNotExist();
   }
 
   @Test
@@ -108,12 +108,12 @@ public class TestDeployToEngineMojo {
     Callable<Void> engineOperation = () -> {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
-                      """
-                      deployTestUsers: "TRUE"
-                      target:
-                        version: RELEASED
-                        state: INACTIVE
-                        fileFormat: EXPANDED""");
+          """
+            deployTestUsers: "TRUE"
+            target:
+              version: RELEASED
+              state: INACTIVE
+              fileFormat: EXPANDED""");
       Files.delete(deploymentOptionsFile);
       assertThat(deployedIar).exists();
       Files.delete(deployedIar);
@@ -124,8 +124,8 @@ public class TestDeployToEngineMojo {
     mockEngineDeployThread.failOnException();
 
     assertThat(deployedIar)
-            .as("IAR should not exist in engine deploy directory")
-            .doesNotExist();
+        .as("IAR should not exist in engine deploy directory")
+        .doesNotExist();
   }
 
   @Test
@@ -155,14 +155,14 @@ public class TestDeployToEngineMojo {
 
   private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
     return mojo.deployEngineDirectory
-            .resolve(mojo.deployDirectory)
-            .resolve(mojo.deployToEngineApplication)
-            .resolve(iar.getFileName().toString());
+        .resolve(mojo.deployDirectory)
+        .resolve(mojo.deployToEngineApplication)
+        .resolve(iar.getFileName().toString());
   }
 
   @Rule
-  public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<DeployToEngineMojo>(
-          Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL) {
+  public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -203,7 +203,7 @@ public class TestDeployToEngineMojo {
     }
 
     public void execute(Callable<Void> delayedFunction) {
-      thread = new Thread() {
+      thread = new Thread(){
         @Override
         public void run() {
           try {

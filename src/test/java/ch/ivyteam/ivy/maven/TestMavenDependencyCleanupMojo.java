@@ -26,8 +26,8 @@ import org.junit.Test;
 
 public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   @Rule
-  public ProjectMojoRule<MavenDependencyCleanupMojo> compile = new ProjectMojoRule<MavenDependencyCleanupMojo>(
-          Path.of("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
+  public ProjectMojoRule<MavenDependencyCleanupMojo> compile = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
 
   @Test
   public void noMavenDepsDir() throws Exception {
@@ -42,7 +42,7 @@ public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   public void cleanupMavenDepsDir() throws Exception {
     var mojo = compile.getMojo();
     var mvnLibDir = Files
-            .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
+        .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
     var mvnDep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), mvnLibDir.resolve("jjwt-0.9.1.jar"));
     assertThat(mvnLibDir).exists();
     assertThat(mvnDep).exists();

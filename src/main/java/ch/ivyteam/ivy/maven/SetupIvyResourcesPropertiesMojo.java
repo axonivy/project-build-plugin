@@ -50,7 +50,7 @@ public class SetupIvyResourcesPropertiesMojo extends AbstractEngineMojo {
     var sourceEncoding = properties.get(PROJECT_BUILD_SOURCEENCODING);
     if (sourceEncoding != null) {
       getLog().info("'" + PROJECT_BUILD_SOURCEENCODING + "' is already set to '" +
-              sourceEncoding + "', so it will not be overwritten to UTF-8");
+          sourceEncoding + "', so it will not be overwritten to UTF-8");
       return;
     }
     getLog().info("Set '" + PROJECT_BUILD_SOURCEENCODING + "' to UTF-8");

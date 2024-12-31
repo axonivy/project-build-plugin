@@ -87,9 +87,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
   /** testing only: avoid restriction to minimal version! */
   boolean restrictVersionToMinimalCompatible = true;
 
-  public AbstractEngineMojo() {
-    super();
-  }
+  public AbstractEngineMojo() {}
 
   /**
    * <b style="color:red">Caution</b>: normally you should favor
@@ -169,14 +167,14 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
   }
 
   private VersionRange restrictToMinimalCompatible(VersionRange ivyVersionRange)
-          throws InvalidVersionSpecificationException, MojoExecutionException {
+      throws InvalidVersionSpecificationException, MojoExecutionException {
     VersionRange minimalCompatibleVersionRange = VersionRange
-            .createFromVersionSpec("[" + AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION + ",)");
+        .createFromVersionSpec("[" + AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION + ",)");
     VersionRange restrictedIvyVersionRange = ivyVersionRange.restrict(minimalCompatibleVersionRange);
     if (!restrictedIvyVersionRange.hasRestrictions()) {
       throw new MojoExecutionException(
-              "The ivyVersion '" + ivyVersion + "' is lower than the minimal compatible version"
-                      + " '" + MINIMAL_COMPATIBLE_VERSION + "'.");
+          "The ivyVersion '" + ivyVersion + "' is lower than the minimal compatible version"
+              + " '" + MINIMAL_COMPATIBLE_VERSION + "'.");
     }
     return restrictedIvyVersionRange;
   }
