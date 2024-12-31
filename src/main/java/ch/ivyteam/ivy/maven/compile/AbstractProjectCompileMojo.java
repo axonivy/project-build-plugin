@@ -79,7 +79,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
   protected Map<String, Object> getOptions() {
     Map<String, Object> options = new HashMap<>();
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR,
-            project.getBuild().getTestSourceDirectory());
+        project.getBuild().getTestSourceDirectory());
     options.put(MavenProjectBuilderProxy.Options.COMPILE_CLASSPATH, getDependencyClasspath());
     options.put(MavenProjectBuilderProxy.Options.SOURCE_ENCODING, encoding);
     options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
@@ -90,9 +90,9 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
 
   private String getDependencyClasspath() {
     return StringUtils.join(getDependencies("jar").stream()
-            .map(Path::toFile)
-            .map(jar -> jar.getAbsolutePath())
-            .collect(Collectors.toList()), File.pathSeparatorChar);
+        .map(Path::toFile)
+        .map(File::getAbsolutePath)
+        .collect(Collectors.toList()), File.pathSeparatorChar);
   }
 
   private File getCompilerSettings() {
@@ -100,7 +100,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
       return compilerSettings.toFile();
     } else if (compilerWarnings) {
       getLog().warn("Could not locate compiler settings file: " + compilerSettings
-              + " continuing with default compiler settings");
+          + " continuing with default compiler settings");
     }
     return null;
   }

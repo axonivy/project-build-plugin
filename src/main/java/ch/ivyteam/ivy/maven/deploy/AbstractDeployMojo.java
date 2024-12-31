@@ -156,9 +156,9 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    *
    * <pre>
    * <code>deployTestUsers: auto
-   *target:
-   *  version: RELEASED
-   *  state: ACTIVE_AND_RELEASED</code>
+   * target:
+   * &nbsp;&nbsp;version: RELEASED
+   * &nbsp;&nbsp;state: ACTIVE_AND_RELEASED</code>
    * </pre>
    *
    * <p>
@@ -168,9 +168,9 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    *
    * <pre>
    * <code>deployTestUsers: ${ivy.deploy.test.users}
-   *target:
-   *  version: AUTO
-   *  state: ${ivy.deploy.target.state}</code>
+   * target:
+   * &nbsp;&nbsp;version: AUTO
+   * &nbsp;&nbsp;state: ${ivy.deploy.target.state}</code>
    * </pre>
    *
    * <p>
@@ -211,9 +211,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   @Parameter(property = "ivy.deploy.engine.app")
   String deployToEngineApplication;
 
-  public AbstractDeployMojo() {
-    super();
-  }
+  public AbstractDeployMojo() {}
 
   protected final boolean checkSkip() {
     if (skipDeploy) {
@@ -228,7 +226,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   }
 
   protected final Path createDeployOptionsFile(DeploymentOptionsFileFactory optionsFileFactory)
-          throws MojoExecutionException {
+      throws MojoExecutionException {
     if (deployOptionsFile != null) {
       return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
     }
@@ -255,7 +253,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   }
 
   protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir)
-          throws MojoExecutionException {
+      throws MojoExecutionException {
     var targetDeployableFile = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.relativize(targetDeployableFile).toString();
     IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
@@ -264,7 +262,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
 
   private final Path createTargetDeployableFile(Path deployDir) {
     return deployDir
-            .resolve(deployToEngineApplication)
-            .resolve(deployFile.getFileName().toString());
+        .resolve(deployToEngineApplication)
+        .resolve(deployFile.getFileName().toString());
   }
 }

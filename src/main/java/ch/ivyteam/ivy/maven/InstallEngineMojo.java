@@ -81,11 +81,11 @@ public class InstallEngineMojo extends AbstractEngineMojo {
    * </p>
    *
    * <pre>
-   *    groupId=com.axonivy.ivy
-   *    artifactId=engine
-   *    version=!ivyVersion! (e.g. 7.4.0)
-   *    classifier=!osArchitecture! (e.g. Slim_All_x64)
-   *    extension=zip
+   * groupId=com.axonivy.ivy
+   * artifactId=engine
+   * version=!ivyVersion! (e.g. 7.4.0)
+   * classifier=!osArchitecture! (e.g. Slim_All_x64)
+   * extension=zip
    * </pre>
    *
    * @since 7.4
@@ -185,7 +185,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
   private void handleWrongIvyVersion(ArtifactVersion installedEngineVersion) throws MojoExecutionException {
     getLog().info("Installed engine in '" + getRawEngineDirectory() + "' has version '"
-            + installedEngineVersion + "' instead of expected '" + ivyVersion + "'");
+        + installedEngineVersion + "' instead of expected '" + ivyVersion + "'");
     boolean cleanEngineDir = installedEngineVersion != null;
     downloadAndInstallEngine(cleanEngineDir);
   }
@@ -223,30 +223,30 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
       if (installedEngineVersion == null) {
         throw new MojoExecutionException(
-                "Can not determine installed engine version in directory '" + getRawEngineDirectory() + "'. "
-                        + "Possibly a non-OSGi engine.");
+            "Can not determine installed engine version in directory '" + getRawEngineDirectory() + "'. "
+                + "Possibly a non-OSGi engine.");
       }
       if (!getIvyVersionRange().containsVersion(installedEngineVersion)) {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
-                + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
-                + "'.");
+            + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
+            + "'.");
       }
     } else {
       throw new MojoExecutionException("Aborting class generation as no valid ivy Engine is available! "
-              + "Use the 'autoInstallEngine' parameter for an automatic installation.");
+          + "Use the 'autoInstallEngine' parameter for an automatic installation.");
     }
   }
 
   public EngineDownloader getDownloader() throws MojoExecutionException {
     if (downloadUsingMaven) {
       return new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories,
-              repositorySystem, repositorySession);
+          repositorySystem, repositorySession);
     }
 
     @SuppressWarnings("deprecation")
     ProxyInfoProvider proxies = wagonManager::getProxy;
     return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
-            getIvyVersionRange(), getLog(), getDownloadDirectory(), proxies);
+        getIvyVersionRange(), getLog(), getDownloadDirectory(), proxies);
   }
 
   static String ivyEngineVersionOfZip(String engineZipFileName) {

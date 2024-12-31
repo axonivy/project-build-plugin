@@ -44,7 +44,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo {
 
   protected final boolean engineToTarget() throws MojoExecutionException {
     return isLocation(TestEngineLocation.COPY_FROM_TEMPLATE) ||
-            isLocation(TestEngineLocation.COPY_FROM_CACHE) && isCachedEngine();
+        isLocation(TestEngineLocation.COPY_FROM_CACHE) && isCachedEngine();
   }
 
   private boolean isLocation(String location) {
@@ -63,7 +63,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo {
     return Path.of(project.getBuild().getDirectory()).resolve("ivyEngine");
   }
 
-  static interface TestEngineLocation {
+  interface TestEngineLocation {
     String COPY_FROM_CACHE = "COPY_FROM_CACHE";
     String COPY_FROM_TEMPLATE = "COPY_FROM_TEMPLATE";
     String MODIFY_EXISTING = "MODIFY_EXISTING";

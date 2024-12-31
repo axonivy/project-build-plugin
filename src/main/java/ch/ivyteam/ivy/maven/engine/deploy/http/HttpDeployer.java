@@ -33,15 +33,15 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 public class HttpDeployer {
   private static final String DEPLOY_URI = "/system/api/apps/";
-  private String serverUrl;
-  private String targetApplication;
-  private Path deployFile;
-  private Path deploymentOptions;
-  private Server server;
-  private SecDispatcher secDispatcher;
+  private final String serverUrl;
+  private final String targetApplication;
+  private final Path deployFile;
+  private final Path deploymentOptions;
+  private final Server server;
+  private final SecDispatcher secDispatcher;
 
   public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication,
-          Path deployFile, Path deploymentOptions) {
+      Path deployFile, Path deploymentOptions) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
@@ -61,7 +61,7 @@ public class HttpDeployer {
   }
 
   private void executeRequest(Log log, CloseableHttpClient client)
-          throws IOException, URISyntaxException, MojoExecutionException {
+      throws IOException, URISyntaxException, MojoExecutionException {
     String url = serverUrl + DEPLOY_URI + targetApplication;
     HttpPost httpPost = new HttpPost(url);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
@@ -114,7 +114,7 @@ public class HttpDeployer {
     HttpHost httpHost = URIUtils.extractHost(new URI(url));
     CredentialsProvider credsProvider = new BasicCredentialsProvider();
     credsProvider.setCredentials(AuthScope.ANY,
-            new UsernamePasswordCredentials(username, password));
+        new UsernamePasswordCredentials(username, password));
     AuthCache authCache = new BasicAuthCache();
     authCache.put(httpHost, new BasicScheme());
     HttpClientContext context = HttpClientContext.create();

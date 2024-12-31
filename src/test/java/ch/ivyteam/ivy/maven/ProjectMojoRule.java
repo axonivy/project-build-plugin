@@ -40,8 +40,8 @@ public class ProjectMojoRule<T extends Mojo> extends MojoRule {
 
   protected Path projectDir;
   private T mojo;
-  private String mojoName;
-  private Path templateProjectDir;
+  private final String mojoName;
+  private final Path templateProjectDir;
   public MavenProject project;
 
   public ProjectMojoRule(Path srcDir, String mojoName) {

@@ -52,7 +52,7 @@ import ch.ivyteam.ivy.maven.util.MavenRuntime;
 public class DeployToTestEngineMojo extends AbstractDeployMojo {
   public static final String TEST_GOAL = "deploy-to-test-engine";
 
-  public static interface Property {
+  public interface Property {
     String TEST_ENGINE_APP = "test.engine.app";
   }
 
@@ -86,7 +86,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
     props.set(Property.TEST_ENGINE_APP, deployToEngineApplication);
 
     boolean isDefaultFile = deployFile.getFileName()
-            .endsWith(project.getArtifactId() + "-" + project.getVersion() + ".iar");
+        .endsWith(project.getArtifactId() + "-" + project.getVersion() + ".iar");
     if (isDefaultFile && deployDepsAsApp) {
       provideDepsAsAppZip();
     }
@@ -132,7 +132,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
         }
       } else {
         getLog().warn("Can not add dependency to app zip '" + dep + "'. \n "
-                + "Dependency type is neither an IAR nor a reactor project.");
+            + "Dependency type is neither an IAR nor a reactor project.");
       }
     }
     appZipper.createArchive();
@@ -145,7 +145,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
       return Optional.empty();
     }
     try (Stream<Path> find = Files.find(target, 1,
-            (p, attr) -> p.getFileName().toString().endsWith(".iar"))) {
+        (p, attr) -> p.getFileName().toString().endsWith(".iar"))) {
       return find.findAny();
     }
   }

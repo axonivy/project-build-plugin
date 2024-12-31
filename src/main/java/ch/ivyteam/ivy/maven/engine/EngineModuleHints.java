@@ -31,8 +31,8 @@ public class EngineModuleHints {
 
     try {
       return Files.readAllLines(jvmOptionsFile).stream()
-              .filter(line -> !line.isBlank())
-              .filter(line -> !line.matches("^\\s*#.*$"));
+          .filter(line -> !line.isBlank())
+          .filter(line -> !line.matches("^\\s*#.*$"));
     } catch (IOException ex) {
       log.warn("Couldn't read the jvm module options from '" + jvmOptionsFile + "' file.", ex);
       return Stream.empty();

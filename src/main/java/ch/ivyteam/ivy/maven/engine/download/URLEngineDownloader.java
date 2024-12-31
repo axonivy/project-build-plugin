@@ -35,8 +35,8 @@ public class URLEngineDownloader implements EngineDownloader {
   public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
-          String ivyVersion, VersionRange ivyVersionRange, Log log, Path downloadDirectory,
-          ProxyInfoProvider proxies) {
+      String ivyVersion, VersionRange ivyVersionRange, Log log, Path downloadDirectory,
+      ProxyInfoProvider proxies) {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
     this.osArchitecture = osArchitecture;
@@ -81,7 +81,7 @@ public class URLEngineDownloader implements EngineDownloader {
       return downloadZip;
     } catch (Exception ex) {
       throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-              + downloadDirectory + "'", ex);
+          + downloadDirectory + "'", ex);
     }
   }
 
@@ -128,7 +128,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   public URL findEngineDownloadUrl(InputStream htmlStream)
-          throws MojoExecutionException, MalformedURLException, URISyntaxException {
+      throws MojoExecutionException, MalformedURLException, URISyntaxException {
     String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_" + osArchitecture + "\\.zip";
     Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?" + engineFileNameRegex + "[\"|']");
     try (Scanner scanner = new Scanner(htmlStream)) {
@@ -137,12 +137,12 @@ public class URLEngineDownloader implements EngineDownloader {
         String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
         if (engineLinkMatch == null) {
           throw new MojoExecutionException("Could not find a link to engine for version '" + ivyVersion
-                  + "' on site '" + engineListPageUrl + "'");
+              + "' on site '" + engineListPageUrl + "'");
         }
         String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine",
-                "_" + osArchitecture);
+            "_" + osArchitecture);
         ArtifactVersion version = new DefaultArtifactVersion(
-                EngineVersionEvaluator.toReleaseVersion(versionString));
+            EngineVersionEvaluator.toReleaseVersion(versionString));
         if (ivyVersionRange.containsVersion(version)) {
           engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
           engineLink = StringUtils.substringBetween(engineLink, "href='", "'");

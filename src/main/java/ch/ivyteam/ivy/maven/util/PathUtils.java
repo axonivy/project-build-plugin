@@ -11,15 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 
 public interface PathUtils {
 
-  public static String toExtension(Path path) {
+  static String toExtension(Path path) {
     return toExtension(path.getFileName().toString());
   }
 
-  public static String toExtension(String path) {
+  static String toExtension(String path) {
     return StringUtils.substringAfterLast(path, ".");
   }
 
-  public static void delete(Path path) {
+  static void delete(Path path) {
     if (path == null) {
       return;
     }
@@ -29,14 +29,14 @@ public interface PathUtils {
 
     try (var stream = Files.walk(path)) {
       stream.sorted(Comparator.reverseOrder())
-              .map(Path::toFile)
-              .forEach(File::delete);
+          .map(Path::toFile)
+          .forEach(File::delete);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
   }
 
-  public static void clean(Path path) {
+  static void clean(Path path) {
     delete(path);
     try {
       Files.createDirectories(path);

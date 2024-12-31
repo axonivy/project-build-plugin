@@ -53,7 +53,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
 public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   public static final String GOAL = "ivy-test-properties";
 
-  public static interface Property {
+  public interface Property {
     String IVY_ENGINE_CLASSPATH = "ivy.engine.classpath";
     String IVY_PROJECT_IAR_CLASSPATH = "ivy.project.iar.classpath";
     String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";
@@ -119,8 +119,8 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
     deps.add(project.getBasedir().toPath());
     deps.addAll(MavenRuntime.getDependencies(project, session, "iar"));
     return deps.stream()
-            .map(file -> file.toUri())
-            .collect(Collectors.toList());
+        .map(Path::toUri)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -128,12 +128,12 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
    */
   private void configureMavenTestProperties(MavenProperties properties) throws MojoExecutionException {
     List<String> IVY_PROPS = List.of(
-            Property.IVY_TEST_VM_RUNTIME,
-            Property.IVY_ENGINE_CLASSPATH,
-            Property.IVY_PROJECT_IAR_CLASSPATH);
+        Property.IVY_TEST_VM_RUNTIME,
+        Property.IVY_ENGINE_CLASSPATH,
+        Property.IVY_PROJECT_IAR_CLASSPATH);
     String surefireClasspath = IVY_PROPS.stream()
-            .map(property -> "${" + property + "}")
-            .collect(Collectors.joining(","));
+        .map(property -> "${" + property + "}")
+        .collect(Collectors.joining(","));
     properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
     var jvmOptions = new EngineModuleHints(identifyAndGetEngineDirectory(), getLog());
     properties.append(Property.MAVEN_TEST_ARGLINE, jvmOptions.asString());

@@ -55,7 +55,7 @@ public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMoj
     mojo.execute();
     String argLine = (String) props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
     assertThat(argLine)
-            .startsWith("-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp")
-            .contains(" --add-opens=");
+        .startsWith("-Dtest.engine.url=http://127.0.0.1:9999 -Dtest.engine.log=/var/logs/ivy.log -Dtest.engine.app=myTstApp")
+        .contains(" --add-opens=");
   }
 }

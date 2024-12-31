@@ -17,7 +17,7 @@ class TestSlf4jWarningConfiguration {
   void mavenLikeWarning() {
     Slf4jSimpleEngineProperties.install();
     assertThat(System.getProperty(SimpleLogger.WARN_LEVEL_STRING_KEY))
-            .as("SLF4J warning string is not maven-like [WARNING]")
-            .isEqualTo("WARNING");
+        .as("SLF4J warning string is not maven-like [WARNING]")
+        .isEqualTo("WARNING");
   }
 }

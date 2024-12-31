@@ -51,8 +51,8 @@ public class TestInstallEngineMojo {
   private InstallEngineMojo mojo;
 
   @Rule
-  public ProjectMojoRule<InstallEngineMojo> rule = new ProjectMojoRule<InstallEngineMojo>(
-          Path.of("src/test/resources/base"), InstallEngineMojo.GOAL) {
+  public ProjectMojoRule<InstallEngineMojo> rule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), InstallEngineMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -84,7 +84,7 @@ public class TestInstallEngineMojo {
     var listPageResponse = new MockHttpServerResponse();
     String defaultEngineName = "AxonIvyEngine" + DEFAULT_VERSION + ".46949_" + DEFAULT_ARCH;
     listPageResponse.setMockResponseContent(
-      "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>");
+        "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>");
     mockServer.setMockHttpServerResponses(listPageResponse, createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
 
     // test setup can not expand expression ${settings.localRepository}: so we
@@ -95,18 +95,18 @@ public class TestInstallEngineMojo {
     var defaultEngineDir = mojo.engineCacheDirectory.resolve(DEFAULT_VERSION);
     assertThat(defaultEngineDir).doesNotExist();
     assertThat(mojo.engineDownloadUrl)
-      .as("Default config should favour to download an engine from the 'list page url'.")
-      .isNull();
+        .as("Default config should favour to download an engine from the 'list page url'.")
+        .isNull();
     assertThat(mojo.autoInstallEngine).isTrue();
 
     mojo.execute();
 
     assertThat(defaultEngineDir)
-      .as("Engine must be automatically downloaded")
-      .exists()
-      .isDirectory()
-      .as("Engine directory should automatically be set to subdir of the local repository cache.")
-      .isEqualTo(mojo.getRawEngineDirectory());
+        .as("Engine must be automatically downloaded")
+        .exists()
+        .isDirectory()
+        .as("Engine directory should automatically be set to subdir of the local repository cache.")
+        .isEqualTo(mojo.getRawEngineDirectory());
   }
 
   private static MockHttpServerResponse createFakeZipResponse(Path zip) throws Exception {
@@ -180,8 +180,8 @@ public class TestInstallEngineMojo {
   public void testEngineDownload_ifNotExisting() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     assertThat(mojo.engineDirectory)
-      .isDirectory()
-      .isEmptyDirectory();
+        .isDirectory()
+        .isEmptyDirectory();
 
     mojo.autoInstallEngine = true;
     mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
@@ -250,8 +250,8 @@ public class TestInstallEngineMojo {
     downloader.proxies = this::localTestProxy;
     var downloaded = downloader.downloadEngine();
     assertThat(downloaded)
-            .as("served file via proxy")
-            .exists();
+        .as("served file via proxy")
+        .exists();
   }
 
   private ProxyInfo localTestProxy(@SuppressWarnings("unused") String protocol) {
@@ -297,7 +297,7 @@ public class TestInstallEngineMojo {
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
     assertThat(findLink("<a href=\"http://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>"))
-      .isEqualTo("http://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
+        .isEqualTo("http://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
   }
 
   @Test
@@ -306,7 +306,7 @@ public class TestInstallEngineMojo {
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
     assertThat(findLink("<a href=\"https://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>"))
-       .isEqualTo("https://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
+        .isEqualTo("https://developer.axonivy.com/download/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
   }
 
   @Test
@@ -316,7 +316,7 @@ public class TestInstallEngineMojo {
     mojo.osArchitecture = "Windows_x86";
     mojo.engineListPageUrl = URI.create("http://localhost/").toURL();
     assertThat(findLink("<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>"))
-      .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
+        .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip");
   }
 
   @Test
@@ -325,8 +325,8 @@ public class TestInstallEngineMojo {
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x64";
     assertThat(findLink(
-            "<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip\">Axon Ivy Engine Windows x64</a>"))
-      .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip");
+        "<a href=\"http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip\">Axon Ivy Engine Windows x64</a>"))
+            .isEqualTo("http://www.ivyteam.ch/downloads/XIVY/Saentis/7.0.0-S2/AxonIvyEngine7.0.0.47245.S2_Windows_x64.zip");
   }
 
   @Test
@@ -338,7 +338,7 @@ public class TestInstallEngineMojo {
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
     } catch (MojoExecutionException ex) {
       assertThat(ex).hasMessageStartingWith(
-              "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
+          "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
     }
   }
 
@@ -348,11 +348,11 @@ public class TestInstallEngineMojo {
     mojo.osArchitecture = "Linux_x86";
     try {
       findLink("<a href=\"" + DEFAULT_VERSION + "/AxonIvyEngine"
-              + DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>");
+          + DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>");
       failBecauseExceptionWasNotThrown(MojoExecutionException.class);
     } catch (MojoExecutionException ex) {
       assertThat(ex).hasMessageStartingWith(
-              "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
+          "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
     }
   }
 
@@ -364,9 +364,9 @@ public class TestInstallEngineMojo {
     mojo.engineListPageUrl = URI.create("http://localhost/").toURL();
 
     assertThat(findLink(
-            "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>" // windows
-                    + "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip\">the latest engine</a>")) // linux
-      .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip");
+        "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>" // windows
+            + "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip\">the latest engine</a>")) // linux
+                .isEqualTo("http://localhost/7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip");
   }
 
   private String findLink(String html) throws MojoExecutionException, URISyntaxException, IOException {
@@ -384,10 +384,10 @@ public class TestInstallEngineMojo {
 
     String engineUrl = getUrlDownloader().findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
-      .as("The default engine list page url '" + mojo.engineListPageUrl.toExternalForm() + "' "
-              + "must provide an engine for the current default engine version '" + mojo.ivyVersion
-              + "'.")
-      .contains(mojo.ivyVersion);
+        .as("The default engine list page url '" + mojo.engineListPageUrl.toExternalForm() + "' "
+            + "must provide an engine for the current default engine version '" + mojo.ivyVersion
+            + "'.")
+        .contains(mojo.ivyVersion);
   }
 
   private URLEngineDownloader getUrlDownloader() throws MojoExecutionException {
@@ -408,14 +408,14 @@ public class TestInstallEngineMojo {
   @Test
   public void testZipFileEngineVersionParser() {
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.1.1.51869_Linux_x64.zip"))
-      .isEqualTo("6.1.1");
+        .isEqualTo("6.1.1");
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.2_Windows_x64.zip"))
-      .isEqualTo("6.2");
+        .isEqualTo("6.2");
     assertThat(InstallEngineMojo
-      .ivyEngineVersionOfZip("AxonIvyDesigner6.1.1-SNAPSHOT.51869-win32.win32.x86_64.zip"))
-      .isEqualTo("6.1.1");
+        .ivyEngineVersionOfZip("AxonIvyDesigner6.1.1-SNAPSHOT.51869-win32.win32.x86_64.zip"))
+            .isEqualTo("6.1.1");
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine_Linux_x64.zip"))
-      .isEqualTo("AxonIvyEngine_Linux_x64.zip"); // do not return null!
+        .isEqualTo("AxonIvyEngine_Linux_x64.zip"); // do not return null!
   }
 
   private static String getFakeLibraryPath(final String version) {

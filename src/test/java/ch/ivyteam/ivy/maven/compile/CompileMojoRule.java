@@ -51,13 +51,13 @@ public class CompileMojoRule<T extends AbstractEngineInstanceMojo> extends Engin
   private ArtifactRepository provideLocalRepository() throws IllegalAccessException {
     DefaultArtifactRepositoryFactory factory = new DefaultArtifactRepositoryFactory();
     setVariableValueToObject(factory, "factory",
-            new org.apache.maven.repository.legacy.repository.DefaultArtifactRepositoryFactory());
+        new org.apache.maven.repository.legacy.repository.DefaultArtifactRepositoryFactory());
 
     LegacySupport legacySupport = new DefaultLegacySupport();
     setVariableValueToObject(factory, "legacySupport", legacySupport);
 
     ArtifactRepository localRepository = factory.createArtifactRepository("local", "http://localhost",
-            new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
+        new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
 
     setVariableValueToObject(localRepository, "basedir", BaseEngineProjectMojoTest.LOCAL_REPOSITORY);
 

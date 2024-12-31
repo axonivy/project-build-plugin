@@ -50,7 +50,7 @@ public class MavenProjectBuilderProxy {
   private final Log log;
 
   public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace,
-          File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
+      File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
 
@@ -67,10 +67,10 @@ public class MavenProjectBuilderProxy {
   }
 
   private void logEngine()
-          throws ReflectionException, IntrospectionException, MalformedObjectNameException {
+      throws ReflectionException, IntrospectionException, MalformedObjectNameException {
     var cl = this.getClass().getClassLoader();
     var message = "MavenProjectBuilderProxy instance " + System.identityHashCode(this) +
-            " created with class loader " + cl + " (" + System.identityHashCode(cl) + ")";
+        " created with class loader " + cl + " (" + System.identityHashCode(cl) + ")";
     try {
       ManagementFactory.getPlatformMBeanServer().getMBeanInfo(new ObjectName("ivy Engine:type=Server"));
       log.warn(message + " ivy engine is already running!");
@@ -80,9 +80,9 @@ public class MavenProjectBuilderProxy {
   }
 
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader,
-          int timeoutEngineStartInSeconds) throws Exception {
+      int timeoutEngineStartInSeconds) throws Exception {
     Object bundleContext = new OsgiRuntime(baseDirToBuildIn.toPath(), log).startEclipseOsgiImpl(ivyEngineClassLoader,
-            timeoutEngineStartInSeconds);
+        timeoutEngineStartInSeconds);
     hackProvokeEagerStartOfJdt(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
     return loadClassInBundle(buildBundle, FQ_DELEGATE_CLASS_NAME);
@@ -90,12 +90,12 @@ public class MavenProjectBuilderProxy {
 
   private static Class<?> loadClassInBundle(Object bundle, String className) throws Exception {
     return (Class<?>) bundle.getClass().getDeclaredMethod("loadClass", String.class).invoke(bundle,
-            className);
+        className);
   }
 
   private static Object findBundle(Object bundleContext, String symbolicName) throws Exception {
     Object[] bundles = (Object[]) bundleContext.getClass().getDeclaredMethod("getBundles")
-            .invoke(bundleContext);
+        .invoke(bundleContext);
     for (Object bundleObj : bundles) {
       Object bundleSymbolicName = bundleObj.getClass().getMethod("getSymbolicName").invoke(bundleObj);
       if (symbolicName.equals(bundleSymbolicName)) {
@@ -107,8 +107,8 @@ public class MavenProjectBuilderProxy {
 
   private static String getEngineClasspath(List<File> jars) {
     return jars.stream()
-            .map(file -> file.getAbsolutePath())
-            .collect(Collectors.joining(File.pathSeparator));
+        .map(File::getAbsolutePath)
+        .collect(Collectors.joining(File.pathSeparator));
   }
 
   /**
@@ -133,26 +133,26 @@ public class MavenProjectBuilderProxy {
 
   @SuppressWarnings("unchecked")
   public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, Object> options)
-          throws Exception {
+      throws Exception {
     Method compileMethod = getMethod("compile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
-            () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
+        () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
   @SuppressWarnings("unchecked")
   public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects,
-          Map<String, Object> options) throws Exception {
+      Map<String, Object> options) throws Exception {
     Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
-            () -> validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options));
+        () -> validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options));
   }
 
   @SuppressWarnings("unchecked")
   public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars,
-          Map<String, Object> options) throws Exception {
+      Map<String, Object> options) throws Exception {
     Method compileMethod = getMethod("testCompile", File.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
-            () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
+        () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
   private Method getMethod(String name, Class<?>... parameterTypes) {
@@ -160,9 +160,9 @@ public class MavenProjectBuilderProxy {
       return delegateClass.getDeclaredMethod(name, parameterTypes);
     } catch (NoSuchMethodException ex) {
       throw new RuntimeException(
-              "Method " + name + "(" + parameterTypes + ") does not exist in engine '" + baseDirToBuildIn
-                      + "'. \n"
-                      + "You might need to configure another version to work with.");
+          "Method " + name + "(" + parameterTypes + ") does not exist in engine '" + baseDirToBuildIn
+              + "'. \n"
+              + "You might need to configure another version to work with.");
     }
   }
 

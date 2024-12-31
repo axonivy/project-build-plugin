@@ -30,17 +30,17 @@ import org.slf4j.simple.SimpleLogger;
 public class Slf4jSimpleEngineProperties {
   private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
-          "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // engine
-                                                                                  // start/stop
-          "ch.ivyteam.ivy.project.build.MavenProjectBuilder", // maven engine
-                                                              // interface
-          "ch.ivyteam.ivy.scripting.dataclass.internal.ProjectDataClassManager", // dataclass
-                                                                                 // source
-                                                                                 // generation
-          "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
-          "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice
-                                                                                       // source
-                                                                                       // generation
+      "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // engine
+                                                                              // start/stop
+      "ch.ivyteam.ivy.project.build.MavenProjectBuilder", // maven engine
+                                                          // interface
+      "ch.ivyteam.ivy.scripting.dataclass.internal.ProjectDataClassManager", // dataclass
+                                                                             // source
+                                                                             // generation
+      "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
+      "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice
+                                                                                   // source
+                                                                                   // generation
   );
   private static final String IVY_PREFIX = "ch.ivyteam.ivy";
 
@@ -93,7 +93,7 @@ public class Slf4jSimpleEngineProperties {
   /**
    * Valid levels as documented in {@link org.slf4j.simple.SimpleLogger}
    */
-  static interface Level {
+  interface Level {
     String TRACE = "trace";
     String DEBUG = "debug";
     String INFO = "info";
