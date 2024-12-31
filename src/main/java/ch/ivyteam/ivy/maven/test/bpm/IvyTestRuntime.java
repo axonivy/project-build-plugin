@@ -14,7 +14,7 @@ public class IvyTestRuntime {
 
   public static final String RUNTIME_PROPS_RESOURCE = "ivyTestRuntime.properties";
 
-  public static interface Key {
+  public interface Key {
     String PRODUCT_DIR = "product.dir";
     String PROJECT_LOCATIONS = "project.locations";
   }
@@ -27,10 +27,10 @@ public class IvyTestRuntime {
 
   public void setProjectLocations(List<URI> locations) {
     var joinedUris = locations
-            .stream()
-            .map(URI::toASCIIString)
-            .map(uri -> "<" + uri + ">") // RFC 3986 Appendix C
-            .collect(Collectors.joining(", "));
+        .stream()
+        .map(URI::toASCIIString)
+        .map(uri -> "<" + uri + ">") // RFC 3986 Appendix C
+        .collect(Collectors.joining(", "));
     props.setProperty(Key.PROJECT_LOCATIONS, joinedUris);
   }
 

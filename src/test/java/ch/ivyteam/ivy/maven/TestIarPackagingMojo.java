@@ -45,8 +45,8 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 public class TestIarPackagingMojo {
 
   @Rule
-  public ProjectMojoRule<IarPackagingMojo> rule = new ProjectMojoRule<IarPackagingMojo>(
-          Path.of("src/test/resources/base"), IarPackagingMojo.GOAL) {
+  public ProjectMojoRule<IarPackagingMojo> rule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), IarPackagingMojo.GOAL){
 
     @Override
     protected void before() throws Throwable {
@@ -82,28 +82,28 @@ public class TestIarPackagingMojo {
     var iarFile = iarFiles.getFirst();
     assertThat(iarFile).hasFileName("base-1.0.0.iar");
     assertThat(mojo.project.getArtifact().getFile())
-            .as("Created IAR must be registered as artifact for later repository installation.")
-            .isEqualTo(iarFile.toFile());
+        .as("Created IAR must be registered as artifact for later repository installation.")
+        .isEqualTo(iarFile.toFile());
 
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry(".classpath")).as(".classpath must be packed for internal binary retrieval")
-              .isNotNull();
+          .isNotNull();
       assertThat(archive.getEntry("src_hd")).as("Empty directories should be included (by default) "
-              + "so that the IAR can be re-imported into the designer").isNotNull();
+          + "so that the IAR can be re-imported into the designer").isNotNull();
       assertThat(archive.getEntry("target/sampleOutput.txt"))
-              .as("'target/sampleOutput.txt' should not be packed").isNull();
+          .as("'target/sampleOutput.txt' should not be packed").isNull();
       assertThat(archive.getEntry("target")).as("'target' must be packed because there are target/classes")
-              .isNotNull();
+          .isNotNull();
       assertThat(archive.getEntry(".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(archive.getEntry(".svn")).as("'target'.svn should not be packed").isNull();
       assertThat(archive.getEntry("classes/gugus.txt")).as("classes content should be included by default")
-              .isNotNull();
+          .isNotNull();
       assertThat(archive.getEntry("target/classes/gugus.txt"))
-              .as("target/classes content should be included by default").isNotNull();
+          .as("target/classes content should be included by default").isNotNull();
       assertThat(archive.getEntry("target/classesAnother/gugus.txt"))
-              .as("target/classesAnother should not be packed by default").isNull();
+          .as("target/classesAnother should not be packed by default").isNull();
       assertThat(archive.getEntry("target/anythingelse/gugus.txt"))
-              .as("target/anythingelse should not be packed by default").isNull();
+          .as("target/anythingelse should not be packed by default").isNull();
     }
   }
 
@@ -143,7 +143,7 @@ public class TestIarPackagingMojo {
     mojo.execute();
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(archive.getEntry(relativeCustomIncludePath)).as("Custom inclusions must be included")
-              .isNotNull();
+          .isNotNull();
     }
   }
 
@@ -164,16 +164,16 @@ public class TestIarPackagingMojo {
       try (InputStream is = archive.getInputStream(archive.getEntry("pom.xml"))) {
         String pomInArchive = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         assertThat(pomInArchive)
-                .as("customer should be able to overwrite pre-defined resource with their own includes.")
-                .contains("flattened");
+            .as("customer should be able to overwrite pre-defined resource with their own includes.")
+            .contains("flattened");
       }
 
       List<? extends ZipEntry> pomEntries = Collections.list(archive.entries()).stream()
-              .filter(entry -> entry.getName().equals("pom.xml"))
-              .collect(Collectors.toList());
+          .filter(entry -> "pom.xml".equals(entry.getName()))
+          .collect(Collectors.toList());
       assertThat(pomEntries)
-              .as("if same path is specified twice, the users entry should win and no duplicates must exist.")
-              .hasSize(1);
+          .as("if same path is specified twice, the users entry should win and no duplicates must exist.")
+          .hasSize(1);
     }
   }
 
@@ -185,7 +185,7 @@ public class TestIarPackagingMojo {
 
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(archive.getEntry("src_hd")).as("Empty directory should be excluded by mojo configuration")
-              .isNull();
+          .isNull();
     }
   }
 
@@ -203,7 +203,7 @@ public class TestIarPackagingMojo {
     var iarFile = iarFiles.getFirst();
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry("target"))
-              .as("'target' will not be packed when there are no target/classes").isNull();
+          .as("'target' will not be packed when there are no target/classes").isNull();
     }
   }
 
@@ -213,7 +213,7 @@ public class TestIarPackagingMojo {
 
     var target = mojo.project.getBasedir().toPath().resolve("target");
     var viewGenerated = target.resolve("src_hd")
-      .resolve("com").resolve("acme").resolve("FormDialog").resolve("FormDialog.xhtml");
+        .resolve("com").resolve("acme").resolve("FormDialog").resolve("FormDialog.xhtml");
     Files.createDirectories(viewGenerated.getParent());
     Files.writeString(viewGenerated, "<html/>", StandardOpenOption.CREATE_NEW);
 
@@ -226,7 +226,7 @@ public class TestIarPackagingMojo {
     var iarFile = iarFiles.getFirst();
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
       assertThat(archive.getEntry("target/src_hd/com/acme/FormDialog/FormDialog.xhtml"))
-              .as("generated jsf.dialog views are included").isNotNull();
+          .as("generated jsf.dialog views are included").isNotNull();
     }
   }
 

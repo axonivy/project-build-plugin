@@ -38,7 +38,7 @@ public class EngineMojoContext {
   public final Integer timeoutInSeconds;
 
   public EngineMojoContext(Path engineDirectory, MavenProject project, Log log, Path engineLogFile,
-          EngineVmOptions vmOptions, Integer timeoutInSeconds) {
+      EngineVmOptions vmOptions, Integer timeoutInSeconds) {
     this.engineDirectory = engineDirectory;
     this.project = project;
     this.log = log;
@@ -63,10 +63,10 @@ public class EngineMojoContext {
       try {
         log.info("Creating a classpath jar for starting the engine");
         new ClasspathJar(classpathJar)
-                .createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
+            .createFileEntries(EngineClassLoaderFactory.getOsgiBootstrapClasspath(engineDirectory));
       } catch (Exception ex) {
         throw new RuntimeException(
-                "Could not create engine classpath jar: '" + classpathJar + "'", ex);
+            "Could not create engine classpath jar: '" + classpathJar + "'", ex);
       }
     }
     return classpathJar;

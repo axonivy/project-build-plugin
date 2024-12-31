@@ -34,8 +34,8 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   private CompileTestProjectMojo testMojo;
 
   @Rule
-  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<CompileProjectMojo>(
-          CompileProjectMojo.GOAL) {
+  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(
+      CompileProjectMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -62,16 +62,16 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
 
     assertThat(findFiles(classDir, "txt"))
-            .as("classes directory must only be cleand by the builder before compilation if class files are found")
-            .hasSize(1);
+        .as("classes directory must only be cleand by the builder before compilation if class files are found")
+        .hasSize(1);
     assertThat(findFiles(classDir, "class"))
-            .as("compiled classes must exist. but not contain any test class or old class files.")
-            .hasSize(4);
+        .as("compiled classes must exist. but not contain any test class or old class files.")
+        .hasSize(4);
 
     testMojo.execute();
     assertThat(findFiles(classDir, "class"))
-            .as("compiled classes must contain test resources as well")
-            .hasSize(5);
+        .as("compiled classes must contain test resources as well")
+        .hasSize(5);
   }
 
   private static List<Path> findFiles(Path dir, String fileExtension) throws IOException {
@@ -80,8 +80,8 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     }
     try (var stream = Files.walk(dir)) {
       return stream
-              .filter(p -> p.getFileName().toString().endsWith("." + fileExtension))
-              .toList();
+          .filter(p -> p.getFileName().toString().endsWith("." + fileExtension))
+          .toList();
     }
   }
 

@@ -38,7 +38,7 @@ public class YamlOptionsFactory {
 
     gen.close();
     String yaml = writer.toString();
-    if (yaml.equals("{}\n")) {
+    if ("{}\n".equals(yaml)) {
       return null;
     }
 

@@ -36,8 +36,8 @@ public class LogCollector implements Log {
   private final List<LogEntry> errors = new ArrayList<>();
 
   public static class LogEntry {
-    private String message;
-    private Throwable error;
+    private final String message;
+    private final Throwable error;
 
     private LogEntry(String message, Throwable error) {
       if (message == null) {
@@ -75,8 +75,7 @@ public class LogCollector implements Log {
   }
 
   public List<LogEntry> getLogs() {
-    List<LogEntry> logs = new ArrayList<>();
-    logs.addAll(debuggings);
+    List<LogEntry> logs = new ArrayList<>(debuggings);
     logs.addAll(infos);
     logs.addAll(warnings);
     logs.addAll(errors);

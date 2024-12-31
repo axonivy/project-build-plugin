@@ -21,8 +21,8 @@ public class MavenEngineDownloader implements EngineDownloader {
   private final DefaultArtifact engineArtifact;
 
   public MavenEngineDownloader(Log log, String ivyVersion, String osArchitecture,
-          List<RemoteRepository> pluginRepositories, RepositorySystem repositorySystem,
-          RepositorySystemSession repositorySession) {
+      List<RemoteRepository> pluginRepositories, RepositorySystem repositorySystem,
+      RepositorySystemSession repositorySession) {
     this.log = log;
     this.engineArtifact = toEngineArtifact(ivyVersion, osArchitecture);
     this.repositorySystem = repositorySystem;

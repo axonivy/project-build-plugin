@@ -69,8 +69,9 @@ public class ValidateMojo extends AbstractMojo {
   private String versionProjects(Map<String, Set<MavenProject>> versionToProjectsMap, String version) {
     return version + " -> [" +
         versionToProjectsMap.get(version).stream()
-            .map(p -> p.getArtifactId())
-            .collect(Collectors.joining(", ")) +
+            .map(MavenProject::getArtifactId)
+            .collect(Collectors.joining(", "))
+        +
         "]";
   }
 }

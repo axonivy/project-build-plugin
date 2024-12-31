@@ -47,15 +47,14 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
 public class IarPackagingMojo extends AbstractMojo {
   public static final String GOAL = "pack-iar";
 
-  public static interface Defaults {
-    String[] INCLUDES = new String[] {"**/*"};
-    String[] EXCLUDES = new String[] {"target/"};
-    String[] TARGET_INCLUDES = new String[] {
-      "target/classes/**/*",
-      "target/src_hd/**/*"
+  public interface Defaults {
+    String[] INCLUDES = {"**/*"};
+    String[] EXCLUDES = {"target/"};
+    String[] TARGET_INCLUDES = {
+        "target/classes/**/*",
+        "target/src_hd/**/*"
     };
   }
-
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -68,8 +67,8 @@ public class IarPackagingMojo extends AbstractMojo {
    * Sample:
    * <pre>
    * <code>&lt;iarExcludes&gt;
-   *    &lt;iarExclude&gt;target/com/acme/scret/*&lt;/iarExclude&gt;
-   *    &lt;iarExclude&gt;src/&lt;/iarExclude&gt;
+   * &nbsp;&nbsp;&lt;iarExclude&gt;target/com/acme/scret/*&lt;/iarExclude&gt;
+   * &nbsp;&nbsp;&lt;iarExclude&gt;src/&lt;/iarExclude&gt;
    * &lt;/iarExcludes&gt;</code>
    * </pre>
    */
@@ -84,13 +83,13 @@ public class IarPackagingMojo extends AbstractMojo {
    * See {@link ch.ivyteam.ivy.maven.IarPackagingMojo.Defaults#TARGET_INCLUDES}.
    *
    * <pre>
-   * <code>&lt;iarFileSets&gt;
-   *    &lt;iarFileSet&gt;
-   *        &lt;includes&gt;
-   *            &lt;include&gt;**&#47;*&lt;/include&gt;
-   *        &lt;/includes&gt;
-   *    &lt;/iarFileSet&gt;
-   *&lt;/iarFileSets&gt;</code>
+   * &lt;iarFileSets&gt;
+   * &nbsp;&nbsp;&lt;iarFileSet&gt;
+   * &nbsp;&nbsp;&nbsp;&nbsp;&lt;includes&gt;
+   * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;include&gt;**&#47;*&lt;/include&gt;
+   * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/includes&gt;
+   * &nbsp;&nbsp;&lt;/iarFileSet&gt;
+   * &lt;/iarFileSets&gt;
    * </pre>
    */
   @Parameter

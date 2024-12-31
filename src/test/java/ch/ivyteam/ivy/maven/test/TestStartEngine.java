@@ -47,8 +47,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     try {
       startedProcess = mojo.startEngine();
       assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL))
-              .startsWith("http://")
-              .endsWith("/");
+          .startsWith("http://")
+          .endsWith("/");
       assertThat(Path.of(getProperty(EngineControl.Property.TEST_ENGINE_LOG))).exists();
     } finally {
       kill(startedProcess);
@@ -69,7 +69,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using configured engine do not copy")
-            .isFalse();
+        .isFalse();
   }
 
   @Test
@@ -93,7 +93,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using configured engine do copy")
-            .isTrue();
+        .isTrue();
   }
 
   @Test
@@ -117,7 +117,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using configured engine do not copy")
-            .isFalse();
+        .isFalse();
   }
 
   @Test
@@ -135,8 +135,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
       var engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget)
-        .endsWithRaw(Path.of("target").resolve("ivyEngine"))
-        .doesNotExist();
+          .endsWithRaw(Path.of("target").resolve("ivyEngine"))
+          .doesNotExist();
 
       startedProcess = mojo.startEngine();
       assertThat(engineDirTarget).exists();
@@ -155,8 +155,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
     try {
       var engineDirTarget = mojo.getEngineDir(mojo.project);
       assertThat(engineDirTarget)
-        .endsWithRaw(Path.of("target").resolve("ivyEngine"))
-        .doesNotExist();
+          .endsWithRaw(Path.of("target").resolve("ivyEngine"))
+          .doesNotExist();
       assertThat(log.getWarnings().toString()).doesNotContain("Skipping copy");
 
       startedProcess = mojo.startEngine();
@@ -193,16 +193,14 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
 
   private void assertFileExecutable(Path file) {
     assertThat(file)
-            .exists()
-            .isExecutable();
+        .exists()
+        .isExecutable();
   }
 
   private static void kill(Process startedProcess) {
     if (startedProcess != null) {
       startedProcess.destroy();
-      await().untilAsserted(() ->
-        assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse()
-      );
+      await().untilAsserted(() -> assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse());
     }
   }
 
@@ -211,8 +209,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<StartTestEngineMojo>(
-          StartTestEngineMojo.GOAL) {
+  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<>(
+      StartTestEngineMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();

@@ -135,7 +135,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     }
     if (StringUtils.isEmpty(deployToEngineApplication)) {
       throw new MojoExecutionException(
-              "The parameter 'deployToEngineApplication' for goal " + GOAL + " is missing.");
+          "The parameter 'deployToEngineApplication' for goal " + GOAL + " is missing.");
     }
 
     var resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
@@ -154,8 +154,8 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       deployToRestService(resolvedOptionsFile);
     } else {
       getLog().warn("Invalid deploy method  " + deployMethod
-              + " configured in parameter deployMethod (Supported values are " + DeployMethod.DIRECTORY + ", "
-              + DeployMethod.HTTP + ")");
+          + " configured in parameter deployMethod (Supported values are " + DeployMethod.DIRECTORY + ", "
+          + DeployMethod.HTTP + ")");
     }
   }
 
@@ -163,13 +163,13 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     var deployDir = getDeployDirectory();
     if (deployEngineDirectory == null) {
       getLog().warn("Skipping deployment, target engine could not be evaluated." +
-              "Please configure an existing engine to deploy to with argument <deployEngineDirectory>.");
+          "Please configure an existing engine to deploy to with argument <deployEngineDirectory>.");
       return;
     }
 
     if (!Files.exists(deployDir)) {
       getLog().warn("Skipping deployment to engine '" + deployEngineDirectory + "'. The directory '"
-              + deployDir + "' does not exist.");
+          + deployDir + "' does not exist.");
       return;
     }
     checkDirParams();
@@ -182,7 +182,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     Server server = session.getSettings().getServer(deployServerId);
     if (server == null) {
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId
-              + "' is not definied. Try to deploy with default username, password");
+          + "' is not definied. Try to deploy with default username, password");
     }
     var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
     httpDeployer.deploy(getLog());
@@ -194,9 +194,9 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     }
     Object defaultDeployEngineDirectory = project.getProperties().get(ENGINE_DIRECTORY_PROPERTY);
     if (deployEngineDirectory != null
-            && !deployEngineDirectory.toFile().getPath().equals(defaultDeployEngineDirectory)) {
+        && !deployEngineDirectory.toFile().getPath().equals(defaultDeployEngineDirectory)) {
       logParameterIgnoredByMethod("deployEngineDirectory", deployEngineDirectory.toFile().getPath(),
-              DeployMethod.HTTP);
+          DeployMethod.HTTP);
     }
   }
 
@@ -211,7 +211,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
 
   private void logParameterIgnoredByMethod(String parameter, String value, String method) {
     getLog().warn("Parameter " + parameter + " is set to " + value + " but will be ignored by " + method
-            + " deployment.");
+        + " deployment.");
   }
 
   private Path getDeployDirectory() throws MojoExecutionException {
@@ -224,14 +224,14 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     return deployEngineDirectory.resolve(deployDirectory);
   }
 
-  public static interface DefaultDeployOptions {
+  public interface DefaultDeployOptions {
     String VERSION_AUTO = "AUTO";
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
     String FILE_FORMAT_AUTO = "AUTO";
     String DEPLOY_TEST_USERS = "AUTO";
   }
 
-  public static interface DeployMethod {
+  public interface DeployMethod {
     String DIRECTORY = "DIRECTORY";
     String HTTP = "HTTP";
   }

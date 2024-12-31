@@ -98,7 +98,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
   public void canDeployRemoteIar_encryptedSettingsPassword() throws Exception {
     addServerConnection("{VUpeDRRbfD4Hmk9WLKzhqLkLttTCsWfLtr75Nt9K/3k=}");
     System.setProperty("settings.security",
-            TestDeployToRunningEngine.class.getResource("settings-security.xml").getPath());
+        TestDeployToRunningEngine.class.getResource("settings-security.xml").getPath());
     deployIarRemoteAndAssert();
   }
 
@@ -120,15 +120,15 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
       System.setOut(originalOut);
       startedProcess = mojo.startEngine();
       deployMojo.deployEngineUrl = (String) rule.project.getProperties()
-              .get(EngineControl.Property.TEST_ENGINE_URL);
+          .get(EngineControl.Property.TEST_ENGINE_URL);
       System.setOut(new PrintStream(outContent));
 
       deployMojo.execute();
 
       assertThat(outContent.toString()).contains("Start deploying project(s) of file")
-              .contains("Application: test")
-              .contains("Deploying users ...")
-              .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
+          .contains("Application: test")
+          .contains("Deploying users ...")
+          .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
     } finally {
       kill(startedProcess);
     }
@@ -136,9 +136,9 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
 
   private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
     return mojo.deployEngineDirectory
-            .resolve(mojo.deployDirectory)
-            .resolve(mojo.deployToEngineApplication)
-            .resolve(iar.getFileName().toString());
+        .resolve(mojo.deployDirectory)
+        .resolve(mojo.deployToEngineApplication)
+        .resolve(iar.getFileName().toString());
   }
 
   private static void kill(Process startedProcess) {
@@ -148,11 +148,11 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<StartTestEngineMojo>(
-          StartTestEngineMojo.GOAL);
+  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<>(
+      StartTestEngineMojo.GOAL);
 
   @Rule
-  public ProjectMojoRule<DeployToEngineMojo> deployRule = new ProjectMojoRule<DeployToEngineMojo>(
-          Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL);
+  public ProjectMojoRule<DeployToEngineMojo> deployRule = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL);
 
 }

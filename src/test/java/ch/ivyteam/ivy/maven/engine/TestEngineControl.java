@@ -30,8 +30,8 @@ import ch.ivyteam.ivy.maven.test.StopTestEngineMojo;
 public class TestEngineControl extends BaseEngineProjectMojoTest {
 
   @Rule
-  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<StopTestEngineMojo>(
-          StopTestEngineMojo.GOAL);
+  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<>(
+      StopTestEngineMojo.GOAL);
 
   @Test
   public void resolveEngineState() throws MojoExecutionException {

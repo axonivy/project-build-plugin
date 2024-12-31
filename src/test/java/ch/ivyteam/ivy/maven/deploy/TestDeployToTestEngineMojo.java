@@ -51,14 +51,14 @@ public class TestDeployToTestEngineMojo {
     Files.createFile(builtTarget.resolve("alreadyPacked.iar"));
 
     var appZip = mojo.createFullAppZip(List.of(
-            Files.createFile(workspace.resolve("demo.iar")),
-            Files.createFile(workspace.resolve("demoTest.iar")),
-            reactorProject,
-            builtTarget.getParent()));
+        Files.createFile(workspace.resolve("demo.iar")),
+        Files.createFile(workspace.resolve("demoTest.iar")),
+        reactorProject,
+        builtTarget.getParent()));
     assertThat(appZip.getFileName().toString()).isEqualTo("myApp-app.zip");
     assertThat(DeployToTestEngineMojo.findPackedIar(builtTarget.getParent())).isPresent();
     assertThat(getRootFiles(appZip))
-            .containsOnly("demo.iar", "demoTest.iar", "myReactorProject", "alreadyPacked.iar");
+        .containsOnly("demo.iar", "demoTest.iar", "myReactorProject", "alreadyPacked.iar");
   }
 
   private static List<String> getRootFiles(Path zip) throws IOException {
@@ -67,8 +67,8 @@ public class TestDeployToTestEngineMojo {
       Path root = zipFsCr.getPath("/");
       try (Stream<Path> paths = Files.list(root)) {
         return paths
-                .map(child -> child.getFileName().toString())
-                .collect(Collectors.toList());
+            .map(child -> child.getFileName().toString())
+            .collect(Collectors.toList());
       }
     }
   }
@@ -80,6 +80,6 @@ public class TestDeployToTestEngineMojo {
 
   @Rule
   public ProjectMojoRule<DeployToTestEngineMojo> deploy = new ProjectMojoRule<>(
-          Path.of("src/test/resources/base"), DeployToTestEngineMojo.TEST_GOAL);
+      Path.of("src/test/resources/base"), DeployToTestEngineMojo.TEST_GOAL);
 
 }

@@ -37,8 +37,8 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
   private MavenDependencyMojo testMojo;
 
   @Rule
-  public CompileMojoRule<MavenDependencyMojo> deps = new CompileMojoRule<MavenDependencyMojo>(
-          MavenDependencyMojo.GOAL) {
+  public CompileMojoRule<MavenDependencyMojo> deps = new CompileMojoRule<>(
+      MavenDependencyMojo.GOAL){
     @Override
     protected void before() throws Throwable {
       super.before();
@@ -80,12 +80,12 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
     artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
     artifact.setDependencyTrail(
-            List.of(mojo.project.getArtifact().toString(), "other.group:other.artifact:iar:1.0.0"));
+        List.of(mojo.project.getArtifact().toString(), "other.group:other.artifact:iar:1.0.0"));
     mojo.project.setArtifacts(Set.of(artifact));
     mojo.execute();
     assertThat(getMavenLibs(mvnLibDir))
-            .as("libs provided through a dependent 'iar' should not be packed.")
-            .isEmpty();
+        .as("libs provided through a dependent 'iar' should not be packed.")
+        .isEmpty();
   }
 
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {
@@ -94,9 +94,9 @@ public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
     }
     try (var walker = Files.walk(mvnLibDir, 1)) {
       return walker
-              .filter(p -> !p.equals(mvnLibDir))
-              .map(p -> p.getFileName().toString())
-              .collect(Collectors.toList());
+          .filter(p -> !p.equals(mvnLibDir))
+          .map(p -> p.getFileName().toString())
+          .collect(Collectors.toList());
     }
   }
 

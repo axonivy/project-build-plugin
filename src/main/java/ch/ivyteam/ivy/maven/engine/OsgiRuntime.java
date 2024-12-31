@@ -35,38 +35,31 @@ class OsgiRuntime {
   }
 
   Object startEclipseOsgiImpl(URLClassLoader ivyEngineClassLoader, int timeoutEngineStartInSeconds)
-          throws Exception {
+      throws Exception {
     Class<?> osgiBooter = ivyEngineClassLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
     Method mainMethod = osgiBooter.getDeclaredMethod("main", String[].class);
     List<String> mainArgs = new ArrayList<>(
-            Arrays.asList("-application", "ch.ivyteam.ivy.server.exec.engine.maven"));
+        Arrays.asList("-application", "ch.ivyteam.ivy.server.exec.engine.maven"));
     if (log.isDebugEnabled()) {
       mainArgs.add("-debug");
     }
     final String[] args = mainArgs.toArray(new String[mainArgs.size()]);
     runThreadWithProperties(() -> mainMethod.invoke(null, (Object) args), timeoutEngineStartInSeconds);
-    Object bundleContext = osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
-    return bundleContext;
+    return osgiBooter.getDeclaredMethod("getSystemBundleContext").invoke(null);
   }
 
   void runThreadWithProperties(Callable<?> function, int timeoutEngineStartInSeconds) throws Exception {
     Map<String, String> properties = createOsgiConfigurationProps();
     Map<String, String> oldProperties = setSystemProperties(properties);
     try {
-      ThreadFactory threadFactory = new ThreadFactory() {
-
-        @Override
-        public Thread newThread(Runnable r) {
-          return new Thread(r, "Init Engine Thread");
-        }
-      };
+      ThreadFactory threadFactory = r -> new Thread(r, "Init Engine Thread");
       ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor(threadFactory);
       Future<?> result = singleThreadExecutor.submit(function);
       try {
         TimeUnit timeUnit = TimeUnit.SECONDS;
         if (log.isDebugEnabled()) {
           log.debug("Waiting " + timeoutEngineStartInSeconds + " " + timeUnit.name().toLowerCase()
-                  + " on engine start");
+              + " on engine start");
         }
         result.get(timeoutEngineStartInSeconds, timeUnit);
       } catch (Exception ex) {
@@ -102,30 +95,30 @@ class OsgiRuntime {
     properties.put("osgi.install.area", osgiDir.toAbsolutePath().toString());
     properties.put("org.osgi.framework.bundle.parent", "framework");
     properties.put("org.osgi.framework.bootdelegation",
-            "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
-                    + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add
-                                                                                                             // log4j
-                    + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add
-                                                                                  // slf4j
-                    + "javax.net.ssl," // validate openApi
+        "javax.annotation,ch.ivyteam.ivy.boot.osgi.win,ch.ivyteam.ivy.jaas," // original
+            + "org.apache.log4j,org.apache.log4j.helpers,org.apache.log4j.spi,org.apache.log4j.xml," // add
+                                                                                                     // log4j
+            + "org.slf4j.impl,org.slf4j,org.slf4j.helpers,org.slf4j.spi," // add
+                                                                          // slf4j
+            + "javax.net.ssl," // validate openApi
 
-                    // jdt compiler
-                    + "javax.lang.model,"
-                    + "javax.annotation.processing,"
-                    + "javax.tools,"
-                    + "javax.lang.model.util,"
-                    + "javax.lang.model.element,"
-                    + "javax.lang.model.type,"
+            // jdt compiler
+            + "javax.lang.model,"
+            + "javax.annotation.processing,"
+            + "javax.tools,"
+            + "javax.lang.model.util,"
+            + "javax.lang.model.element,"
+            + "javax.lang.model.type,"
 
-                    // oxygen platform
-                    + "javax.management,javax.management.openmbean,javax.xml.parsers,"
-                    + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax,"
-                    + "org.w3c.dom,"
+            // oxygen platform
+            + "javax.management,javax.management.openmbean,javax.xml.parsers,"
+            + "sun.net.www.protocol.http.ntlm,com.sun.xml.internal.ws.util,com.sun.nio.zipfs,org.xml.sax,"
+            + "org.w3c.dom,"
 
-                    // for java 11
-                    + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath,"
-                    + "org.xml.sax.ext,org.xml.sax.helpers,"
-                    + "javax.xml.stream,javax.xml.stream.events,javax.xml.stream.util");
+            // for java 11
+            + "javax.xml,javax.xml.datatype,javax.xml.namespace,javax.xml.transform,javax.xml.transform.dom,javax.xml.transform.sax,javax.xml.transform.stream,javax.xml.validation,javax.xml.xpath,"
+            + "org.xml.sax.ext,org.xml.sax.helpers,"
+            + "javax.xml.stream,javax.xml.stream.events,javax.xml.stream.util");
 
     if (log.isDebugEnabled()) {
       log.debug("Configuration OSGi system properties:");

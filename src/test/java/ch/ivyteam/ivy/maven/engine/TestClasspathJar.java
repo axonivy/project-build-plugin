@@ -53,8 +53,8 @@ class TestClasspathJar {
 
       String manifest = new String(in.readAllBytes(), StandardCharsets.UTF_8);
       assertThat(manifest)
-              .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
-              .startsWith("Manifest-Version:");
+          .as("Manifest should not start with a whitespace or it will not be interpreted by the JVM")
+          .startsWith("Manifest-Version:");
     }
   }
 }

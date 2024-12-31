@@ -15,8 +15,8 @@ public class EngineVersionEvaluator {
 
   public static final String LIBRARY_ID = "ch.ivyteam.util";
 
-  private Log log;
-  private Path engineDir;
+  private final Log log;
+  private final Path engineDir;
 
   public EngineVersionEvaluator(Log log, Path engineDir) {
     this.log = log;

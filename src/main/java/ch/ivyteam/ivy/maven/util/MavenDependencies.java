@@ -33,28 +33,28 @@ public class MavenDependencies {
 
   public List<Path> localTransient() {
     return stream(project.getArtifacts())
-      .filter(this::isLocalDep)
-      .filter(this::include)
-      .map(Artifact::getFile)
-      .map(File::toPath)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+        .filter(this::isLocalDep)
+        .filter(this::include)
+        .map(Artifact::getFile)
+        .map(File::toPath)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 
   private boolean isLocalDep(Artifact artifact) {
     return artifact.getDependencyTrail().stream()
-      .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
-      .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
-      .findAny()
-      .isEmpty();
+        .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
+        .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
+        .findAny()
+        .isEmpty();
   }
 
   public List<Path> all() {
     return stream(project.getArtifacts())
-      .filter(this::include)
-      .map(this::toFile)
-      .map(File::toPath)
-      .collect(Collectors.toList());
+        .filter(this::include)
+        .map(this::toFile)
+        .map(File::toPath)
+        .collect(Collectors.toList());
   }
 
   private static Stream<Artifact> stream(Set<Artifact> deps) {
@@ -66,8 +66,8 @@ public class MavenDependencies {
 
   private File toFile(Artifact artifact) {
     return findReactorProject(artifact)
-      .map(MavenProject::getBasedir)
-      .orElse(artifact.getFile());
+        .map(MavenProject::getBasedir)
+        .orElse(artifact.getFile());
   }
 
   private boolean include(Artifact artifact) {
@@ -85,8 +85,8 @@ public class MavenDependencies {
       return Optional.empty();
     }
     return session.getAllProjects().stream()
-            .filter(p -> p.getArtifact().equals(artifact))
-            .findAny();
+        .filter(p -> p.getArtifact().equals(artifact))
+        .findAny();
   }
 
 }

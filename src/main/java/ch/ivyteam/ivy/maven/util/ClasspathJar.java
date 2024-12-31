@@ -70,7 +70,7 @@ public class ClasspathJar {
   }
 
   private void writeManifest(String name, ZipOutputStream jarStream, List<String> classpathEntries)
-          throws IOException {
+      throws IOException {
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
     manifest.getMainAttributes().putValue("Name", name);
@@ -86,8 +86,8 @@ public class ClasspathJar {
 
   private static List<String> getClassPathUris(Collection<File> classpathEntries) {
     return classpathEntries.stream()
-            .map(file -> file.toURI().toASCIIString())
-            .collect(Collectors.toList());
+        .map(file -> file.toURI().toASCIIString())
+        .collect(Collectors.toList());
   }
 
   public List<File> getFiles() {

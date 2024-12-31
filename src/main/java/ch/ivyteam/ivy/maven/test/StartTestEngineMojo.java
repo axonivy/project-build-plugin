@@ -135,13 +135,13 @@ public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
     var targetEngine = getTargetDir(project);
     if (Files.exists(targetEngine)) {
       getLog().warn("Skipping copy of engine to " + targetEngine
-              + " it already exists. Use \"mvn clean\" to ensure a clean engine each cycle.");
+          + " it already exists. Use \"mvn clean\" to ensure a clean engine each cycle.");
       return targetEngine;
     }
 
     try {
       getLog().info("Parameter <testEngine> is set to " + testEngine +
-              ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
+          ", copying engine from: " + cachedEngineDir + " to " + targetEngine);
 
       copyEngine(cachedEngineDir, targetEngine);
       return targetEngine;
