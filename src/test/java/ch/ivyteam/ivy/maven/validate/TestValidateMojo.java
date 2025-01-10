@@ -33,14 +33,14 @@ public class TestValidateMojo {
   public void samePluginVersions() throws Exception {
     var log = new LogCollector();
     rule.getMojo().setLog(log);
-    var p1 = createMavenProject("project1", "12.0.0");
-    var p2 = createMavenProject("project2", "12.0.0");
+    var p1 = createMavenProject("project1", "13.1.0");
+    var p2 = createMavenProject("project2", "13.1.0");
     mojo.validateConsistentPluginVersion(List.of(p1, p2));
     assertThat(log.getDebug()).hasSize(2);
     assertThat(log.getDebug().get(0).toString())
-        .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project1:12.0.0-SNAPSHOT");
+        .contains("com.axonivy.ivy.ci:project-build-plugin:13.1.0 configured in MavenProject: group:project1:13.1.0-SNAPSHOT");
     assertThat(log.getDebug().get(1).toString())
-        .contains("com.axonivy.ivy.ci:project-build-plugin:12.0.0 configured in MavenProject: group:project2:12.0.0-SNAPSHOT");
+        .contains("com.axonivy.ivy.ci:project-build-plugin:13.1.0 configured in MavenProject: group:project2:13.1.0-SNAPSHOT");
     assertThat(log.getErrors()).isEmpty();
   }
 
@@ -48,23 +48,23 @@ public class TestValidateMojo {
   public void differentPluginVersions() throws Exception {
     var log = new LogCollector();
     rule.getMojo().setLog(log);
-    var p1 = createMavenProject("project1", "12.0.0");
-    var p2 = createMavenProject("project2", "12.0.1");
+    var p1 = createMavenProject("project1", "13.1.0");
+    var p2 = createMavenProject("project2", "13.1.1");
     assertThatThrownBy(() -> mojo.validateConsistentPluginVersion(List.of(p1, p2)))
         .isInstanceOf(MojoExecutionException.class);
     assertThat(log.getErrors()).hasSize(1);
     assertThat(log.getErrors().get(0).toString())
         .isEqualTo("""
-          Several versions of project-build-plugins are configured [12.0.0, 12.0.1]:
-          12.0.0 -> [project1]
-          12.0.1 -> [project2]""");
+          Several versions of project-build-plugins are configured [13.1.0, 13.1.1]:
+          13.1.0 -> [project1]
+          13.1.1 -> [project2]""");
   }
 
   private MavenProject createMavenProject(String projectId, String version) {
     var project = new MavenProject();
     project.setGroupId("group");
     project.setArtifactId(projectId);
-    project.setVersion("12.0.0-SNAPSHOT");
+    project.setVersion("13.1.0-SNAPSHOT");
     project.setFile(new File("src/test/resources/" + projectId));
     var plugin = new Plugin();
     plugin.setGroupId(ValidateMojo.PLUGIN_GROUPID);
