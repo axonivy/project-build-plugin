@@ -1,4 +1,0 @@
-DocRequest #class
-com.axonivy.m2.lib.test #namespace
-doc com.docusign.esign.model.Document #field
-doc 'consume maven resolved library type from dependent project' #fieldComment
