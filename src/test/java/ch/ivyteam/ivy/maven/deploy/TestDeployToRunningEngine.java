@@ -53,7 +53,7 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     deployMojo.deployToEngineApplication = "MyTestApp";
     deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project);
     deployMojo.deployTimeoutInSeconds = 120;
-    deployMojo.deployFile = Path.of("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
+    deployMojo.deployFile = Path.of("src/test/resources/deploy-single-10.0.iar");
     deployMojo.deployTestUsers = "true";
 
     System.setOut(new PrintStream(outContent));
