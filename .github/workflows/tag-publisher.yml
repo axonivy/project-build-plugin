@@ -8,7 +8,7 @@ on:
     inputs:
       tag:
         type: string
-        description: the tag-ref to release e.g. 'v12.0.0'
+        description: the tag-ref to release e.g. 'v13.1.0'
       publish:
         type: boolean
         default: false
