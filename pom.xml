@@ -423,7 +423,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.5.1</version><!-- make compliant with plexus-archiver:4x -->
+        <version>3.6.0</version><!-- make compliant with plexus-archiver:4x -->
       </dependency>
     </dependencies>
   </dependencyManagement>
