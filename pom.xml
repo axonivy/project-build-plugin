@@ -197,7 +197,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.13.0</version>
         <configuration>
           <release>${java.version}</release>
           <!-- needed for sonar (sonar plugin is not aware of 'release') -->
