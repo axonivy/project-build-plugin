@@ -67,7 +67,7 @@ def collectBuildArtifacts()  {
     excludeType('site-maven-plugin:site'),
     excludeType('sonar-maven-plugin:sonar'),
     excludeType('maven-surefire-plugin:test'),
-    excludeType('cyclonedx:makeBom') 
+    excludeType('cyclonedx-maven-plugin:makeBom') 
   ]
   recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
