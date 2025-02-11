@@ -23,7 +23,7 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            def phase = isReleaseOrMasterBranch() ? 'deploy' : 'verify'
+            def phase = isReleasingBranch() ? 'deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-Dgpg.skip=false " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
@@ -40,7 +40,7 @@ pipeline {
     }
     stage('deploy-site') {
       when {
-        expression { isReleaseOrMasterBranch() && currentBuild.changeSets.size() > 0 }
+        expression { isReleasingBranch() && currentBuild.changeSets.size() > 0 }
       }
       steps {
         script {
@@ -61,10 +61,6 @@ pipeline {
   }
 }
 
-def isReleaseOrMasterBranch() {
-  return env.BRANCH_NAME.startsWith('release/')  || env.BRANCH_NAME == 'master'
-}
-
 def setupGPGEnvironment() {
   withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
     sh "gpg --batch --import ${env.GPG_FILE}"
@@ -78,7 +74,7 @@ def collectBuildArtifacts()  {
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
     excludeType('maven-surefire-plugin:test'),
-    excludeType('cyclonedx:makeBom')    
+    excludeType('cyclonedx:makeBom')
   ]
   recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
