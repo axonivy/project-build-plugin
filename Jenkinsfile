@@ -34,6 +34,10 @@ pipeline {
               "-Dgithub.site.skip=${params.skipGitHubSite} " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"
+            if (isReleasingBranch()) {
+              def version = sh (script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true)
+              uploadBOM(projectName: 'project-build-plugin', projectVersion: version, bomFile: 'target/bom.json')
+            }
           }
           if (env.BRANCH_NAME == 'master') {
             maven cmd: "sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=project-build-plugin -Dsonar.projectName=project-build-plugin"
@@ -62,7 +66,8 @@ def collectBuildArtifacts()  {
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
     excludeType('sonar-maven-plugin:sonar'),
-    excludeType('maven-surefire-plugin:test')
+    excludeType('maven-surefire-plugin:test'),
+    excludeType('cyclonedx:makeBom') 
   ]
   recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
