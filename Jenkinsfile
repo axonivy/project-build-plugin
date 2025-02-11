@@ -29,6 +29,10 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true"
+            if (isReleasingBranch()) {
+              def version = sh (script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true)
+              uploadBOM(projectName: 'project-build-plugin', projectVersion: version, bomFile: 'target/bom.json')
+            }
           }
           collectBuildArtifacts()
         }
@@ -73,7 +77,8 @@ def collectBuildArtifacts()  {
   junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
   recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
     excludeType('site-maven-plugin:site'),
-    excludeType('maven-surefire-plugin:test')
+    excludeType('maven-surefire-plugin:test'),
+    excludeType('cyclonedx:makeBom')    
   ]
   recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
 }
