@@ -78,7 +78,7 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-filtering</artifactId>
-      <version>3.2.0</version>
+      <version>3.4.0</version>
       <!--NOT provided: will fail on consuming builds -->
     </dependency>
     <dependency>
@@ -101,7 +101,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>32.1.3-jre</version>
+      <version>33.4.0-jre</version>
     </dependency>
 
     <dependency>
@@ -127,7 +127,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-archiver</artifactId>
-      <version>4.6.3</version>
+      <version>4.10.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -311,8 +311,9 @@
         </executions>
         <configuration>
           <outputFormat>json</outputFormat>
-          <includeLicenseText>true</includeLicenseText>
-        </configuration>
+      	  <includeLicenseText>true</includeLicenseText>
+      	  <includeProvidedScope>false</includeProvidedScope>
+	      </configuration>
       </plugin>
     </plugins>
     
