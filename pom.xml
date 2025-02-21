@@ -43,7 +43,7 @@
     <maven.version>3.9.9</maven.version>
     <!-- version should match ivy Engine sfl4j version! And version in EngineClassLoaderFactory.SLF4J_VERSION -->
     <slf4j.version>2.0.13</slf4j.version>
-    <junit-jupiter.version>5.11.4</junit-jupiter.version>
+    <junit-jupiter.version>5.12.0</junit-jupiter.version>
     <site.path>snapshot</site.path>
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
