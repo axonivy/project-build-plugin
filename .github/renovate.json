@@ -5,8 +5,7 @@
     "schedule:earlyMondays"
   ],
   "baseBranches": [
-    "master",
-    "release/.*"
+    "master"
   ],
   "packageRules": [
     {
