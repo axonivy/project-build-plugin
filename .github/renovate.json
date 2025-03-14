@@ -6,6 +6,9 @@
   ],
   "packageRules": [
     {
+      "matchBaseBranches": [
+        "master"
+      ],
       "matchPackageNames": [
         "org.apache.*",
         "org.junit.vintage:*",
@@ -14,6 +17,21 @@
       ],
       "matchUpdateTypes": [
         "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchBaseBranches": [
+        "release/*"
+      ],
+      "matchPackageNames": [
+        "org.apache.*",
+        "org.junit.vintage:*",
+        "org.awaitility:*",
+        "com.fasterxml.jackson.dataformat:*"
+      ],
+      "matchUpdateTypes": [
         "patch"
       ],
       "automerge": true
