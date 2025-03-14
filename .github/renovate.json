@@ -1,6 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>axonivy/renovate-config"
+    "local>axonivy/renovate-config",
+    "schedule:earlyMondays"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "org.apache.*",
+        "org.junit.vintage:*",
+        "org.awaitility:*",
+        "com.fasterxml.jackson.dataformat:*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    }
   ]
 }
