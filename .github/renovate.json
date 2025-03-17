@@ -4,9 +4,6 @@
     "local>axonivy/renovate-config",
     "schedule:earlyMondays"
   ],
-  "baseBranches": [
-    "master"
-  ],
   "packageRules": [
     {
       "matchBaseBranches": [
@@ -26,7 +23,8 @@
     },
     {
       "matchBaseBranches": [
-        "release/.*"
+        "release/12.0",
+        "release/10.0"
       ],
       "matchPackageNames": [
         "org.apache.*",
