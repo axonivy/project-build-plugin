@@ -18,9 +18,9 @@
       "matchBaseBranches": [
         "master"
       ],
-      "matchPackageNames": [
-        "org.apache.*",
-        "com.fasterxml.jackson.dataformat:*"
+      "matchDepTypes": [
+        "build",
+        "compile"
       ],
       "matchUpdateTypes": [
         "minor",
@@ -33,9 +33,9 @@
         "release/12.0",
         "release/10.0"
       ],
-      "matchPackageNames": [
-        "org.apache.*",
-        "com.fasterxml.jackson.dataformat:*"
+      "matchDepTypes": [
+        "build",
+        "compile"
       ],
       "matchUpdateTypes": [
         "patch"
