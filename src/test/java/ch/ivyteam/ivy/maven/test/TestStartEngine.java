@@ -22,6 +22,7 @@ import static org.awaitility.Awaitility.await;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Rule;
@@ -200,7 +201,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   private static void kill(Process startedProcess) {
     if (startedProcess != null) {
       startedProcess.destroy();
-      await().untilAsserted(() -> assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse());
+      await().atMost(Duration.ofSeconds(30))
+          .untilAsserted(() -> assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse());
     }
   }
 
