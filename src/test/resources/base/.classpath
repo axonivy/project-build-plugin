@@ -6,7 +6,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="**/*.ivyClass|**/*.mod|**/*.rddescriptor|**/*.eventmappings|**/*.xhtml" kind="src" path="src_hd"/>
 	<classpathentry kind="src" path="src_wsproc"/>
 	<classpathentry kind="src" path="src_dataClasses"/>
 	<classpathentry kind="src" path="src_test"/>
