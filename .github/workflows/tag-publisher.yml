@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/draft-pub.yml
+    uses: ./.github/workflows/draft-publisher.yml
     with:
       version: ${{ inputs.tag }}
       # The 'publish' input parameter is used to control whether the release should be published automatically.
