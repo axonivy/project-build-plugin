@@ -1,4 +1,4 @@
-[![project-build-plugin version][0]][1] [![project-build-plugin snapshot version][2]][3] [![4]][5]
+[![lts-version][lts] ![le]][central]  [![snapshot-version][snap]][sonatype] [![blue]][plugin-doc]
 
 # Axon Ivy Project build plugin
 
@@ -62,9 +62,10 @@ Wait until the maven central release is available: this may take several hours u
 
 The Apache License, Version 2.0
 
-[0]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=12&label=central&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/maven-metadata/v?versionPrefix=13&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
-[4]: https://img.shields.io/badge/-Documentation-blue
-[5]: https://axonivy.github.io/project-build-plugin/release/
+[lts]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=12&label=LTS&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[le]: https://img.shields.io/maven-metadata/v.svg?label=LE&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[central]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
+[snap]: https://img.shields.io/maven-metadata/v?versionPrefix=13&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[sonatype]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
+[blue]: https://img.shields.io/badge/-Documentation-blue
+[plugin-doc]: https://axonivy.github.io/project-build-plugin/release/
