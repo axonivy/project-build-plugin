@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/13.1.2/process.json",
   "id" : "148CA74B16C580BF",
   "kind" : "WEB_SERVICE",
   "config" : {
@@ -56,7 +56,9 @@
       "visual" : {
         "at" : { "x" : 320, "y" : 280 },
         "size" : { "width" : 576, "height" : 268 },
-        "color" : "NodeStyle18"
+        "description" : "",
+        "color" : "NodeStyle18",
+        "icon" : ""
       }
     } ],
   "layout" : {
