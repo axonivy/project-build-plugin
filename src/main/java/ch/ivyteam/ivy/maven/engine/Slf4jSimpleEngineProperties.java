@@ -16,6 +16,7 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,6 +66,21 @@ public class Slf4jSimpleEngineProperties {
     // only warnings from any logger used by ivy third parties (e.g.
     // org.apache.myfaces.xxx, org.apache.cxf, ...)
     System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
+
+    // remain in same stream as the Maven CLI; don't use the default 'System.err'
+    System.setProperty(SimpleLogger.LOG_FILE_KEY, "System.out");
+
+    enforceSimpleConfigReload();
+  }
+
+  private static void enforceSimpleConfigReload() {
+    try {
+      Method initMethod = SimpleLogger.class.getDeclaredMethod("init");
+      initMethod.setAccessible(true);
+      initMethod.invoke(null);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   public static void reset() {
