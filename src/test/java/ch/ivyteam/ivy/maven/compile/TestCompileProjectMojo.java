@@ -18,20 +18,40 @@ package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   private CompileTestProjectMojo testMojo;
+
+  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+  private final PrintStream originalOut = System.out;
+
+  @Before
+  public void setup() {
+    Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
+    System.setOut(new PrintStream(outContent));
+  }
+
+  @After
+  public void restoreStreams() {
+    System.setOut(originalOut);
+  }
 
   @Rule
   public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(
@@ -101,4 +121,36 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     mojo.execute();
     assertThat(log.getWarnings().toString()).contains("Could not locate compiler settings file");
   }
+
+  @Test
+  public void validateProcess() throws Exception {
+    CompileProjectMojo mojo = compile.getMojo();
+
+    Path project = mojo.project.getBasedir().toPath();
+    var dataClassDir = project.resolve("src_dataClasses");
+    var wsProcDir = project.resolve("src_wsproc");
+    PathUtils.clean(wsProcDir);
+    PathUtils.clean(dataClassDir);
+
+    var ws = project.resolve("processes").resolve("myWebService.p.json");
+    String wsJson = Files.readString(ws);
+    var patched = StringUtils.replace(wsJson, "//TEMPLATE!!", "ivy.session.assignRole(null);");
+    Files.writeString(ws, patched);
+
+    mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");
+    mojo.execute();
+
+    assertThat(outContent.toString())
+        .contains("processes/myWebService.p.json /element=148CA74B16C580BF-ws0 : "
+            + "Start code: Method assignRole of class ch.ivyteam.ivy.workflow.IWorkflowSession "
+            + "is deprecated");
+
+    var warning = outContent.toString().lines()
+        .filter(l -> l.contains("/element=148CA74B16C580BF-ws0"))
+        .findFirst().get();
+    assertThat(warning)
+        .as("WARNING prefix is streamlined with Maven CLI")
+        .startsWith("[WARNING]");
+  }
+
 }
