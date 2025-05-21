@@ -1,5 +1,5 @@
 {
-  "format" : "9.4.21",
+  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
   "id" : "148CA74B16C580BF",
   "kind" : "WEB_SERVICE",
   "config" : {
@@ -11,18 +11,22 @@
       "type" : "WebserviceStart",
       "name" : "call(String)",
       "config" : {
-        "callSignature" : "call",
+        "signature" : "call",
         "input" : {
           "params" : [
-            { "name" : "myText", "type" : "String" }
-          ]
+            { "name" : "myText", "type" : "String", "desc" : "" }
+          ],
+          "map" : { },
+          "code" : "//TEMPLATE!!"
         }
       },
       "visual" : {
         "at" : { "x" : 96, "y" : 64 },
         "labelOffset" : { "x" : 13, "y" : 37 }
       },
-      "connect" : { "id" : "f0", "to" : "ws1" }
+      "connect" : [
+        { "id" : "f0", "to" : "ws1" }
+      ]
     }, {
       "id" : "ws1",
       "type" : "WebserviceEnd",
