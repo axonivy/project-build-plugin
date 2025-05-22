@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.simple.SimpleLogger;
+import org.slf4j.impl.SimpleLogger;
 
 /**
  * Sets the logging properties for the ivy engine.
@@ -107,7 +107,7 @@ public class Slf4jSimpleEngineProperties {
   }
 
   /**
-   * Valid levels as documented in {@link org.slf4j.simple.SimpleLogger}
+   * Valid levels as documented in {@link SimpleLogger}
    */
   interface Level {
     String TRACE = "trace";
