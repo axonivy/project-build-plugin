@@ -69,11 +69,9 @@ public class Slf4jSimpleEngineProperties {
 
     // remain in same stream as the Maven CLI; don't use the default 'System.err'
     System.setProperty(SimpleLogger.LOG_FILE_KEY, "System.out");
-
-    enforceSimpleConfigReload();
   }
 
-  private static void enforceSimpleConfigReload() {
+  public static void enforceSimpleConfigReload() {
     try {
       Method initMethod = SimpleLogger.class.getDeclaredMethod("init");
       initMethod.setAccessible(true);

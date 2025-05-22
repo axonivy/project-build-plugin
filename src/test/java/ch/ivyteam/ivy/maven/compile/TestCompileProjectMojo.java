@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
@@ -43,13 +44,13 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
 
   @Before
   public void setup() {
+    Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
     System.setOut(new PrintStream(outContent));
   }
 
   @After
   public void restoreStreams() {
     System.setOut(originalOut);
-
   }
 
   @Rule
