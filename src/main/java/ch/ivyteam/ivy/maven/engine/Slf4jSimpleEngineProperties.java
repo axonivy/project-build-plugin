@@ -16,10 +16,11 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.simple.SimpleLogger;
+import org.slf4j.impl.SimpleLogger;
 
 /**
  * Sets the logging properties for the ivy engine.
@@ -65,6 +66,19 @@ public class Slf4jSimpleEngineProperties {
     // only warnings from any logger used by ivy third parties (e.g.
     // org.apache.myfaces.xxx, org.apache.cxf, ...)
     System.setProperty(DEFAULT_LOG_LEVEL, Level.WARNING);
+
+    // remain in same stream as the Maven CLI; don't use the default 'System.err'
+    System.setProperty(SimpleLogger.LOG_FILE_KEY, "System.out");
+  }
+
+  public static void enforceSimpleConfigReload() {
+    try {
+      Method initMethod = SimpleLogger.class.getDeclaredMethod("init");
+      initMethod.setAccessible(true);
+      initMethod.invoke(null);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   public static void reset() {
@@ -91,7 +105,7 @@ public class Slf4jSimpleEngineProperties {
   }
 
   /**
-   * Valid levels as documented in {@link org.slf4j.simple.SimpleLogger}
+   * Valid levels as documented in {@link SimpleLogger}
    */
   interface Level {
     String TRACE = "trace";
