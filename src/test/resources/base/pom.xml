@@ -2,38 +2,13 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.axonivy.ivy.api</groupId>
-    <artifactId>ivy-project-parent</artifactId>
-    <version>13.1.0-SNAPSHOT</version>
-    <relativePath></relativePath>
-  </parent>
   <groupId>ch.ivyteam.project.test</groupId>
   <artifactId>base</artifactId>
   <version>1.0.0</version>
   <packaging>iar</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>com.axonivy.ivy.api</groupId>
-      <artifactId>ivy-api</artifactId>
-    </dependency>
-  </dependencies>
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-    <repository>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <id>maven.axonivy.com</id>
-      <url>https://maven.axonivy.com</url>
-    </repository>
-  </repositories>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <testSourceDirectory>src_test</testSourceDirectory>
     <testOutputDirectory>notMyTestClasses</testOutputDirectory>
@@ -41,6 +16,7 @@
       <plugin>
         <groupId>com.axonivy.ivy.ci</groupId>
         <artifactId>project-build-plugin</artifactId>
+        <version>12.0.1</version>
         <extensions>false</extensions>
       </plugin>
     </plugins>
