@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Predicate;
 
 import org.apache.maven.artifact.Artifact;
@@ -53,8 +54,7 @@ public class EngineClassLoaderFactory {
     String LIB_BOOT = "lib/boot";
   }
 
-  /** must match version in pom.xml */
-  private static final String SLF4J_VERSION = "2.0.13";
+  private static final String SLF4J_VERSION = readSlf4jVersion();
 
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
       OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
@@ -88,6 +88,17 @@ public class EngineClassLoaderFactory {
         maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
         maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
         maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+  }
+
+  private static String readSlf4jVersion() {
+    String versions = "versions.properties";
+    try (var in = EngineClassLoaderFactory.class.getResourceAsStream(versions)) {
+      Properties props = new Properties();
+      props.load(in);
+      return props.getProperty("slf4j", "");
+    } catch (IOException ex) {
+      throw new RuntimeException("Failed to read SLF4j version from file: " + versions, ex);
+    }
   }
 
   public static List<File> getOsgiBootstrapClasspath(Path engineDirectory) {
