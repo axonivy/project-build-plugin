@@ -151,8 +151,6 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     assertThat(warning)
         .as("WARNING prefix is streamlined with Maven CLI")
         .startsWith("[WARNING]");
-
-    originalOut.print(outContent);
   }
 
 }
