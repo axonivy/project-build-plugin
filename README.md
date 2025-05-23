@@ -56,8 +56,6 @@ Wait until the maven central release is available: this may take several hours u
 
 - Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version!
 
-- Raise ch.ivyteam.ivy.library.IvyProjectBuildPlugin.DEFAULT_VERSION in ivy core
-
 ## License
 
 The Apache License, Version 2.0
