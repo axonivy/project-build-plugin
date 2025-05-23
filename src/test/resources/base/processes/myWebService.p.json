@@ -16,7 +16,7 @@
           "params" : [
             { "name" : "myText", "type" : "String", "desc" : "" }
           ],
-          "map" : { }
+          "code" : "//TEMPLATE!!"
         }
       },
       "visual" : {
