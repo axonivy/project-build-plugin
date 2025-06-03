@@ -25,10 +25,12 @@ pipeline {
             sh "git checkout -b ${targetBranch}"
 
             setupGPGEnvironment()
-            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {              
+            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
               def dryRun = isReleaseBranch() ? '' : '-DdryRun=true'
-              def args = "-PossrhDeploy -Divy.engine.list.url=${params.engineListUrl} -Dgpg.project-build.password='${env.GPG_PWD}'"+
-                " -Dgithub.site.skip=false";
+              def args = "-PcentralDeploy " +
+                "-Divy.engine.list.url=${params.engineListUrl} " +
+                "-Dgpg.project-build.password='${env.GPG_PWD}' " +
+                "-Dgithub.site.skip=false ";
               maven cmd: dryRun + ' -Darguments="' + args + '" -DpushChanges=false -DlocalCheckout=true release:prepare release:perform'
             }
 
@@ -42,7 +44,7 @@ pipeline {
                   sh "gh pr create --title '${message}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
                 }
                 // publish site from 'mvn release' run
-                maven cmd: "site site:stage scm-publish:publish-scm -PossrhDeploy"
+                maven cmd: "site site:stage scm-publish:publish-scm -PcentralDeploy"
               }
             }
           }
