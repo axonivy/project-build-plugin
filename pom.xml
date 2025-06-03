@@ -46,7 +46,7 @@
     <site.path>snapshot</site.path>
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
-    <autoRelease>true</autoRelease>
+    <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
