@@ -19,6 +19,7 @@ pipeline {
       steps {
         script {
           docker.build('maven').inside {
+            def publishingUri = "https://central.sonatype.com/publishing/deployments"
             def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
             sh "git config --global user.name 'ivy-team'"
             sh "git config --global user.email 'info@ivyteam.ch'"
@@ -36,6 +37,7 @@ pipeline {
                 "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                 "-Dgithub.site.skip=false ";
               maven cmd: 'clean deploy site ' + args
+              currentBuild.description = "<a href='${publishingUri}'>publishing</a>"
             }
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
