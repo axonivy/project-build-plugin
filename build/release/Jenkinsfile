@@ -24,20 +24,26 @@ pipeline {
             sh "git config --global user.name 'ivy-team'"
             sh "git config --global user.email 'info@ivyteam.ch'"
             sh "git checkout -b ${targetBranch}"
+            sh "git tag -l | xargs git tag -d"
+            
+            def releasedVersion = version('-DremoveSnapshot=true')
+            sh "git add . ;git commit -m 'update versions for release ${releasedVersion}'"
+            sh "git tag \"v${releasedVersion}\" -a -m \"Official release ${releasedVersion}\""
 
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-              def dryRun = isReleaseBranch() ? '' : '-DdryRun=true'
               def args = "-PcentralDeploy " +
                 "-Divy.engine.list.url=${params.engineListUrl} " +
                 "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                 "-Dgithub.site.skip=false ";
-              maven cmd: dryRun + ' -Darguments="' + args + '" -DpushChanges=false -DlocalCheckout=true release:prepare release:perform'
+              maven cmd: 'clean deploy site ' + args
             }
             currentBuild.description = "<a href='${publishingUri}'>publishing</a>"
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
+                def nextVersion=version('-DnextSnapshot=true')
+                sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
                 sh "git push origin --tags"
                 sh "git push -u origin ${targetBranch}"
                 
@@ -47,6 +53,7 @@ pipeline {
                   sh "gh auth login --with-token < ${tokenFile}"
                   sh "gh pr create --title '${title}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
                 }
+
                 // publish site from 'mvn release' run
                 maven cmd: "site site:stage scm-publish:publish-scm -PcentralDeploy"
               }
@@ -67,4 +74,11 @@ def setupGPGEnvironment() {
   withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
     sh "gpg --batch --import ${env.GPG_FILE}"
   }
+}
+
+def version(def param) {
+  sh "mvn org.codehaus.mojo:versions-maven-plugin:2.18.0:set ${param} -DgenerateBackupPoms=false | grep '\\[.*' "
+  def evalCmd='mvn help:evaluate -Dexpression=\'project.version\' -q -DforceStdout'
+  def current = sh(script: evalCmd, returnStdout: true)
+  return current;
 }
