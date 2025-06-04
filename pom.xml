@@ -52,13 +52,13 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>central</id>
+      <id>central.snapshots</id>
       <name>Maven Central Snapshots Repo</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </snapshotRepository>
     <repository>
-      <id>sonatype.releases</id>
-      <name>Sonatype Releases Repo</name>
+      <id>central.releases</id>
+      <name>Maven Central Releases Repo</name>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
     <site>
@@ -424,7 +424,7 @@
             <version>0.7.0</version>
             <extensions>true</extensions>
             <configuration>
-              <publishingServerId>central</publishingServerId>
+              <publishingServerId>central.releases</publishingServerId>
               <autoPublish>${autoRelease}</autoPublish>
               <waitUntil>published</waitUntil>
             </configuration>
