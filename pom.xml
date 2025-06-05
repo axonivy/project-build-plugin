@@ -46,19 +46,19 @@
     <site.path>snapshot</site.path>
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
-    <autoRelease>true</autoRelease>
+    <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <distributionManagement>
     <snapshotRepository>
-      <id>sonatype.snapshots</id>
+      <id>central.snapshots</id>
       <name>Maven Central Snapshots Repo</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </snapshotRepository>
     <repository>
-      <id>sonatype.releases</id>
-      <name>Sonatype Releases Repo</name>
+      <id>central.releases</id>
+      <name>Maven Central Releases Repo</name>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
     <site>
@@ -352,23 +352,13 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>3.1.1</version>
-          <configuration>
-            <tagNameFormat>v@{project.version}</tagNameFormat>
-            <releaseProfiles>release</releaseProfiles>
-            <goals>deploy site</goals>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
   
   <profiles>
     <profile>
-      <id>ossrhDeploy</id>
+      <id>centralDeploy</id>
       <properties>
         <site.path>release</site.path>
         <other.site.path>snapshot</other.site.path>
@@ -429,14 +419,14 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.7.0</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.7.0</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>sonatype.snapshots</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>${autoRelease}</autoReleaseAfterClose>
+              <publishingServerId>central.releases</publishingServerId>
+              <autoPublish>${autoRelease}</autoPublish>
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>
