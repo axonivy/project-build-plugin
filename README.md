@@ -47,7 +47,7 @@ The Apache License, Version 2.0
 
 [0]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=10&label=central&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [1]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[2]: https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml&versionPrefix=10&label=dev&logo=sonatype
-[3]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
+[2]: https://img.shields.io/maven-metadata/v?versionPrefix=10&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[3]: https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [4]: https://img.shields.io/badge/-Documentation-blue
 [5]: https://axonivy.github.io/project-build-plugin/release/
