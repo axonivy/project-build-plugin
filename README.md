@@ -65,7 +65,7 @@ The Apache License, Version 2.0
 [lts]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=12&label=LTS&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [le]: https://img.shields.io/maven-metadata/v.svg?label=LE&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
 [central]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[snap]: https://img.shields.io/maven-metadata/v?versionPrefix=13&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Foss.sonatype.org%2Fcontent%2Frepositories%2Fsnapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[sonatype]: https://oss.sonatype.org/content/repositories/snapshots/com/axonivy/ivy/ci/project-build-plugin/
+[snap]: https://img.shields.io/maven-metadata/v?versionPrefix=13&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[sonatype]: https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/axonivy/ivy/ci/project-build-plugin/
 [blue]: https://img.shields.io/badge/-Documentation-blue
 [plugin-doc]: https://axonivy.github.io/project-build-plugin/release/
