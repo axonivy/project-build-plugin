@@ -16,10 +16,10 @@ Snapshots
 <project>
   ....
   <pluginRepositories>
-    <!-- Snapshot releases are available via sonatype.org -->
+    <!-- Snapshot releases are available from sonatype -->
     <pluginRepository>
       <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
       <snapshots>
         <updatePolicy>always</updatePolicy>
       </snapshots>
