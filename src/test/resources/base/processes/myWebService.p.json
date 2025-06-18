@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/13.1.2/process.json",
   "id" : "148CA74B16C580BF",
   "kind" : "WEB_SERVICE",
   "config" : {
@@ -16,6 +16,7 @@
           "params" : [
             { "name" : "myText", "type" : "String", "desc" : "" }
           ],
+          "map" : { },
           "code" : "//TEMPLATE!!"
         }
       },
