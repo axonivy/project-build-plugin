@@ -18,10 +18,10 @@
       <type>iar</type>
     </dependency>
     <dependency>
-    	<groupId>com.axonivy.ivy.test</groupId>
-    	<artifactId>unit-tester</artifactId>
-    	<version>12.0.1</version>
-    	<scope>test</scope>
+      <groupId>com.axonivy.ivy.test</groupId>
+      <artifactId>unit-tester</artifactId>
+      <version>12.0.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
