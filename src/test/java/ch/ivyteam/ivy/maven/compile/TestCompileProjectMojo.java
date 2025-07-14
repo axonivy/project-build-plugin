@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -134,7 +134,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
 
     var ws = project.resolve("processes").resolve("myWebService.p.json");
     String wsJson = Files.readString(ws);
-    var patched = StringUtils.replace(wsJson, "//TEMPLATE!!", "ivy.task.createNote(ivy.session, null).getWritterName();");
+    var patched = Strings.CS.replace(wsJson, "//TEMPLATE!!", "ivy.task.createNote(ivy.session, null).getWritterName();");
     Files.writeString(ws, patched);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");

@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -144,7 +145,7 @@ public class URLEngineDownloader implements EngineDownloader {
         ArtifactVersion version = new DefaultArtifactVersion(
             EngineVersionEvaluator.toReleaseVersion(versionString));
         if (ivyVersionRange.containsVersion(version)) {
-          engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
+          engineLink = Strings.CS.replace(engineLinkMatch, "\"", "'");
           engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
         }
       }
@@ -153,7 +154,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException, URISyntaxException {
-    boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
+    boolean isAbsoluteLink = Strings.CS.startsWithAny(parsedEngineArchivLink, "http://", "https://");
     if (isAbsoluteLink) {
       return URI.create(parsedEngineArchivLink).toURL();
     }
