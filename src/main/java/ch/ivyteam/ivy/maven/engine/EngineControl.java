@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.StopWatch;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
@@ -168,7 +169,7 @@ public class EngineControl {
   }
 
   static String evaluateIvyContextFromUrl(String location) {
-    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
+    return StringUtils.substringBefore(Strings.CS.removeStart(location, "/"), "sys");
   }
 
   private void waitForEngineStarted() throws Exception {
