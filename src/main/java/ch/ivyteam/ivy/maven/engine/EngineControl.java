@@ -44,6 +44,7 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.StopWatch;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
@@ -54,7 +55,7 @@ import ch.ivyteam.ivy.maven.util.stream.LineOrientedOutputStreamRedirector;
  * Sends commands like start, stop to the ivy Engine
  */
 public class EngineControl {
-  public static interface Property {
+  public interface Property {
     String TEST_ENGINE_URL = "test.engine.url";
     String TEST_ENGINE_LOG = "test.engine.log";
   }
@@ -66,8 +67,8 @@ public class EngineControl {
     STOPPED, STARTING, RUNNING, STOPPING, UNREGISTERED, FAILED;
   }
 
-  private EngineMojoContext context;
-  private AtomicBoolean engineStarted = new AtomicBoolean(false);
+  private final EngineMojoContext context;
+  private final AtomicBoolean engineStarted = new AtomicBoolean(false);
 
   private enum Command {
     start, stop, status
@@ -82,8 +83,9 @@ public class EngineControl {
     context.log.info("Start Axon Ivy Engine in folder: " + context.engineDirectory);
 
     Executor executor = createEngineExecutor();
-    executor.setStreamHandler(createEngineLogStreamForwarder(logLine -> findStartEngineUrl(logLine)));
-    executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
+    executor.setStreamHandler(createEngineLogStreamForwarder(this::findStartEngineUrl));
+    executor.setWatchdog(
+        ExecuteWatchdog.builder().setTimeout(ExecuteWatchdog.INFINITE_TIMEOUT_DURATION).get());
     executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
     executor.execute(startCmd, asynchExecutionHandler());
     waitForEngineStart(executor);
@@ -113,10 +115,10 @@ public class EngineControl {
     File osgiDir = new File(context.engineDirectory, OsgiDir.INSTALL_AREA);
 
     CommandLine cli = new CommandLine(new File(getJavaExec()))
-            .addArgument("-classpath").addArgument(classpath)
-            .addArgument("-Divy.engine.testheadless=true")
-            .addArgument("-Djava.awt.headless=true")
-            .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
+        .addArgument("-classpath").addArgument(classpath)
+        .addArgument("-Divy.engine.testheadless=true")
+        .addArgument("-Djava.awt.headless=true")
+        .addArgument("-Dosgi.install.area=" + osgiDir.getAbsolutePath());
 
     if (StringUtils.isNotBlank(context.vmOptions.additionalVmOptions)) {
       cli.addArguments(context.vmOptions.additionalVmOptions, false);
@@ -124,21 +126,21 @@ public class EngineControl {
     EngineModuleHints.loadFromJvmOptionsFile(context, cli);
 
     cli.addArgument("org.eclipse.equinox.launcher.Main")
-            .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")
-            .addArgument(command.toString());
+        .addArgument("-application").addArgument("ch.ivyteam.ivy.server.exec.engine")
+        .addArgument(command.toString());
     return cli;
   }
 
   private Executor createEngineExecutor() {
-    DefaultExecutor executor = new DefaultExecutor();
-    executor.setWorkingDirectory(context.engineDirectory);
-    return executor;
+    return DefaultExecutor.builder()
+        .setWorkingDirectory(context.engineDirectory)
+        .get();
   }
 
   private PumpStreamHandler createEngineLogStreamForwarder(Consumer<String> logLineHandler)
-          throws FileNotFoundException {
+      throws FileNotFoundException {
     OutputStream output = getEngineLogTarget();
-    OutputStream engineLogStream = new LineOrientedOutputStreamRedirector(output) {
+    OutputStream engineLogStream = new LineOrientedOutputStreamRedirector(output){
       @Override
       protected void processLine(byte[] b) throws IOException {
         super.processLine(b); // write file log
@@ -149,7 +151,7 @@ public class EngineControl {
         }
       }
     };
-    PumpStreamHandler streamHandler = new PumpStreamHandler(engineLogStream, System.err) {
+    return new PumpStreamHandler(engineLogStream, System.err){
       @Override
       public void stop() throws IOException {
         super.stop();
@@ -157,7 +159,6 @@ public class EngineControl {
                                  // close it!
       }
     };
-    return streamHandler;
   }
 
   private OutputStream getEngineLogTarget() throws FileNotFoundException {
@@ -182,9 +183,9 @@ public class EngineControl {
     if (lowercaseNewLine.contains("info page of axon.ivy engine") || // 9.1.1
                                                                      // and
                                                                      // earlier
-            lowercaseNewLine.contains("info page of axon ivy engine")) // 9.2.0
-                                                                       // and
-                                                                       // newer
+        lowercaseNewLine.contains("info page of axon ivy engine")) // 9.2.0
+                                                                   // and
+                                                                   // newer
     {
       if (!engineStarted.get()) {
         var url = "http://" + StringUtils.substringBetween(newLine, "http://", "/") + "/";
@@ -216,7 +217,7 @@ public class EngineControl {
   }
 
   static String evaluateIvyContextFromUrl(String location) {
-    return StringUtils.substringBefore(StringUtils.removeStart(location, "/"), "sys");
+    return StringUtils.substringBefore(Strings.CS.removeStart(location, "/"), "sys");
   }
 
   private void waitForEngineStart(Executor executor) throws Exception {
@@ -229,15 +230,15 @@ public class EngineControl {
       }
       if (i > context.timeoutInSeconds) {
         throw new TimeoutException("Timeout while starting engine " + context.timeoutInSeconds + " [s].\n"
-                + "Check the engine log for details or increase the timeout property '"
-                + StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS + "'");
+            + "Check the engine log for details or increase the timeout property '"
+            + StartTestEngineMojo.IVY_ENGINE_START_TIMEOUT_SECONDS + "'");
       }
     }
     context.log.info("Engine started after " + i + " [s]");
   }
 
   private ExecuteResultHandler asynchExecutionHandler() {
-    return new ExecuteResultHandler() {
+    return new ExecuteResultHandler(){
       @Override
       public void onProcessFailed(ExecuteException ex) {
         throw new RuntimeException("Engine operation failed.", ex);
