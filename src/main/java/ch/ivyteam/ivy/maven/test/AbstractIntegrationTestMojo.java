@@ -3,7 +3,7 @@ package ch.ivyteam.ivy.maven.test;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -48,7 +48,7 @@ public abstract class AbstractIntegrationTestMojo extends AbstractEngineMojo {
   }
 
   private boolean isLocation(String location) {
-    return StringUtils.equalsIgnoreCase(testEngine, location);
+    return Strings.CI.equals(testEngine, location);
   }
 
   private boolean isCachedEngine() throws MojoExecutionException {
