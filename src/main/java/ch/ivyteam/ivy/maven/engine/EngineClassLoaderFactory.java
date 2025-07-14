@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -42,7 +43,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * Factory that provides an {@link URLClassLoader} for ivy Engine class access.
  * This makes invocation of engine parts possible without starting a new java
  * process.
- * 
+ *
  * @author Reguel Wermelinger
  * @since 25.09.2014
  */
@@ -57,15 +58,15 @@ public class EngineClassLoaderFactory {
   private static final String SLF4J_VERSION = "1.7.36";
 
   private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-          OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
-          OsgiDir.PLUGINS,
-          OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
-                                                                    // jars from
-                                                                    // OSGI
-                                                                    // bundles
-          "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
+      OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
+      OsgiDir.PLUGINS,
+      OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
+                                                                // jars from
+                                                                // OSGI
+                                                                // bundles
+      "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
 
-  private MavenContext maven;
+  private final MavenContext maven;
 
   public EngineClassLoaderFactory(MavenContext mavenContext) {
     this.maven = mavenContext;
@@ -74,7 +75,9 @@ public class EngineClassLoaderFactory {
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws IOException {
     List<File> osgiClasspath = getOsgiBootstrapClasspath(engineDirectory);
     addToClassPath(osgiClasspath, new File(engineDirectory, OsgiDir.PLUGINS),
-            new WildcardFileFilter("org.eclipse.osgi_*.jar"));
+        WildcardFileFilter.builder()
+            .setIoCase(IOCase.SENSITIVE)
+            .setWildcards("org.eclipse.osgi_*.jar").get());
     osgiClasspath.addAll(0, getSlf4jJars());
     if (maven.log.isDebugEnabled()) {
       maven.log.debug("Configuring OSGi engine classpath:");
@@ -85,9 +88,9 @@ public class EngineClassLoaderFactory {
 
   public List<File> getSlf4jJars() {
     return List.of(
-            maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
-            maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
-            maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
+        maven.getJar("org.slf4j", "slf4j-api", SLF4J_VERSION),
+        maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION),
+        maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION));
   }
 
   public static List<File> getOsgiBootstrapClasspath(File engineDirectory) {
@@ -96,15 +99,13 @@ public class EngineClassLoaderFactory {
     }
     List<File> classPathFiles = new ArrayList<>();
     addToClassPath(classPathFiles, new File(engineDirectory, OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT),
-            new SuffixFileFilter(".jar"));
+        new SuffixFileFilter(".jar"));
     return classPathFiles;
   }
 
   private static void addToClassPath(List<File> classPathFiles, File dir, IOFileFilter fileFilter) {
     if (dir.isDirectory()) {
-      for (File jar : FileUtils.listFiles(dir, fileFilter, null)) {
-        classPathFiles.add(jar);
-      }
+      classPathFiles.addAll(FileUtils.listFiles(dir, fileFilter, null));
     }
   }
 
@@ -115,9 +116,7 @@ public class EngineClassLoaderFactory {
       if (!jarDir.isDirectory()) {
         continue;
       }
-      for (File jar : FileUtils.listFiles(jarDir, new String[] {"jar"}, true)) {
-        classPathFiles.add(jar);
-      }
+      classPathFiles.addAll(FileUtils.listFiles(jarDir, new String[] {"jar"}, true));
     }
     return classPathFiles;
   }
@@ -148,7 +147,7 @@ public class EngineClassLoaderFactory {
     private final Log log;
 
     public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, MavenProject project,
-            Log log) {
+        Log log) {
       this.repoSystem = repoSystem;
       this.localRepository = localRepository;
       this.project = project;

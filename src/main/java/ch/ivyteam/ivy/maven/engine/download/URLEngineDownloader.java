@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -35,8 +36,8 @@ public class URLEngineDownloader implements EngineDownloader {
   public ProxyInfoProvider proxies;
 
   public URLEngineDownloader(URL engineDownloadUrl, URL engineListPageUrl, String osArchitecture,
-          String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,
-          ProxyInfoProvider proxies) {
+      String ivyVersion, VersionRange ivyVersionRange, Log log, File downloadDirectory,
+      ProxyInfoProvider proxies) {
     this.engineDownloadUrl = engineDownloadUrl;
     this.engineListPageUrl = engineListPageUrl;
     this.osArchitecture = osArchitecture;
@@ -81,7 +82,7 @@ public class URLEngineDownloader implements EngineDownloader {
       return downloadZip;
     } catch (Exception ex) {
       throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-              + downloadDirectory + "'", ex);
+          + downloadDirectory + "'", ex);
     }
   }
 
@@ -128,7 +129,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   public URL findEngineDownloadUrl(InputStream htmlStream)
-          throws MojoExecutionException, MalformedURLException {
+      throws MojoExecutionException, MalformedURLException {
     String engineFileNameRegex = "AxonIvyEngine[^.]+?\\.[^.]+?\\.+[^_]*?_" + osArchitecture + "\\.zip";
     Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?" + engineFileNameRegex + "[\"|']");
     try (Scanner scanner = new Scanner(htmlStream)) {
@@ -137,14 +138,14 @@ public class URLEngineDownloader implements EngineDownloader {
         String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
         if (engineLinkMatch == null) {
           throw new MojoExecutionException("Could not find a link to engine for version '" + ivyVersion
-                  + "' on site '" + engineListPageUrl + "'");
+              + "' on site '" + engineListPageUrl + "'");
         }
         String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine",
-                "_" + osArchitecture);
+            "_" + osArchitecture);
         ArtifactVersion version = new DefaultArtifactVersion(
-                EngineVersionEvaluator.toReleaseVersion(versionString));
+            EngineVersionEvaluator.toReleaseVersion(versionString));
         if (ivyVersionRange.containsVersion(version)) {
-          engineLink = StringUtils.replace(engineLinkMatch, "\"", "'");
+          engineLink = Strings.CS.replace(engineLinkMatch, "\"", "'");
           engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
         }
       }
@@ -153,7 +154,7 @@ public class URLEngineDownloader implements EngineDownloader {
   }
 
   private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException {
-    boolean isAbsoluteLink = StringUtils.startsWithAny(parsedEngineArchivLink, "http://", "https://");
+    boolean isAbsoluteLink = Strings.CS.startsWithAny(parsedEngineArchivLink, "http://", "https://");
     if (isAbsoluteLink) {
       return new URL(parsedEngineArchivLink);
     }
