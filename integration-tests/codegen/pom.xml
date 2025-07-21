@@ -8,6 +8,7 @@
 
   <modules>
     <module>jakarta-codegen</module>
+    <module>jakarta-codegen-test</module>
   </modules>
 
   <build>
