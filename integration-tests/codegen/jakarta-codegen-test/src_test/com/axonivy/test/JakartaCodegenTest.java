@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.hibernate.query.Query;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.test.jakarta.codegen.Car;
@@ -15,7 +14,6 @@ import com.axonivy.test.jakarta.codegen._Car;
 import ch.ivyteam.ivy.environment.IvyTest;
 
 @IvyTest
-@Disabled("runtime PMV resolution issues")
 class JakartaCodegenTest {
 
   @Test
