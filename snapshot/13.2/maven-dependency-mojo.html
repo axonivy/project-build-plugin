@@ -147,21 +147,26 @@
 <p>If parameter is not set it will be a sub-directory of the <code>engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
 <tr class="a">
+<td><a href="#generatedSourcesDirectory"><code>&lt;generatedSourcesDirectory&gt;</code></a></td>
+<td><code>Path</code></td>
+<td><code>13.2</code></td>
+<td>Defines the source output directory for annotation-processors.<br /><strong>Default</strong>: <code>${basedir}/src_generated</code><br /><strong>User Property</strong>: <code>ivy.compiler.apt.source.output</code></td></tr>
+<tr class="b">
 <td><a href="#localRepository"><code>&lt;localRepository&gt;</code></a></td>
 <td><code>ArtifactRepository</code></td>
 <td><code>-</code></td>
 <td>No description.<br /><strong>Default</strong>: <code>${localRepository}</code></td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="#skipMvnDependency"><code>&lt;skipMvnDependency&gt;</code></a></td>
 <td><code>boolean</code></td>
 <td><code>-</code></td>
 <td>Set to <code>true</code> to bypass the copy of <b>maven dependencies</b>.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.mvn.dep.skip</code></td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="#timeoutEngineStartInSeconds"><code>&lt;timeoutEngineStartInSeconds&gt;</code></a></td>
 <td><code>int</code></td>
 <td><code>7.4.0</code></td>
 <td>Defines the timeout how long to wait for an engine start to compile.<br /><strong>Default</strong>: <code>60</code><br /><strong>User Property</strong>: <code>ivy.compiler.engine.start.timeout</code></td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="#useLatestMinor"><code>&lt;useLatestMinor&gt;</code></a></td>
 <td><code>Boolean</code></td>
 <td><code>-</code></td>
@@ -223,7 +228,15 @@
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="generatedSourcesDirectory"></a><section><a id="a.3CgeneratedSourcesDirectory.3E"></a>
+<h3>&lt;generatedSourcesDirectory&gt;</h3>
+<div>Defines the source output directory for annotation-processors.</div>
+<ul>
+<li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
+<li><strong>Since</strong>: <code>13.2</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.compiler.apt.source.output</code></li>
+<li><strong>Default</strong>: <code>${basedir}/src_generated</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
 <h3>&lt;ivyVersion&gt;</h3>
 <div>The ivy Engine version or version-range that must be used. Must be equal or higher than "13.2.0" Examples: 
 <br />
