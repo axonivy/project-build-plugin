@@ -1,4 +1,4 @@
-FROM maven:3.9.10-eclipse-temurin-21
+FROM maven:3.9.11-eclipse-temurin-21
 
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
     chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
