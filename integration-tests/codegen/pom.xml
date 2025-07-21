@@ -1,13 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.ivy.ci</groupId>
-  <artifactId>project-build-plugin-tests</artifactId>
-  <version>11.1.0-SNAPSHOT</version>
+  <artifactId>tests-m2e-libs</artifactId>
+  <version>13.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>codegen-module</name>
 
   <modules>
-    <module>maven-libs</module>
-    <module>codegen</module>
+    <module>jakarta-codegen</module>
+    <module>jakarta-codegen-test</module>
   </modules>
 
   <build>

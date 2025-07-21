@@ -49,6 +49,13 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
   boolean compilerWarnings;
 
   /**
+   * Defines the source output directory for annotation-processors.
+   * @since 13.2
+   */
+  @Parameter(property = "ivy.compiler.apt.source.output", defaultValue = "${basedir}/src_generated")
+  Path generatedSourcesDirectory;
+
+  /**
    * Define a compiler settings file to configure compilation warnings. Such
    * file can be created in the Designer: <i>Window - Preferences - Java -
    * Compiler - Errors/Warnings</i>, the corresponding file can be found in:
@@ -85,6 +92,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
     options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
     options.put(MavenProjectBuilderProxy.Options.JDT_SETTINGS_FILE, getCompilerSettings());
     options.put(MavenProjectBuilderProxy.Options.JDT_OPTIONS, compilerOptions);
+    options.put(MavenProjectBuilderProxy.Options.JDT_PROCESSOR_OUTPUT, generatedSourcesDirectory);
     return options;
   }
 

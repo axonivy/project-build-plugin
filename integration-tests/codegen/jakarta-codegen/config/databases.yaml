@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://json-schema.axonivy.com/app/13.2.0/databases.json
+Databases:
+  memory:
+    Url: jdbc:hsqldb:mem:carLounge
+    Driver: org.hsqldb.jdbc.JDBCDriver
+    Password: ${decrypt:}
