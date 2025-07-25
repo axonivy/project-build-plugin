@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,6 +55,7 @@ public class IarPackagingMojo extends AbstractMojo {
         "target/classes/**/*",
         "target/src_hd/**/*"
     };
+    String PREFIX = "META-INF/ivy/";
   }
 
   @Parameter(property = "project", required = true, readonly = true)
@@ -120,12 +122,16 @@ public class IarPackagingMojo extends AbstractMojo {
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar.toFile());
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir().toPath());
-    for (org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets)) {
+    for (var fs : fsConverter.toPlexusFileSets(iarFileSets)) {
+      fs.setPrefix(Defaults.PREFIX);
       archiver.addFileSet(fs);
     }
     archiver.addFileSet(getIarFs_exceptTarget(projectDir));
     archiver.addFileSet(getIarTargetFs(projectDir));
-
+    var targetClasses = projectDir.toPath().resolve(Path.of(project.getBuild().getOutputDirectory()));
+    if (Files.exists(targetClasses)) {
+      archiver.addFileSet(createFs(targetClasses.toFile()));
+    }
     try {
       archiver.createArchive();
     } catch (ArchiverException | IOException ex) {
@@ -135,6 +141,7 @@ public class IarPackagingMojo extends AbstractMojo {
 
   private DefaultFileSet getIarFs_exceptTarget(File projectDir) {
     var fileSet = createFs(projectDir);
+    fileSet.setPrefix(Defaults.PREFIX);
     fileSet.setIncludes(Defaults.INCLUDES);
     fileSet.setExcludes(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes));
     return fileSet;
@@ -142,6 +149,7 @@ public class IarPackagingMojo extends AbstractMojo {
 
   private DefaultFileSet getIarTargetFs(File projectDir) {
     var fileSet = createFs(projectDir);
+    fileSet.setPrefix(Defaults.PREFIX);
     fileSet.setIncludes(Defaults.TARGET_INCLUDES);
     fileSet.setExcludes(iarExcludes);
     return fileSet;
