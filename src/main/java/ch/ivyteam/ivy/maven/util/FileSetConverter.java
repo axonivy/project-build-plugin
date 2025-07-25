@@ -32,20 +32,20 @@ public class FileSetConverter {
     this.pomFileDir = pomFileDir;
   }
 
-  public List<org.codehaus.plexus.archiver.FileSet> toPlexusFileSets(
+  public List<DefaultFileSet> toPlexusFileSets(
       org.apache.maven.model.FileSet[] mavenFileSets) {
     if (mavenFileSets == null) {
       return Collections.emptyList();
     }
 
-    List<org.codehaus.plexus.archiver.FileSet> plexusFileSets = new ArrayList<>();
+    List<DefaultFileSet> plexusFileSets = new ArrayList<>();
     for (org.apache.maven.model.FileSet fs : mavenFileSets) {
       plexusFileSets.add(toPlexusFileset(fs));
     }
     return plexusFileSets;
   }
 
-  private org.codehaus.plexus.archiver.FileSet toPlexusFileset(org.apache.maven.model.FileSet mavenFs) {
+  private DefaultFileSet toPlexusFileset(org.apache.maven.model.FileSet mavenFs) {
     DefaultFileSet plexusFs = new DefaultFileSet();
     plexusFs.setDirectory(readDirectory(mavenFs).toFile());
     plexusFs.setIncludes(mavenFs.getIncludes().toArray(new String[0]));
