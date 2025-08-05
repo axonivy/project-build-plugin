@@ -1,13 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.ivy.ci</groupId>
-  <artifactId>project-build-plugin-tests</artifactId>
-  <version>11.1.0-SNAPSHOT</version>
+  <artifactId>tests-empty-sources</artifactId>
+  <version>12.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>XIVY-17199 cannot handle empty Java sources</name>
 
   <modules>
-    <module>maven-libs</module>
-    <module>classless</module>
+    <module>empty-project</module>
+    <module>empty-project-test</module>
   </modules>
 
   <build>
