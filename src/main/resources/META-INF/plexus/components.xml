@@ -28,6 +28,7 @@
           </package>
           <install>org.apache.maven.plugins:maven-install-plugin:install</install>
           <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+          <generate-sources>com.axonivy.ivy.ci:project-build-plugin:maven-generate-sources</generate-sources>
         </phases>
       </configuration>
     </component>
@@ -64,6 +65,7 @@
           <verify>org.apache.maven.plugins:maven-failsafe-plugin:verify</verify>
           <install>org.apache.maven.plugins:maven-install-plugin:install</install>
           <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+          <generate-sources>com.axonivy.ivy.ci:project-build-plugin:maven-generate-sources</generate-sources>
         </phases>
       </configuration>
     </component>
