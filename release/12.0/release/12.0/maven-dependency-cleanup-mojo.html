@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:validate – Axon Ivy Project Build Plugin</title>
+    <title>ivy:maven-dependency-cleanup – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,19 +60,37 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Avalidate"></a>
-<h1>ivy:validate</h1>
+<section><a id="ivy.3Amaven-dependency-cleanup"></a>
+<h1>ivy:maven-dependency-cleanup</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:validate</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:maven-dependency-cleanup</p>
 <p><strong>Description</strong>:</p>
-<p>Validates that only one version of the project-build-plugin is active in one maven reactor.</p>
+<p>Delete copied maven dependencies in the lib/mvn-deps folder.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
 <li>The goal is not marked as thread-safe and thus does not support parallel builds.</li>
-<li>Since version: <code>12.0.1</code>.</li></ul><section><a id="Parameters"></a>
-<h2>Parameters</h2>
-<p>(no parameters)</p></section></section>
+<li>Since version: <code>9.2.0</code>.</li></ul><section><a id="Optional_Parameters"></a>
+<h2>Optional Parameters</h2>
+<table class="table table-striped">
+<tr class="a">
+<th>Name</th>
+<th>Type</th>
+<th>Since</th>
+<th>Description</th></tr>
+<tr class="b">
+<td><a href="#skipMvnDependencyCleanup"><code>&lt;skipMvnDependencyCleanup&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>-</code></td>
+<td>Set to <code>true</code> to bypass the deletion of <b>maven dependencies</b> copied by the "maven-dependency" step.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.mvn.dep.cleanup.skip</code></td></tr></table></section><section><a id="Parameter_Details"></a>
+<h2>Parameter Details</h2><a id="skipMvnDependencyCleanup"></a><section><a id="a.3CskipMvnDependencyCleanup.3E"></a>
+<h3>&lt;skipMvnDependencyCleanup&gt;</h3>
+<div>Set to <code>true</code> to bypass the deletion of <b>maven dependencies</b> copied by the "maven-dependency" step.</div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.mvn.dep.cleanup.skip</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul></section></section></section>
         </main>
       </div>
     </div>

@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:stop-test-engine – Axon Ivy Project Build Plugin</title>
+    <title>ivy:installEngine – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,17 +60,22 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Astop-test-engine"></a>
-<h1>ivy:stop-test-engine</h1>
+<section><a id="ivy.3AinstallEngine"></a>
+<h1>ivy:installEngine</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:stop-test-engine</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:installEngine</p>
 <p><strong>Description</strong>:</p>
-<p>Stops the Axon Ivy Engine after integration testing</p>
+<p>Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version. 
+<p>Command line invocation is supported. E.g.</p>
+<pre>mvn com.axonivy.ivy.ci:project-build-plugin:12.0.0:installEngine
+-Divy.engine.directory=c:/axonviy/engine
+-Divy.engine.version=12.0.0
+-Divy.engine.os.arch=Linux_x64
+</pre></p>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li>Requires a Maven project to be executed.</li>
 <li>The goal is not marked as thread-safe and thus does not support parallel builds.</li>
-<li>Since version: <code>6.2.0</code>.</li></ul><section><a id="Required_Parameters"></a>
+<li>Since version: <code>6.0.0</code>.</li></ul><section><a id="Required_Parameters"></a>
 <h2>Required Parameters</h2>
 <table class="table table-striped">
 <tr class="a">
@@ -97,86 +102,85 @@
 <th>Since</th>
 <th>Description</th></tr>
 <tr class="b">
-<td><a href="#additionalClasspath"><code>&lt;additionalClasspath&gt;</code></a></td>
-<td><code>String</code></td>
+<td><a href="#autoInstallEngine"><code>&lt;autoInstallEngine&gt;</code></a></td>
+<td><code>boolean</code></td>
 <td><code>-</code></td>
-<td>Additional classpath entries for the JVM that stops the Engine<br /><strong>User Property</strong>: <code>ivy.engine.stop.additional.classpath</code></td></tr>
+<td>Enables the automatic installation of an ivy Engine in the <code>engineDirectory</code><!-- no javadoc sites associated -->. If there is yet no engine installed, or the <code>ivyVersion</code><!-- no javadoc sites associated --> does not match, the engine will be downloaded from the <code>engineDownloadUrl</code><!-- no javadoc sites associated --> and unpacked into the <code>engineDirectory</code><!-- no javadoc sites associated -->.<br /><strong>Default</strong>: <code>true</code><br /><strong>User Property</strong>: <code>ivy.engine.auto.install</code></td></tr>
 <tr class="a">
-<td><a href="#additionalVmArgs"><code>&lt;additionalVmArgs&gt;</code></a></td>
-<td><code>List&lt;String&gt;</code></td>
-<td><code>-</code></td>
-<td>Additional arguments for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties.</td></tr>
+<td><a href="#downloadUsingMaven"><code>&lt;downloadUsingMaven&gt;</code></a></td>
+<td><code>Boolean</code></td>
+<td><code>7.4</code></td>
+<td>Enables the engine artifact download via maven plugin repositories. If set to <code>false</code>, the default URL download approach is used (see <code>engineDownloadUrl</code><!-- no javadoc sites associated --> and <code>engineListPageUrl</code><!-- no javadoc sites associated --> properties). 
+<p>As there exist no official maven repository containing the axonivy engine, it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p>
+<pre>groupId=com.axonivy.ivy
+artifactId=engine
+version=!ivyVersion! (e.g. 7.4.0)
+classifier=!osArchitecture! (e.g. Slim_All_x64)
+extension=zip
+</pre><br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.engine.download.from.maven</code></td></tr>
 <tr class="b">
-<td><a href="#additionalVmOptions"><code>&lt;additionalVmOptions&gt;</code></a></td>
-<td><code>String</code></td>
-<td><code>-</code></td>
-<td>
-<div><strong>Deprecated.</strong><br />use <code>additionalVmArgs</code><!-- no javadoc sites associated --></div><br />Additional options for the JVM that stops the Engine. To modify the classpath or the max heap use the provided properties.<br /><strong>User Property</strong>: <code>ivy.engine.stop.additional.vmoptions</code></td></tr>
-<tr class="a">
 <td><a href="#engineCacheDirectory"><code>&lt;engineCacheDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
 <td>Location where ivy engines in required version can be extracted to. 
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code><br /><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="#engineDirectory"><code>&lt;engineDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
 <td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
 <p>If parameter is not set it will be a sub-directory of the <code>engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
+<tr class="b">
+<td><a href="#engineDownloadUrl"><code>&lt;engineDownloadUrl&gt;</code></a></td>
+<td><code>URL</code></td>
+<td><code>-</code></td>
+<td>URL where a packed ivy Engine can be downloaded. E.g. <code>https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip</code><br /><strong>User Property</strong>: <code>ivy.engine.download.url</code></td></tr>
 <tr class="a">
-<td><a href="#maxmem"><code>&lt;maxmem&gt;</code></a></td>
+<td><a href="#engineListPageUrl"><code>&lt;engineListPageUrl&gt;</code></a></td>
+<td><code>URL</code></td>
+<td><code>-</code></td>
+<td>URL where a link to the ivy Engine in the expected <code>ivyVersion</code><!-- no javadoc sites associated --> exists. The URL will be used to download the required engine if it does not yet exist. The URL should point to a site providing HTML content with a link to the engine 
+<br />
+ e.g. <code>&lt;a href="https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip"&gt; the engine&lt;/a&gt;</code><br /><strong>Default</strong>: <code>https://developer.axonivy.com/download/maven.html</code><br /><strong>User Property</strong>: <code>ivy.engine.list.url</code></td></tr>
+<tr class="b">
+<td><a href="#osArchitecture"><code>&lt;osArchitecture&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>The maximum heap (-Xmx) that is used for stopping the Engine<br /><strong>Default</strong>: <code>128m</code><br /><strong>User Property</strong>: <code>ivy.engine.stop.maxmem</code></td></tr>
-<tr class="b">
-<td><a href="#skipTest"><code>&lt;skipTest&gt;</code></a></td>
-<td><code>boolean</code></td>
-<td><code>-</code></td>
-<td>Set to <code>true</code> to skip the engine stop.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>maven.test.skip</code></td></tr>
-<tr class="a">
-<td><a href="#stopTimeoutInSeconds"><code>&lt;stopTimeoutInSeconds&gt;</code></a></td>
-<td><code>Integer</code></td>
-<td><code>-</code></td>
-<td>The maximum amount of seconds that we wait for a engine to stop<br /><strong>Default</strong>: <code>45</code><br /><strong>User Property</strong>: <code>ivy.engine.stop.timeout.seconds</code></td></tr>
-<tr class="b">
-<td><a href="#testEngine"><code>&lt;testEngine&gt;</code></a></td>
-<td><code>String</code></td>
-<td><code>8.0.4</code></td>
-<td>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
+<td>Engine type that will be downloaded if <code>autoInstallEngine</code><!-- no javadoc sites associated --> is set and the engine must be retrieved from the <code>engineListPageUrl</code><!-- no javadoc sites associated -->. Possible values are: 
 <ul>
- <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
- <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
-  <ul>
-   <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
-  </ul></li>
-</ul><br /><strong>Default</strong>: <code>COPY_FROM_CACHE</code><br /><strong>User Property</strong>: <code>ivy.test.engine</code></td></tr>
+ <li>All_x64</li>
+ <li>Slim_All_x64</li>
+ <li>Windows_x64</li>
+</ul> All_x64 supports Linux and Windows. Slim_All_x64 supports Linux and Windows only with the necessary features (e.g. without demo-portal or axis).<br /><strong>Default</strong>: <code>Slim_All_x64</code><br /><strong>User Property</strong>: <code>ivy.engine.os.arch</code></td></tr>
 <tr class="a">
 <td><a href="#useLatestMinor"><code>&lt;useLatestMinor&gt;</code></a></td>
 <td><code>Boolean</code></td>
 <td><code>-</code></td>
 <td>If set to true it will download the latest available minor version<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.engine.version.latest.minor</code></td></tr></table></section><section><a id="Parameter_Details"></a>
-<h2>Parameter Details</h2><a id="additionalClasspath"></a><section><a id="a.3CadditionalClasspath.3E"></a>
-<h3>&lt;additionalClasspath&gt;</h3>
-<div>Additional classpath entries for the JVM that stops the Engine</div>
+<h2>Parameter Details</h2><a id="autoInstallEngine"></a><section><a id="a.3CautoInstallEngine.3E"></a>
+<h3>&lt;autoInstallEngine&gt;</h3>
+<div>Enables the automatic installation of an ivy Engine in the <code>engineDirectory</code><!-- no javadoc sites associated -->. If there is yet no engine installed, or the <code>ivyVersion</code><!-- no javadoc sites associated --> does not match, the engine will be downloaded from the <code>engineDownloadUrl</code><!-- no javadoc sites associated --> and unpacked into the <code>engineDirectory</code><!-- no javadoc sites associated -->.</div>
 <ul>
-<li><strong>Type</strong>: <code>java.lang.String</code></li>
+<li><strong>Type</strong>: <code>boolean</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.stop.additional.classpath</code></li></ul><hr /></section><a id="additionalVmArgs"></a><section><a id="a.3CadditionalVmArgs.3E"></a>
-<h3>&lt;additionalVmArgs&gt;</h3>
-<div>Additional arguments for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties.</div>
+<li><strong>User Property</strong>: <code>ivy.engine.auto.install</code></li>
+<li><strong>Default</strong>: <code>true</code></li></ul><hr /></section><a id="downloadUsingMaven"></a><section><a id="a.3CdownloadUsingMaven.3E"></a>
+<h3>&lt;downloadUsingMaven&gt;</h3>
+<div>Enables the engine artifact download via maven plugin repositories. If set to <code>false</code>, the default URL download approach is used (see <code>engineDownloadUrl</code><!-- no javadoc sites associated --> and <code>engineListPageUrl</code><!-- no javadoc sites associated --> properties). 
+<p>As there exist no official maven repository containing the axonivy engine, it must be published manually to an accessible plugin repository. The expected artifact descriptor is:</p>
+<pre>groupId=com.axonivy.ivy
+artifactId=engine
+version=!ivyVersion! (e.g. 7.4.0)
+classifier=!osArchitecture! (e.g. Slim_All_x64)
+extension=zip
+</pre></div>
 <ul>
-<li><strong>Type</strong>: <code>java.util.List&lt;java.lang.String&gt;</code></li>
-<li><strong>Required</strong>: <code>No</code></li></ul><hr /></section><a id="additionalVmOptions"></a><section><a id="a.3CadditionalVmOptions.3E"></a>
-<h3>&lt;additionalVmOptions&gt;</h3>
-<div><strong>Deprecated.</strong><br />use <code>additionalVmArgs</code><!-- no javadoc sites associated --></div><br />
-<div>Additional options for the JVM that stops the Engine. To modify the classpath or the max heap use the provided properties.</div>
-<ul>
-<li><strong>Type</strong>: <code>java.lang.String</code></li>
+<li><strong>Type</strong>: <code>java.lang.Boolean</code></li>
+<li><strong>Since</strong>: <code>7.4</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.stop.additional.vmoptions</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.download.from.maven</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
 <h3>&lt;engineCacheDirectory&gt;</h3>
 <div>Location where ivy engines in required version can be extracted to. 
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
@@ -192,7 +196,22 @@
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="engineDownloadUrl"></a><section><a id="a.3CengineDownloadUrl.3E"></a>
+<h3>&lt;engineDownloadUrl&gt;</h3>
+<div>URL where a packed ivy Engine can be downloaded. E.g. <code>https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip</code></div>
+<ul>
+<li><strong>Type</strong>: <code>java.net.URL</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.engine.download.url</code></li></ul><hr /></section><a id="engineListPageUrl"></a><section><a id="a.3CengineListPageUrl.3E"></a>
+<h3>&lt;engineListPageUrl&gt;</h3>
+<div>URL where a link to the ivy Engine in the expected <code>ivyVersion</code><!-- no javadoc sites associated --> exists. The URL will be used to download the required engine if it does not yet exist. The URL should point to a site providing HTML content with a link to the engine 
+<br />
+ e.g. <code>&lt;a href="https://developer.axonivy.com/download/6.0.10/AxonIvyEngine6.0.10.55478_Windows_x64.zip"&gt; the engine&lt;/a&gt;</code></div>
+<ul>
+<li><strong>Type</strong>: <code>java.net.URL</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.engine.list.url</code></li>
+<li><strong>Default</strong>: <code>https://developer.axonivy.com/download/maven.html</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
 <h3>&lt;ivyVersion&gt;</h3>
 <div>The ivy Engine version or version-range that must be used. Must be equal or higher than "12.0.0" Examples: 
 <br />
@@ -205,44 +224,19 @@
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>Yes</code></li>
 <li><strong>User Property</strong>: <code>ivy.engine.version</code></li>
-<li><strong>Default</strong>: <code>12.0.8</code></li></ul><hr /></section><a id="maxmem"></a><section><a id="a.3Cmaxmem.3E"></a>
-<h3>&lt;maxmem&gt;</h3>
-<div>The maximum heap (-Xmx) that is used for stopping the Engine</div>
+<li><strong>Default</strong>: <code>12.0.8</code></li></ul><hr /></section><a id="osArchitecture"></a><section><a id="a.3CosArchitecture.3E"></a>
+<h3>&lt;osArchitecture&gt;</h3>
+<div>Engine type that will be downloaded if <code>autoInstallEngine</code><!-- no javadoc sites associated --> is set and the engine must be retrieved from the <code>engineListPageUrl</code><!-- no javadoc sites associated -->. Possible values are: 
+<ul>
+ <li>All_x64</li>
+ <li>Slim_All_x64</li>
+ <li>Windows_x64</li>
+</ul> All_x64 supports Linux and Windows. Slim_All_x64 supports Linux and Windows only with the necessary features (e.g. without demo-portal or axis).</div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.stop.maxmem</code></li>
-<li><strong>Default</strong>: <code>128m</code></li></ul><hr /></section><a id="skipTest"></a><section><a id="a.3CskipTest.3E"></a>
-<h3>&lt;skipTest&gt;</h3>
-<div>Set to <code>true</code> to skip the engine stop.</div>
-<ul>
-<li><strong>Type</strong>: <code>boolean</code></li>
-<li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>maven.test.skip</code></li>
-<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="stopTimeoutInSeconds"></a><section><a id="a.3CstopTimeoutInSeconds.3E"></a>
-<h3>&lt;stopTimeoutInSeconds&gt;</h3>
-<div>The maximum amount of seconds that we wait for a engine to stop</div>
-<ul>
-<li><strong>Type</strong>: <code>java.lang.Integer</code></li>
-<li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.stop.timeout.seconds</code></li>
-<li><strong>Default</strong>: <code>45</code></li></ul><hr /></section><a id="testEngine"></a><section><a id="a.3CtestEngine.3E"></a>
-<h3>&lt;testEngine&gt;</h3>
-<div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
-<ul>
- <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
- <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
-  <ul>
-   <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
-  </ul></li>
-</ul></div>
-<ul>
-<li><strong>Type</strong>: <code>java.lang.String</code></li>
-<li><strong>Since</strong>: <code>8.0.4</code></li>
-<li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.test.engine</code></li>
-<li><strong>Default</strong>: <code>COPY_FROM_CACHE</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.os.arch</code></li>
+<li><strong>Default</strong>: <code>Slim_All_x64</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
 <h3>&lt;useLatestMinor&gt;</h3>
 <div>If set to true it will download the latest available minor version</div>
 <ul>

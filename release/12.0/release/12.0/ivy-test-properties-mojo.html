@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:share-engine-core-classpath – Axon Ivy Project Build Plugin</title>
+    <title>ivy:ivy-test-properties – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,17 +60,18 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Ashare-engine-core-classpath"></a>
-<h1>ivy:share-engine-core-classpath</h1>
+<section><a id="ivy.3Aivy-test-properties"></a>
+<h1>ivy:ivy-test-properties</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:share-engine-core-classpath</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:ivy-test-properties</p>
 <p><strong>Description</strong>:</p>
-<p>Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.</p>
+<p>Shares the classpath of the built ivy project and it's engine as public property and tries to auto-configure 'maven-surefire-plugin' to use this classpath.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
+<li>Requires dependency resolution of artifacts in scope: <code>test</code>.</li>
 <li>The goal is not marked as thread-safe and thus does not support parallel builds.</li>
-<li>Since version: <code>6.2.0</code>.</li></ul><section><a id="Required_Parameters"></a>
+<li>Since version: <code>6.0.2</code>.</li></ul><section><a id="Required_Parameters"></a>
 <h2>Required Parameters</h2>
 <table class="table table-striped">
 <tr class="a">
@@ -110,6 +111,11 @@
 <p>If parameter is not set it will be a sub-directory of the <code>engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
 <tr class="b">
+<td><a href="#skipTest"><code>&lt;skipTest&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>6.1.0</code></td>
+<td>Set to <code>true</code> to bypass property set-up.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>maven.test.skip</code></td></tr>
+<tr class="a">
 <td><a href="#useLatestMinor"><code>&lt;useLatestMinor&gt;</code></a></td>
 <td><code>Boolean</code></td>
 <td><code>-</code></td>
@@ -143,7 +149,15 @@
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>Yes</code></li>
 <li><strong>User Property</strong>: <code>ivy.engine.version</code></li>
-<li><strong>Default</strong>: <code>12.0.8</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
+<li><strong>Default</strong>: <code>12.0.8</code></li></ul><hr /></section><a id="skipTest"></a><section><a id="a.3CskipTest.3E"></a>
+<h3>&lt;skipTest&gt;</h3>
+<div>Set to <code>true</code> to bypass property set-up.</div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Since</strong>: <code>6.1.0</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>maven.test.skip</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
 <h3>&lt;useLatestMinor&gt;</h3>
 <div>If set to true it will download the latest available minor version</div>
 <ul>

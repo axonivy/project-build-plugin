@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:share-engine-core-classpath – Axon Ivy Project Build Plugin</title>
+    <title>ivy:ivy-integration-test-properties – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,17 +60,18 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Ashare-engine-core-classpath"></a>
-<h1>ivy:share-engine-core-classpath</h1>
+<section><a id="ivy.3Aivy-integration-test-properties"></a>
+<h1>ivy:ivy-integration-test-properties</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:share-engine-core-classpath</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:ivy-integration-test-properties</p>
 <p><strong>Description</strong>:</p>
-<p>Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.</p>
+<p><p>Shares crucial test engine internals with the forked JVM that runs tests.</p>
+<p>The property being set is called <code>argLine</code> and classically used by the 'maven-failsafe-plugin'.</p></p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
 <li>The goal is not marked as thread-safe and thus does not support parallel builds.</li>
-<li>Since version: <code>6.2.0</code>.</li></ul><section><a id="Required_Parameters"></a>
+<li>Since version: <code>9.1</code>.</li></ul><section><a id="Required_Parameters"></a>
 <h2>Required Parameters</h2>
 <table class="table table-striped">
 <tr class="a">

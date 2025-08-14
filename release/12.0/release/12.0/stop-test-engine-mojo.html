@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:start-test-engine – Axon Ivy Project Build Plugin</title>
+    <title>ivy:stop-test-engine – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -31,7 +31,7 @@
           <ul class="breadcrumb">
         <li id="publishDate">Last Published: 2025-08-14<span class="divider">|</span>
 </li>
-          <li id="projectVersion">Version: 12.0.9-SNAPSHOT</li>
+          <li id="projectVersion">Version: 12.0.8</li>
           </ul>
         </div>
       </header>
@@ -60,20 +60,12 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Astart-test-engine"></a>
-<h1>ivy:start-test-engine</h1>
+<section><a id="ivy.3Astop-test-engine"></a>
+<h1>ivy:stop-test-engine</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:12.0.9-SNAPSHOT:start-test-engine</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:12.0.8:stop-test-engine</p>
 <p><strong>Description</strong>:</p>
-<p>Starts the Axon Ivy Engine for integration testing. 
-<p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>. You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine. However, in an <code>iar-integration-test</code> lifecycle this is already provided by the 'ivy-integration-test-properties' goal.</p>
-<pre><code>  &lt;artifactId&gt;maven-failsafe-plugin&lt;/artifactId&gt;
-  ...
-  &lt;configuration&gt;
-    &lt;argLine&gt;-Dtest.engine.url=$</code>{test.engine.url} <code>-Dtest.engine.app=Portal&lt;/argLine&gt;
-  &lt;/configuration&gt;
-</code>
-</pre></p>
+<p>Stops the Axon Ivy Engine after integration testing</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
@@ -108,7 +100,7 @@
 <td><a href="#additionalClasspath"><code>&lt;additionalClasspath&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>Additional classpath entries for the JVM that runs the Engine<br /><strong>User Property</strong>: <code>ivy.engine.start.additional.classpath</code></td></tr>
+<td>Additional classpath entries for the JVM that stops the Engine<br /><strong>User Property</strong>: <code>ivy.engine.stop.additional.classpath</code></td></tr>
 <tr class="a">
 <td><a href="#additionalVmArgs"><code>&lt;additionalVmArgs&gt;</code></a></td>
 <td><code>List&lt;String&gt;</code></td>
@@ -119,7 +111,7 @@
 <td><code>String</code></td>
 <td><code>-</code></td>
 <td>
-<div><strong>Deprecated.</strong><br />use <code>additionalVmArgs</code><!-- no javadoc sites associated --></div><br />Additional options for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties.<br /><strong>User Property</strong>: <code>ivy.engine.start.additional.vmoptions</code></td></tr>
+<div><strong>Deprecated.</strong><br />use <code>additionalVmArgs</code><!-- no javadoc sites associated --></div><br />Additional options for the JVM that stops the Engine. To modify the classpath or the max heap use the provided properties.<br /><strong>User Property</strong>: <code>ivy.engine.stop.additional.vmoptions</code></td></tr>
 <tr class="a">
 <td><a href="#engineCacheDirectory"><code>&lt;engineCacheDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
@@ -134,26 +126,21 @@
 <p>If parameter is not set it will be a sub-directory of the <code>engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
 <tr class="a">
-<td><a href="#engineLogFile"><code>&lt;engineLogFile&gt;</code></a></td>
-<td><code>Path</code></td>
-<td><code>-</code></td>
-<td>The file where the engine start is logged<br /><strong>Default</strong>: <code>${project.build.directory}/testEngineOut.log</code><br /><strong>User Property</strong>: <code>ivy.engine.start.log</code></td></tr>
-<tr class="b">
 <td><a href="#maxmem"><code>&lt;maxmem&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>The maximum heap (-Xmx) that is used for starting and running the Engine<br /><strong>Default</strong>: <code>2048m</code><br /><strong>User Property</strong>: <code>ivy.engine.start.maxmem</code></td></tr>
-<tr class="a">
+<td>The maximum heap (-Xmx) that is used for stopping the Engine<br /><strong>Default</strong>: <code>128m</code><br /><strong>User Property</strong>: <code>ivy.engine.stop.maxmem</code></td></tr>
+<tr class="b">
 <td><a href="#skipTest"><code>&lt;skipTest&gt;</code></a></td>
 <td><code>boolean</code></td>
 <td><code>-</code></td>
-<td>Set to <code>true</code> to skip the engine start.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>maven.test.skip</code></td></tr>
-<tr class="b">
-<td><a href="#startTimeoutInSeconds"><code>&lt;startTimeoutInSeconds&gt;</code></a></td>
+<td>Set to <code>true</code> to skip the engine stop.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>maven.test.skip</code></td></tr>
+<tr class="a">
+<td><a href="#stopTimeoutInSeconds"><code>&lt;stopTimeoutInSeconds&gt;</code></a></td>
 <td><code>Integer</code></td>
 <td><code>-</code></td>
-<td>The maximum amount of seconds that we wait for a engine to start<br /><strong>Default</strong>: <code>120</code><br /><strong>User Property</strong>: <code>ivy.engine.start.timeout.seconds</code></td></tr>
-<tr class="a">
+<td>The maximum amount of seconds that we wait for a engine to stop<br /><strong>Default</strong>: <code>45</code><br /><strong>User Property</strong>: <code>ivy.engine.stop.timeout.seconds</code></td></tr>
+<tr class="b">
 <td><a href="#testEngine"><code>&lt;testEngine&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>8.0.4</code></td>
@@ -166,18 +153,18 @@
    <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
   </ul></li>
 </ul><br /><strong>Default</strong>: <code>COPY_FROM_CACHE</code><br /><strong>User Property</strong>: <code>ivy.test.engine</code></td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="#useLatestMinor"><code>&lt;useLatestMinor&gt;</code></a></td>
 <td><code>Boolean</code></td>
 <td><code>-</code></td>
 <td>If set to true it will download the latest available minor version<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.engine.version.latest.minor</code></td></tr></table></section><section><a id="Parameter_Details"></a>
 <h2>Parameter Details</h2><a id="additionalClasspath"></a><section><a id="a.3CadditionalClasspath.3E"></a>
 <h3>&lt;additionalClasspath&gt;</h3>
-<div>Additional classpath entries for the JVM that runs the Engine</div>
+<div>Additional classpath entries for the JVM that stops the Engine</div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.start.additional.classpath</code></li></ul><hr /></section><a id="additionalVmArgs"></a><section><a id="a.3CadditionalVmArgs.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.stop.additional.classpath</code></li></ul><hr /></section><a id="additionalVmArgs"></a><section><a id="a.3CadditionalVmArgs.3E"></a>
 <h3>&lt;additionalVmArgs&gt;</h3>
 <div>Additional arguments for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties.</div>
 <ul>
@@ -185,11 +172,11 @@
 <li><strong>Required</strong>: <code>No</code></li></ul><hr /></section><a id="additionalVmOptions"></a><section><a id="a.3CadditionalVmOptions.3E"></a>
 <h3>&lt;additionalVmOptions&gt;</h3>
 <div><strong>Deprecated.</strong><br />use <code>additionalVmArgs</code><!-- no javadoc sites associated --></div><br />
-<div>Additional options for the JVM that runs the Engine. To modify the classpath or the max heap use the provided properties.</div>
+<div>Additional options for the JVM that stops the Engine. To modify the classpath or the max heap use the provided properties.</div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.start.additional.vmoptions</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.stop.additional.vmoptions</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
 <h3>&lt;engineCacheDirectory&gt;</h3>
 <div>Location where ivy engines in required version can be extracted to. 
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
@@ -205,14 +192,7 @@
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="engineLogFile"></a><section><a id="a.3CengineLogFile.3E"></a>
-<h3>&lt;engineLogFile&gt;</h3>
-<div>The file where the engine start is logged</div>
-<ul>
-<li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
-<li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.start.log</code></li>
-<li><strong>Default</strong>: <code>${project.build.directory}/testEngineOut.log</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
 <h3>&lt;ivyVersion&gt;</h3>
 <div>The ivy Engine version or version-range that must be used. Must be equal or higher than "12.0.0" Examples: 
 <br />
@@ -227,26 +207,26 @@
 <li><strong>User Property</strong>: <code>ivy.engine.version</code></li>
 <li><strong>Default</strong>: <code>12.0.8</code></li></ul><hr /></section><a id="maxmem"></a><section><a id="a.3Cmaxmem.3E"></a>
 <h3>&lt;maxmem&gt;</h3>
-<div>The maximum heap (-Xmx) that is used for starting and running the Engine</div>
+<div>The maximum heap (-Xmx) that is used for stopping the Engine</div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.start.maxmem</code></li>
-<li><strong>Default</strong>: <code>2048m</code></li></ul><hr /></section><a id="skipTest"></a><section><a id="a.3CskipTest.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.stop.maxmem</code></li>
+<li><strong>Default</strong>: <code>128m</code></li></ul><hr /></section><a id="skipTest"></a><section><a id="a.3CskipTest.3E"></a>
 <h3>&lt;skipTest&gt;</h3>
-<div>Set to <code>true</code> to skip the engine start.</div>
+<div>Set to <code>true</code> to skip the engine stop.</div>
 <ul>
 <li><strong>Type</strong>: <code>boolean</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
 <li><strong>User Property</strong>: <code>maven.test.skip</code></li>
-<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="startTimeoutInSeconds"></a><section><a id="a.3CstartTimeoutInSeconds.3E"></a>
-<h3>&lt;startTimeoutInSeconds&gt;</h3>
-<div>The maximum amount of seconds that we wait for a engine to start</div>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="stopTimeoutInSeconds"></a><section><a id="a.3CstopTimeoutInSeconds.3E"></a>
+<h3>&lt;stopTimeoutInSeconds&gt;</h3>
+<div>The maximum amount of seconds that we wait for a engine to stop</div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.Integer</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.engine.start.timeout.seconds</code></li>
-<li><strong>Default</strong>: <code>120</code></li></ul><hr /></section><a id="testEngine"></a><section><a id="a.3CtestEngine.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.engine.stop.timeout.seconds</code></li>
+<li><strong>Default</strong>: <code>45</code></li></ul><hr /></section><a id="testEngine"></a><section><a id="a.3CtestEngine.3E"></a>
 <h3>&lt;testEngine&gt;</h3>
 <div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
 <ul>
