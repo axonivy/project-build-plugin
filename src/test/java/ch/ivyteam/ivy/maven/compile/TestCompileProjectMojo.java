@@ -33,11 +33,13 @@ import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.generate.GenerateProjectSourcesMojo;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   private CompileTestProjectMojo testMojo;
+  private GenerateProjectSourcesMojo generateMojo;
 
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
@@ -62,6 +64,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
       // use same project as first rule/mojo
       testMojo = (CompileTestProjectMojo) lookupConfiguredMojo(project, CompileTestProjectMojo.GOAL);
       configureMojo(testMojo);
+      generateMojo = (GenerateProjectSourcesMojo) lookupConfiguredMojo(project, GenerateProjectSourcesMojo.GOAL);
     }
   };
 
@@ -76,6 +79,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     PathUtils.clean(dataClassDir);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication");
+    generateMojo.execute();
     mojo.execute();
 
     assertThat(findFiles(dataClassDir, "java")).hasSize(2);
@@ -114,6 +118,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     mojo.compilerWarnings = false;
     mojo.compilerSettings = Path.of("path/to/oblivion");
 
+    generateMojo.execute();
     mojo.execute();
     assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
 
@@ -138,6 +143,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     Files.writeString(ws, patched);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");
+    generateMojo.execute();
     mojo.execute();
 
     assertThat(outContent.toString())
