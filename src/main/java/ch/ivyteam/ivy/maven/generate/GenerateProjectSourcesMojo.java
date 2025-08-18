@@ -19,7 +19,7 @@ public class GenerateProjectSourcesMojo extends AbstractProjectCompileMojo {
   boolean skipGenerateSources;
 
   @Override
-  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
+  public void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
     if (skipGenerateSources) {
       return;
     }

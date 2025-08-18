@@ -27,8 +27,8 @@ import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.EngineMojoRule;
 
 @SuppressWarnings("deprecation")
-public class CompileMojoRule<T extends AbstractEngineInstanceMojo> extends EngineMojoRule<T> {
-  public CompileMojoRule(String mojoName) {
+public class LocalRepoMojoRule<T extends AbstractEngineInstanceMojo> extends EngineMojoRule<T> {
+  public LocalRepoMojoRule(String mojoName) {
     super(mojoName);
   }
 

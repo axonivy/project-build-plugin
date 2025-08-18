@@ -39,7 +39,6 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   private CompileTestProjectMojo testMojo;
-  private GenerateProjectSourcesMojo generateMojo;
 
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
@@ -56,7 +55,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(
+  public LocalRepoMojoRule<CompileProjectMojo> compile = new LocalRepoMojoRule<>(
       CompileProjectMojo.GOAL){
     @Override
     protected void before() throws Throwable {
@@ -64,7 +63,6 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
       // use same project as first rule/mojo
       testMojo = (CompileTestProjectMojo) lookupConfiguredMojo(project, CompileTestProjectMojo.GOAL);
       configureMojo(testMojo);
-      generateMojo = (GenerateProjectSourcesMojo) lookupConfiguredMojo(project, GenerateProjectSourcesMojo.GOAL);
     }
   };
 
@@ -79,7 +77,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     PathUtils.clean(dataClassDir);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication");
-    generateMojo.execute();
+    execGenerateMojo();
     mojo.execute();
 
     assertThat(findFiles(dataClassDir, "java")).hasSize(2);
@@ -118,7 +116,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     mojo.compilerWarnings = false;
     mojo.compilerSettings = Path.of("path/to/oblivion");
 
-    generateMojo.execute();
+    execGenerateMojo();
     mojo.execute();
     assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
 
@@ -143,7 +141,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     Files.writeString(ws, patched);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");
-    generateMojo.execute();
+    execGenerateMojo();
     mojo.execute();
 
     assertThat(outContent.toString())
@@ -159,4 +157,8 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
         .startsWith("[WARNING]");
   }
 
+  void execGenerateMojo() throws Exception {
+    var generateMojo = (GenerateProjectSourcesMojo) compile.lookupConfiguredMojo(compile.project, GenerateProjectSourcesMojo.GOAL);
+    generateMojo.engineExec(compile.getMojo().getMavenProjectBuilder());
+  }
 }
