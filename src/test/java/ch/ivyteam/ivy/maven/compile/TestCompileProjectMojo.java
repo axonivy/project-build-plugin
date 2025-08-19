@@ -82,7 +82,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     execGenerateMojo();
     mojo.execute();
 
-    assertThat(findFiles(dataClassDir, "java")).hasSize(2);
+    assertThat(findFiles(dataClassDir, "java")).hasSize(3);
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
 
     assertThat(findFiles(classDir, "txt"))
