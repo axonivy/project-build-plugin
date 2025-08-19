@@ -90,12 +90,12 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
         .hasSize(1);
     assertThat(findFiles(classDir, "class"))
         .as("compiled classes must exist. but not contain any test class or old class files.")
-        .hasSize(4);
+        .hasSize(5);
 
     testMojo.execute();
     assertThat(findFiles(classDir, "class"))
         .as("compiled classes must contain test resources as well")
-        .hasSize(5);
+        .hasSize(6);
   }
 
   private static List<Path> findFiles(Path dir, String fileExtension) throws IOException {
