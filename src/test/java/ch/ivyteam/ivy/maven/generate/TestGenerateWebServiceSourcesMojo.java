@@ -8,13 +8,13 @@ import org.junit.Test;
 import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestGenerateProjectSourcesMojo {
+public class TestGenerateWebServiceSourcesMojo {
 
   @Rule
-  public LocalRepoMojoRule<GenerateProjectSourcesMojo> generate = new LocalRepoMojoRule<>(GenerateProjectSourcesMojo.GOAL);
+  public LocalRepoMojoRule<GenerateWebServiceSourcesMojo> generate = new LocalRepoMojoRule<>(GenerateWebServiceSourcesMojo.GOAL);
 
   @Test
-  public void generateSources() throws Exception {
+  public void generateWebServiceSources() throws Exception {
     var projectDir = generate.project.getBasedir().toPath();
     var dataClassDir = projectDir.resolve("src_dataClasses");
     var wsProcDir = projectDir.resolve("src_wsproc");
@@ -32,9 +32,7 @@ public class TestGenerateProjectSourcesMojo {
 
     generate.getMojo().execute();
 
-    assertThat(dataClassDir)
-        .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("Data.java"))
-        .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("BaseData.java"));
+    assertThat(dataClassDir).doesNotExist();
     assertThat(wsProcDir)
         .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("myWebService.java"));
     assertThat(classDir).as("classes are not getting compiled").doesNotExist();
@@ -43,14 +41,14 @@ public class TestGenerateProjectSourcesMojo {
 
   @Test
   public void skipGenerateSources() throws Exception {
-    var dataClassDir = generate.project.getBasedir().toPath().resolve("src_dataClasses");
-    PathUtils.delete(dataClassDir);
+    var wsProcDir = generate.project.getBasedir().toPath().resolve("src_wsproc");
+    PathUtils.delete(wsProcDir);
 
-    assertThat(dataClassDir).doesNotExist();
+    assertThat(wsProcDir).doesNotExist();
 
     generate.getMojo().skipGenerateSources = true;
     generate.getMojo().execute();
 
-    assertThat(dataClassDir).doesNotExist();
+    assertThat(wsProcDir).doesNotExist();
   }
 }

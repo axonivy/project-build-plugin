@@ -33,7 +33,9 @@ import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
-import ch.ivyteam.ivy.maven.generate.GenerateProjectSourcesMojo;
+import ch.ivyteam.ivy.maven.generate.GenerateDataClassSourcesMojo;
+import ch.ivyteam.ivy.maven.generate.GenerateDialogFormSourcesMojo;
+import ch.ivyteam.ivy.maven.generate.GenerateWebServiceSourcesMojo;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
@@ -158,7 +160,9 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   }
 
   void execGenerateMojo() throws Exception {
-    var generateMojo = (GenerateProjectSourcesMojo) compile.lookupConfiguredMojo(compile.project, GenerateProjectSourcesMojo.GOAL);
-    generateMojo.engineExec(compile.getMojo().getMavenProjectBuilder());
+    for (var goal : List.of(GenerateDataClassSourcesMojo.GOAL, GenerateDialogFormSourcesMojo.GOAL, GenerateWebServiceSourcesMojo.GOAL)) {
+      ((AbstractEngineInstanceMojo) compile.lookupConfiguredMojo(compile.project, goal))
+          .engineExec(compile.getMojo().getMavenProjectBuilder());
+    }
   }
 }

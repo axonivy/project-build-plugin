@@ -1,0 +1,11 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/form/13.1.0/form.json",
+  "id" : "7e00828d-94cb-435b-8f48-70a255b96188",
+  "components" : [ {
+    "cid" : "input1",
+    "type" : "Input",
+    "config" : {
+      "label" : "Input"
+    }
+  } ]
+}

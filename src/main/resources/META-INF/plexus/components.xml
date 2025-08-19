@@ -12,7 +12,11 @@
           <clean>com.axonivy.ivy.ci:project-build-plugin:maven-dependency-cleanup</clean>
           <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
-          <generate-sources>com.axonivy.ivy.ci:project-build-plugin:generate-sources</generate-sources>
+          <generate-sources>
+            com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
+            com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
+          </generate-sources>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
             org.apache.maven.plugins:maven-resources-plugin:resources
@@ -42,7 +46,11 @@
         <phases>
           <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
-          <generate-sources>com.axonivy.ivy.ci:project-build-plugin:generate-sources</generate-sources>
+          <generate-sources>
+            com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
+            com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
+          </generate-sources>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
             org.apache.maven.plugins:maven-resources-plugin:resources

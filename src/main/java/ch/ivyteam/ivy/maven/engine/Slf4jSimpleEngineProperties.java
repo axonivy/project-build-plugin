@@ -31,17 +31,12 @@ import org.slf4j.impl.SimpleLogger;
 public class Slf4jSimpleEngineProperties {
   private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
-      "ch.ivyteam.ivy.scripting.dataclass.internal.InMemoryEngineController", // engine
-                                                                              // start/stop
-      "ch.ivyteam.ivy.project.build.MavenProjectBuilder", // maven engine
-                                                          // interface
-      "ch.ivyteam.ivy.scripting.dataclass.internal.ProjectDataClassManager", // dataclass
-                                                                             // source
-                                                                             // generation
-      "ch.ivyteam.ivy.java.internal.JavaBuilder", // jdt compiler
-      "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder" // webservice
-                                                                                   // source
-                                                                                   // generation
+      "ch.ivyteam.ivy.server.build.InMemoryEngineController",
+      "ch.ivyteam.ivy.project.build.MavenProjectBuilder",
+      "ch.ivyteam.ivy.java.JavaCompiler",
+      "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder",
+      "ch.ivyteam.ivy.scripting.dataclass.codegen.impl.DataClassSourceGenerator",
+      "ch.ivyteam.ivy.dialog.form.build.JsonFormResourceBuilder"
   );
   private static final String IVY_PREFIX = "ch.ivyteam.ivy";
 
