@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>ivy:ivy-resources-properties – Axon Ivy Project Build Plugin</title>
+    <title>ivy:generate-dialog-form-sources – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,18 +60,17 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Aivy-resources-properties"></a>
-<h1>ivy:ivy-resources-properties</h1>
+<section><a id="ivy.3Agenerate-dialog-form-sources"></a>
+<h1>ivy:generate-dialog-form-sources</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:13.2.0-SNAPSHOT:ivy-resources-properties</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:13.2.0-SNAPSHOT:generate-dialog-form-sources</p>
 <p><strong>Description</strong>:</p>
-<p>Set the "project.build.sourceEncoding" property to "UTF-8" for the maven-resource plugin, if not manually defined.</p>
+<p>No description.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
-<li>Requires dependency resolution of artifacts in scope: <code>compile</code>.</li>
 <li>The goal is not marked as thread-safe and thus does not support parallel builds.</li>
-<li>Since version: <code>9.4.0</code>.</li></ul><section><a id="Required_Parameters"></a>
+<li>Since version: <code>6.0.0</code>.</li></ul><section><a id="Required_Parameters"></a>
 <h2>Required Parameters</h2>
 <table class="table table-striped">
 <tr class="a">
@@ -98,24 +97,50 @@
 <th>Since</th>
 <th>Description</th></tr>
 <tr class="b">
+<td><a href="#buildApplicationDirectory"><code>&lt;buildApplicationDirectory&gt;</code></a></td>
+<td><code>Path</code></td>
+<td><code>-</code></td>
+<td>Home application where the project to build and its dependencies will be temporary deployed.<br /><strong>Default</strong>: <code>${project.build.directory}/ivyBuildApp</code></td></tr>
+<tr class="a">
 <td><a href="#engineCacheDirectory"><code>&lt;engineCacheDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
 <td>Location where ivy engines in required version can be extracted to. 
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code><br /><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="#engineDirectory"><code>&lt;engineDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
 <td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
 <p>If parameter is not set it will be a sub-directory of the <code>engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
+<tr class="a">
+<td><a href="#localRepository"><code>&lt;localRepository&gt;</code></a></td>
+<td><code>ArtifactRepository</code></td>
+<td><code>-</code></td>
+<td>No description.<br /><strong>Default</strong>: <code>${localRepository}</code></td></tr>
+<tr class="b">
+<td><a href="#skipGenerateSources"><code>&lt;skipGenerateSources&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>13.2.0</code></td>
+<td>Set to <code>true</code> to bypass the generation of <b>ivy dialog form sources</b>.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.generate.dialog.form.sources.skip</code></td></tr>
+<tr class="a">
+<td><a href="#timeoutEngineStartInSeconds"><code>&lt;timeoutEngineStartInSeconds&gt;</code></a></td>
+<td><code>int</code></td>
+<td><code>7.4.0</code></td>
+<td>Defines the timeout how long to wait for an engine start to compile.<br /><strong>Default</strong>: <code>60</code><br /><strong>User Property</strong>: <code>ivy.compiler.engine.start.timeout</code></td></tr>
 <tr class="b">
 <td><a href="#useLatestMinor"><code>&lt;useLatestMinor&gt;</code></a></td>
 <td><code>Boolean</code></td>
 <td><code>-</code></td>
 <td>If set to true it will download the latest available minor version<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.engine.version.latest.minor</code></td></tr></table></section><section><a id="Parameter_Details"></a>
-<h2>Parameter Details</h2><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
+<h2>Parameter Details</h2><a id="buildApplicationDirectory"></a><section><a id="a.3CbuildApplicationDirectory.3E"></a>
+<h3>&lt;buildApplicationDirectory&gt;</h3>
+<div>Home application where the project to build and its dependencies will be temporary deployed.</div>
+<ul>
+<li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>Default</strong>: <code>${project.build.directory}/ivyBuildApp</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
 <h3>&lt;engineCacheDirectory&gt;</h3>
 <div>Location where ivy engines in required version can be extracted to. 
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
@@ -144,7 +169,29 @@
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
 <li><strong>Required</strong>: <code>Yes</code></li>
 <li><strong>User Property</strong>: <code>ivy.engine.version</code></li>
-<li><strong>Default</strong>: <code>13.2.0</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
+<li><strong>Default</strong>: <code>13.2.0</code></li></ul><hr /></section><a id="localRepository"></a><section><a id="a.3ClocalRepository.3E"></a>
+<h3>&lt;localRepository&gt;</h3>
+<div>No description.</div>
+<ul>
+<li><strong>Type</strong>: <code>org.apache.maven.artifact.repository.ArtifactRepository</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>Default</strong>: <code>${localRepository}</code></li></ul><hr /></section><a id="skipGenerateSources"></a><section><a id="a.3CskipGenerateSources.3E"></a>
+<h3>&lt;skipGenerateSources&gt;</h3>
+<div>Set to <code>true</code> to bypass the generation of <b>ivy dialog form sources</b>.</div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Since</strong>: <code>13.2.0</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.generate.dialog.form.sources.skip</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="timeoutEngineStartInSeconds"></a><section><a id="a.3CtimeoutEngineStartInSeconds.3E"></a>
+<h3>&lt;timeoutEngineStartInSeconds&gt;</h3>
+<div>Defines the timeout how long to wait for an engine start to compile.</div>
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Since</strong>: <code>7.4.0</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.compiler.engine.start.timeout</code></li>
+<li><strong>Default</strong>: <code>60</code></li></ul><hr /></section><a id="useLatestMinor"></a><section><a id="a.3CuseLatestMinor.3E"></a>
 <h3>&lt;useLatestMinor&gt;</h3>
 <div>If set to true it will download the latest available minor version</div>
 <ul>
