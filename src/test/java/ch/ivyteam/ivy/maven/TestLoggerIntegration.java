@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.compile.CompileMojoRule;
+import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
 import ch.ivyteam.ivy.maven.compile.CompileProjectMojo;
 
 public class TestLoggerIntegration extends BaseEngineProjectMojoTest {
@@ -28,7 +28,7 @@ public class TestLoggerIntegration extends BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(CompileProjectMojo.GOAL);
+  public LocalRepoMojoRule<CompileProjectMojo> compile = new LocalRepoMojoRule<>(CompileProjectMojo.GOAL);
 
   /**
    * regression test for accidentially broken SLF4J dependencies.

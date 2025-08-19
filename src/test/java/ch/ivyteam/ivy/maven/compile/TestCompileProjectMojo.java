@@ -33,6 +33,9 @@ import org.junit.Test;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.generate.GenerateDataClassSourcesMojo;
+import ch.ivyteam.ivy.maven.generate.GenerateDialogFormSourcesMojo;
+import ch.ivyteam.ivy.maven.generate.GenerateWebServiceSourcesMojo;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
@@ -54,7 +57,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   }
 
   @Rule
-  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(
+  public LocalRepoMojoRule<CompileProjectMojo> compile = new LocalRepoMojoRule<>(
       CompileProjectMojo.GOAL){
     @Override
     protected void before() throws Throwable {
@@ -76,9 +79,10 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     PathUtils.clean(dataClassDir);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication");
+    execGenerateMojo();
     mojo.execute();
 
-    assertThat(findFiles(dataClassDir, "java")).hasSize(2);
+    assertThat(findFiles(dataClassDir, "java")).hasSize(3);
     assertThat(findFiles(wsProcDir, "java")).hasSize(1);
 
     assertThat(findFiles(classDir, "txt"))
@@ -86,12 +90,12 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
         .hasSize(1);
     assertThat(findFiles(classDir, "class"))
         .as("compiled classes must exist. but not contain any test class or old class files.")
-        .hasSize(4);
+        .hasSize(5);
 
     testMojo.execute();
     assertThat(findFiles(classDir, "class"))
         .as("compiled classes must contain test resources as well")
-        .hasSize(5);
+        .hasSize(6);
   }
 
   private static List<Path> findFiles(Path dir, String fileExtension) throws IOException {
@@ -114,6 +118,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     mojo.compilerWarnings = false;
     mojo.compilerSettings = Path.of("path/to/oblivion");
 
+    execGenerateMojo();
     mojo.execute();
     assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
 
@@ -138,6 +143,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     Files.writeString(ws, patched);
 
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");
+    execGenerateMojo();
     mojo.execute();
 
     assertThat(outContent.toString())
@@ -153,4 +159,10 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
         .startsWith("[WARNING]");
   }
 
+  void execGenerateMojo() throws Exception {
+    for (var goal : List.of(GenerateDataClassSourcesMojo.GOAL, GenerateDialogFormSourcesMojo.GOAL, GenerateWebServiceSourcesMojo.GOAL)) {
+      ((AbstractEngineInstanceMojo) compile.lookupConfiguredMojo(compile.project, goal))
+          .engineExec(compile.getMojo().getMavenProjectBuilder());
+    }
+  }
 }

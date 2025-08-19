@@ -155,6 +155,11 @@ public class MavenProjectBuilderProxy {
         () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
+  public void generateSources(File projectDirToBuild, String generatorId) throws Exception {
+    Method compileMethod = getMethod("generateSources", File.class, String.class);
+    executeInEngineDir(() -> compileMethod.invoke(delegate, projectDirToBuild, generatorId));
+  }
+
   private Method getMethod(String name, Class<?>... parameterTypes) {
     try {
       return delegateClass.getDeclaredMethod(name, parameterTypes);

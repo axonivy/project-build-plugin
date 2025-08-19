@@ -31,13 +31,13 @@ import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.compile.CompileMojoRule;
+import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
 
 public class TestMavenDependencyMojo extends BaseEngineProjectMojoTest {
   private MavenDependencyMojo testMojo;
 
   @Rule
-  public CompileMojoRule<MavenDependencyMojo> deps = new CompileMojoRule<>(
+  public LocalRepoMojoRule<MavenDependencyMojo> deps = new LocalRepoMojoRule<>(
       MavenDependencyMojo.GOAL){
     @Override
     protected void before() throws Throwable {
