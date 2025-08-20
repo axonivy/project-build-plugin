@@ -20,7 +20,7 @@
     <dependency>
     	<groupId>com.axonivy.ivy.test</groupId>
     	<artifactId>unit-tester</artifactId>
-    	<version>13.1.0</version>
+    	<version>13.1.1</version>
     	<scope>test</scope>
     </dependency>
   </dependencies>
