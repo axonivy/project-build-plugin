@@ -17,13 +17,13 @@
 package ch.ivyteam.ivy.maven.util;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public class ClasspathJar {
 
     List<Path> files = new ArrayList<>();
     for (String entry : urlClasspath.split(" ")) {
-      files.add(Paths.get(uriToAbsoluteFilePath(entry)));
+      files.add(new File(uriToAbsoluteFilePath(entry)).toPath());
     }
     return files;
   }
