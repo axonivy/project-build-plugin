@@ -84,7 +84,7 @@ public class MavenProjectBuilderProxy {
     Object bundleContext = new OsgiRuntime(baseDirToBuildIn.toPath(), log).startEclipseOsgiImpl(ivyEngineClassLoader,
         timeoutEngineStartInSeconds);
     hackProvokeEagerStartOfJdt(bundleContext);
-    Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.dataclasses.build");
+    Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.project.build");
     return loadClassInBundle(buildBundle, FQ_DELEGATE_CLASS_NAME);
   }
 
