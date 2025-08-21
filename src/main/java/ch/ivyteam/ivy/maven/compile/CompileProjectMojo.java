@@ -16,12 +16,10 @@
 
 package ch.ivyteam.ivy.maven.compile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -65,20 +63,20 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     }
 
     getLog().info("Compiling ivy Project...");
-    var iarDependencies = getDependencies("iar").stream().map(Path::toFile).collect(Collectors.toList());
+    var iarDependencies = getDependencies("iar");
     var iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, Object> options = getOptions();
-    projectBuilder.compile(project.getBasedir(), iarJars, options);
+    projectBuilder.compile(project.getBasedir().toPath(), iarJars, options);
 
     if (skipScriptValidation) {
       getLog().info("Skipping ivy script validation");
     } else {
-      projectBuilder.validate(project.getBasedir(), iarDependencies, options);
+      projectBuilder.validate(project.getBasedir().toPath(), iarDependencies, options);
     }
     writeDependencyIarJar(iarJars);
   }
 
-  private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException {
+  private void writeDependencyIarJar(Collection<Path> iarJarDepenencies) throws IOException {
     if (iarJarDepenencies == null) { // no dependencies
       return;
     }

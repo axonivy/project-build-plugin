@@ -23,6 +23,6 @@ public class GenerateDialogFormSourcesMojo extends AbstractEngineInstanceMojo {
       return;
     }
     getLog().info("Generating Ivy dialog form sources...");
-    projectBuilder.generateSources(project.getBasedir(), "DialogFormSourceGenerator");
+    projectBuilder.generateSources(project.getBasedir().toPath(), "DialogFormSourceGenerator");
   }
 }

@@ -23,6 +23,6 @@ public class GenerateDataClassSourcesMojo extends AbstractEngineInstanceMojo {
       return;
     }
     getLog().info("Generating Ivy data class sources...");
-    projectBuilder.generateSources(project.getBasedir(), "DataClassSourceGenerator");
+    projectBuilder.generateSources(project.getBasedir().toPath(), "DataClassSourceGenerator");
   }
 }
