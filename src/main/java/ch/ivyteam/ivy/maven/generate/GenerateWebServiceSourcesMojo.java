@@ -47,6 +47,6 @@ public class GenerateWebServiceSourcesMojo extends AbstractEngineInstanceMojo {
       return;
     }
     getLog().info("Generating Ivy web service process sources...");
-    projectBuilder.generateSources(project.getBasedir(), "WebServiceProcessSourceGenerator");
+    projectBuilder.generateSources(project.getBasedir().toPath(), "WebServiceProcessSourceGenerator");
   }
 }

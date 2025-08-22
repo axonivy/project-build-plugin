@@ -65,7 +65,7 @@ public class ClasspathJar {
     }
   }
 
-  public void createFileEntries(Collection<File> classpathEntries) throws IOException {
+  public void createFileEntries(Collection<Path> classpathEntries) throws IOException {
     create(getClassPathUris(classpathEntries));
   }
 
@@ -84,21 +84,21 @@ public class ClasspathJar {
     manifest.write(jarStream);
   }
 
-  private static List<String> getClassPathUris(Collection<File> classpathEntries) {
+  private static List<String> getClassPathUris(Collection<Path> classpathEntries) {
     return classpathEntries.stream()
-        .map(file -> file.toURI().toASCIIString())
+        .map(p -> p.toUri().toASCIIString())
         .collect(Collectors.toList());
   }
 
-  public List<File> getFiles() {
+  public List<Path> getFiles() {
     String urlClasspath = getClasspathUrlEntries();
     if (StringUtils.isBlank(urlClasspath)) {
       return Collections.emptyList();
     }
 
-    List<File> files = new ArrayList<>();
+    List<Path> files = new ArrayList<>();
     for (String entry : urlClasspath.split(" ")) {
-      files.add(new File(uriToAbsoluteFilePath(entry)));
+      files.add(new File(uriToAbsoluteFilePath(entry)).toPath());
     }
     return files;
   }

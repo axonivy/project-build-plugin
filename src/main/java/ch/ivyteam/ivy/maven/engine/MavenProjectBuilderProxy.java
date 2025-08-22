@@ -21,6 +21,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -45,24 +46,24 @@ public class MavenProjectBuilderProxy {
   private static final String FQ_DELEGATE_CLASS_NAME = "ch.ivyteam.ivy.project.build.MavenProjectBuilder";
   private final Object delegate;
   private final Class<?> delegateClass;
-  private final File baseDirToBuildIn;
+  private final Path baseDirToBuildIn;
   private final String engineClasspath;
   private final Log log;
 
-  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, File workspace,
-      File baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
+  public MavenProjectBuilderProxy(EngineClassLoaderFactory classLoaderFactory, Path workspace,
+      Path baseDirToBuildIn, Log log, int timeoutEngineStartInSeconds) throws Exception {
     this.baseDirToBuildIn = baseDirToBuildIn;
     this.log = log;
 
     logEngine();
 
-    URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn.toPath());
+    URLClassLoader ivyEngineClassLoader = classLoaderFactory.createEngineClassLoader(baseDirToBuildIn);
     delegateClass = getOsgiBundledDelegate(ivyEngineClassLoader, timeoutEngineStartInSeconds);
-    Constructor<?> constructor = delegateClass.getDeclaredConstructor(File.class);
+    Constructor<?> constructor = delegateClass.getDeclaredConstructor(Path.class);
 
     delegate = executeInEngineDir(() -> constructor.newInstance(workspace));
 
-    List<File> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn.toPath());
+    List<Path> engineJars = EngineClassLoaderFactory.getIvyEngineClassPathFiles(baseDirToBuildIn);
     engineClasspath = getEngineClasspath(engineJars);
   }
 
@@ -81,7 +82,7 @@ public class MavenProjectBuilderProxy {
 
   private Class<?> getOsgiBundledDelegate(URLClassLoader ivyEngineClassLoader,
       int timeoutEngineStartInSeconds) throws Exception {
-    Object bundleContext = new OsgiRuntime(baseDirToBuildIn.toPath(), log).startEclipseOsgiImpl(ivyEngineClassLoader,
+    Object bundleContext = new OsgiRuntime(baseDirToBuildIn, log).startEclipseOsgiImpl(ivyEngineClassLoader,
         timeoutEngineStartInSeconds);
     hackProvokeEagerStartOfJdt(bundleContext);
     Object buildBundle = findBundle(bundleContext, "ch.ivyteam.ivy.project.build");
@@ -105,9 +106,10 @@ public class MavenProjectBuilderProxy {
     throw new RuntimeException("Failed to resolve bundle with symbolice name '" + symbolicName + "'.");
   }
 
-  private static String getEngineClasspath(List<File> jars) {
+  private static String getEngineClasspath(List<Path> jars) {
     return jars.stream()
-        .map(File::getAbsolutePath)
+        .map(Path::toAbsolutePath)
+        .map(Path::toString)
         .collect(Collectors.joining(File.pathSeparator));
   }
 
@@ -126,37 +128,37 @@ public class MavenProjectBuilderProxy {
    * @throws Exception if creation fails
    */
   @SuppressWarnings("unchecked")
-  public List<File> createIarJars(List<File> iarDependencies) throws Exception {
+  public List<Path> createIarJars(List<Path> iarDependencies) throws Exception {
     Method iarJarMethod = getMethod("createIarJars", List.class);
-    return (List<File>) executeInEngineDir(() -> iarJarMethod.invoke(delegate, iarDependencies));
+    return (List<Path>) executeInEngineDir(() -> iarJarMethod.invoke(delegate, iarDependencies));
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String, Object> compile(File projectDirToBuild, List<File> iarJars, Map<String, Object> options)
+  public Map<String, Object> compile(Path projectDirToBuild, List<Path> iarJars, Map<String, Object> options)
       throws Exception {
-    Method compileMethod = getMethod("compile", File.class, List.class, String.class, Map.class);
+    Method compileMethod = getMethod("compile", Path.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
         () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String, Object> validate(File projectDirToBuild, List<File> dependentProjects,
+  public Map<String, Object> validate(Path projectDirToBuild, List<Path> dependentProjects,
       Map<String, Object> options) throws Exception {
-    Method validate = getMethod("validate", File.class, List.class, String.class, Map.class);
+    Method validate = getMethod("validate", Path.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
         () -> validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options));
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String, Object> testCompile(File projectDirToBuild, List<File> iarJars,
+  public Map<String, Object> testCompile(Path projectDirToBuild, List<Path> iarJars,
       Map<String, Object> options) throws Exception {
-    Method compileMethod = getMethod("testCompile", File.class, List.class, String.class, Map.class);
+    Method compileMethod = getMethod("testCompile", Path.class, List.class, String.class, Map.class);
     return (Map<String, Object>) executeInEngineDir(
         () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
-  public void generateSources(File projectDirToBuild, String generatorId) throws Exception {
-    Method compileMethod = getMethod("generateSources", File.class, String.class);
+  public void generateSources(Path projectDirToBuild, String generatorId) throws Exception {
+    Method compileMethod = getMethod("generateSources", Path.class, String.class);
     executeInEngineDir(() -> compileMethod.invoke(delegate, projectDirToBuild, generatorId));
   }
 
@@ -173,7 +175,7 @@ public class MavenProjectBuilderProxy {
 
   private <T> T executeInEngineDir(Callable<T> function) throws Exception {
     String originalBaseDirectory = System.getProperty("user.dir");
-    System.setProperty("user.dir", baseDirToBuildIn.getAbsolutePath());
+    System.setProperty("user.dir", baseDirToBuildIn.toAbsolutePath().toString());
     try {
       return function.call();
     } finally {

@@ -43,7 +43,7 @@ class TestClasspathJar {
     var jar = new ClasspathJar(jarFile);
     var content = tempDir.resolve("content.jar");
     Files.createFile(content);
-    jar.createFileEntries(List.of(content.toFile()));
+    jar.createFileEntries(List.of(content));
 
     assertThat(jar.getClasspathFiles()).contains(content.getFileName().toString());
 

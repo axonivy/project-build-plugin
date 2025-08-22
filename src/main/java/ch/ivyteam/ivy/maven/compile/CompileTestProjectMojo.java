@@ -16,8 +16,8 @@
 
 package ch.ivyteam.ivy.maven.compile;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +52,14 @@ public class CompileTestProjectMojo extends AbstractProjectCompileMojo {
     }
 
     getLog().info("Compiling test sources...");
-    Map<String, Object> result = projectBuilder.testCompile(project.getBasedir(), getDependencyIarJars(), getOptions());
+    Map<String, Object> result = projectBuilder.testCompile(project.getBasedir().toPath(), getDependencyIarJars(), getOptions());
     CompilerResult.store(result, project);
   }
 
   /**
    * @return persistent IAR-JARs from {@link CompileProjectMojo}.
    */
-  private List<File> getDependencyIarJars() {
+  private List<Path> getDependencyIarJars() {
     var iarJarClasspath = new SharedFile(project).getIarDependencyClasspathJar();
     if (!Files.exists(iarJarClasspath)) {
       return Collections.emptyList();
