@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
@@ -128,7 +129,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
           File iar = packedIar.get().toFile();
           appZipper.addFile(iar, iar.getName());
         } else {
-          appZipper.addDirectory(d, d.getName() + "/");
+          appZipper.addFileSet(DefaultFileSet.fileSet(d).prefixed(d.getName() + "/"));
         }
       } else {
         getLog().warn("Can not add dependency to app zip '" + dep + "'. \n "
