@@ -18,7 +18,13 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.artifact.Artifact;
@@ -128,8 +134,31 @@ public class IarPackagingMojo extends AbstractMojo {
 
     try {
       archiver.createArchive();
+      addMetaInfIvy(archiver);
     } catch (ArchiverException | IOException ex) {
       throw new MojoExecutionException("Failed to create IAR: " + targetIar.toAbsolutePath(), ex);
+    }
+  }
+
+  private void addMetaInfIvy(ZipArchiver archiver) throws IOException {
+    URI zipUri = java.net.URI.create("jar:" + archiver.getDestFile().toURI());
+    Map<String, String> options = Map.of("create", Boolean.TRUE.toString());
+    Path dir = project.getBasedir().toPath();
+    try (var zipFs = FileSystems.newFileSystem(zipUri, options);
+        Stream<Path> walker = Files.walk(dir)) {
+      walker.forEach(entry -> {
+        String relative = dir.relativize(entry).toString();
+        if (relative.startsWith("target")) {
+          return;
+        }
+        try {
+          if (!relative.isEmpty()) {
+            Files.copy(entry, zipFs.getPath("META-INF/ivy" + relative), StandardCopyOption.COPY_ATTRIBUTES);
+          }
+        } catch (IOException ex) {
+          //
+        }
+      });
     }
   }
 
