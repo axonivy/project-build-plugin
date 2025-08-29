@@ -118,12 +118,13 @@ public class IarPackagingMojo extends AbstractMojo {
   }
 
   private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
-    ZipArchiver archiver = new ZipArchiver();
+    ZipArchiver archiver = new NioZipper();
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar.toFile());
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir().toPath());
     for (var fs : fsConverter.toPlexusFileSets(iarFileSets)) {
       fs.setPrefix(Defaults.PREFIX);
+
       archiver.addFileSet(fs);
     }
     archiver.addFileSet(getIarFs_exceptTarget(projectDir));
