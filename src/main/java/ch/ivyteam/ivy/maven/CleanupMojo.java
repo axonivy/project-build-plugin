@@ -84,6 +84,7 @@ public class CleanupMojo extends AbstractMojo {
     for (var dir : dirs) {
       var dirToDelete = project.getBasedir().toPath().resolve(dir);
       try {
+        getLog().info("Deleting: " + dirToDelete);
         PathUtils.delete(dirToDelete);
       } catch (Exception ex) {
         getLog().warn("Couldn't delete: " + dirToDelete, ex);
