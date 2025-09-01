@@ -11,6 +11,10 @@ iar Lifecycle
 *--------*---------*
  initialize        | ${project.groupId}:${project.artifactId}:{{{./installEngine-mojo.html}installEngine}}
 *--------*---------*
+ generate-sources  | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
+                   | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources.html}generate-dialog-form-sources}}
+                   | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
+*--------*---------*
  process-resources | ${project.groupId}:${project.artifactId}:{{{./ivy-resources-properties-mojo.html}ivy-resources-properties}}\
                    | org.apache.maven.plugins:maven-resources-plugin:resources
 *--------*---------*
