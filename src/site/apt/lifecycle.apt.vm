@@ -5,14 +5,14 @@ iar Lifecycle
 *--------*---------*
  <<phase>>         | <<default executions>> 
 *--------*---------*
- clean             | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-cleanup-mojo.html}maven-dependency-cleanup}}
+ clean             | ${project.groupId}:${project.artifactId}:{{{./ivy-cleanup-mojo.html}ivy-cleanup}}
 *--------*---------*
  validate          | ${project.groupId}:${project.artifactId}:{{{./validate-mojo.html}validate}}
 *--------*---------*
  initialize        | ${project.groupId}:${project.artifactId}:{{{./installEngine-mojo.html}installEngine}}
 *--------*---------*
  generate-sources  | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
-                   | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources.html}generate-dialog-form-sources}}
+                   | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources-mojo.html}generate-dialog-form-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
 *--------*---------*
  process-resources | ${project.groupId}:${project.artifactId}:{{{./ivy-resources-properties-mojo.html}ivy-resources-properties}}\

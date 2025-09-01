@@ -9,7 +9,7 @@
       </implementation>
       <configuration>
         <phases>
-          <clean>com.axonivy.ivy.ci:project-build-plugin:maven-dependency-cleanup</clean>
+          <clean>com.axonivy.ivy.ci:project-build-plugin:ivy-cleanup</clean>
           <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
           <generate-sources>
