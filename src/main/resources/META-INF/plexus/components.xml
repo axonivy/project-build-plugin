@@ -15,7 +15,8 @@
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
-            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
+            com.axonivy.ivy.ci:project-build-plugin:unpack-libs
           </generate-sources>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
@@ -49,7 +50,8 @@
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
-            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
+            com.axonivy.ivy.ci:project-build-plugin:unpack-libs
           </generate-sources>
           <process-resources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
