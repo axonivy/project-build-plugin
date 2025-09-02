@@ -5,6 +5,7 @@ import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +45,8 @@ public class JarUnpacker {
   private void copy(Path source) {
     try {
       var target = targetDir.resolve(source.toString());
-      if (Files.exists(target)) {
-        log.warn("File " + target + "already exists, skipping copy.");
-        return;
-      }
       Files.createDirectories(target.getParent());
-      Files.copy(source, target);
+      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
