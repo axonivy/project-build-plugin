@@ -118,7 +118,7 @@ public class IarPackagingMojo extends AbstractMojo {
   }
 
   private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
-    ZipArchiver archiver = new ZipArchiver();
+    ZipArchiver archiver = new IvyZipArchiver();
     archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
     archiver.setDestFile(targetIar.toFile());
     FileSetConverter fsConverter = new FileSetConverter(project.getBasedir().toPath());
