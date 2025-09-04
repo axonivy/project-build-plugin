@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -277,6 +278,24 @@ public class TestIarPackagingMojo {
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(archive.getEntry("ch/ivyteam/MyTest.class")).isNull();
       assertThat(archive.getEntry("gugus.txt")).isNull();
+    }
+  }
+
+  @Test
+  public void testLargeIar() throws Exception {
+    var mojo = rule.getMojo();
+    var target = mojo.project.getBasedir().toPath().resolve("target").resolve("classes");
+    var rand = new Random();
+    for (var i = 0; i < 20_000; i++) {
+      var file = target.resolve("large-iar-file" + i);
+      var data = new byte[512];
+      rand.nextBytes(data);
+      Files.write(file, data);
+    }
+    mojo.execute();
+
+    try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+      assertThat(archive.getEntry("large-iar-file19999").getSize()).isEqualTo(512);
     }
   }
 
