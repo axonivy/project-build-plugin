@@ -269,15 +269,31 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void rootClassFiles_ifNoTargetExists() throws Exception {
+  public void rootClassFiles_ifNoClassesExists() throws Exception {
     IarPackagingMojo mojo = rule.getMojo();
-    var target = mojo.project.getBasedir().toPath().resolve("target");
-    PathUtils.delete(target);
+    var projectDir = mojo.project.getBasedir().toPath();
+    PathUtils.delete(projectDir.resolve("target"));
+    PathUtils.delete(projectDir.resolve("classes"));
+
     mojo.execute();
 
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(archive.getEntry("ch/ivyteam/MyTest.class")).isNull();
       assertThat(archive.getEntry("gugus.txt")).isNull();
+    }
+  }
+
+  @Test
+  public void rootClassFiles_withClassesDir() throws Exception {
+    IarPackagingMojo mojo = rule.getMojo();
+    PathUtils.delete(mojo.project.getBasedir().toPath().resolve("target"));
+
+    mojo.execute();
+
+    try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+      assertThat(archive.getEntry("ch/ivyteam/test/bla.class")).isNotNull();
+      assertThat(archive.getInputStream(archive.getEntry("gugus.txt")))
+          .isEmpty();
     }
   }
 
