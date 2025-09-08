@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,7 +29,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
@@ -107,31 +105,27 @@ public class IarPackagingMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    String iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
+    var iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
     var iar = Path.of(project.getBuild().getDirectory()).resolve(iarName);
     createIvyArchive(project.getBasedir(), iar);
 
-    Artifact artifact = project.getArtifact();
+    var artifact = project.getArtifact();
     artifact.setFile(iar.toFile());
     project.setArtifact(artifact);
     getLog().info("Attached " + artifact + ".");
   }
 
   private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
-    ZipArchiver archiver = new ZipArchiver();
-    archiver.setDuplicateBehavior(Archiver.DUPLICATES_SKIP);
+    var archiver = new ZipArchiver();
     archiver.setDestFile(targetIar.toFile());
-    FileSetConverter fsConverter = new FileSetConverter(project.getBasedir().toPath());
+    var fsConverter = new FileSetConverter(project.getBasedir().toPath());
     for (var fs : fsConverter.toPlexusFileSets(iarFileSets)) {
       fs.setPrefix(Defaults.PREFIX);
       archiver.addFileSet(fs);
     }
     archiver.addFileSet(getIarFs_exceptTarget(projectDir));
     archiver.addFileSet(getIarTargetFs(projectDir));
-    var targetClasses = projectDir.toPath().resolve(Path.of(project.getBuild().getOutputDirectory()));
-    if (Files.exists(targetClasses)) {
-      archiver.addFileSet(createFs(targetClasses.toFile()));
-    }
+    archiveClasses(projectDir.toPath(), archiver);
     try {
       archiver.createArchive();
     } catch (ArchiverException | IOException ex) {
@@ -139,27 +133,34 @@ public class IarPackagingMojo extends AbstractMojo {
     }
   }
 
+  private void archiveClasses(Path projectDir, ZipArchiver archiver) {
+    var outputDir = projectDir.resolve(Path.of(project.getBuild().getOutputDirectory()));
+    if (!Files.exists(outputDir)) {
+      outputDir = projectDir.resolve("classes");
+      if (!Files.exists(outputDir)) {
+        return;
+      }
+    }
+    archiver.addFileSet(createFs(outputDir.toFile()));
+  }
+
   private DefaultFileSet getIarFs_exceptTarget(File projectDir) {
-    var fileSet = createFs(projectDir);
-    fileSet.setPrefix(Defaults.PREFIX);
-    fileSet.setIncludes(Defaults.INCLUDES);
-    fileSet.setExcludes(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes));
-    return fileSet;
+    return createFs(projectDir)
+        .prefixed(Defaults.PREFIX)
+        .include(Defaults.INCLUDES)
+        .exclude(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes));
   }
 
   private DefaultFileSet getIarTargetFs(File projectDir) {
-    var fileSet = createFs(projectDir);
-    fileSet.setPrefix(Defaults.PREFIX);
-    fileSet.setIncludes(Defaults.TARGET_INCLUDES);
-    fileSet.setExcludes(iarExcludes);
-    return fileSet;
+    return createFs(projectDir)
+        .prefixed(Defaults.PREFIX)
+        .include(Defaults.TARGET_INCLUDES)
+        .exclude(iarExcludes);
   }
 
   private DefaultFileSet createFs(File sourceDir) {
-    var fileSet = new DefaultFileSet();
-    fileSet.setDirectory(sourceDir);
-    fileSet.setIncludingEmptyDirectories(iarIncludesEmptyDirs);
-    return fileSet;
+    return DefaultFileSet.fileSet(sourceDir)
+        .includeEmptyDirs(iarIncludesEmptyDirs);
   }
 
 }
