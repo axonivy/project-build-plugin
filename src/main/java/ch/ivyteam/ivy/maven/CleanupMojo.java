@@ -12,8 +12,9 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 /**
- * Delete directories containing generated sources.
- * By default deletes lib/mvn-deps, src_dataClasses, src_wsproc and src_generated.
+ * Deletes directories that contain generated sources.
+ * By default, the following directories are removed:
+ * <code>lib/mvn-deps</code>, <code>src_dataClasses</code>, <code>src_wsproc</code>, and <code>src_generated</code>.
  *
  *
  * @since 13.2.0
@@ -56,8 +57,6 @@ public class CleanupMojo extends AbstractMojo {
 
   /**
    * Define directories to be deleted during cleanup with ANT-style inclusions.
-   * Default directories to be cleaned up are specified in:
-   * {@link ch.ivyteam.ivy.maven.CleanupMojo#INCLUDED_DIRECTORIES}.
    *
    *
    * Sample:

@@ -13,8 +13,9 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
- * Unpack libs to output directory.
- * By default lib/generated/rest/.*jar and lib_ws/client/*.jar are unpacked.
+ * Unpacks libraries into the output directory.
+ * By default, the following JARs are unpacked:
+ * <code>lib/generated/rest/*.jar<code> and <code>lib_ws/client/*.jar<code>.
  *
  *
  * @since 13.2.0
@@ -33,7 +34,7 @@ public class UnpackLibsMojo extends AbstractMojo {
   };
 
   /**
-   * Set to <code>true</code> to bypass the deletion step.
+   * Set to <code>true</code> to bypass the unpack step.
    */
   @Parameter(property = "ivy.unpack.libs.skip", defaultValue = "false")
   boolean skipUnpackLibs;
@@ -54,8 +55,6 @@ public class UnpackLibsMojo extends AbstractMojo {
 
   /**
    * Define inclusions for unpacking with ANT-style.
-   * Default libs to be unpacked are specified in:
-   * {@link ch.ivyteam.ivy.maven.generate.UnpackLibsMojo#INCLUDED_LIBS}.
    *
    *
    * Sample:
