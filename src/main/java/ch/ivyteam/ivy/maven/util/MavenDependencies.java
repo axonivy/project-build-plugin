@@ -16,30 +16,48 @@ import org.apache.maven.project.MavenProject;
 /**
  * @since 9.2.2
  */
-public interface MavenDependencies {
+public class MavenDependencies {
 
-  static List<Path> localTransient(MavenProject project) {
+  private final MavenProject project;
+  private MavenSession session;
+  private String typeFilter;
+
+  private MavenDependencies(MavenProject project) {
+    this.project = project;
+  }
+
+  public static MavenDependencies of(MavenProject project) {
+    return new MavenDependencies(project);
+  }
+
+  public MavenDependencies session(MavenSession mvnSession) {
+    this.session = mvnSession;
+    return this;
+  }
+
+  public MavenDependencies typeFilter(String filter) {
+    this.typeFilter = filter;
+    return this;
+  }
+
+  public List<Path> localTransient() {
     return stream(project.getArtifacts())
-        .filter(artifact -> isLocalDep(artifact, project))
+        .filter(this::isLocalDep)
         .map(Artifact::getFile)
         .map(File::toPath)
         .filter(Objects::nonNull)
         .toList();
   }
 
-  static List<Path> all(MavenProject project, MavenSession session, String typeFilter) {
+  public List<Path> all() {
     return stream(project.getArtifacts())
-        .filter(a -> include(typeFilter, a))
-        .map(a -> toFile(session, a))
+        .filter(this::include)
+        .map(this::toFile)
         .map(File::toPath)
         .collect(Collectors.toList());
   }
 
-  static List<Path> all(MavenProject project, String typeFilter) {
-    return all(project, null, typeFilter);
-  }
-
-  private static boolean isLocalDep(Artifact artifact, MavenProject project) {
+  private boolean isLocalDep(Artifact artifact) {
     return artifact.getDependencyTrail().stream()
         .filter(dep -> dep.contains(":iar")) // iar or iar-integration-test
         .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
@@ -54,13 +72,13 @@ public interface MavenDependencies {
     return deps.stream();
   }
 
-  private static File toFile(MavenSession session, Artifact artifact) {
-    return findReactorProject(session, artifact)
+  private File toFile(Artifact artifact) {
+    return findReactorProject(artifact)
         .map(MavenProject::getBasedir)
         .orElse(artifact.getFile());
   }
 
-  private static boolean include(String typeFilter, Artifact artifact) {
+  private boolean include(Artifact artifact) {
     if (typeFilter == null) {
       return true;
     }
@@ -70,7 +88,7 @@ public interface MavenDependencies {
     return typeFilter.equals(artifact.getType());
   }
 
-  private static Optional<MavenProject> findReactorProject(MavenSession session, Artifact artifact) {
+  private Optional<MavenProject> findReactorProject(Artifact artifact) {
     if (session == null) {
       return Optional.empty();
     }

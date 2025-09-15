@@ -114,7 +114,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
   }
 
   protected final List<Path> getDependencies(String type) {
-    return MavenDependencies.all(project, type);
+    return MavenDependencies.of(project).typeFilter(type).all();
   }
 
 }

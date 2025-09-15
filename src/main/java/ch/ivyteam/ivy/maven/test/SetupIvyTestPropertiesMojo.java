@@ -117,7 +117,10 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   private List<URI> getProjects() {
     var deps = new ArrayList<Path>();
     deps.add(project.getBasedir().toPath());
-    deps.addAll(MavenDependencies.all(project, session, "iar"));
+    deps.addAll(MavenDependencies.of(project)
+        .session(session)
+        .typeFilter("iar")
+        .all());
     return deps.stream()
         .map(Path::toUri)
         .collect(Collectors.toList());

@@ -51,7 +51,7 @@ public class MavenDependencyMojo extends AbstractMojo {
     }
     getLog().info("Copy maven dependencies...");
 
-    var deps = MavenDependencies.localTransient(project);
+    var deps = MavenDependencies.of(project).localTransient();
     if (deps.isEmpty()) {
       getLog().info("No maven dependencies were found.");
       return;

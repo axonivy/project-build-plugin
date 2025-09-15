@@ -100,7 +100,10 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
   }
 
   private void provideDepsAsAppZip() {
-    var deps = MavenDependencies.all(project, session, "iar");
+    var deps = MavenDependencies.of(project)
+        .session(session)
+        .typeFilter("iar")
+        .all();
     if (deps.isEmpty()) {
       return;
     }
