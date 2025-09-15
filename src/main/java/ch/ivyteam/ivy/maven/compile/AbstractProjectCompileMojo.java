@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
-import ch.ivyteam.ivy.maven.util.MavenRuntime;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
 public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceMojo {
   /**
@@ -114,7 +114,7 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
   }
 
   protected final List<Path> getDependencies(String type) {
-    return MavenRuntime.getDependencies(project, type);
+    return MavenDependencies.of(project).typeFilter(type).all();
   }
 
 }

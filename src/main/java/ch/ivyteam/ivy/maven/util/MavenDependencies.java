@@ -17,27 +17,43 @@ import org.apache.maven.project.MavenProject;
  * @since 9.2.2
  */
 public class MavenDependencies {
+
   private final MavenProject project;
-  private final MavenSession session;
+  private MavenSession session;
   private String typeFilter;
 
-  public MavenDependencies(MavenProject project, MavenSession session) {
+  private MavenDependencies(MavenProject project) {
     this.project = project;
-    this.session = session;
   }
 
-  public MavenDependencies type(String newTypeFilter) {
-    this.typeFilter = newTypeFilter;
+  public static MavenDependencies of(MavenProject project) {
+    return new MavenDependencies(project);
+  }
+
+  public MavenDependencies session(MavenSession mvnSession) {
+    this.session = mvnSession;
+    return this;
+  }
+
+  public MavenDependencies typeFilter(String filter) {
+    this.typeFilter = filter;
     return this;
   }
 
   public List<Path> localTransient() {
     return stream(project.getArtifacts())
         .filter(this::isLocalDep)
-        .filter(this::include)
         .map(Artifact::getFile)
         .map(File::toPath)
         .filter(Objects::nonNull)
+        .toList();
+  }
+
+  public List<Path> all() {
+    return stream(project.getArtifacts())
+        .filter(this::include)
+        .map(this::toFile)
+        .map(File::toPath)
         .collect(Collectors.toList());
   }
 
@@ -47,14 +63,6 @@ public class MavenDependencies {
         .filter(dep -> !dep.startsWith(project.getGroupId() + ":" + project.getArtifactId() + ":"))
         .findAny()
         .isEmpty();
-  }
-
-  public List<Path> all() {
-    return stream(project.getArtifacts())
-        .filter(this::include)
-        .map(this::toFile)
-        .map(File::toPath)
-        .collect(Collectors.toList());
   }
 
   private static Stream<Artifact> stream(Set<Artifact> deps) {
@@ -88,5 +96,4 @@ public class MavenDependencies {
         .filter(p -> p.getArtifact().equals(artifact))
         .findAny();
   }
-
 }
