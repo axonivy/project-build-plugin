@@ -35,7 +35,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name = CompileProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = CompileProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class CompileProjectMojo extends AbstractProjectCompileMojo {
   public static final String GOAL = "compileProject";
 

@@ -49,7 +49,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 6.0.2
  */
-@Mojo(name = SetupIvyTestPropertiesMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = SetupIvyTestPropertiesMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   public static final String GOAL = "ivy-test-properties";
 

@@ -63,7 +63,7 @@ import net.lingala.zip4j.ZipFile;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name = InstallEngineMojo.GOAL, requiresProject = false)
+@Mojo(name = InstallEngineMojo.GOAL, requiresProject = false, threadSafe = true)
 public class InstallEngineMojo extends AbstractEngineMojo {
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
@@ -191,50 +191,50 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   }
 
   private void downloadAndInstallEngine(boolean cleanEngineDir) throws MojoExecutionException {
-    if (autoInstallEngine) {
-      getLog().info("Will automatically download Engine now.");
-      final EngineDownloader engineDownloader = getDownloader();
-      var downloadZip = engineDownloader.downloadEngine();
-
-      if (cleanEngineDir) {
-        removeOldEngineContent();
-      }
-
-      if (!isEngineDirectoryIdentified()) {
-        String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
-        engineDirectory = engineCacheDirectory.resolve(ivyEngineVersionOfZip(engineZipFileName));
-        try {
-          Files.createDirectories(engineDirectory);
-        } catch (IOException ex) {
-          throw new MojoExecutionException("Could not create directories " + engineDirectory, ex);
-        }
-      }
-
-      unpackEngine(downloadZip);
-
-      if (!downloadUsingMaven) {
-        try {
-          Files.delete(downloadZip);
-        } catch (IOException ex) {
-          throw new MojoExecutionException("Could not delete file " + downloadZip.toAbsolutePath(), ex);
-        }
-      }
-
-      ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
-      if (installedEngineVersion == null) {
-        throw new MojoExecutionException(
-            "Can not determine installed engine version in directory '" + getRawEngineDirectory() + "'. "
-                + "Possibly a non-OSGi engine.");
-      }
-      if (!getIvyVersionRange().containsVersion(installedEngineVersion)) {
-        throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
-            + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
-            + "'.");
-      }
-    } else {
-      throw new MojoExecutionException("Aborting class generation as no valid ivy Engine is available! "
+    if (!autoInstallEngine) {
+      throw new MojoExecutionException("Aborting build as no valid ivy Engine is available! "
           + "Use the 'autoInstallEngine' parameter for an automatic installation.");
     }
+    getLog().info("Will automatically download Engine now.");
+    final EngineDownloader engineDownloader = getDownloader();
+    var downloadZip = engineDownloader.downloadEngine();
+
+    if (cleanEngineDir) {
+      removeOldEngineContent();
+    }
+
+    if (!isEngineDirectoryIdentified()) {
+      String engineZipFileName = engineDownloader.getZipFileNameFromDownloadLocation();
+      engineDirectory = engineCacheDirectory.resolve(ivyEngineVersionOfZip(engineZipFileName));
+      try {
+        Files.createDirectories(engineDirectory);
+      } catch (IOException ex) {
+        throw new MojoExecutionException("Could not create directories " + engineDirectory, ex);
+      }
+    }
+
+    unpackEngine(downloadZip);
+
+    if (!downloadUsingMaven) {
+      try {
+        Files.delete(downloadZip);
+      } catch (IOException ex) {
+        throw new MojoExecutionException("Could not delete file " + downloadZip.toAbsolutePath(), ex);
+      }
+    }
+
+    ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
+    if (installedEngineVersion == null) {
+      throw new MojoExecutionException(
+          "Can not determine installed engine version in directory '" + getRawEngineDirectory() + "'. "
+              + "Possibly a non-OSGi engine.");
+    }
+    if (!getIvyVersionRange().containsVersion(installedEngineVersion)) {
+      throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
+          + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
+          + "'.");
+    }
+
   }
 
   public EngineDownloader getDownloader() throws MojoExecutionException {

@@ -24,10 +24,11 @@ import org.apache.maven.project.MavenProject;
  *
  * @since 12.0.1
  */
-@Mojo(name = ValidateMojo.GOAL, requiresProject = true)
+@Mojo(name = ValidateMojo.GOAL, requiresProject = true, threadSafe = true)
 public class ValidateMojo extends AbstractMojo {
 
   public static final String GOAL = "validate";
+  private static final String EXECUTED_PROPERTY = ValidateMojo.class.getSimpleName() + ".executed";
   protected static final String PLUGIN_GROUPID = "com.axonivy.ivy.ci";
   protected static final String PLUGIN_ARTIFACTID = "project-build-plugin";
 
@@ -36,6 +37,10 @@ public class ValidateMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    if (session.getUserProperties().putIfAbsent(EXECUTED_PROPERTY, true) != null) {
+      getLog().debug("Skipping validation as it was already executed in this session.");
+      return;
+    }
     validateConsistentPluginVersion(session.getAllProjects());
   }
 

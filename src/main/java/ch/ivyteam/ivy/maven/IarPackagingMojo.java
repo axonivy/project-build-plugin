@@ -42,7 +42,7 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name = IarPackagingMojo.GOAL)
+@Mojo(name = IarPackagingMojo.GOAL, threadSafe = true)
 public class IarPackagingMojo extends AbstractMojo {
   public static final String GOAL = "pack-iar";
 

@@ -30,7 +30,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  *
  * @since 13.2.0
  */
-@Mojo(name = GenerateDataClassSourcesMojo.GOAL)
+@Mojo(name = GenerateDataClassSourcesMojo.GOAL, threadSafe = true)
 public class GenerateDataClassSourcesMojo extends AbstractEngineInstanceMojo {
   public static final String GOAL = "generate-data-class-sources";
 

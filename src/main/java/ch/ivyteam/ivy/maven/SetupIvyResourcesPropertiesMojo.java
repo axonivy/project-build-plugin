@@ -32,7 +32,9 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
  *
  * @since 9.4.0
  */
-@Mojo(name = SetupIvyResourcesPropertiesMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = SetupIvyResourcesPropertiesMojo.GOAL,
+    threadSafe = true,
+    requiresDependencyResolution = ResolutionScope.COMPILE)
 public class SetupIvyResourcesPropertiesMojo extends AbstractMojo {
   public static final String GOAL = "ivy-resources-properties";
 

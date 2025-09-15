@@ -30,7 +30,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  *
  * @since 13.2.0
  */
-@Mojo(name = GenerateDialogFormSourcesMojo.GOAL)
+@Mojo(name = GenerateDialogFormSourcesMojo.GOAL, threadSafe = true)
 public class GenerateDialogFormSourcesMojo extends AbstractEngineInstanceMojo {
   public static final String GOAL = "generate-dialog-form-sources";
 

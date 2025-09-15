@@ -37,7 +37,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @author Reguel Wermelinger
  * @since 6.1.0
  */
-@Mojo(name = CompileTestProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = CompileTestProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class CompileTestProjectMojo extends AbstractProjectCompileMojo {
   public static final String GOAL = "test-compile";
 

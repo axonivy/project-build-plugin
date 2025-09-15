@@ -31,7 +31,7 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
  *
  * @since 9.2.0
  */
-@Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM)
+@Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM, threadSafe = true)
 public class MavenDependencyMojo extends AbstractMojo {
   public static final String GOAL = "maven-dependency";
 

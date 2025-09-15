@@ -30,7 +30,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  *
  * @since 13.2.0
  */
-@Mojo(name = GenerateWebServiceSourcesMojo.GOAL)
+@Mojo(name = GenerateWebServiceSourcesMojo.GOAL, threadSafe = true)
 public class GenerateWebServiceSourcesMojo extends AbstractEngineInstanceMojo {
   public static final String GOAL = "generate-web-service-sources";
 

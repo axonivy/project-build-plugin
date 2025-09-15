@@ -20,7 +20,7 @@ import org.codehaus.plexus.util.DirectoryScanner;
  *
  * @since 13.2.0
  */
-@Mojo(name = UnpackLibsMojo.GOAL)
+@Mojo(name = UnpackLibsMojo.GOAL, threadSafe = true)
 public class UnpackLibsMojo extends AbstractMojo {
 
   public static final String GOAL = "unpack-libs";
