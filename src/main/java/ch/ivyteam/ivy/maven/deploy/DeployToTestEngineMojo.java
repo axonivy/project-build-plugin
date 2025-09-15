@@ -34,8 +34,8 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
-import ch.ivyteam.ivy.maven.util.MavenRuntime;
 
 /**
  * <p>
@@ -100,7 +100,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
   }
 
   private void provideDepsAsAppZip() {
-    var deps = MavenRuntime.getDependencies(project, session, "iar");
+    var deps = MavenDependencies.all(project, session, "iar");
     if (deps.isEmpty()) {
       return;
     }

@@ -37,8 +37,8 @@ import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
-import ch.ivyteam.ivy.maven.util.MavenRuntime;
 import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
@@ -117,7 +117,7 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   private List<URI> getProjects() {
     var deps = new ArrayList<Path>();
     deps.add(project.getBasedir().toPath());
-    deps.addAll(MavenRuntime.getDependencies(project, session, "iar"));
+    deps.addAll(MavenDependencies.all(project, session, "iar"));
     return deps.stream()
         .map(Path::toUri)
         .collect(Collectors.toList());

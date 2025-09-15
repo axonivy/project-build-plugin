@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021 Axon Ivy AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package ch.ivyteam.ivy.maven;
 
 import java.io.IOException;
@@ -22,13 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.compile.AbstractProjectCompileMojo;
-import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
 /**
@@ -48,7 +32,7 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
  * @since 9.2.0
  */
 @Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM)
-public class MavenDependencyMojo extends AbstractProjectCompileMojo {
+public class MavenDependencyMojo extends AbstractMojo {
   public static final String GOAL = "maven-dependency";
 
   /**
@@ -57,28 +41,30 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo {
   @Parameter(property = "ivy.mvn.dep.skip", defaultValue = "false")
   boolean skipMvnDependency;
 
-  @Parameter(defaultValue = "${session}", readonly = true)
-  private MavenSession session;
+  @Parameter(property = "project", required = true, readonly = true)
+  MavenProject project;
 
   @Override
-  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
+  public void execute() throws MojoExecutionException {
     if (skipMvnDependency) {
       return;
     }
     getLog().info("Copy maven dependencies...");
 
-    var deps = new MavenDependencies(project, session).localTransient();
+    var deps = MavenDependencies.localTransient(project);
     if (deps.isEmpty()) {
       getLog().info("No maven dependencies were found.");
       return;
     }
-    var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
-    var copied = copyDependency(mvnLibDir, deps);
-
-    getLog().info("Maven dependecies: " + copied + " copied.");
+    try {
+      var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
+      copyDependency(mvnLibDir, deps);
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Failed to create mvn-deps directory", ex);
+    }
   }
 
-  private int copyDependency(Path mvnLibDir, List<Path> deps) {
+  private void copyDependency(Path mvnLibDir, List<Path> deps) {
     var count = 0;
     for (var dep : deps) {
       try {
@@ -91,7 +77,7 @@ public class MavenDependencyMojo extends AbstractProjectCompileMojo {
         getLog().warn("Couldn't copy depedency '" + deps + "' to: " + mvnLibDir, ex);
       }
     }
-    return count;
+    getLog().info("Maven dependecies: " + count + " copied.");
   }
 
 }
