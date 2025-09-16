@@ -56,9 +56,12 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
   @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
 
+  @Parameter(property = "ivy.compiler.use.default", defaultValue = "false")
+  boolean useDefaultCompiler;
+
   @Override
   protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
-    if (skipCompilation) {
+    if (skipCompilation || useDefaultCompiler) {
       return;
     }
 
