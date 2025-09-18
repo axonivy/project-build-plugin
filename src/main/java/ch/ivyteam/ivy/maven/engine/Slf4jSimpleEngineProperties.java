@@ -35,7 +35,6 @@ public class Slf4jSimpleEngineProperties {
       "ch.ivyteam.ivy.project.build.MavenProjectBuilder",
       "ch.ivyteam.ivy.java.JavaCompiler",
       "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder",
-      "ch.ivyteam.ivy.scripting.dataclass.codegen.impl.DataClassSourceGenerator",
       "ch.ivyteam.ivy.dialog.form.build.JsonFormResourceBuilder"
   );
   private static final String IVY_PREFIX = "ch.ivyteam.ivy";

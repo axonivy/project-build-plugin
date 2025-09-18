@@ -148,6 +148,22 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.axonivy.ivy.api.restricted</groupId>
+      <artifactId>ivy-project-build-plugin-api</artifactId>
+      <version>13.2.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.axonivy.ivy.api</groupId>
+      <artifactId>ivy-core-api</artifactId>
+      <version>13.2.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>3.2.0</version>
+    </dependency>
+
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>
       <groupId>org.slf4j</groupId>
