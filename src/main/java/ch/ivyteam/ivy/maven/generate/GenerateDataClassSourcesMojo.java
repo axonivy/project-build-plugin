@@ -69,7 +69,7 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
     scanner.scan();
     var jsonFiles = scanner.getIncludedFiles();
     var projectDir = project.getBasedir().toPath();
-    var writer = new DataClassSourceWriter(projectDir);
+    var writer = new NioSourceWriter(projectDir);
     for (var jsonFile : jsonFiles) {
       try {
         var model = DataClassSerializer.load(Files.newInputStream(projectDir.resolve(jsonFile))).model();
