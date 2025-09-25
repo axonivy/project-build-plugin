@@ -48,6 +48,7 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <ivy.api>13.2.0-SNAPSHOT</ivy.api>
   </properties>
 
   <distributionManagement>
@@ -148,6 +149,28 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.axonivy.ivy.api.restricted</groupId>
+      <artifactId>ivy-project-build-plugin-api</artifactId>
+      <version>${ivy.api}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.axonivy.ivy.api</groupId>
+      <artifactId>ivy-core-api</artifactId>
+      <version>${ivy.api}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>3.2.0</version>
+    </dependency>
+
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -202,8 +225,24 @@
       <version>1.4</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>maven.axonivy.com</id>
+      <url>https://maven.axonivy.com</url>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <resources>

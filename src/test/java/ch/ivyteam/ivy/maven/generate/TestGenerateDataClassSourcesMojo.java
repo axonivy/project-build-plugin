@@ -2,16 +2,19 @@ package ch.ivyteam.ivy.maven.generate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Path;
+
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
+import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class TestGenerateDataClassSourcesMojo {
 
   @Rule
-  public LocalRepoMojoRule<GenerateDataClassSourcesMojo> generate = new LocalRepoMojoRule<>(GenerateDataClassSourcesMojo.GOAL);
+  public ProjectMojoRule<GenerateDataClassSourcesMojo> generate = new ProjectMojoRule<>(
+      Path.of("src/test/resources/base"), GenerateDataClassSourcesMojo.GOAL);
 
   @Test
   public void generateDataClassSources() throws Exception {

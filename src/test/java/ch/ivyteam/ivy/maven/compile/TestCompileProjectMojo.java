@@ -149,7 +149,8 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   }
 
   void execGenerateMojo() throws Exception {
-    for (var goal : List.of(GenerateDataClassSourcesMojo.GOAL, GenerateDialogFormSourcesMojo.GOAL, GenerateWebServiceSourcesMojo.GOAL)) {
+    compile.lookupConfiguredMojo(compile.project, GenerateDataClassSourcesMojo.GOAL).execute();
+    for (var goal : List.of(GenerateDialogFormSourcesMojo.GOAL, GenerateWebServiceSourcesMojo.GOAL)) {
       ((AbstractEngineInstanceMojo) compile.lookupConfiguredMojo(compile.project, goal))
           .engineExec(compile.getMojo().getMavenProjectBuilder());
     }
