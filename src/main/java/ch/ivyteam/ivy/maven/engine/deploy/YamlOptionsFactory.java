@@ -55,8 +55,7 @@ public class YamlOptionsFactory {
   private static void writeTarget(AbstractDeployMojo config, JsonGenerator gen) throws IOException {
     boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);
     boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(config.deployTargetState);
-    boolean defaultFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO.equals(config.deployTargetFileFormat);
-    if (!defaultVersion || !defaultState || !defaultFileFormat) {
+    if (!defaultVersion || !defaultState) {
       gen.writeObjectFieldStart("target");
       if (!defaultVersion) {
         gen.writeStringField("version", config.deployTargetVersion);
@@ -64,10 +63,6 @@ public class YamlOptionsFactory {
       if (!defaultState) {
         gen.writeStringField("state", config.deployTargetState);
       }
-      if (!defaultFileFormat) {
-        gen.writeStringField("fileFormat", config.deployTargetFileFormat);
-      }
-
       gen.writeEndObject();
     }
   }

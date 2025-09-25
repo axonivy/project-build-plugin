@@ -18,7 +18,6 @@ class TestYamlOptionsFactory {
     config.deployTestUsers = "true";
     config.deployTargetVersion = "RELEASED";
     config.deployTargetState = "ACTIVE";
-    config.deployTargetFileFormat = "EXPANDED";
 
     String yamlOptions = YamlOptionsFactory.toYaml(config);
     assertThat(yamlOptions).isEqualTo(getFileContent("allOptionsSet.yaml"));
@@ -36,7 +35,6 @@ class TestYamlOptionsFactory {
     config.deployTestUsers = DefaultDeployOptions.DEPLOY_TEST_USERS;
     config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;
     config.deployTargetState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED;
-    config.deployTargetFileFormat = DefaultDeployOptions.FILE_FORMAT_AUTO;
 
     String yamlOptions = YamlOptionsFactory.toYaml(config);
     assertThat(yamlOptions).isNullOrEmpty();

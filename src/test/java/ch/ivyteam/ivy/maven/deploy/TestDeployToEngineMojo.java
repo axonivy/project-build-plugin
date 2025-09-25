@@ -96,7 +96,6 @@ public class TestDeployToEngineMojo {
     mojo.deployTestUsers = "true";
     mojo.deployTargetVersion = "RELEASED";
     mojo.deployTargetState = "INACTIVE";
-    mojo.deployTargetFileFormat = "EXPANDED";
 
     var deployedIar = getTarget(mojo.deployFile, mojo);
     var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
@@ -112,8 +111,7 @@ public class TestDeployToEngineMojo {
             deployTestUsers: "TRUE"
             target:
               version: RELEASED
-              state: INACTIVE
-              fileFormat: EXPANDED""");
+              state: INACTIVE""");
       Files.delete(deploymentOptionsFile);
       assertThat(deployedIar).exists();
       Files.delete(deployedIar);
