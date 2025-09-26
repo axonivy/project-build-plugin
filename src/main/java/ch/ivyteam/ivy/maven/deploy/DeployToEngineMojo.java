@@ -227,7 +227,6 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
   public interface DefaultDeployOptions {
     String VERSION_AUTO = "AUTO";
     String STATE_ACTIVE_AND_RELEASED = "ACTIVE_AND_RELEASED";
-    String FILE_FORMAT_AUTO = "AUTO";
     String DEPLOY_TEST_USERS = "AUTO";
   }
 

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.ReadOnlyFileSystemException;
 
 import javax.inject.Inject;
 
@@ -119,33 +118,6 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
    */
   @Parameter(property = "ivy.deploy.target.state", defaultValue = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED)
   public String deployTargetState;
-
-  /**
-   * The target file format as which the project will be deployed into the
-   * process model version (PMV).
-   *
-   * <ul>
-   * <li><code>AUTO</code>: Keep the format of the origin project file if
-   * possible. Deploys IAR or ZIP projects into a ZIP process model version.
-   * <br>
-   * But if the target PMV already exists as expanded directory, the new version
-   * will be expanded as well.</li>
-   * <li><code>PACKED</code>: Enforce the deployment of a project as zipped
-   * file. Normal (expanded) project directories will be compressed into a ZIP
-   * during deployment.</li>
-   * <li><code>EXPANDED</code>: Enforce the deployment of a project as expanded
-   * file directory.<br>
-   * This is recommended for projects that change the project files at runtime.
-   * E.g. projects that use the Content Management (CMS) write API.<br>
-   * The expanded format behaves exactly like projects deployed with Axon Ivy
-   * 7.0 or older. You might choose to deploy expanded projects in order to
-   * avoid {@link ReadOnlyFileSystemException} at runtime.<br>
-   * <strong>Warning</strong>: Expanded projects will perform slower at runtime
-   * and are therefore not recommended.</li>
-   * </ul>
-   */
-  @Parameter(property = "ivy.deploy.target.file.format", defaultValue = DefaultDeployOptions.FILE_FORMAT_AUTO)
-  public String deployTargetFileFormat;
 
   /**
    * <p>
