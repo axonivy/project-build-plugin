@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -32,14 +33,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.maven.AbstractEngineMojo;
-import ch.ivyteam.ivy.maven.engine.EngineModuleHints;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
-import ch.ivyteam.ivy.maven.util.ClasspathJar;
 import ch.ivyteam.ivy.maven.util.CompilerResult;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
-import ch.ivyteam.ivy.maven.util.SharedFile;
 
 /**
  * Shares the classpath of the built ivy project and it's engine as public
@@ -50,7 +47,7 @@ import ch.ivyteam.ivy.maven.util.SharedFile;
  * @since 6.0.2
  */
 @Mojo(name = SetupIvyTestPropertiesMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
-public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
+public class SetupIvyTestPropertiesMojo extends AbstractMojo {
   public static final String GOAL = "ivy-test-properties";
 
   public interface Property {
@@ -88,26 +85,18 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   }
 
   private void setIvyProperties(MavenProperties properties) throws MojoExecutionException {
-    SharedFile shared = new SharedFile(project);
-    var engineCp = shared.getEngineClasspathJar();
-    if (Files.exists(engineCp)) {
-      properties.setMavenProperty(Property.IVY_ENGINE_CLASSPATH, getClasspath(engineCp));
-    }
-
-    var iarCp = shared.getIarDependencyClasspathJar();
-    if (Files.exists(iarCp)) {
-      properties.setMavenProperty(Property.IVY_PROJECT_IAR_CLASSPATH, getClasspath(iarCp));
-    }
-
     var tstVmDir = createTestVmRuntime();
     properties.setMavenProperty(Property.IVY_TEST_VM_RUNTIME, tstVmDir.toAbsolutePath().toString());
   }
 
   private Path createTestVmRuntime() throws MojoExecutionException {
     IvyTestRuntime testRuntime = new IvyTestRuntime();
-    testRuntime.setProductDir(identifyAndGetEngineDirectory());
     testRuntime.setProjectLocations(getProjects());
     try {
+      var productDir = Path.of(project.getBuild().getDirectory()).resolve("productDir");
+      var webappsIvyDir = productDir.resolve("webapps/ivy");
+      Files.createDirectories(webappsIvyDir);
+      testRuntime.setProductDir(productDir);
       return testRuntime.store(project);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to write ivy test vm settings.", ex);
@@ -129,17 +118,13 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   /**
    * defines properties that are interpreted by maven-surefire.
    */
-  private void configureMavenTestProperties(MavenProperties properties) throws MojoExecutionException {
+  private void configureMavenTestProperties(MavenProperties properties) {
     List<String> IVY_PROPS = List.of(
-        Property.IVY_TEST_VM_RUNTIME,
-        Property.IVY_ENGINE_CLASSPATH,
-        Property.IVY_PROJECT_IAR_CLASSPATH);
+        Property.IVY_TEST_VM_RUNTIME);
     String surefireClasspath = IVY_PROPS.stream()
         .map(property -> "${" + property + "}")
         .collect(Collectors.joining(","));
     properties.setMavenProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH, surefireClasspath);
-    var jvmOptions = new EngineModuleHints(identifyAndGetEngineDirectory(), getLog());
-    properties.append(Property.MAVEN_TEST_ARGLINE, jvmOptions.asString());
   }
 
   private void setTestOutputDirectory() {
@@ -152,9 +137,5 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
     } catch (IOException ex) {
       getLog().warn("Failed to set up ${project.build.testOutputDirectory}", ex);
     }
-  }
-
-  private static String getClasspath(Path jar) {
-    return new ClasspathJar(jar).getClasspathFiles();
   }
 }
