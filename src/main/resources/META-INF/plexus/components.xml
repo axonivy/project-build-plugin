@@ -26,6 +26,7 @@
           <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
           <test>
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
+            com.axonivy.ivy.ci:project-build-plugin:ivy-test-vm-runtime,
             org.apache.maven.plugins:maven-surefire-plugin:test
           </test>
           <package>
@@ -61,6 +62,7 @@
           <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
           <test>
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
+            com.axonivy.ivy.ci:project-build-plugin:ivy-test-vm-runtime,
             org.apache.maven.plugins:maven-surefire-plugin:test
           </test>
           <package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
