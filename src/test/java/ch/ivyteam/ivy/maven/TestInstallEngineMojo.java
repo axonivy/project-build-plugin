@@ -30,14 +30,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.wink.client.MockHttpServer;
 import org.apache.wink.client.MockHttpServer.MockHttpServerResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
@@ -46,32 +47,24 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 
-public class TestInstallEngineMojo {
+@MojoTest
+class TestInstallEngineMojo {
 
   private InstallEngineMojo mojo;
-
-  @Rule
-  public ProjectMojoRule<InstallEngineMojo> rule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), InstallEngineMojo.GOAL){
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      TestInstallEngineMojo.this.mojo = getMojo();
-    }
-  };
-
   private MockHttpServer mockServer;
   private String mockBaseUrl;
 
-  @Before
-  public void startHttp() {
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void startHttp(InstallEngineMojo install) {
+    this.mojo = install;
     mockServer = new MockHttpServer(3333);
     mockServer.startServer();
     mockBaseUrl = "http://localhost:" + mockServer.getServerPort();
   }
 
-  @After
-  public void stopHttp() {
+  @AfterEach
+  void stopHttp() {
     mockServer.stopServer();
   }
 
@@ -80,7 +73,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_defaultBehaviour() throws Exception {
+  void testEngineDownload_defaultBehaviour() throws Exception {
     var listPageResponse = new MockHttpServerResponse();
     String defaultEngineName = "AxonIvyEngine" + DEFAULT_VERSION + ".46949_" + DEFAULT_ARCH;
     listPageResponse.setMockResponseContent(
@@ -142,7 +135,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_alreadyInstalledVersionWithinRange() throws Exception {
+  void testEngineDownload_alreadyInstalledVersionWithinRange() throws Exception {
     final String version = AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION;
     mojo.engineDirectory = createFakeEngineDir(version);
     assertThat(mojo.engineDirectory).isDirectory();
@@ -158,7 +151,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_alreadyInstalledVersionTooOld() throws Exception {
+  void testEngineDownload_alreadyInstalledVersionTooOld() throws Exception {
     mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
 
     final String outdatedVersion = "6.5.1";
@@ -177,7 +170,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_ifNotExisting() throws Exception {
+  void testEngineDownload_ifNotExisting() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     assertThat(mojo.engineDirectory)
         .isDirectory()
@@ -192,7 +185,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_skipNonOsgiEngineInCache() throws Exception {
+  void testEngineDownload_skipNonOsgiEngineInCache() throws Exception {
     mojo.engineDirectory = null;
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
@@ -209,7 +202,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_existingTmpFileNotOverwritten() throws Exception {
+  void testEngineDownload_existingTmpFileNotOverwritten() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
 
     var alreadyExistingFile = mojo.getDownloadDirectory().resolve("fakeEngine.zip");
@@ -227,7 +220,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_overProxy() throws Exception {
+  void testEngineDownload_overProxy() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
 
     var alreadyExistingFile = mojo.getDownloadDirectory().resolve("fakeEngine.zip");
@@ -263,7 +256,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_validatesDownloadedVersion() throws Exception {
+  void testEngineDownload_validatesDownloadedVersion() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = true;
     mojo.ivyVersion = "9999.0.0";
@@ -279,7 +272,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineDownload_canDisableAutoDownload() throws Exception {
+  void testEngineDownload_canDisableAutoDownload() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = false;
 
@@ -292,7 +285,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_absolute_http() throws Exception {
+  void testEngineLinkFinder_absolute_http() throws Exception {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
@@ -301,7 +294,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_absolute_https() throws Exception {
+  void testEngineLinkFinder_absolute_https() throws Exception {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
@@ -310,7 +303,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_relative() throws Exception {
+  void testEngineLinkFinder_relative() throws Exception {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x86";
@@ -320,7 +313,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_sprintVersionQualifier() throws Exception {
+  void testEngineLinkFinder_sprintVersionQualifier() throws Exception {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Windows_x64";
@@ -330,7 +323,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_wrongVersion() throws Exception {
+  void testEngineLinkFinder_wrongVersion() throws Exception {
     mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Windows_x86";
     try {
@@ -343,7 +336,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_wrongArchitecture() throws Exception {
+  void testEngineLinkFinder_wrongArchitecture() throws Exception {
     mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Linux_x86";
     try {
@@ -357,7 +350,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testEngineLinkFinder_multipleLinks() throws Exception {
+  void testEngineLinkFinder_multipleLinks() throws Exception {
     mojo.ivyVersion = "[7.0.0,7.1.0]";
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Linux_x86";
@@ -376,7 +369,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testDefaultListPage_isAvailable() throws Exception {
+  void testDefaultListPage_isAvailable() throws Exception {
     boolean run = Boolean.parseBoolean(System.getProperty("run.public.download.test"));
     if (!run) {
       return;
@@ -395,7 +388,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testIvyVersion_mustMatchMinimalPluginVersion() {
+  void testIvyVersion_mustMatchMinimalPluginVersion() {
     mojo.ivyVersion = "5.1.0";
     try {
       mojo.execute();
@@ -406,7 +399,7 @@ public class TestInstallEngineMojo {
   }
 
   @Test
-  public void testZipFileEngineVersionParser() {
+  void testZipFileEngineVersionParser() {
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.1.1.51869_Linux_x64.zip"))
         .isEqualTo("6.1.1");
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.2_Windows_x64.zip"))

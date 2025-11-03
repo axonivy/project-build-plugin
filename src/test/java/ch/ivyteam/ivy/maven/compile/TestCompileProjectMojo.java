@@ -18,56 +18,78 @@ package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.lang3.Strings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.model.Build;
+import org.apache.maven.project.MavenProject;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.extension.LocalRepoTest;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
+import ch.ivyteam.ivy.maven.extension.SysoutExtension;
+import ch.ivyteam.ivy.maven.extension.SysoutExtension.Sysout;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
-  private CompileTestProjectMojo testMojo;
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+@ExtendWith(SysoutExtension.class)
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class TestCompileProjectMojo {
 
-  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-  private final PrintStream originalOut = System.out;
+  private Sysout sysout;
 
-  @Before
-  public void setup() {
+  @BeforeAll
+  static void log() {
+    Slf4jSimpleEngineProperties.install();
+  }
+
+  @BeforeEach
+  void setup(Sysout sysout) {
     Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
-    System.setOut(new PrintStream(outContent));
+    this.sysout = sysout;
   }
 
-  @After
-  public void restoreStreams() {
-    System.setOut(originalOut);
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void provideEngine2(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
   }
 
-  @Rule
-  public CompileMojoRule<CompileProjectMojo> compile = new CompileMojoRule<>(
-      CompileProjectMojo.GOAL){
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      // use same project as first rule/mojo
-      testMojo = (CompileTestProjectMojo) lookupConfiguredMojo(project, CompileTestProjectMojo.GOAL);
-      configureMojo(testMojo);
-    }
-  };
+  private CompileTestProjectMojo test;
+
+  @Provides
+  MavenProject mockProject() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void buildWithExistingProject() throws Exception {
-    CompileProjectMojo mojo = compile.getMojo();
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void buildWithExistingProject(CompileProjectMojo compile) throws Exception {
+    CompileProjectMojo mojo = compile;
+
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = ch.ivyteam.ivy.maven.extension.LocalRepoTest.repo();
+
+    Build build = mojo.project.getBuild();
+    build.setTestSourceDirectory("src_test");
+    build.setTestOutputDirectory("target/notMyTestClasses");
 
     var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_dataClasses");
     var wsProcDir = mojo.project.getBasedir().toPath().resolve("src_wsproc");
@@ -88,7 +110,7 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
         .as("compiled classes must exist. but not contain any test class or old class files.")
         .hasSize(4);
 
-    testMojo.execute();
+    test.execute();
     assertThat(findFiles(classDir, "class"))
         .as("compiled classes must contain test resources as well")
         .hasSize(5);
@@ -106,25 +128,34 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void compilerSettingsFile_notFoundWarnings() throws Exception {
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void compilerSettingsFile_notFoundWarnings(CompileProjectMojo compile) throws Exception {
     LogCollector log = new LogCollector();
-    CompileProjectMojo mojo = compile.getMojo();
+
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = ch.ivyteam.ivy.maven.extension.LocalRepoTest.repo();
     mojo.setLog(log);
 
     mojo.compilerWarnings = false;
     mojo.compilerSettings = Path.of("path/to/oblivion");
 
     mojo.execute();
-    assertThat(log.getWarnings().toString()).doesNotContain("Could not locate compiler settings file");
+    Assertions.assertThat(log.getWarnings().toString())
+        .doesNotContain("Could not locate compiler settings file");
 
     mojo.compilerWarnings = true;
     mojo.execute();
-    assertThat(log.getWarnings().toString()).contains("Could not locate compiler settings file");
+    Assertions.assertThat(log.getWarnings().toString())
+        .contains("Could not locate compiler settings file");
   }
 
   @Test
-  public void validateProcess() throws Exception {
-    CompileProjectMojo mojo = compile.getMojo();
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void A_validateProcess(CompileProjectMojo compile) throws Exception {
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
 
     Path project = mojo.project.getBasedir().toPath();
     var dataClassDir = project.resolve("src_dataClasses");
@@ -137,20 +168,27 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     var patched = Strings.CS.replace(wsJson, "//TEMPLATE!!", "ivy.task.createNote(ivy.session, null).getWritterName();");
     Files.writeString(ws, patched);
 
+    assertThat(wsProcDir.toFile().list()).isEmpty();
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplicationVald");
     mojo.execute();
 
-    assertThat(outContent.toString())
+    assertThat(sysout.toString())
         .contains("processes/myWebService.p.json /element=148CA74B16C580BF-ws0 : "
             + "Start code: Method getWritterName of class ch.ivyteam.ivy.workflow.INote "
             + "is deprecated");
 
-    var warning = outContent.toString().lines()
+    var warning = sysout.toString().lines()
         .filter(l -> l.contains("/element=148CA74B16C580BF-ws0"))
         .findFirst().get();
     assertThat(warning)
         .as("WARNING prefix is streamlined with Maven CLI")
         .startsWith("[WARNING]");
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = CompileTestProjectMojo.GOAL)
+  void setupTestMojo(CompileTestProjectMojo mojo) {
+    this.test = mojo;
   }
 
 }
