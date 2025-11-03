@@ -2,17 +2,17 @@ package ch.ivyteam.ivy.maven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.extension.SysoutExtension;
+import ch.ivyteam.ivy.maven.extension.SysoutExtension.Sysout;
 
+@ExtendWith(SysoutExtension.class)
 class TestSlf4jWarningConfiguration {
 
   @BeforeEach
@@ -33,23 +33,14 @@ class TestSlf4jWarningConfiguration {
   }
 
   @Test
-  void mavenLoggerWarningOut() throws IOException {
-    var original = System.out;
-    try (var bos = new ByteArrayOutputStream();
-        var memoryOut = new PrintStream(bos);) {
-      System.setOut(memoryOut);
+  void mavenLoggerWarningOut(Sysout sysout) {
+    var logger = LoggerFactory.getLogger("maven.cli");
+    logger.warn("hey");
 
-      var logger = LoggerFactory.getLogger("maven.cli");
-      logger.warn("hey");
-
-      String out = bos.toString();
-      assertThat(out)
-          .as("WARNING bracket matches Maven CLI")
-          .startsWith("[WARNING] hey");
-
-    } finally {
-      System.setOut(original);
-    }
+    String out = sysout.toString();
+    assertThat(out)
+        .as("WARNING bracket matches Maven CLI")
+        .startsWith("[WARNING] hey");
   }
 
 }

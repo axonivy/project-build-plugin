@@ -2,20 +2,43 @@ package ch.ivyteam.ivy.maven.generate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.IOException;
 
-import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.extension.LocalRepoTest;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestGenerateWebServiceSourcesMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestGenerateWebServiceSourcesMojo {
 
-  @Rule
-  public LocalRepoMojoRule<GenerateWebServiceSourcesMojo> generate = new LocalRepoMojoRule<>(GenerateWebServiceSourcesMojo.GOAL);
+  private GenerateWebServiceSourcesMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = GenerateWebServiceSourcesMojo.GOAL)
+  void setUp(GenerateWebServiceSourcesMojo soap) throws Exception {
+    this.mojo = soap;
+    BaseEngineProjectMojoTest.provideEngine(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void generateWebServiceSources() throws Exception {
-    var projectDir = generate.project.getBasedir().toPath();
+  void generateWebServiceSources() throws Exception {
+    var projectDir = mojo.project.getBasedir().toPath();
     var dataClassDir = projectDir.resolve("src_dataClasses");
     var wsProcDir = projectDir.resolve("src_wsproc");
     var classDir = projectDir.resolve("classes");
@@ -30,7 +53,7 @@ public class TestGenerateWebServiceSourcesMojo {
     assertThat(classDir).doesNotExist();
     assertThat(targetClasses).doesNotExist();
 
-    generate.getMojo().execute();
+    mojo.execute();
 
     assertThat(dataClassDir).doesNotExist();
     assertThat(wsProcDir)
@@ -40,14 +63,14 @@ public class TestGenerateWebServiceSourcesMojo {
   }
 
   @Test
-  public void skipGenerateSources() throws Exception {
-    var wsProcDir = generate.project.getBasedir().toPath().resolve("src_wsproc");
+  void skipGenerateSources() throws Exception {
+    var wsProcDir = mojo.project.getBasedir().toPath().resolve("src_wsproc");
     PathUtils.delete(wsProcDir);
 
     assertThat(wsProcDir).doesNotExist();
 
-    generate.getMojo().skipGenerateSources = true;
-    generate.getMojo().execute();
+    mojo.skipGenerateSources = true;
+    mojo.execute();
 
     assertThat(wsProcDir).doesNotExist();
   }

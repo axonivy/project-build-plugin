@@ -4,35 +4,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 
-public class TestValidateMojo {
+@MojoTest
+class TestValidateMojo {
+
   private ValidateMojo mojo;
 
-  @Rule
-  public ProjectMojoRule<ValidateMojo> rule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), ValidateMojo.GOAL){
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      TestValidateMojo.this.mojo = getMojo();
-    }
-  };
+  @BeforeEach
+  @InjectMojo(goal = ValidateMojo.GOAL)
+  void setUp(ValidateMojo validate) {
+    this.mojo = validate;
+  }
 
   @Test
-  public void samePluginVersions() throws Exception {
+  void samePluginVersions() throws Exception {
     var log = new LogCollector();
-    rule.getMojo().setLog(log);
+    mojo.setLog(log);
     var p1 = createMavenProject("project1", "13.1.0");
     var p2 = createMavenProject("project2", "13.1.0");
     mojo.validateConsistentPluginVersion(List.of(p1, p2));
@@ -45,9 +43,9 @@ public class TestValidateMojo {
   }
 
   @Test
-  public void differentPluginVersions() throws Exception {
+  void differentPluginVersions() throws Exception {
     var log = new LogCollector();
-    rule.getMojo().setLog(log);
+    mojo.setLog(log);
     var p1 = createMavenProject("project1", "13.1.0");
     var p2 = createMavenProject("project2", "13.1.1");
     assertThatThrownBy(() -> mojo.validateConsistentPluginVersion(List.of(p1, p2)))

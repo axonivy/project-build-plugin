@@ -20,19 +20,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
-public class TestShareEngineClasspathMojo {
+@MojoTest
+class TestShareEngineClasspathMojo {
+
+  private ShareEngineCoreClasspathMojo mojo;
 
   @Test
-  public void engineClasspathIsSharedAsProperty() throws Exception {
-    ShareEngineCoreClasspathMojo mojo = rule.getMojo();
+  @InjectMojo(goal = ShareEngineCoreClasspathMojo.GOAL)
+  void engineClasspathIsSharedAsProperty(ShareEngineCoreClasspathMojo share) throws Exception {
+    mojo = share;
+    configureMojo(mojo);
     assertThat(getEngineClasspathProperty())
         .as("used classpath has not been evaluated.")
         .isNullOrEmpty();
@@ -44,34 +49,24 @@ public class TestShareEngineClasspathMojo {
   }
 
   private String getEngineClasspathProperty() {
-    return (String) rule.getMojo().project.getProperties()
+    return (String) mojo.project.getProperties()
         .get(ShareEngineCoreClasspathMojo.IVY_ENGINE_CORE_CLASSPATH_PROPERTY);
   }
 
-  @Rule
-  public ProjectMojoRule<ShareEngineCoreClasspathMojo> rule = new ProjectMojoRule<ShareEngineCoreClasspathMojo>(Path.of("src/test/resources/base"), ShareEngineCoreClasspathMojo.GOAL){
+  private void configureMojo(AbstractEngineMojo newMojo) throws IOException {
+    var engineDir = Files.createTempDirectory("tmpEngineDir");
+    newMojo.engineDirectory = engineDir;
+    writeEngineLibDir();
+  }
 
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      configureMojo(getMojo());
-      writeEngineLibDir();
+  private void writeEngineLibDir() {
+    try {
+      var engineDirectory = mojo.identifyAndGetEngineDirectory();
+      var dummy = engineDirectory.resolve(OsgiDir.INSTALL_AREA).resolve(OsgiDir.LIB_BOOT).resolve("dummy-boot.jar");
+      Files.createDirectories(dummy.getParent());
+      Files.createFile(dummy);
+    } catch (IOException | MojoExecutionException ex) {
+      throw new RuntimeException("Cannot create server jars", ex);
     }
-
-    protected void configureMojo(AbstractEngineMojo newMojo) throws IOException {
-      var engineDir = Files.createTempDirectory("tmpEngineDir");
-      newMojo.engineDirectory = engineDir;
-    }
-
-    private void writeEngineLibDir() {
-      try {
-        var engineDirectory = rule.getMojo().identifyAndGetEngineDirectory();
-        var dummy = engineDirectory.resolve(OsgiDir.INSTALL_AREA).resolve(OsgiDir.LIB_BOOT).resolve("dummy-boot.jar");
-        Files.createDirectories(dummy.getParent());
-        Files.createFile(dummy);
-      } catch (IOException | MojoExecutionException ex) {
-        throw new RuntimeException("Cannot create server jars", ex);
-      }
-    }
-  };
+  }
 }
