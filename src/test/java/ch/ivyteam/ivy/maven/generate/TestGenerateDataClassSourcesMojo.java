@@ -2,23 +2,30 @@ package ch.ivyteam.ivy.maven.generate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Path;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.Rule;
-import org.junit.Test;
-
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestGenerateDataClassSourcesMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestGenerateDataClassSourcesMojo {
 
-  @Rule
-  public ProjectMojoRule<GenerateDataClassSourcesMojo> generate = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), GenerateDataClassSourcesMojo.GOAL);
+  private GenerateDataClassSourcesMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = GenerateDataClassSourcesMojo.GOAL)
+  void setUp(GenerateDataClassSourcesMojo data) {
+    this.mojo = data;
+  }
 
   @Test
-  public void generateDataClassSources() throws Exception {
-    var projectDir = generate.project.getBasedir().toPath();
+  void generateDataClassSources() throws Exception {
+    var projectDir = mojo.project.getBasedir().toPath();
     var dataClassDir = projectDir.resolve("src_dataClasses");
     var wsProcDir = projectDir.resolve("src_wsproc");
     var classDir = projectDir.resolve("classes");
@@ -33,7 +40,7 @@ public class TestGenerateDataClassSourcesMojo {
     assertThat(classDir).doesNotExist();
     assertThat(targetClasses).doesNotExist();
 
-    generate.getMojo().execute();
+    mojo.execute();
 
     assertThat(dataClassDir)
         .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("Data.java"))
@@ -44,14 +51,14 @@ public class TestGenerateDataClassSourcesMojo {
   }
 
   @Test
-  public void skipGenerateSources() throws Exception {
-    var dataClassDir = generate.project.getBasedir().toPath().resolve("src_dataClasses");
+  void skipGenerateSources() throws Exception {
+    var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_dataClasses");
     PathUtils.delete(dataClassDir);
 
     assertThat(dataClassDir).doesNotExist();
 
-    generate.getMojo().skipGenerateSources = true;
-    generate.getMojo().execute();
+    mojo.skipGenerateSources = true;
+    mojo.execute();
 
     assertThat(dataClassDir).doesNotExist();
   }

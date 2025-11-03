@@ -24,19 +24,25 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Test;
 
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
+import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestDeployToEngineMojo {
+@MojoTest
+class TestDeployToEngineMojo {
 
   @Test
-  public void deployPackedIar() throws Throwable {
-    DeployToEngineMojo mojo = rule.getMojo();
+  @InjectMojo(goal = DeployToEngineMojo.GOAL)
+  void deployPackedIar(DeployToEngineMojo deploy) throws Throwable {
+    DeployToEngineMojo mojo = deploy;
+    setup(mojo);
 
     var deployedIar = getTarget(mojo.deployFile, mojo);
     var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
@@ -61,9 +67,11 @@ public class TestDeployToEngineMojo {
   }
 
   @Test
-  public void deployWithExistingOptionsFile() throws Throwable {
-    rule.project.getProperties().setProperty("doDeploy.test.user", "true");
-    DeployToEngineMojo mojo = rule.getMojo();
+  @InjectMojo(goal = DeployToEngineMojo.GOAL)
+  void deployWithExistingOptionsFile(DeployToEngineMojo deploy) throws Throwable {
+    DeployToEngineMojo mojo = deploy;
+    setup(mojo);
+    mojo.project.getProperties().setProperty("doDeploy.test.user", "true");
 
     mojo.deployOptionsFile = Path.of("src/test/resources/options.yaml");
     var deployedIar = getTarget(mojo.deployFile, mojo);
@@ -90,9 +98,22 @@ public class TestDeployToEngineMojo {
         .doesNotExist();
   }
 
+  @Provides
+  MavenProject provideMockedComponent() {
+    var project = new MavenProject();
+    project.setGroupId("com.acme");
+    project.setArtifactId("test.project");
+    project.setVersion("1.0.0-SNAPSHOT");
+    project.getBuild().setDirectory("target");
+    return project;
+  }
+
   @Test
-  public void deployWithOptions() throws Throwable {
-    DeployToEngineMojo mojo = rule.getMojo();
+  @InjectMojo(goal = DeployToEngineMojo.GOAL)
+  void deployWithOptions(DeployToEngineMojo deploy) throws Throwable {
+    DeployToEngineMojo mojo = deploy;
+    setup(mojo);
+
     mojo.deployTestUsers = "true";
     mojo.deployTargetVersion = "RELEASED";
     mojo.deployTargetState = "INACTIVE";
@@ -127,8 +148,10 @@ public class TestDeployToEngineMojo {
   }
 
   @Test
-  public void failOnEngineDeployError() throws Throwable {
-    DeployToEngineMojo mojo = rule.getMojo();
+  @InjectMojo(goal = DeployToEngineMojo.GOAL)
+  void failOnEngineDeployError(DeployToEngineMojo deploy) throws Throwable {
+    DeployToEngineMojo mojo = deploy;
+    setup(mojo);
     DeploymentFiles markers = new DeploymentFiles(getTarget(mojo.deployFile, mojo));
     var deployedIar = getTarget(mojo.deployFile, mojo);
 
@@ -140,6 +163,7 @@ public class TestDeployToEngineMojo {
       return null;
     };
 
+    mojo.setLog(new LogCollector()); // do not print errors to console (avoid Maven build assumes error)
     mockEngineDeployThread.execute(engineOperation);
     try {
       mojo.execute();
@@ -158,38 +182,29 @@ public class TestDeployToEngineMojo {
         .resolve(iar.getFileName().toString());
   }
 
-  @Rule
-  public ProjectMojoRule<DeployToEngineMojo> rule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL){
-    @Override
-    protected void before() throws Throwable {
-      super.before();
+  static void setup(DeployToEngineMojo mojo) throws IOException {
+    mojo.deployEngineDirectory = createEngineDir();
+    mojo.deployToEngineApplication = "TestApp";
 
-      getMojo().deployEngineDirectory = createEngineDir();
-      getMojo().deployToEngineApplication = "TestApp";
-
-      try {
-        getMojo().deployFile.toFile().getParentFile().mkdir();
-        getMojo().deployFile.toFile().createNewFile();
-      } catch (IOException ex) {
-        System.err.println("Failed to create IAR @ " + getMojo().deployFile.toAbsolutePath());
-        throw ex;
-      }
+    try {
+      mojo.deployFile.toFile().getParentFile().mkdir();
+      mojo.deployFile.toFile().createNewFile();
+    } catch (IOException ex) {
+      System.err.println("Failed to create IAR @ " + mojo.deployFile.toAbsolutePath());
+      throw ex;
     }
+  }
 
-    private Path createEngineDir() throws IOException {
-      var engine = Path.of("target").resolve("myTestIvyEngine");
-      var deploy = engine.resolve("deploy");
-      Files.createDirectories(deploy);
-      return engine.toAbsolutePath();
-    }
+  private static Path createEngineDir() throws IOException {
+    var engine = Path.of("target").resolve("myTestIvyEngine");
+    var deploy = engine.resolve("deploy");
+    Files.createDirectories(deploy);
+    return engine.toAbsolutePath();
+  }
 
-    @Override
-    protected void after() {
-      super.after();
-      PathUtils.delete(getMojo().deployEngineDirectory);
-    }
-  };
+  public static void cleanup(DeployToEngineMojo mojo) {
+    PathUtils.delete(mojo.deployEngineDirectory);
+  }
 
   private static class DelayedOperation {
     private final long delayMillis;

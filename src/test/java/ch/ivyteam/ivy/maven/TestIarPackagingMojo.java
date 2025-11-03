@@ -30,45 +30,55 @@ import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.model.FileSet;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.MatchPattern;
 import org.codehaus.plexus.util.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 /**
  * @author Reguel Wermelinger
  * @since 03.11.2014
  */
-public class TestIarPackagingMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestIarPackagingMojo {
 
-  @Rule
-  public ProjectMojoRule<IarPackagingMojo> rule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), IarPackagingMojo.GOAL){
+  private IarPackagingMojo mojo;
 
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      createEmptySrcDirs();
+  @BeforeEach
+  @InjectMojo(goal = IarPackagingMojo.GOAL)
+  void setUp(IarPackagingMojo pack) {
+    this.mojo = pack;
+    createEmptySrcDirs(mojo.project.getBasedir().toPath());
+  }
+
+  private static void createEmptySrcDirs(Path projectDir) {
+    var emptySrcDirNames = List.of("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
+    for (var emptySrcDirName : emptySrcDirNames) {
+      var srcDir = projectDir.resolve(emptySrcDirName);
+      PathUtils.clean(srcDir);
     }
+  }
 
-    private void createEmptySrcDirs() {
-      var emptySrcDirNames = List.of("src_dataClasses", "src_hd", "src_rd", "src_ws", "src_wsproc");
-      for (var emptySrcDirName : emptySrcDirNames) {
-        var srcDir = projectDir.resolve(emptySrcDirName);
-        PathUtils.clean(srcDir);
-      }
-    }
-  };
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   /**
    * Happy path creation tests
    */
   @Test
-  public void archiveCreationDefault() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void archiveCreationDefault() throws Exception {
     var dir = mojo.project.getBasedir().toPath().resolve(".svn");
     Files.createDirectories(dir);
     var svn = dir.resolve("svn.txt");
@@ -114,8 +124,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void canDefineCustomExclusions() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void canDefineCustomExclusions() throws Exception {
     String filterCandidate = "private/notPublic.txt";
     assertThat(mojo.project.getBasedir().toPath().resolve(filterCandidate)).exists();
 
@@ -129,8 +138,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void canDefineCustomInclusions() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void canDefineCustomInclusions() throws Exception {
     var outputDir = mojo.project.getBasedir().toPath().resolve("target");
     var customPomXml = outputDir.resolve("myCustomPom.xml");
     Files.writeString(customPomXml, "customPomContent");
@@ -149,8 +157,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void canOverwriteDefaultInclusions() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void canOverwriteDefaultInclusions() throws Exception {
     var outputDir = mojo.project.getBasedir().toPath().resolve("target");
     var flatPomXML = outputDir.resolve("pom.xml");
     Files.writeString(flatPomXML, "<artifactId>flattened</artifactId>");
@@ -178,8 +185,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void canExcludeEmptyDirectories() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void canExcludeEmptyDirectories() throws Exception {
     mojo.iarIncludesEmptyDirs = false;
     mojo.execute();
 
@@ -190,8 +196,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void doNotPackTargetFolderIfThereAreNoTargetClasses() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void doNotPackTargetFolderIfThereAreNoTargetClasses() throws Exception {
     var targetClasses = mojo.project.getBasedir().toPath().resolve("target/classes");
     PathUtils.delete(targetClasses);
     mojo.execute();
@@ -208,9 +213,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void includeTarget_srcHdGenerated() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
-
+  void includeTarget_srcHdGenerated() throws Exception {
     var target = mojo.project.getBasedir().toPath().resolve("target");
     var viewGenerated = target.resolve("src_hd")
         .resolve("com").resolve("acme").resolve("FormDialog").resolve("FormDialog.xhtml");
@@ -231,7 +234,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void validDefaultExcludePatternsForWindows() {
+  void validDefaultExcludePatternsForWindows() {
     for (var defaultExclude : IarPackagingMojo.Defaults.EXCLUDES) {
       defaultExclude = StringUtils.replace(defaultExclude, "/", "\\\\"); // see
                                                                          // org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
@@ -241,7 +244,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void validDefaultExcludePatternsForLinux() {
+  void validDefaultExcludePatternsForLinux() {
     for (var defaultExclude : IarPackagingMojo.Defaults.EXCLUDES) {
       defaultExclude = StringUtils.replace(defaultExclude, "\\\\", "/"); // see
                                                                          // org.codehaus.plexus.util.AbstractScanner.normalizePattern(String)
@@ -251,8 +254,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void rootClassFiles() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void rootClassFiles() throws Exception {
     var classFilePath = Path.of("target", "classes", "ch", "ivyteam");
     var dir = mojo.project.getBasedir().toPath().resolve(classFilePath);
     Files.createDirectories(dir);
@@ -269,8 +271,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void rootClassFiles_ifNoClassesExists() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void rootClassFiles_ifNoClassesExists() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     PathUtils.delete(projectDir.resolve("target"));
     PathUtils.delete(projectDir.resolve("classes"));
@@ -284,8 +285,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void rootClassFiles_withClassesDir() throws Exception {
-    IarPackagingMojo mojo = rule.getMojo();
+  void rootClassFiles_withClassesDir() throws Exception {
     PathUtils.delete(mojo.project.getBasedir().toPath().resolve("target"));
 
     mojo.execute();
@@ -298,8 +298,7 @@ public class TestIarPackagingMojo {
   }
 
   @Test
-  public void testLargeIar() throws Exception {
-    var mojo = rule.getMojo();
+  void testLargeIar() throws Exception {
     var target = mojo.project.getBasedir().toPath().resolve("target").resolve("classes");
     var rand = new Random();
     for (var i = 0; i < 20_000; i++) {

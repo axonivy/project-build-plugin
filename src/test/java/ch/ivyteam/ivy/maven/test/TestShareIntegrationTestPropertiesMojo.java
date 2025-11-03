@@ -20,30 +20,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Properties;
 
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.deploy.DeployToTestEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 
-public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMojoTest {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestShareIntegrationTestPropertiesMojo {
 
-  @Rule
-  public ProjectMojoRule<SetupIntegrationTestPropertiesMojo> setupProps = new TestProjectMojoRule();
+  private SetupIntegrationTestPropertiesMojo mojo;
 
-  private static class TestProjectMojoRule extends EngineMojoRule<SetupIntegrationTestPropertiesMojo> {
-    private TestProjectMojoRule() {
-      super(SetupIntegrationTestPropertiesMojo.GOAL);
-    }
+  @BeforeEach
+  @InjectMojo(goal = SetupIntegrationTestPropertiesMojo.GOAL)
+  void setUp(SetupIntegrationTestPropertiesMojo props) {
+    this.mojo = props;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
   }
 
   @Test
-  public void shareFailsafeProps() throws MojoExecutionException, MojoFailureException {
-    Properties props = setupProps.project.getProperties();
+  void shareFailsafeProps() throws MojoExecutionException, MojoFailureException {
+    Properties props = mojo.project.getProperties();
     String argLineBefore = (String) props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
     assertThat(argLineBefore).isNullOrEmpty();
 
@@ -51,7 +56,6 @@ public class TestShareIntegrationTestPropertiesMojo extends BaseEngineProjectMoj
     props.setProperty(EngineControl.Property.TEST_ENGINE_LOG, "/var/logs/ivy.log");
     props.setProperty(DeployToTestEngineMojo.Property.TEST_ENGINE_APP, "myTstApp");
 
-    var mojo = setupProps.getMojo();
     mojo.execute();
     String argLine = (String) props.get(SetupIntegrationTestPropertiesMojo.FAILSAFE_ARGLINE_PROPERTY);
     assertThat(argLine)

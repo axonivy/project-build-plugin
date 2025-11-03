@@ -42,7 +42,7 @@ public class GenerateWebServiceSourcesMojo extends AbstractEngineInstanceMojo {
   boolean skipGenerateSources;
 
   @Override
-  protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
+  public void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
     if (skipGenerateSources) {
       return;
     }

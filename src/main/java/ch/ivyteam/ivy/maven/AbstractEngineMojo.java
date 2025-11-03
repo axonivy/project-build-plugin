@@ -99,7 +99,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
     return engineDirectory;
   }
 
-  protected final Path identifyAndGetEngineDirectory() throws MojoExecutionException {
+  public final Path identifyAndGetEngineDirectory() throws MojoExecutionException {
     if (!isEngineDirectoryIdentified()) {
       engineDirectory = findMatchingEngineInCacheDirectory();
     }
