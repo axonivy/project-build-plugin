@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
@@ -21,6 +23,12 @@ import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 class TestEngineControlEngineDirectory {
 
   private StopTestEngineMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
+  }
 
   @BeforeEach
   @InjectMojo(goal = StopTestEngineMojo.GOAL)
