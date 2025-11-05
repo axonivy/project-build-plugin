@@ -17,30 +17,50 @@
 package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 
 /**
  * @since 6.1.1
  */
-public class TestStartEngine extends BaseEngineProjectMojoTest {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestStartEngine {
+
+  private StartTestEngineMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = StartTestEngineMojo.GOAL)
+  void setUp(StartTestEngineMojo stop) throws Exception {
+    this.mojo = stop;
+    ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.provideEngine(mojo);
+    mojo.maxmem = "2048m";
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void canStartEngine() throws Exception {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void canStartEngine() throws Exception {
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_URL)).isNull();
     assertThat(getProperty(EngineControl.Property.TEST_ENGINE_LOG)).isNull();
 
@@ -65,8 +85,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * @throws IOException
    */
   @Test
-  public void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException, IOException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_MODIFY_EXISTING_configuredEngine() throws MojoExecutionException, IOException {
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using configured engine do not copy")
@@ -74,8 +93,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void startEngine_MODIFY_EXISTING_cacheEngine() throws MojoExecutionException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_MODIFY_EXISTING_cacheEngine() throws MojoExecutionException {
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
     assertThat(mojo.engineToTarget()).as("MODIFY_EXISTING set and using cached engine do not copy").isFalse();
   }
@@ -89,8 +107,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * @throws IOException
    */
   @Test
-  public void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException, IOException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_COPY_FROM_TEMPLATE_configuredEngine() throws MojoExecutionException, IOException {
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using configured engine do copy")
@@ -98,8 +115,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void startEngine_COPY_FROM_TEMPLATE_cacheEngine() throws MojoExecutionException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_COPY_FROM_TEMPLATE_cacheEngine() throws MojoExecutionException {
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     assertThat(mojo.engineToTarget()).as("COPY_FROM_TEMPLATE set and using cached engine do copy").isTrue();
   }
@@ -113,8 +129,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
    * @throws IOException
    */
   @Test
-  public void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException, IOException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_COPY_FROM_CACHE_configuredEngine() throws MojoExecutionException, IOException {
     mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
     mojo.engineDirectory = Files.createTempDirectory("test");
     assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using configured engine do not copy")
@@ -122,15 +137,13 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void startEngine_COPY_FROM_CACHE_cacheEngine() throws MojoExecutionException {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_COPY_FROM_CACHE_cacheEngine() throws MojoExecutionException {
     mojo.testEngine = TestEngineLocation.COPY_FROM_CACHE;
     assertThat(mojo.engineToTarget()).as("COPY_FROM_CACHE set and using cached engine do copy").isTrue();
   }
 
   @Test
-  public void startEngine_copyEngineToTarget() throws Exception {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_copyEngineToTarget() throws Exception {
     Process startedProcess = null;
     try {
       mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
@@ -147,9 +160,8 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void startEngine_targetDirectoryNotClean() throws Exception {
+  void startEngine_targetDirectoryNotClean() throws Exception {
     LogCollector log = new LogCollector();
-    StartTestEngineMojo mojo = rule.getMojo();
     mojo.setLog(log);
 
     Process startedProcess = null;
@@ -174,8 +186,7 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void startEngine_copiedEngine_executable() throws Exception {
-    StartTestEngineMojo mojo = rule.getMojo();
+  void startEngine_copiedEngine_executable() throws Exception {
     mojo.testEngine = TestEngineLocation.COPY_FROM_TEMPLATE;
     Process startedProcess = null;
     try {
@@ -198,25 +209,16 @@ public class TestStartEngine extends BaseEngineProjectMojoTest {
         .isExecutable();
   }
 
-  private static void kill(Process startedProcess) {
+  private static void kill(Process startedProcess) throws Exception {
     if (startedProcess != null) {
+      var exit = startedProcess.onExit();
       startedProcess.destroy();
-      await().atMost(Duration.ofSeconds(30))
-          .untilAsserted(() -> assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse());
+      exit.get(60, TimeUnit.SECONDS);
     }
   }
 
   private String getProperty(String name) {
-    return (String) rule.project.getProperties().get(name);
+    return (String) mojo.project.getProperties().get(name);
   }
 
-  @Rule
-  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<>(
-      StartTestEngineMojo.GOAL){
-    @Override
-    protected void before() throws Throwable {
-      super.before();
-      getMojo().maxmem = "2048m";
-    }
-  };
 }

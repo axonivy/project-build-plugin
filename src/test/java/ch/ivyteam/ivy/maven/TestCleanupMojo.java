@@ -5,18 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class TestCleanupMojo {
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 
-  @Rule
-  public ProjectMojoRule<CleanupMojo> clean = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), CleanupMojo.GOAL);
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestCleanupMojo {
+
+  private CleanupMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = CleanupMojo.GOAL)
+  void setUp(CleanupMojo clean) {
+    this.mojo = clean;
+  }
 
   @Test
-  public void noMavenDepsDir() throws Exception {
-    var mojo = clean.getMojo();
+  void noMavenDepsDir() throws Exception {
     var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     mojo.execute();
@@ -24,8 +34,7 @@ public class TestCleanupMojo {
   }
 
   @Test
-  public void cleanupMavenDepsDir() throws Exception {
-    var mojo = clean.getMojo();
+  void cleanupMavenDepsDir() throws Exception {
     var mvnLibDir = Files
         .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
     var mvnDep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), mvnLibDir.resolve("jjwt-0.9.1.jar"));
@@ -36,8 +45,7 @@ public class TestCleanupMojo {
   }
 
   @Test
-  public void dontCleanManualLibs() throws Exception {
-    var mojo = clean.getMojo();
+  void dontCleanManualLibs() throws Exception {
     var libDir = Files.createDirectories(mojo.project.getBasedir().toPath().resolve("lib"));
     var dep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), libDir.resolve("jjwt-0.9.1.jar"));
     assertThat(libDir).exists();
@@ -48,8 +56,7 @@ public class TestCleanupMojo {
   }
 
   @Test
-  public void sourceFoldersCleanup() throws Exception {
-    var mojo = clean.getMojo();
+  void sourceFoldersCleanup() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var srcDataClasses = projectDir.resolve("src_dataClasses");
     var srcWsproc = projectDir.resolve("src_wsproc");
@@ -70,8 +77,7 @@ public class TestCleanupMojo {
   }
 
   @Test
-  public void additionalExclusions() throws Exception {
-    var mojo = clean.getMojo();
+  void additionalExclusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var srcDataClasses = projectDir.resolve("src_dataClasses");
     var srcWsproc = projectDir.resolve("src_wsproc");
@@ -88,8 +94,7 @@ public class TestCleanupMojo {
   }
 
   @Test
-  public void additionaInclusions() throws Exception {
-    var mojo = clean.getMojo();
+  void additionaInclusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var src = projectDir.resolve("src");
     var srcDataClasses = projectDir.resolve("src_dataClasses");

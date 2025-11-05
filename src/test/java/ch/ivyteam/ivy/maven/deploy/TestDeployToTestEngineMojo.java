@@ -27,16 +27,36 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchiverException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 
-public class TestDeployToTestEngineMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestDeployToTestEngineMojo {
+
+  private DeployToTestEngineMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = DeployToTestEngineMojo.TEST_GOAL)
+  void setUp(DeployToTestEngineMojo deployTest) {
+    this.mojo = deployTest;
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
+
   @Test
-  public void autoAppZip() throws ArchiverException, IOException {
-    DeployToTestEngineMojo mojo = deploy.getMojo();
+  void autoAppZip() throws ArchiverException, IOException {
     mojo.deployToEngineApplication = "myApp";
 
     Path workspace = Files.createTempDirectory("myWs");
@@ -74,12 +94,8 @@ public class TestDeployToTestEngineMojo {
   }
 
   @Test
-  public void appNameSanitizing() {
+  void appNameSanitizing() {
     assertThat(DeployToTestEngineMojo.toAppName("ivy-webtest.pure5")).isEqualTo("ivywebtestpure5");
   }
-
-  @Rule
-  public ProjectMojoRule<DeployToTestEngineMojo> deploy = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), DeployToTestEngineMojo.TEST_GOAL);
 
 }

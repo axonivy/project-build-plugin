@@ -2,26 +2,41 @@ package ch.ivyteam.ivy.maven.generate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestUnpackLibsMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestUnpackLibsMojo {
 
-  @Rule
-  public ProjectMojoRule<UnpackLibsMojo> unpack = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), UnpackLibsMojo.GOAL);
+  private final Path jar = Path.of("src/test/resources/lib.jar");
+  private UnpackLibsMojo mojo;
 
-  Path jar = Path.of("src/test/resources/lib.jar");
+  @BeforeEach
+  @InjectMojo(goal = UnpackLibsMojo.GOAL)
+  void setUp(UnpackLibsMojo unpack) {
+    this.mojo = unpack;
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void unpackLib() throws Exception {
-    var mojo = unpack.getMojo();
+  void unpackLib() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var restJar = projectDir.resolve("lib/generated/rest/lib.jar");
     Files.createDirectories(restJar.getParent());
@@ -38,8 +53,7 @@ public class TestUnpackLibsMojo {
   }
 
   @Test
-  public void unpackLibExlusions() throws Exception {
-    var mojo = unpack.getMojo();
+  void unpackLibExlusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var restJar = projectDir.resolve("lib/generated/rest/lib.jar");
     Files.createDirectories(restJar.getParent());
@@ -55,8 +69,7 @@ public class TestUnpackLibsMojo {
   }
 
   @Test
-  public void unpackLibInclusions() throws Exception {
-    var mojo = unpack.getMojo();
+  void unpackLibInclusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var libJar = projectDir.resolve("lib/lib.jar");
     Files.copy(jar, libJar);

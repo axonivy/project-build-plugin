@@ -2,39 +2,62 @@ package ch.ivyteam.ivy.maven.generate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.IOException;
 
-import ch.ivyteam.ivy.maven.compile.LocalRepoMojoRule;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.extension.LocalRepoTest;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
-public class TestGenerateDialogFormSourcesMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestGenerateDialogFormSourcesMojo {
 
-  @Rule
-  public LocalRepoMojoRule<GenerateDialogFormSourcesMojo> generate = new LocalRepoMojoRule<>(GenerateDialogFormSourcesMojo.GOAL);
+  private GenerateDialogFormSourcesMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = GenerateDialogFormSourcesMojo.GOAL)
+  void setUp(GenerateDialogFormSourcesMojo form) throws Exception {
+    this.mojo = form;
+    BaseEngineProjectMojoTest.provideEngine(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void generateFormSources() throws Exception {
-    var targetSrcHd = generate.project.getBasedir().toPath().resolve("target").resolve("src_hd");
+  void generateFormSources() throws Exception {
+    var targetSrcHd = mojo.project.getBasedir().toPath().resolve("target").resolve("src_hd");
     PathUtils.delete(targetSrcHd);
 
     assertThat(targetSrcHd).doesNotExist();
 
-    generate.getMojo().execute();
+    mojo.execute();
 
     assertThat(targetSrcHd)
         .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("myForm.xhtml"));
   }
 
   @Test
-  public void skipGenerateSources() throws Exception {
-    var targetSrcHd = generate.project.getBasedir().toPath().resolve("target").resolve("src_hd");
+  void skipGenerateSources() throws Exception {
+    var targetSrcHd = mojo.project.getBasedir().toPath().resolve("target").resolve("src_hd");
     PathUtils.delete(targetSrcHd);
 
     assertThat(targetSrcHd).doesNotExist();
 
-    generate.getMojo().skipGenerateSources = true;
-    generate.getMojo().execute();
+    mojo.skipGenerateSources = true;
+    mojo.execute();
 
     assertThat(targetSrcHd).doesNotExist();
   }
