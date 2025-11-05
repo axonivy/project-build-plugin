@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.apache.maven.project.MavenProject;
@@ -24,11 +25,20 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
 
   private static Path project;
   private static Path workspace;
+  private static int count = 0;
+
+  private Path userDir;
 
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
+    this.userDir = SystemUtils.getUserDirPath();
     workspace = Files.createTempDirectory("copySpace");
-    project = workspace.resolve("base_" + context.getDisplayName());
+    nextProject(context);
+  }
+
+  private void nextProject(ExtensionContext context) {
+    count++;
+    project = workspace.resolve("base_" + context.getDisplayName() + count);
     System.setProperty("basedir", project.toString());
   }
 
@@ -39,12 +49,13 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    copyDirectory(Path.of(TEST_BASE), project);
+    copyDirectory(userDir.resolve(TEST_BASE), project);
   }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
     PathUtils.delete(project);
+    nextProject(context);
   }
 
   public static MavenProject project() throws IOException {
@@ -56,15 +67,19 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
     Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");
     Mockito.lenient().when(pom.getVersion()).thenReturn("1.0.0");
 
-    var build = new Build();
-    var target = project.resolve("target");
-    build.setDirectory(target.toString());
-    build.setOutputDirectory(target.resolve("classes").toString());
-
+    var build = build();
     Mockito.lenient().when(pom.getBuild()).thenReturn(build);
     Mockito.lenient().when(pom.getProperties())
         .thenReturn(new Properties());
     return pom;
+  }
+
+  private static Build build() {
+    var b = new Build();
+    var target = project.resolve("target");
+    b.setDirectory(target.toAbsolutePath().toString());
+    b.setOutputDirectory(target.resolve("classes").toAbsolutePath().toString());
+    return b;
   }
 
   private static void copyDirectory(Path source, Path target) {

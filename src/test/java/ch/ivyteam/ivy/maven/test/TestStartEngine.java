@@ -17,12 +17,11 @@
 package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.api.di.Provides;
 import org.apache.maven.api.plugin.testing.InjectMojo;
@@ -210,11 +209,11 @@ class TestStartEngine {
         .isExecutable();
   }
 
-  private static void kill(Process startedProcess) {
+  private static void kill(Process startedProcess) throws Exception {
     if (startedProcess != null) {
+      var exit = startedProcess.onExit();
       startedProcess.destroy();
-      await().atMost(Duration.ofSeconds(30))
-          .untilAsserted(() -> assertThat(startedProcess.isAlive()).as("gracefully wait on stop").isFalse());
+      exit.get(60, TimeUnit.SECONDS);
     }
   }
 
