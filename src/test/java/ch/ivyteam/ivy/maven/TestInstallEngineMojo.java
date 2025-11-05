@@ -16,11 +16,13 @@
 package ch.ivyteam.ivy.maven;
 
 import static ch.ivyteam.ivy.maven.AbstractEngineMojo.DEFAULT_VERSION;
-import static ch.ivyteam.ivy.maven.InstallEngineMojo.DEFAULT_ARCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -29,16 +31,18 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.IntStream;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.wagon.proxy.ProxyInfo;
-import org.apache.wink.client.MockHttpServer;
-import org.apache.wink.client.MockHttpServer.MockHttpServerResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.HttpResponse;
+import org.mockserver.model.MediaType;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
@@ -51,21 +55,21 @@ import net.lingala.zip4j.model.ZipParameters;
 class TestInstallEngineMojo {
 
   private InstallEngineMojo mojo;
-  private MockHttpServer mockServer;
   private String mockBaseUrl;
+  private ClientAndServer mock;
 
   @BeforeEach
   @InjectMojo(goal = InstallEngineMojo.GOAL)
   void startHttp(InstallEngineMojo install) {
     this.mojo = install;
-    mockServer = new MockHttpServer(3333);
-    mockServer.startServer();
-    mockBaseUrl = "http://localhost:" + mockServer.getServerPort();
+    Integer[] ports = IntStream.rangeClosed(3333, 3333 + 20).boxed().toArray(Integer[]::new);
+    this.mock = new ClientAndServer(ports);
+    mockBaseUrl = "http://localhost:" + mock.getPort();
   }
 
   @AfterEach
   void stopHttp() {
-    mockServer.stopServer();
+    mock.stop();
   }
 
   private URL mockEngineZip() throws MalformedURLException {
@@ -74,11 +78,13 @@ class TestInstallEngineMojo {
 
   @Test
   void testEngineDownload_defaultBehaviour() throws Exception {
-    var listPageResponse = new MockHttpServerResponse();
-    String defaultEngineName = "AxonIvyEngine" + DEFAULT_VERSION + ".46949_" + DEFAULT_ARCH;
-    listPageResponse.setMockResponseContent(
-        "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>");
-    mockServer.setMockHttpServerResponses(listPageResponse, createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
+    String defaultEngineName = "AxonIvyEngine" + DEFAULT_VERSION + ".46949_" + InstallEngineMojo.DEFAULT_ARCH;
+    var list = "<a href=\"" + mockBaseUrl + "/" + defaultEngineName + ".zip\">the engine!</a>";
+    mock.when(request().withPath("/listPageUrl.html/"))
+        .respond(response(list));
+
+    var zip = createFakeEngineZip(mojo.ivyVersion);
+    mockZipResponse(zip);
 
     // test setup can not expand expression ${settings.localRepository}: so we
     // setup an explicit temp dir!
@@ -102,13 +108,20 @@ class TestInstallEngineMojo {
         .isEqualTo(mojo.getRawEngineDirectory());
   }
 
-  private static MockHttpServerResponse createFakeZipResponse(Path zip) throws Exception {
-    var response = new MockHttpServerResponse();
-    response.setMockResponseContentType("application/zip");
-    try (var in = Files.newInputStream(zip)) {
-      response.setMockResponseContent(in.readAllBytes());
+  private void mockZipResponse(Path zip) throws IOException {
+    var bos = toBytes(zip);
+    mock.when(request())
+        .respond(HttpResponse.response()
+            .withContentType(MediaType.parse("application/zip"))
+            .withBody(bos));
+  }
+
+  private static byte[] toBytes(Path zip) throws IOException {
+    try (var bos = new ByteArrayOutputStream();
+        var in = Files.newInputStream(zip)) {
+      in.transferTo(bos);
+      return bos.toByteArray();
     }
-    return response;
   }
 
   private static Path createFakeEngineZip(String ivyVersion) throws IOException, ZipException {
@@ -152,7 +165,7 @@ class TestInstallEngineMojo {
 
   @Test
   void testEngineDownload_alreadyInstalledVersionTooOld() throws Exception {
-    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
+    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
 
     final String outdatedVersion = "6.5.1";
     mojo.engineDirectory = createFakeEngineDir(outdatedVersion);
@@ -177,7 +190,7 @@ class TestInstallEngineMojo {
         .isEmptyDirectory();
 
     mojo.autoInstallEngine = true;
-    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(mojo.ivyVersion)));
+    mockZipResponse(createFakeEngineZip(mojo.ivyVersion));
     mojo.engineDownloadUrl = mockEngineZip();
 
     mojo.execute();
@@ -211,7 +224,7 @@ class TestInstallEngineMojo {
     }
 
     mojo.autoInstallEngine = true;
-    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
+    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
     mojo.engineDownloadUrl = mockEngineZip();
 
     mojo.execute();
@@ -229,7 +242,7 @@ class TestInstallEngineMojo {
     }
 
     mojo.autoInstallEngine = true;
-    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
+    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
 
     mojo.engineDownloadUrl = URI.create("http://localhost:7123/fakeEngine.zip").toURL(); // not reachable: but proxy knows how :)
     var downloader = (URLEngineDownloader) mojo.getDownloader();
@@ -250,7 +263,7 @@ class TestInstallEngineMojo {
   private ProxyInfo localTestProxy(@SuppressWarnings("unused") String protocol) {
     var proxy = new ProxyInfo();
     proxy.setHost("localhost");
-    proxy.setPort(mockServer.getServerPort());
+    proxy.setPort(mock.getPort());
     proxy.setType("http");
     return proxy;
   }
@@ -260,7 +273,7 @@ class TestInstallEngineMojo {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = true;
     mojo.ivyVersion = "9999.0.0";
-    mockServer.setMockHttpServerResponses(createFakeZipResponse(createFakeEngineZip(DEFAULT_VERSION)));
+    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
     mojo.engineDownloadUrl = mockEngineZip();
 
     try {
