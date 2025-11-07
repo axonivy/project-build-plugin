@@ -16,7 +16,6 @@
 
 package ch.ivyteam.ivy.maven;
 
-import static ch.ivyteam.ivy.maven.extension.ProjectExtension.TEST_BASE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.api.di.Provides;
-import org.apache.maven.api.plugin.testing.Basedir;
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.artifact.Artifact;
@@ -38,44 +36,48 @@ import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-import ch.ivyteam.ivy.maven.util.PathUtils;
+import ch.ivyteam.ivy.maven.extension.LocalRepoTest;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 
 @MojoTest
+@ExtendWith(ProjectExtension.class)
 class TestMavenDependencyMojo {
 
+  private final Set<Artifact> artifacts = new HashSet<>();
   private MavenDependencyMojo mojo;
-  private final Path projectDir = Path.of(TEST_BASE);
+  private Path projectDir;
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUp(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
+  }
 
   @BeforeEach
   @InjectMojo(goal = MavenDependencyMojo.GOAL)
-  void setUp(MavenDependencyMojo dependency) {
+  void setUp(MavenDependencyMojo dependency) throws Exception {
     this.mojo = dependency;
+    BaseEngineProjectMojoTest.provideEngine(mojo);
+    this.mojo.localRepository = LocalRepoTest.repo();
+    projectDir = mojo.project.getBasedir().toPath();
   }
 
   @AfterEach
   void tearDown() {
     artifacts.clear();
-    var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
-    PathUtils.delete(mvnLibDir);
   }
 
   @Provides
   MavenProject provideMockedComponent() throws IOException {
-    MavenProject pom = Mockito.mock(MavenProject.class);
-    var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
-    Mockito.lenient().when(pom.getArtifact()).thenReturn(self);
-    Mockito.lenient().when(pom.getArtifacts()).thenReturn(artifacts);
-    Mockito.lenient().when(pom.getGroupId()).thenReturn("ch.ivyteam.project.test");
-    Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");
-    return pom;
+    var project = ProjectExtension.project();
+    Mockito.lenient().when(project.getArtifacts()).thenReturn(artifacts);
+    return project;
   }
 
-  private final Set<Artifact> artifacts = new HashSet<>();
-
   @Test
-  @Basedir(TEST_BASE)
   void noMavenDeps() throws Exception {
     var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
@@ -84,17 +86,16 @@ class TestMavenDependencyMojo {
   }
 
   @Test
-  @Basedir(TEST_BASE)
   void exportMavenDepsToLibDir() throws Exception {
     var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
 
-    var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
-    artifact.setDependencyTrail(List.of(self.toString()));
+    artifact.setDependencyTrail(List.of(mojo.project.getArtifact().toString()));
     artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
 
     this.artifacts.add(artifact);
+    assertThat(mojo.project.getArtifacts()).isNotEmpty();
     mojo.execute();
     assertThat(mvnLibDir).exists();
     List<String> libs = getMavenLibs(mvnLibDir);
@@ -102,7 +103,6 @@ class TestMavenDependencyMojo {
   }
 
   @Test
-  @Basedir(TEST_BASE)
   void onlyLocalDeps() throws Exception {
     var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();

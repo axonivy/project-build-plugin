@@ -31,8 +31,8 @@ class TestValidateMojo {
   void samePluginVersions() throws Exception {
     var log = new LogCollector();
     mojo.setLog(log);
-    var p1 = createMavenProject("project1", "13.1.0");
-    var p2 = createMavenProject("project2", "13.1.0");
+    var p1 = createMavenProject("project1", "12.0.0");
+    var p2 = createMavenProject("project2", "12.0.0");
     mojo.validateConsistentPluginVersion(List.of(p1, p2));
     assertThat(log.getDebug()).hasSize(2);
     assertThat(log.getDebug().get(0).toString())
@@ -46,8 +46,8 @@ class TestValidateMojo {
   void differentPluginVersions() throws Exception {
     var log = new LogCollector();
     mojo.setLog(log);
-    var p1 = createMavenProject("project1", "13.1.0");
-    var p2 = createMavenProject("project2", "13.1.1");
+    var p1 = createMavenProject("project1", "12.0.0");
+    var p2 = createMavenProject("project2", "12.0.1");
     assertThatThrownBy(() -> mojo.validateConsistentPluginVersion(List.of(p1, p2)))
         .isInstanceOf(MojoExecutionException.class);
     assertThat(log.getErrors()).hasSize(1);
