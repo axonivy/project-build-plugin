@@ -2,23 +2,49 @@ package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.IOException;
+
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo.TestEngineLocation;
 
-public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestEngineControlEngineDirectory {
 
-  @Rule
-  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<>(
-      StopTestEngineMojo.GOAL);
+  private StopTestEngineMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = StopTestEngineMojo.GOAL)
+  void setUp(StopTestEngineMojo stop) throws Exception {
+    this.mojo = stop;
+    ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.provideEngine(mojo);
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void engineControl_engineDir_doesNotExist() throws Exception {
+  void engineControl_engineDir_doesNotExist() throws Exception {
     LogCollector log = new LogCollector();
-    StopTestEngineMojo mojo = rule.getMojo();
     mojo.setLog(log);
     mojo.testEngine = TestEngineLocation.MODIFY_EXISTING;
 
@@ -29,10 +55,9 @@ public class TestEngineControlEngineDirectory extends BaseEngineProjectMojoTest 
   }
 
   @Test
-  public void engineControl_engineDir_isNull() throws Exception {
-    StopTestEngineMojo mojo = new StopTestEngineMojo();
-    mojo.project = rule.project;
-    mojo.engineDirectory = rule.getMojo().engineCacheDirectory;
+  void engineControl_engineDir_isNull() throws Exception {
+    mojo.project = mojo.project;
+    mojo.engineDirectory = mojo.engineCacheDirectory;
     assertThat(mojo.createEngineController()).isNotNull();
   }
 }

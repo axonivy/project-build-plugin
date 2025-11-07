@@ -16,56 +16,88 @@
 package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.linesOf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
-import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
+import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
+import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
 
 /**
  * @since 7.1.0
  */
-public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestDeployToRunningEngine {
+
   StartTestEngineMojo mojo;
   DeployToEngineMojo deployMojo;
-  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-  private final PrintStream originalOut = System.out;
 
-  @Before
-  public void setup() throws MojoExecutionException {
-    mojo = rule.getMojo();
-    deployMojo = deployRule.getMojo();
+  @BeforeAll
+  static void log() {
+    Slf4jSimpleEngineProperties.install();
+    Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = StartTestEngineMojo.GOAL)
+  void startTest(StartTestEngineMojo test) throws Exception {
+    this.mojo = test;
+    ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.provideEngine(test);
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
+
+  @Provides
+  MavenSession provideSession() {
+    var session = Mockito.mock(MavenSession.class);
+    System.out.println(session);
+    Mockito.lenient().when(session.getUserProperties()).thenReturn(new Properties());
+    Mockito.lenient().when(session.getSystemProperties()).thenReturn(new Properties());
+    Mockito.lenient().when(session.getSettings()).thenReturn(new Settings());
+    return session;
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = DeployToEngineMojo.GOAL)
+  void setup(DeployToEngineMojo deploy) throws Exception {
+    deployMojo = deploy;
+    TestDeployToEngineMojo.setup(deploy);
     deployMojo.deployToEngineApplication = "MyTestApp";
-    deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project);
+
+    deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project); // engineDeployVolatile;
     deployMojo.deployTimeoutInSeconds = 120;
     deployMojo.deployFile = Path.of("src/test/resources/deploy-single-7.1.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = "true";
-
-    System.setOut(new PrintStream(outContent));
-  }
-
-  @After
-  public void restoreStreams() {
-    System.setOut(originalOut);
   }
 
   @Test
-  public void canDeployIar() throws Exception {
+  void canDeployIar() throws Exception {
     deployMojo.deployToEngineApplication = "Portal";
     var deployedIar = getTarget(deployMojo.deployFile, deployMojo);
     var deployedIarFlagFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deployed");
@@ -77,25 +109,25 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
       assertThat(deployedIar).doesNotExist();
       assertThat(deployedIarFlagFile).exists();
       assertThat(deployedIarLogFile).exists();
-      assertThat(linesOf(deployedIarLogFile)).haveAtLeast(1, new Condition<>(s -> s.contains("Deploying users ..."), ""));
+      assertThat(Assertions.linesOf(deployedIarLogFile)).haveAtLeast(1, new Condition<>(s -> s.contains("Deploying users ..."), ""));
     } finally {
       kill(startedProcess);
     }
   }
 
   @Test
-  public void canDeployRemoteIar() throws Exception {
+  void canDeployRemoteIar() throws Exception {
     deployIarRemoteAndAssert();
   }
 
   @Test
-  public void canDeployRemoteIar_settingsPassword() throws Exception {
+  void canDeployRemoteIar_settingsPassword() throws Exception {
     addServerConnection("admin");
     deployIarRemoteAndAssert();
   }
 
   @Test
-  public void canDeployRemoteIar_encryptedSettingsPassword() throws Exception {
+  void canDeployRemoteIar_encryptedSettingsPassword() throws Exception {
     addServerConnection("{VUpeDRRbfD4Hmk9WLKzhqLkLttTCsWfLtr75Nt9K/3k=}");
     System.setProperty("settings.security",
         TestDeployToRunningEngine.class.getResource("settings-security.xml").getPath());
@@ -111,21 +143,21 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
     deployMojo.deployServerId = "test.server";
   }
 
-  private void deployIarRemoteAndAssert() throws Exception, MojoExecutionException, MojoFailureException {
+  private void deployIarRemoteAndAssert() throws Exception {
     deployMojo.deployToEngineApplication = "test";
     deployMojo.deployMethod = DeployMethod.HTTP;
 
     Process startedProcess = null;
     try {
-      System.setOut(originalOut);
       startedProcess = mojo.startEngine();
-      deployMojo.deployEngineUrl = (String) rule.project.getProperties()
+      deployMojo.deployEngineUrl = (String) mojo.project.getProperties()
           .get(EngineControl.Property.TEST_ENGINE_URL);
-      System.setOut(new PrintStream(outContent));
 
+      LogCollector log = new LogCollector();
+      deployMojo.setLog(log);
       deployMojo.execute();
 
-      assertThat(outContent.toString()).contains("Start deploying project(s) of file")
+      assertThat(log.getDebug().toString()).contains("Start deploying project(s) of file")
           .contains("Application: test")
           .contains("Deploying users ...")
           .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
@@ -141,18 +173,12 @@ public class TestDeployToRunningEngine extends BaseEngineProjectMojoTest {
         .resolve(iar.getFileName().toString());
   }
 
-  private static void kill(Process startedProcess) {
+  private static void kill(Process startedProcess) throws Exception {
     if (startedProcess != null) {
+      CompletableFuture<Process> close = startedProcess.onExit();
       startedProcess.destroy();
+      close.get(60, TimeUnit.SECONDS); // properly shut-down; to make file-cleanup work
     }
   }
-
-  @Rule
-  public RunnableEngineMojoRule<StartTestEngineMojo> rule = new RunnableEngineMojoRule<>(
-      StartTestEngineMojo.GOAL);
-
-  @Rule
-  public ProjectMojoRule<DeployToEngineMojo> deployRule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), DeployToEngineMojo.GOAL);
 
 }
