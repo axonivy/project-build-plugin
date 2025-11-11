@@ -75,9 +75,16 @@ public class SetupIvyTestPropertiesMojo extends AbstractEngineMojo {
   @Parameter(defaultValue = "${session}", readonly = true)
   private MavenSession session;
 
+  /**
+   * Set to <code>true</code> to use engine classpath for testing.
+   * @since 13.2.0
+   */
+  @Parameter(defaultValue = "false", property = "test.with.engine.classpath")
+  boolean testWithEngineClasspath;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    if (skipTest) {
+    if (skipTest || !testWithEngineClasspath) {
       return;
     }
 
