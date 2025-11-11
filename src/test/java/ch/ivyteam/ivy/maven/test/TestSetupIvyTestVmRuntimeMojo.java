@@ -2,27 +2,44 @@ package ch.ivyteam.ivy.maven.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import ch.ivyteam.ivy.maven.ProjectMojoRule;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.test.SetupIvyTestPropertiesMojo.Property;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 
-public class TestSetupIvyTestVmRuntimeMojo {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestSetupIvyTestVmRuntimeMojo {
 
-  @Rule
-  public ProjectMojoRule<SetupIvyTestVmRuntimeMojo> rule = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), SetupIvyTestVmRuntimeMojo.GOAL);
+  SetupIvyTestVmRuntimeMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = SetupIvyTestVmRuntimeMojo.GOAL)
+  void setUp(SetupIvyTestVmRuntimeMojo vmMojo) {
+    this.mojo = vmMojo;
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void ivyTestVmRuntime() throws Exception {
+  void ivyTestVmRuntime() throws Exception {
     assertThat(getProperty(Property.IVY_TEST_VM_RUNTIME)).isNull();
     assertThat(getProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH)).isNull();
 
-    rule.getMojo().execute();
+    mojo.execute();
 
     assertThat(getProperty(Property.IVY_TEST_VM_RUNTIME)).endsWith("ivyTestVm");
     assertThat(getProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH)).isEqualTo("${ivy.test.vm.runtime}");
@@ -35,7 +52,7 @@ public class TestSetupIvyTestVmRuntimeMojo {
         .contains("project.locations=<file\\:");
   }
 
-  private String getProperty(String key) {
-    return (String) rule.getMojo().project.getProperties().get(key);
+  String getProperty(String key) {
+    return (String) mojo.project.getProperties().get(key);
   }
 }

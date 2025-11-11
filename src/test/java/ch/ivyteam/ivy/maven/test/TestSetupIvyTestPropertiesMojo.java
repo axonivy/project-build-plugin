@@ -65,6 +65,7 @@ class TestSetupIvyTestPropertiesMojo {
     this.mojo = testProps;
     BaseEngineProjectMojoTest.provideEngine(testProps);
     prepareJar(mojo);
+    mojo.testWithEngineClasspath = true;
   }
 
   @Provides
