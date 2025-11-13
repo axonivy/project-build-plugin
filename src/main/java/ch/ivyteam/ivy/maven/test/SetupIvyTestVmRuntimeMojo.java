@@ -23,6 +23,12 @@ import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
+/**
+ * Provides a property file containing project-related information such as dependent projects.
+ * Tries to auto-configure 'maven-surefire-plugin' so that the test VM can access the provided information.
+ *
+ * @since 13.2.0
+ */
 @Mojo(name = SetupIvyTestVmRuntimeMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
 public class SetupIvyTestVmRuntimeMojo extends AbstractMojo {
   public static final String GOAL = "ivy-test-vm-runtime";
