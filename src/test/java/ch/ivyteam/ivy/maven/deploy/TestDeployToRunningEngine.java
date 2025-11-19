@@ -38,6 +38,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
 import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
@@ -59,6 +61,12 @@ class TestDeployToRunningEngine {
   static void log() {
     Slf4jSimpleEngineProperties.install();
     Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
   }
 
   @BeforeEach

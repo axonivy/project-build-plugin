@@ -29,14 +29,23 @@ import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.DeploymentFiles;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 @MojoTest
 class TestDeployToEngineMojo {
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
+  }
 
   @Test
   @InjectMojo(goal = DeployToEngineMojo.GOAL)
