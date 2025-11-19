@@ -30,6 +30,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl.EngineState;
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
@@ -46,6 +48,12 @@ class TestEngineControl {
   void setUp(StopTestEngineMojo stop) throws Exception {
     this.mojo = stop;
     ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.provideEngine(mojo);
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
   }
 
   @Provides
