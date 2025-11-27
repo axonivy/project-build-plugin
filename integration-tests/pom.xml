@@ -8,6 +8,7 @@
   <modules>
     <module>maven-libs</module>
     <module>codegen</module>
+    <module>process-resources</module>
   </modules>
 
   <build>
