@@ -23,6 +23,7 @@
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+          <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
           <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
           <test>
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
@@ -59,6 +60,7 @@
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+          <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
           <test-compile>com.axonivy.ivy.ci:project-build-plugin:test-compile</test-compile>
           <test>
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-properties,
