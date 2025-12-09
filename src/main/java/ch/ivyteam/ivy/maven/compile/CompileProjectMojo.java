@@ -48,14 +48,6 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
   @Parameter(property = "ivy.compiler.skip", defaultValue = "false")
   boolean skipCompilation;
 
-  /**
-   * Set to <code>false</code> to perform the validation of ivyScript code
-   * within ivy processes.
-   * @since 8.0.3
-   */
-  @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
-  boolean skipScriptValidation;
-
   @Override
   protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
     if (skipCompilation) {
@@ -67,12 +59,6 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     var iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, Object> options = getOptions();
     projectBuilder.compile(project.getBasedir().toPath(), iarJars, options);
-
-    if (skipScriptValidation) {
-      getLog().info("Skipping ivy script validation");
-    } else {
-      projectBuilder.validate(project.getBasedir().toPath(), iarDependencies, options);
-    }
     writeDependencyIarJar(iarJars);
   }
 

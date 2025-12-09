@@ -8,8 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
-import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
@@ -18,12 +16,6 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 class TestGenerateDataClassSourcesMojo {
 
   private GenerateDataClassSourcesMojo mojo;
-
-  @BeforeEach
-  @InjectMojo(goal = InstallEngineMojo.GOAL)
-  void setUpEngine(InstallEngineMojo install) throws Exception {
-    BaseEngineProjectMojoTest.provideEngine(install);
-  }
 
   @BeforeEach
   @InjectMojo(goal = GenerateDataClassSourcesMojo.GOAL)
