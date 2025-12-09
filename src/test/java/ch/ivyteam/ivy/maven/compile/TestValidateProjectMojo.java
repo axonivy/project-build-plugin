@@ -63,7 +63,7 @@ class TestValidateProjectMojo {
 
   @Test
   @InjectMojo(goal = ValidateProjectMojo.GOAL)
-  void validat(ValidateProjectMojo validate) throws Exception {
+  void validate(ValidateProjectMojo validate) throws Exception {
     BaseEngineProjectMojoTest.configureMojo(validate);
     validate.localRepository = LocalRepoTest.repo();
 
