@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lifecycleMappingMetadata>
-  <lifecycleMappings>
-    <lifecycleMapping>
-      <packagingType>iar</packagingType>
-    </lifecycleMapping>
-    <lifecycleMapping>
-      <packagingType>iar-integration-test</packagingType>
-    </lifecycleMapping>
-  </lifecycleMappings>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>generate-data-class-sources</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <execute>
+          <runOnIncremental>true</runOnIncremental>
+          <runOnConfiguration>true</runOnConfiguration>
+        </execute>
+      </action>
+    </pluginExecution>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>validate</goal>
+          <goal>installEngine</goal>
+          <goal>unpack-libs</goal>
+          <goal>ivy-resources-properties</goal>
+          <goal>generate-dialog-form-sources</goal>
+          <goal>generate-web-service-sources</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore></ignore>
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
 </lifecycleMappingMetadata>
-

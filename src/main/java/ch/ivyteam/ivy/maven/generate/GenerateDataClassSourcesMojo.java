@@ -3,11 +3,14 @@ package ch.ivyteam.ivy.maven.generate;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.ivy.IvyConstants;
 import ch.ivyteam.ivy.scripting.dataclass.internal.serialization.DataClassSerializer;
@@ -42,6 +45,9 @@ import ch.ivyteam.ivy.scripting.dataclass.restricted.codegen.DataClassJavaSource
 public class GenerateDataClassSourcesMojo extends AbstractMojo {
   public static final String GOAL = "generate-data-class-sources";
 
+  @Inject
+  private BuildContext buildContext;
+
   /**
    * Set to <code>true</code> to bypass the generation of <b>ivy data classes</b>.
    * @since 13.2.0
@@ -72,9 +78,11 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
     var writer = new NioSourceWriter(projectDir);
     for (var jsonFile : jsonFiles) {
       try {
-        var model = DataClassSerializer.builder().build().load(Files.newInputStream(projectDir.resolve(jsonFile))).model();
+        var jsonFilePath = projectDir.resolve(jsonFile);
+        var model = DataClassSerializer.builder().build().load(Files.newInputStream(jsonFilePath)).model();
         var classInfo = IvyScriptClassInfoMapper.toIvyScriptClassInfo(model);
         new DataClassJavaSource(classInfo).write(writer);
+        if (!buildContext.isUptodate(projectDir.resolve("src_dataClasses/" + classInfo.getSimpleName() + ".java").toFile(), jsonFilePath.toFile())) {}
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
