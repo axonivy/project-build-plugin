@@ -172,7 +172,8 @@ class TestInstallEngineMojo {
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(mojo.engineDirectory.resolve(getFakeLibraryPath(outdatedVersion))).exists();
 
-    mojo.ivyVersion = "[13.2.0,13.2.0]";
+    var fix = AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION;
+    mojo.ivyVersion = "[" + fix + "," + fix + "]";
     mojo.autoInstallEngine = true;
     mojo.engineDownloadUrl = mockEngineZip();
 
