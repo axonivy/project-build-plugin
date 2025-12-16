@@ -15,7 +15,7 @@ import org.codehaus.plexus.util.DirectoryScanner;
 /**
  * Unpacks libraries into the output directory.
  * By default, the following JARs are unpacked:
- * <code>lib/generated/rest/*.jar<code> and <code>lib_ws/client/*.jar<code>.
+ * <code>lib/generated/rest/*.jar</code> and <code>lib_ws/client/*.jar</code>.
  *
  *
  * @since 13.2.0
