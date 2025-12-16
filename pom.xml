@@ -154,7 +154,7 @@
       <artifactId>ivy-project-build-plugin-api</artifactId>
       <version>${ivy.api}</version>
     </dependency>
-    <!-- <dependency>
+    <dependency>
       <groupId>com.axonivy.ivy.api</groupId>
       <artifactId>ivy-core-api</artifactId>
       <version>${ivy.api}</version>
@@ -164,7 +164,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency> -->
+    </dependency>
     <dependency>
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
@@ -368,6 +368,47 @@
           <outputFormat>json</outputFormat>
           <includeLicenseText>true</includeLicenseText>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <!-- <include>com.axonivy.ivy.api.restricted:ivy-generate-data-class-api</include> -->
+                  <include>com.axonivy.ivy.api:ivy-core-api</include>
+                </includes>
+              </artifactSet>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>com.axonivy.ivy.api.restricted:ivy-generate-data-class-api</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.MF</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <filters>
+                <filter>
+                  <artifact>com.axonivy.ivy.api:ivy-core-api</artifact>
+                  <includes>
+                    <include>ch/ivyteam/ivy/IvyConstants.class</include>
+                  </includes>
+                  <excludes>
+                    <exclude>META-INF/*.MF</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     
