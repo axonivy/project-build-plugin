@@ -154,7 +154,7 @@
       <artifactId>ivy-project-build-plugin-api</artifactId>
       <version>${ivy.api}</version>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>com.axonivy.ivy.api</groupId>
       <artifactId>ivy-core-api</artifactId>
       <version>${ivy.api}</version>
@@ -164,7 +164,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
