@@ -2,12 +2,17 @@ package com.axonivy.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Proxy;
 import java.util.List;
 
-import org.hibernate.query.Query;
+import jakarta.data.repository.BasicRepository;
+
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.hibernate.StatelessSession;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.test.jakarta.codegen.Car;
+import com.axonivy.test.jakarta.codegen.CarRepo_;
 import com.axonivy.test.jakarta.codegen.Car_;
 import com.axonivy.test.jakarta.codegen._Car;
 
@@ -24,7 +29,8 @@ class JakartaCodegenTest {
 
   @Test
   void useHibernateMetaModel() {
-    var session = ((com.axonivy.test.jakarta.codegen.CarRepo_) Car.repository()).session();
+    var repo = Car.repository();
+    var session = sessionOf(repo);
     var cb = session.getCriteriaBuilder();
 
     var criteria = cb.createQuery(Car.class);
@@ -33,10 +39,20 @@ class JakartaCodegenTest {
     criteria.select(root)
         .where(cb.equal(root.get(Car_.RELEASE), 2015));
 
-    Query<Car> query = session.createQuery(criteria);
+    var query = session.createQuery(criteria);
     List<Car> cars2015 = query.getResultList();
     assertThat(cars2015)
         .isEmpty();
+  }
+
+  private static StatelessSession sessionOf(BasicRepository<?, ?> repo) {
+    try {
+      var handler = Proxy.getInvocationHandler(repo);
+      var getSession = MethodUtils.getMatchingMethod(CarRepo_.class, "session");
+      return (StatelessSession) handler.invoke(repo, getSession, new Object[0]);
+    } catch (Throwable ex) {
+      throw new RuntimeException("Failed to get session of " + repo, ex);
+    }
   }
 
   @Test
