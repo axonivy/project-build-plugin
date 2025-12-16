@@ -284,7 +284,7 @@
         <artifactId>maven-invoker-plugin</artifactId>
         <version>3.9.1</version>
         <configuration>
-          <projectsDirectory>integration-tests/</projectsDirectory>
+          <projectsDirectory>${basedir}/integration-tests</projectsDirectory>
           <cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
           <cloneAllFiles>true</cloneAllFiles>
           <properties>
@@ -380,26 +380,20 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <createSourcesJar>false</createSourcesJar>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
               <artifactSet>
                 <includes>
-                  <!-- <include>com.axonivy.ivy.api.restricted:ivy-generate-data-class-api</include> -->
+                  <include>com.axonivy.ivy.api.restricted:*</include>
                   <include>com.axonivy.ivy.api:ivy-core-api</include>
                 </includes>
               </artifactSet>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
               <filters>
                 <filter>
-                  <artifact>com.axonivy.ivy.api.restricted:ivy-generate-data-class-api</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.MF</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-              <filters>
-                <filter>
-                  <artifact>com.axonivy.ivy.api:ivy-core-api</artifact>
+                  <artifact>com.axonivy.ivy.api*:*</artifact>
                   <includes>
-                    <include>ch/ivyteam/ivy/IvyConstants.class</include>
+                    <include>**/*.class</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>
