@@ -284,7 +284,7 @@
         <artifactId>maven-invoker-plugin</artifactId>
         <version>3.9.1</version>
         <configuration>
-          <projectsDirectory>integration-tests/</projectsDirectory>
+          <projectsDirectory>${basedir}/integration-tests</projectsDirectory>
           <cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
           <cloneAllFiles>true</cloneAllFiles>
           <properties>
@@ -333,7 +333,7 @@
                   <fileset dir="${project.build.directory}/site" />
                 </move>
                 <copy todir="${project.build.directory}/site/${site.path}/" >
-                  <fileset dir="src/site/gh/pages/" />
+                  <fileset dir="${basedir}/src/site/gh/pages/" />
                   <filterset id="replaceProductAndVersion">
                     <filter token="version" value="${pluginVersion.majorVersion}.${pluginVersion.minorVersion}" />
                   </filterset>
@@ -368,6 +368,41 @@
           <outputFormat>json</outputFormat>
           <includeLicenseText>true</includeLicenseText>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createSourcesJar>false</createSourcesJar>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+              <artifactSet>
+                <includes>
+                  <include>com.axonivy.ivy.api.restricted:*</include>
+                  <include>com.axonivy.ivy.api:ivy-core-api</include>
+                </includes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>com.axonivy.ivy.api*:*</artifact>
+                  <includes>
+                    <include>**/*.class</include>
+                  </includes>
+                  <excludes>
+                    <exclude>META-INF/*.MF</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     
