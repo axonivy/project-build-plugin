@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.axonivy.ivy.api</groupId>
     <artifactId>ivy-project-parent</artifactId>
-    <version>13.2.0-SNAPSHOT</version>
+    <version>13.2.0</version>
     <relativePath></relativePath>
   </parent>
   <groupId>com.axonivy.test</groupId>
@@ -41,12 +41,6 @@
   </repositories>
   <build>
     <testSourceDirectory>src_test</testSourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>com.axonivy.ivy.ci</groupId>
-        <artifactId>project-build-plugin</artifactId>
-      </plugin>
-    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -57,5 +51,11 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.axonivy.ivy.ci</groupId>
+        <artifactId>project-build-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 </project>
