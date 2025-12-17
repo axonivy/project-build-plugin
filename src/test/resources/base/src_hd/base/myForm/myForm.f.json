@@ -1,6 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/form/13.2.0/form.json",
-  "id" : "7e00828d-94cb-435b-8f48-70a255b96188",
+  "$schema" : "https://json-schema.axonivy.com/form/13.2.3/form.json",
   "components" : [ {
     "cid" : "input1",
     "type" : "Input",
