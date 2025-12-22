@@ -48,7 +48,7 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ivy.api>13.2.0</ivy.api>
+    <ivy.api>13.2.1-SNAPSHOT</ivy.api>
   </properties>
 
   <distributionManagement>
