@@ -1,17 +1,23 @@
 package ch.ivyteam.ivy.maven.compile;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
 /**
  * Validates an ivy Project with an ivyEngine.
  *
  */
 @Mojo(name = ValidateProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
-public class ValidateProjectMojo extends AbstractProjectCompileMojo {
+public class ValidateProjectMojo extends AbstractEngineInstanceMojo {
   public static final String GOAL = "validateProject";
 
   /**
@@ -29,7 +35,21 @@ public class ValidateProjectMojo extends AbstractProjectCompileMojo {
       return;
     }
     var iarDependencies = getDependencies("iar");
-    var options = getOptions();
-    projectBuilder.validate(project.getBasedir().toPath(), iarDependencies, options);
+    var dependencyClassPath = getDependencyClasspath();
+    projectBuilder.validate(project.getBasedir().toPath(), iarDependencies, dependencyClassPath);
   }
+
+  private String getDependencyClasspath() {
+    var jarDepPaths = getDependencies("jar")
+        .stream()
+        .map(Path::toFile)
+        .map(File::getAbsolutePath)
+        .toList();
+    return StringUtils.join(jarDepPaths, File.pathSeparatorChar);
+  }
+
+  private List<Path> getDependencies(String type) {
+    return MavenDependencies.of(project).typeFilter(type).all();
+  }
+
 }
