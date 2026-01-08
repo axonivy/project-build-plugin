@@ -40,12 +40,4 @@ public class SharedFile {
   public Path getEngineClasspathJar() {
     return targetDir.resolve("ivy.engine.classpath.jar");
   }
-
-  public Path getIarDependencyClasspathJar() {
-    return targetDir.resolve("ivy.project.dependency.classpath.jar");
-  }
-
-  public Path getCompileResultProperties() {
-    return targetDir.resolve("ivy.project.compile.result.properties");
-  }
 }

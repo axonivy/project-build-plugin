@@ -19,11 +19,13 @@ iar Lifecycle
  process-resources | ${project.groupId}:${project.artifactId}:{{{./ivy-resources-properties-mojo.html}ivy-resources-properties}}\
                    | org.apache.maven.plugins:maven-resources-plugin:resources
 *--------*---------*
- compile           | ${project.groupId}:${project.artifactId}:{{{./compileProject-mojo.html}compileProject}} 
+ compile           | org.apache.maven.plugins:maven-compiler-plugin:compile 
 *--------*---------*
- test-compile      | ${project.groupId}:${project.artifactId}:{{{./test-compile-mojo.html}test-compile}} 
+ process-classes   | ${project.groupId}:${project.artifactId}:{{{./validateProject-mojo.html}validateProject}} 
 *--------*---------*
- test              | ${project.groupId}:${project.artifactId}:{{{./ivy-test-properties-mojo.html}ivy-test-properties}}\
+ test-compile      | org.apache.maven.plugins:maven-compiler-plugin:testCompile
+*--------*---------*
+ test              | ${project.groupId}:${project.artifactId}:{{{./ivy-test-vm-runtime-mojo.html}ivy-test-vm-runtime}}\
                    | org.apache.maven.plugins:maven-surefire-plugin:test 
 *--------*---------*
  package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}}\

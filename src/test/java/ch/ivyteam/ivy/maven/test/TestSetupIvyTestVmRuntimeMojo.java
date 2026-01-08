@@ -1,5 +1,7 @@
 package ch.ivyteam.ivy.maven.test;
 
+import static ch.ivyteam.ivy.maven.test.SetupIvyTestVmRuntimeMojo.IVY_TEST_VM_RUNTIME;
+import static ch.ivyteam.ivy.maven.test.SetupIvyTestVmRuntimeMojo.MAVEN_TEST_ADDITIONAL_CLASSPATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -14,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
-import ch.ivyteam.ivy.maven.test.SetupIvyTestPropertiesMojo.Property;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 
 @MojoTest
@@ -36,15 +37,15 @@ class TestSetupIvyTestVmRuntimeMojo {
 
   @Test
   void ivyTestVmRuntime() throws Exception {
-    assertThat(getProperty(Property.IVY_TEST_VM_RUNTIME)).isNull();
-    assertThat(getProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH)).isNull();
+    assertThat(getProperty(IVY_TEST_VM_RUNTIME)).isNull();
+    assertThat(getProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH)).isNull();
 
     mojo.execute();
 
-    assertThat(getProperty(Property.IVY_TEST_VM_RUNTIME)).endsWith("ivyTestVm");
-    assertThat(getProperty(Property.MAVEN_TEST_ADDITIONAL_CLASSPATH)).isEqualTo("${ivy.test.vm.runtime}");
+    assertThat(getProperty(IVY_TEST_VM_RUNTIME)).endsWith("ivyTestVm");
+    assertThat(getProperty(MAVEN_TEST_ADDITIONAL_CLASSPATH)).isEqualTo("${ivy.test.vm.runtime}");
 
-    var propertyFile = Path.of(getProperty(Property.IVY_TEST_VM_RUNTIME))
+    var propertyFile = Path.of(getProperty(IVY_TEST_VM_RUNTIME))
         .resolve(IvyTestRuntime.RUNTIME_PROPS_RESOURCE);
     assertThat(propertyFile).content()
         .contains("product.dir=")

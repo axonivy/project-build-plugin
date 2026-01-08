@@ -122,39 +122,13 @@ public class MavenProjectBuilderProxy {
     javaCore.getConstructor().newInstance();
   }
 
-  /**
-   * @param iarDependencies dependencies of type IAR
-   * @return create IAR-JARs
-   * @throws Exception if creation fails
-   */
-  @SuppressWarnings("unchecked")
-  public List<Path> createIarJars(List<Path> iarDependencies) throws Exception {
-    Method iarJarMethod = getMethod("createIarJars", List.class);
-    return (List<Path>) executeInEngineDir(() -> iarJarMethod.invoke(delegate, iarDependencies));
-  }
-
-  @SuppressWarnings("unchecked")
-  public Map<String, Object> compile(Path projectDirToBuild, List<Path> iarJars, Map<String, Object> options)
-      throws Exception {
-    Method compileMethod = getMethod("compile", Path.class, List.class, String.class, Map.class);
-    return (Map<String, Object>) executeInEngineDir(
-        () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
-  }
-
   @SuppressWarnings("unchecked")
   public Map<String, Object> validate(Path projectDirToBuild, List<Path> dependentProjects,
-      Map<String, Object> options) throws Exception {
+      String dependencyClasspath) throws Exception {
     Method validate = getMethod("validate", Path.class, List.class, String.class, Map.class);
+    var options = Map.of("maven.dependency.classpath", dependencyClasspath);
     return (Map<String, Object>) executeInEngineDir(
         () -> validate.invoke(delegate, projectDirToBuild, dependentProjects, engineClasspath, options));
-  }
-
-  @SuppressWarnings("unchecked")
-  public Map<String, Object> testCompile(Path projectDirToBuild, List<Path> iarJars,
-      Map<String, Object> options) throws Exception {
-    Method compileMethod = getMethod("testCompile", Path.class, List.class, String.class, Map.class);
-    return (Map<String, Object>) executeInEngineDir(
-        () -> compileMethod.invoke(delegate, projectDirToBuild, iarJars, engineClasspath, options));
   }
 
   public void generateSources(Path projectDirToBuild, String generatorId) throws Exception {
@@ -182,19 +156,4 @@ public class MavenProjectBuilderProxy {
       System.setProperty("user.dir", originalBaseDirectory);
     }
   }
-
-  public interface Options {
-    String TEST_SOURCE_DIR = "project.build.testSourceDirectory";
-    String COMPILE_CLASSPATH = "maven.dependency.classpath";
-    String SOURCE_ENCODING = "project.source.encoding";
-    String WARNINGS_ENABLED = "jdt.warnings.enabled";
-    String JDT_SETTINGS_FILE = "jdt.settings.file";
-    String JDT_OPTIONS = "jdt.options";
-    String JDT_PROCESSOR_OUTPUT = "jdt.annotation.processor.sources.output";
-  }
-
-  public interface Result {
-    String TEST_OUTPUT_DIR = "ivy.project.test.output.dir";
-  }
-
 }

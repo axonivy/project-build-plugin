@@ -1,8 +1,5 @@
 package ch.ivyteam.ivy.maven.test;
 
-import static ch.ivyteam.ivy.maven.test.SetupIvyTestPropertiesMojo.Property.IVY_TEST_VM_RUNTIME;
-import static ch.ivyteam.ivy.maven.test.SetupIvyTestPropertiesMojo.Property.MAVEN_TEST_ADDITIONAL_CLASSPATH;
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -32,6 +29,8 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
 @Mojo(name = SetupIvyTestVmRuntimeMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
 public class SetupIvyTestVmRuntimeMojo extends AbstractMojo {
   public static final String GOAL = "ivy-test-vm-runtime";
+  public static final String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";
+  public static final String MAVEN_TEST_ADDITIONAL_CLASSPATH = "maven.test.additionalClasspath";
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -46,16 +45,9 @@ public class SetupIvyTestVmRuntimeMojo extends AbstractMojo {
   @Parameter(defaultValue = "false", property = "maven.test.skip")
   boolean skipTest;
 
-  /**
-   * Set to <code>true</code> to use engine classpath for testing.
-   * @since 13.2.0
-   */
-  @Parameter(defaultValue = "false", property = "test.with.engine.classpath")
-  boolean testWithEngineClasspath;
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    if (skipTest || testWithEngineClasspath) {
+    if (skipTest) {
       return;
     }
     var properties = new MavenProperties(project, getLog());
