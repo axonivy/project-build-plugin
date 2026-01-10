@@ -22,7 +22,7 @@
     <dependency>
       <groupId>com.docusign</groupId>
       <artifactId>docusign-esign-java</artifactId>
-      <version>6.4.0</version>
+      <version>6.5.0</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
