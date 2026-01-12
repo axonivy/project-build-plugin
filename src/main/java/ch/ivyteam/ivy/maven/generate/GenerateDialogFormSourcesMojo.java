@@ -1,10 +1,20 @@
 package ch.ivyteam.ivy.maven.generate;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
 
-import ch.ivyteam.ivy.maven.compile.AbstractEngineInstanceMojo;
-import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
+import ch.ivyteam.ivy.IvyConstants;
+import ch.ivyteam.ivy.dialog.form.io.DialogFormIO;
+import ch.ivyteam.ivy.dialog.form.jsf.JsfFormRenderer;
+import ch.ivyteam.ivy.dialog.form.jsf.build.JsonFormResourceBuilder;
+import ch.ivyteam.util.io.resource.FilePath;
 
 /**
  * <p>
@@ -31,7 +41,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
  * @since 13.2.0
  */
 @Mojo(name = GenerateDialogFormSourcesMojo.GOAL)
-public class GenerateDialogFormSourcesMojo extends AbstractEngineInstanceMojo {
+public class GenerateDialogFormSourcesMojo extends AbstractMojo {
   public static final String GOAL = "generate-dialog-form-sources";
 
   /**
@@ -41,12 +51,36 @@ public class GenerateDialogFormSourcesMojo extends AbstractEngineInstanceMojo {
   @Parameter(property = "ivy.generate.dialog.form.sources.skip", defaultValue = "false")
   boolean skipGenerateSources;
 
+  @Parameter(property = "project", required = true, readonly = true)
+  MavenProject project;
+
+  private static final String[] INCLUDEDS = {IvyConstants.DIRECTORY_SRC_HD + "/**/*" + DialogFormIO.JSON_EXT};
+
   @Override
-  public void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
+  public void execute() {
     if (skipGenerateSources) {
       return;
     }
     getLog().info("Generating Ivy dialog form sources...");
-    projectBuilder.generateSources(project.getBasedir().toPath(), "DialogFormSourceGenerator");
+    var jsonFiles = formFiles();
+    var projectDir = project.getBasedir().toPath();
+    var writer = new NioSourceWriter(projectDir);
+    var renderer = new JsfFormRenderer();
+    for (var jsonFile : jsonFiles) {
+      try (var is = Files.newInputStream(projectDir.resolve(jsonFile))) {
+        var form = DialogFormIO.read(is).form();
+        new JsonFormResourceBuilder(form, renderer, FilePath.of(jsonFile)).write(writer);
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    }
+  }
+
+  private String[] formFiles() {
+    var scanner = new DirectoryScanner();
+    scanner.setBasedir(project.getBasedir());
+    scanner.setIncludes(INCLUDEDS);
+    scanner.scan();
+    return scanner.getIncludedFiles();
   }
 }
