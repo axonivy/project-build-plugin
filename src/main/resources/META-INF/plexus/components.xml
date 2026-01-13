@@ -18,10 +18,7 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
             com.axonivy.ivy.ci:project-build-plugin:unpack-libs
           </generate-sources>
-          <process-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
-            org.apache.maven.plugins:maven-resources-plugin:resources
-          </process-resources>
+          <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
           <process-classes>com.axonivy.ivy.ci:project-build-plugin:validateProject</process-classes>
           <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
@@ -55,10 +52,7 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
             com.axonivy.ivy.ci:project-build-plugin:unpack-libs
           </generate-sources>
-          <process-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-resources-properties,
-            org.apache.maven.plugins:maven-resources-plugin:resources
-          </process-resources>
+          <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
           <process-classes>com.axonivy.ivy.ci:project-build-plugin:validateProject</process-classes>
           <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
