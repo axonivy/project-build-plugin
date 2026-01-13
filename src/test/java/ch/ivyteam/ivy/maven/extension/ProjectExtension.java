@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.maven.api.plugin.testing.MojoExtension;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.apache.maven.project.MavenProject;
@@ -71,6 +73,10 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
     Mockito.lenient().when(pom.getBuild()).thenReturn(build);
     Mockito.lenient().when(pom.getProperties())
         .thenReturn(new Properties());
+
+    Mockito.lenient().when(pom.getBasedir())
+        .thenReturn(Paths.get(MojoExtension.getBasedir()).toFile());
+
     return pom;
   }
 
