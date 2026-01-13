@@ -7,7 +7,6 @@
           <goal>validate</goal>
           <goal>installEngine</goal>
           <goal>unpack-libs</goal>
-          <goal>ivy-resources-properties</goal>
           <goal>generate-data-class-sources</goal>
           <goal>generate-dialog-form-sources</goal>
           <goal>generate-web-service-sources</goal>
