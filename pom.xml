@@ -122,6 +122,11 @@
       <version>2.21.0</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.15.0</version>
+    </dependency>
+    <dependency>
       <groupId>net.lingala.zip4j</groupId>
       <artifactId>zip4j</artifactId>
       <version>2.11.5</version>
@@ -394,6 +399,7 @@
                   <artifact>com.axonivy.ivy.api*:*</artifact>
                   <includes>
                     <include>**/*.class</include>
+                    <include>**/*.xhtml</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>

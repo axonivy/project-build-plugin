@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.maven.generate;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -52,7 +53,7 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
-  public static final String[] INCLUDEDS = {
+  private static final String[] INCLUDEDS = {
       IvyConstants.DIRECTORY_DATACLASSES + "/**/*." + IvyConstants.DATA_CLASS_EXTENSION,
       IvyConstants.DIRECTORY_SRC_HD + "/**/*." + IvyConstants.DATA_CLASS_EXTENSION
   };
@@ -63,21 +64,26 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
       return;
     }
     getLog().info("Generating Ivy data class sources...");
+    var jsonFiles = dataClassFiles();
+    var projectDir = project.getBasedir().toPath();
+    var writer = new NioSourceWriter(projectDir);
+    for (var jsonFile : jsonFiles) {
+      try (var is = Files.newInputStream(projectDir.resolve(jsonFile))) {
+        var model = DataClassSerializer.builder().build().load(is).model();
+        var classInfo = IvyScriptClassInfoMapper.toIvyScriptClassInfo(model);
+        new DataClassJavaSource(classInfo).write(writer);
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    }
+  }
+
+  private String[] dataClassFiles() {
     var scanner = new DirectoryScanner();
     scanner.setBasedir(project.getBasedir());
     scanner.setIncludes(INCLUDEDS);
     scanner.scan();
-    var jsonFiles = scanner.getIncludedFiles();
-    var projectDir = project.getBasedir().toPath();
-    var writer = new NioSourceWriter(projectDir);
-    for (var jsonFile : jsonFiles) {
-      try {
-        var model = DataClassSerializer.builder().build().load(Files.newInputStream(projectDir.resolve(jsonFile))).model();
-        var classInfo = IvyScriptClassInfoMapper.toIvyScriptClassInfo(model);
-        new DataClassJavaSource(classInfo).write(writer);
-      } catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
+    return scanner.getIncludedFiles();
+
   }
 }
