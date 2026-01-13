@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.maven.api.di.Provides;
 import org.apache.maven.api.plugin.testing.Basedir;
 import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoExtension;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.testing.ArtifactStubFactory;
@@ -53,6 +55,8 @@ class TestMavenDependencyMojo {
     Mockito.lenient().when(pom.getArtifacts()).thenReturn(artifacts);
     Mockito.lenient().when(pom.getGroupId()).thenReturn("ch.ivyteam.project.test");
     Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");
+    Mockito.lenient().when(pom.getBasedir())
+        .thenReturn(Paths.get(MojoExtension.getBasedir()).toFile());
     return pom;
   }
 
