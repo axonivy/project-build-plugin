@@ -114,6 +114,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
     }
   }
 
+  @SuppressWarnings("deprecation")
   Path createFullAppZip(List<Path> deps) throws ArchiverException, IOException {
     var appZip = Path.of(project.getBuild().getDirectory()).resolve(deployToEngineApplication + "-app.zip");
     ZipArchiver appZipper = new ZipArchiver();
