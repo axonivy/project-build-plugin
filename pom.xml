@@ -410,6 +410,12 @@
                     <exclude>META-INF/*.MF</exclude>
                   </excludes>
                 </filter>
+                <filter>
+                  <artifact>com.axonivy.ivy.api:ivy-core-api</artifact>
+                  <excludes>
+                    <exclude>ch/ivyteam/ivy/process/model/**</exclude>
+                  </excludes>
+                </filter>
               </filters>
             </configuration>
           </execution>
