@@ -32,11 +32,7 @@ public class Slf4jSimpleEngineProperties {
   private static final String DEFAULT_LOG_LEVEL = SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
   private static final List<String> INTERESTING_LOGGERS = Arrays.asList(
       "ch.ivyteam.ivy.server.build.InMemoryEngineController",
-      "ch.ivyteam.ivy.project.build.MavenProjectBuilder",
-      "ch.ivyteam.ivy.java.JavaCompiler",
-      "ch.ivyteam.ivy.webservice.process.restricted.WebServiceProcessClassBuilder",
-      "ch.ivyteam.ivy.dialog.form.build.JsonFormResourceBuilder"
-  );
+      "ch.ivyteam.ivy.project.build.MavenProjectBuilder");
   private static final String IVY_PREFIX = "ch.ivyteam.ivy";
 
   public static void install() {

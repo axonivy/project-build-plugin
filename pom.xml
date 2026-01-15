@@ -175,6 +175,11 @@
       <artifactId>jakarta.persistence-api</artifactId>
       <version>3.2.0</version>
     </dependency>
+    <dependency>
+      <groupId>javax.jws</groupId>
+      <artifactId>javax.jws-api</artifactId>
+      <version>1.1</version>
+    </dependency>
 
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>
@@ -403,6 +408,12 @@
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>com.axonivy.ivy.api:ivy-core-api</artifact>
+                  <excludes>
+                    <exclude>ch/ivyteam/ivy/process/model/**</exclude>
                   </excludes>
                 </filter>
               </filters>
