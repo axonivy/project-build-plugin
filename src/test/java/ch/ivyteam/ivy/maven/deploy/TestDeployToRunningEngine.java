@@ -165,8 +165,9 @@ class TestDeployToRunningEngine {
       deployMojo.setLog(log);
       deployMojo.execute();
 
-      assertThat(log.getDebug().toString()).contains("Start deploying project(s) of file")
-          .contains("Application: test")
+      assertThat(log.getDebug().toString())
+          .contains("Start deploying project(s) of file")
+          .contains("Create and activate new application 'test'")
           .contains("Deploying users ...")
           .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
     } finally {
