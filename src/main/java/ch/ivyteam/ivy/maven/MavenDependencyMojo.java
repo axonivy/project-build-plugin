@@ -6,12 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
@@ -44,14 +47,23 @@ public class MavenDependencyMojo extends AbstractMojo {
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
+  @Inject
+  private BuildContext buildContext;
+
   @Override
   public void execute() throws MojoExecutionException {
     if (skipMvnDependency) {
       return;
     }
-    getLog().info("Copy maven dependencies...");
 
     var deps = MavenDependencies.of(project).localTransient();
+
+    if (isM2eBuild()) {
+      writeM2eDependencyHint(Path.of(project.getBuild().getDirectory()), deps);
+      return;
+    }
+
+    getLog().info("Copy maven dependencies...");
     if (deps.isEmpty()) {
       getLog().info("No maven dependencies were found.");
       return;
@@ -78,6 +90,20 @@ public class MavenDependencyMojo extends AbstractMojo {
       }
     }
     getLog().info("Maven dependecies: " + count + " copied.");
+  }
+
+  private boolean isM2eBuild() {
+    return "EclipseBuildContext".equals(buildContext.getClass().getSimpleName());
+  }
+
+  protected static void writeM2eDependencyHint(Path targetDir, List<Path> deps) throws MojoExecutionException {
+    var m2eDepsPath = targetDir.resolve("m2e.deps");
+    try {
+      Files.createDirectories(m2eDepsPath.getParent());
+      Files.write(m2eDepsPath, deps.stream().map(Path::toString).toList());
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Failed to create m2e.deps file", ex);
+    }
   }
 
 }
