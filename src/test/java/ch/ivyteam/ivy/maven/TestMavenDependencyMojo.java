@@ -118,11 +118,12 @@ class TestMavenDependencyMojo {
     var artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
     var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
     artifact.setDependencyTrail(List.of(self.toString()));
-    artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
+    var jar = Path.of("src/test/resources/jjwt-0.9.1.jar");
+    artifact.setFile(jar.toFile());
     this.artifacts.add(artifact);
 
     MavenDependencyMojo.writeM2eDependencyHint(tempDir, MavenDependencies.of(mojo.project).localTransient());
-    assertThat(m2eDeps).content().isEqualToIgnoringNewLines("src/test/resources/jjwt-0.9.1.jar");
+    assertThat(m2eDeps).content().isEqualToIgnoringNewLines(jar.toString());
   }
 
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {

@@ -58,7 +58,7 @@ public class MavenDependencyMojo extends AbstractMojo {
 
     var deps = MavenDependencies.of(project).localTransient();
 
-    if (isM2eEBuild()) {
+    if (isM2eBuild()) {
       writeM2eDependencyHint(Path.of(project.getBuild().getDirectory()), deps);
       return;
     }
@@ -92,7 +92,7 @@ public class MavenDependencyMojo extends AbstractMojo {
     getLog().info("Maven dependecies: " + count + " copied.");
   }
 
-  private boolean isM2eEBuild() {
+  private boolean isM2eBuild() {
     return "EclipseBuildContext".equals(buildContext.getClass().getSimpleName());
   }
 
