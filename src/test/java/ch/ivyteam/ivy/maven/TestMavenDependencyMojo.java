@@ -24,8 +24,10 @@ import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
+import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 @MojoTest
@@ -103,6 +105,24 @@ class TestMavenDependencyMojo {
     assertThat(getMavenLibs(mvnLibDir))
         .as("libs provided through a dependent 'iar' should not be packed.")
         .isEmpty();
+  }
+
+  @Test
+  @Basedir(TEST_BASE)
+  void m2eDepsHint(@TempDir Path tempDir) throws Exception {
+    var m2eDeps = tempDir.resolve("m2e.deps");
+    assertThat(m2eDeps).doesNotExist();
+    MavenDependencyMojo.writeM2eDependencyHint(tempDir, MavenDependencies.of(mojo.project).localTransient());
+    assertThat(m2eDeps).content().isEmpty();
+
+    var artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
+    var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
+    artifact.setDependencyTrail(List.of(self.toString()));
+    artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
+    this.artifacts.add(artifact);
+
+    MavenDependencyMojo.writeM2eDependencyHint(tempDir, MavenDependencies.of(mojo.project).localTransient());
+    assertThat(m2eDeps).content().isEqualToIgnoringNewLines("src/test/resources/jjwt-0.9.1.jar");
   }
 
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {
