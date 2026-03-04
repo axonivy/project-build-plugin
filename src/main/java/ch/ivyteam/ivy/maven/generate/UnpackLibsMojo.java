@@ -30,7 +30,7 @@ public class UnpackLibsMojo extends AbstractMojo {
 
   public static final String[] INCLUDED_LIBS = {
       "lib/generated/rest/*.jar",
-      "lib_ws/client/*.jar"
+      "lib/generated/ws/*.jar"
   };
 
   /**
