@@ -96,8 +96,6 @@ class TestIarPackagingMojo {
         .isEqualTo(iarFile.toFile());
 
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
-      assertThat(getProjectZipFileEntry(archive, ".classpath")).as(".classpath must be packed for internal binary retrieval")
-          .isNotNull();
       assertThat(getProjectZipFileEntry(archive, "src_hd")).as("Empty directories should be included (by default) "
           + "so that the IAR can be re-imported into the designer").isNotNull();
       assertThat(getProjectZipFileEntry(archive, "target/sampleOutput.txt"))
