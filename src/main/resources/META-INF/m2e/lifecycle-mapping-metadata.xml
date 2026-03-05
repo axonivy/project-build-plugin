@@ -8,6 +8,7 @@
           <goal>generate-dialog-form-sources</goal>
           <goal>generate-web-service-sources</goal>
           <goal>maven-dependency</goal>
+          <goal>unpack-libs</goal>
         </goals>
       </pluginExecutionFilter>
       <action>
@@ -22,7 +23,6 @@
         <goals>
           <goal>validate</goal>
           <goal>installEngine</goal>
-          <goal>unpack-libs</goal>
           <goal>validateProject</goal>
         </goals>
       </pluginExecutionFilter>
