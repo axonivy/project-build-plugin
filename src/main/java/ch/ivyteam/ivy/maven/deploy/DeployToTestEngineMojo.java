@@ -149,7 +149,7 @@ public class DeployToTestEngineMojo extends AbstractDeployMojo {
       return Optional.empty();
     }
     try (Stream<Path> find = Files.find(target, 1,
-        (p, attr) -> p.getFileName().toString().endsWith(".iar"))) {
+        (p, _) -> p.getFileName().toString().endsWith(".iar"))) {
       return find.findAny();
     }
   }

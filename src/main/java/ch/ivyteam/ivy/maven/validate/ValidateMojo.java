@@ -45,7 +45,7 @@ public class ValidateMojo extends AbstractMojo {
       findProjectBuildPlugin(project.getBuild().getPlugins()).ifPresent(plugin -> {
         var version = plugin.getVersion();
         getLog().debug(PLUGIN_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in " + project);
-        var projectSet = versionToProjectsMap.computeIfAbsent(version, v -> new LinkedHashSet<>());
+        var projectSet = versionToProjectsMap.computeIfAbsent(version, _ -> new LinkedHashSet<>());
         projectSet.add(project);
       });
     }

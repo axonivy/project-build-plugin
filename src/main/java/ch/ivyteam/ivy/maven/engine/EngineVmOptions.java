@@ -24,6 +24,7 @@ import org.apache.maven.plugin.logging.Log;
 
 public record EngineVmOptions(String additionalClasspath, String additionalVmOptions, List<String> additionalVmArgs) {
 
+  @Override
   @Deprecated(since = "12.0.0", forRemoval = true)
   public String additionalVmOptions() {
     return additionalVmOptions;

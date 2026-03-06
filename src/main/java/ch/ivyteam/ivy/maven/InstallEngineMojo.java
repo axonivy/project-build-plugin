@@ -243,7 +243,6 @@ public class InstallEngineMojo extends AbstractEngineMojo {
           repositorySystem, repositorySession);
     }
 
-    @SuppressWarnings("deprecation")
     ProxyInfoProvider proxies = wagonManager::getProxy;
     return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
         getIvyVersionRange(), getLog(), getDownloadDirectory(), proxies);

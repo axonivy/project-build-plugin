@@ -84,7 +84,7 @@ public class EngineControl {
       streamHandler.start();
 
       process.onExit()
-          .thenAccept(p -> context.log.info("Engine process stopped."))
+          .thenAccept(_ -> context.log.info("Engine process stopped."))
           .exceptionally(ex -> {
             throw new RuntimeException("Engine operation failed.", ex);
           });
