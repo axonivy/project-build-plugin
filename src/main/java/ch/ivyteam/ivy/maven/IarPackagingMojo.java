@@ -50,6 +50,7 @@ public class IarPackagingMojo extends AbstractMojo {
     String[] INCLUDES = {"**/*"};
     String[] EXCLUDES = {"target/"};
     String[] TARGET_INCLUDES = {
+        "target/classes/**/*",
         "target/src_hd/**/*"
     };
     String PREFIX = "META-INF/ivy/";

@@ -101,13 +101,13 @@ class TestIarPackagingMojo {
       assertThat(getProjectZipFileEntry(archive, "target/sampleOutput.txt"))
           .as("'target/sampleOutput.txt' should not be packed").isNull();
       assertThat(getProjectZipFileEntry(archive, "target")).as("'target' must be packed because there are target/classes")
-          .isNull();
+          .isNotNull();
       assertThat(getProjectZipFileEntry(archive, ".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(getProjectZipFileEntry(archive, ".svn")).as("'target'.svn should not be packed").isNull();
       assertThat(getProjectZipFileEntry(archive, "classes/gugus.txt")).as("classes content should be included by default")
           .isNotNull();
       assertThat(getProjectZipFileEntry(archive, "target/classes/gugus.txt"))
-          .as("target/classes content should be included by default").isNull();
+          .as("target/classes content should be included by default").isNotNull();
       assertThat(getProjectZipFileEntry(archive, "target/classesAnother/gugus.txt"))
           .as("target/classesAnother should not be packed by default").isNull();
       assertThat(getProjectZipFileEntry(archive, "target/anythingelse/gugus.txt"))
