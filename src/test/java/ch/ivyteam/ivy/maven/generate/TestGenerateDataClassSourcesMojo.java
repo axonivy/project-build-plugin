@@ -26,8 +26,8 @@ class TestGenerateDataClassSourcesMojo {
   @Test
   void generateDataClassSources() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
-    var dataClassDir = projectDir.resolve("src_dataClasses");
-    var wsProcDir = projectDir.resolve("src_wsproc");
+    var dataClassDir = projectDir.resolve("src_generated/dataclass");
+    var wsProcDir = projectDir.resolve("src_generated/wsprocess");
     var classDir = projectDir.resolve("classes");
     var targetClasses = projectDir.resolve("target").resolve("classes");
     PathUtils.delete(dataClassDir);
@@ -52,7 +52,7 @@ class TestGenerateDataClassSourcesMojo {
 
   @Test
   void skipGenerateSources() throws Exception {
-    var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_dataClasses");
+    var dataClassDir = mojo.project.getBasedir().toPath().resolve("src_generated/dataclass");
     PathUtils.delete(dataClassDir);
 
     assertThat(dataClassDir).doesNotExist();
