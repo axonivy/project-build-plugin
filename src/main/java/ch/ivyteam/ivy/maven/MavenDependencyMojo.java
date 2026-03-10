@@ -69,7 +69,7 @@ public class MavenDependencyMojo extends AbstractMojo {
       return;
     }
     try {
-      var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
+      var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("target").resolve("mvn-deps"));
       copyDependency(mvnLibDir, deps);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to create mvn-deps directory", ex);
