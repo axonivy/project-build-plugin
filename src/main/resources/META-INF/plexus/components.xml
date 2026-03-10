@@ -15,8 +15,7 @@
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
-            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
-            com.axonivy.ivy.ci:project-build-plugin:unpack-libs
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
@@ -49,8 +48,7 @@
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
-            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources,
-            com.axonivy.ivy.ci:project-build-plugin:unpack-libs
+            com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
