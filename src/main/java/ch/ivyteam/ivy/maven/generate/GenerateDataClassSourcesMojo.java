@@ -10,7 +10,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 
-import ch.ivyteam.ivy.IvyConstants;
 import ch.ivyteam.ivy.scripting.dataclass.internal.serialization.DataClassSerializer;
 import ch.ivyteam.ivy.scripting.dataclass.mapper.IvyScriptClassInfoMapper;
 import ch.ivyteam.ivy.scripting.dataclass.restricted.codegen.DataClassJavaSource;
@@ -54,8 +53,8 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
   MavenProject project;
 
   private static final String[] INCLUDEDS = {
-      IvyConstants.DIRECTORY_DATACLASSES + "/**/*." + IvyConstants.DATA_CLASS_EXTENSION,
-      IvyConstants.DIRECTORY_SRC_HD + "/**/*." + IvyConstants.DATA_CLASS_EXTENSION
+      "dataclasses/**/*.d.json",
+      "src_hd/**/*.d.json"
   };
 
   @Override

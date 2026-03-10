@@ -100,7 +100,7 @@ class TestDeployToRunningEngine {
 
     deployMojo.deployEngineDirectory = mojo.getEngineDir(mojo.project); // engineDeployVolatile;
     deployMojo.deployTimeoutInSeconds = 120;
-    deployMojo.deployFile = Path.of("src/test/resources/deploy-single-10.0.iar");
+    deployMojo.deployFile = Path.of("src/test/resources/error-handling-demos-14.0.0-SNAPSHOT.iar");
     deployMojo.deployTestUsers = "true";
   }
 
