@@ -58,10 +58,12 @@ class TestCleanupMojo {
   @Test
   void sourceFoldersCleanup() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
-    var srcDataClasses = projectDir.resolve("src_dataClasses");
-    var srcWsproc = projectDir.resolve("src_wsproc");
-    var srcGenerated = projectDir.resolve("src_generated");
+    var srcDataClasses = projectDir.resolve("src_generated/dataclass");
+    var srcWsproc = projectDir.resolve("src_generated/wsprocess");
+    var srcGenerated = projectDir.resolve("src_generated/repo");
+    Files.createDirectories(srcDataClasses);
     Files.createDirectories(srcGenerated);
+    Files.createDirectories(srcWsproc);
     var srcData = srcDataClasses.resolve("Data.java");
     Files.writeString(srcData, "Hello");
     assertThat(srcDataClasses).exists();
@@ -79,14 +81,15 @@ class TestCleanupMojo {
   @Test
   void additionalExclusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
-    var srcDataClasses = projectDir.resolve("src_dataClasses");
-    var srcWsproc = projectDir.resolve("src_wsproc");
-    mojo.cleanupExcludes = new String[] {"src_dataClasses"};
+    var srcDataClasses = projectDir.resolve("src_generated/dataclass");
+    Files.createDirectories(srcDataClasses);
+    var srcWsproc = projectDir.resolve("src_generated/wsprocess");
+    Files.createDirectories(srcWsproc);
+    mojo.cleanupExcludes = new String[] {"src_generated/dataclass"};
     assertThat(srcDataClasses).exists();
     assertThat(srcWsproc).exists();
 
     mojo.execute();
-
     assertThat(srcDataClasses)
         .as("expected to exist, because of cleanupExcludes")
         .exists();
@@ -97,13 +100,14 @@ class TestCleanupMojo {
   void additionaInclusions() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
     var src = projectDir.resolve("src");
-    var srcDataClasses = projectDir.resolve("src_dataClasses");
+    Files.createDirectories(src);
+    var srcDataClasses = projectDir.resolve("src_generated/dataclass");
+    Files.createDirectories(srcDataClasses);
     mojo.cleanupIncludes = new String[] {"src"};
     assertThat(srcDataClasses).exists();
     assertThat(src).exists();
 
     mojo.execute();
-
     assertThat(src)
         .as("expected to be deleted, because of cleanupIncludes")
         .doesNotExist();

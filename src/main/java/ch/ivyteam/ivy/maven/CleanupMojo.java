@@ -14,7 +14,7 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 /**
  * Deletes directories that contain generated sources.
  * By default, the following directories are removed:
- * <code>lib/mvn-deps</code>, <code>src_dataClasses</code>, <code>src_wsproc</code>, and <code>src_generated</code>.
+ * <code>lib/mvn-deps</code> and <code>src_generated</code>.
  *
  *
  * @since 13.2.0
@@ -29,9 +29,9 @@ public class CleanupMojo extends AbstractMojo {
 
   public static final String[] INCLUDED_DIRECTORIES = {
       "lib/mvn-deps",
-      "src_dataClasses",
-      "src_wsproc",
-      "src_generated"
+      "src_generated/dataclass",
+      "src_generated/wsprocess",
+      "src_generated/repo"
   };
 
   /**
@@ -47,8 +47,8 @@ public class CleanupMojo extends AbstractMojo {
    * Sample:
    * <pre>
    * <code>&lt;cleanupExcludes&gt;
-   * &nbsp;&nbsp;&lt;cleanupExclude&gt;src_dataClasses&lt;/cleanupExclude&gt;
-   * &nbsp;&nbsp;&lt;cleanupExclude&gt;src_wsproc&lt;/cleanupExclude&gt;
+   * &nbsp;&nbsp;&lt;cleanupExclude&gt;src_generated/dataclass&lt;/cleanupExclude&gt;
+   * &nbsp;&nbsp;&lt;cleanupExclude&gt;src_generated/wsprocess&lt;/cleanupExclude&gt;
    * &lt;/cleanupExcludes&gt;</code>
    * </pre>
    */
