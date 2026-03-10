@@ -14,7 +14,6 @@ iar Lifecycle
  generate-sources  | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources-mojo.html}generate-dialog-form-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
-                   | ${project.groupId}:${project.artifactId}:{{{./unpack-libs-mojo.html}unpack-libs}}
 *--------*---------*
  process-resources | org.apache.maven.plugins:maven-resources-plugin:resources
 *--------*---------*

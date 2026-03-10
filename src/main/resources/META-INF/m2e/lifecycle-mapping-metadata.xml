@@ -22,7 +22,6 @@
         <goals>
           <goal>validate</goal>
           <goal>installEngine</goal>
-          <goal>unpack-libs</goal>
           <goal>validateProject</goal>
         </goals>
       </pluginExecutionFilter>
