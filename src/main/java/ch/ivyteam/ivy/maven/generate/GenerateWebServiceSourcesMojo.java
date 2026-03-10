@@ -53,7 +53,7 @@ public class GenerateWebServiceSourcesMojo extends AbstractMojo {
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
-  private static final String[] INCLUDEDS = {IvyConstants.DIRECTORY_PROCESSES + "/**/*." + IvyConstants.PROCESS_EXTENSION};
+  private static final String[] INCLUDEDS = {"processes/**/*." + IvyConstants.PROCESS_EXTENSION};
 
   @Override
   public void execute() {

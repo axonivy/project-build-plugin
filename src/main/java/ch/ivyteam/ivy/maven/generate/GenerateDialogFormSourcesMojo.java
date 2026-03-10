@@ -10,7 +10,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 
-import ch.ivyteam.ivy.IvyConstants;
 import ch.ivyteam.ivy.dialog.form.io.DialogFormIO;
 import ch.ivyteam.ivy.dialog.form.jsf.JsfFormRenderer;
 import ch.ivyteam.ivy.dialog.form.jsf.build.JsonFormResourceBuilder;
@@ -54,7 +53,7 @@ public class GenerateDialogFormSourcesMojo extends AbstractMojo {
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
-  private static final String[] INCLUDEDS = {IvyConstants.DIRECTORY_SRC_HD + "/**/*" + DialogFormIO.JSON_EXT};
+  private static final String[] INCLUDEDS = {"src_hd/**/*" + DialogFormIO.JSON_EXT};
 
   @Override
   public void execute() {
