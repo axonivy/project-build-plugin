@@ -10,6 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.filtering.ChangeDetection;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 
@@ -22,7 +23,7 @@ public class DeploymentOptionsFileFactory {
   }
 
   public File createFromTemplate(File optionsFile, MavenProject project, MavenSession session,
-          MavenFileFilter fileFilter) throws MojoExecutionException {
+      MavenFileFilter fileFilter) throws MojoExecutionException {
     if (!isOptionsFile(optionsFile)) {
       return null;
     }
@@ -31,7 +32,7 @@ public class DeploymentOptionsFileFactory {
     File targetFile = getTargetFile(fileFormat);
     try {
       fileFilter.copyFile(optionsFile, targetFile, true, project, Collections.emptyList(), false,
-              StandardCharsets.UTF_8.name(), session);
+          StandardCharsets.UTF_8.name(), session, ChangeDetection.CONTENT);
     } catch (MavenFilteringException ex) {
       throw new MojoExecutionException("Failed to resolve templates in options file", ex);
     }
@@ -40,9 +41,9 @@ public class DeploymentOptionsFileFactory {
 
   private static boolean isOptionsFile(File optionsFile) {
     return optionsFile != null &&
-            optionsFile.exists() &&
-            optionsFile.isFile() &&
-            optionsFile.canRead();
+        optionsFile.exists() &&
+        optionsFile.isFile() &&
+        optionsFile.canRead();
   }
 
   public File createFromConfiguration(String options) throws MojoExecutionException {
