@@ -21,6 +21,6 @@ jobs:
       - uses: release-drafter/release-drafter@v7
         with:
           config-name: release-drafter.yml
-          commitish: ${{ github.ref }}
+          commitish: ${{ github.event_name == 'push' && github.ref_name || 'release/13.2' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
