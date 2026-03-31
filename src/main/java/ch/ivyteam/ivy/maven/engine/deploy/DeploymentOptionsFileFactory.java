@@ -9,6 +9,7 @@ import java.util.Collections;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.filtering.ChangeDetection;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 
@@ -33,7 +34,7 @@ public class DeploymentOptionsFileFactory {
     var targetFile = getTargetFile(ext);
     try {
       fileFilter.copyFile(optionsFile.toFile(), targetFile.toFile(), true, project, Collections.emptyList(), false,
-          StandardCharsets.UTF_8.name(), session);
+          StandardCharsets.UTF_8.name(), session, ChangeDetection.CONTENT);
     } catch (MavenFilteringException ex) {
       throw new MojoExecutionException("Failed to resolve templates in options file", ex);
     }

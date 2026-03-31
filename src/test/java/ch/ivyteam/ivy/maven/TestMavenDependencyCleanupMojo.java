@@ -21,17 +21,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
-  @Rule
-  public ProjectMojoRule<MavenDependencyCleanupMojo> compile = new ProjectMojoRule<>(
-      Path.of("src/test/resources/base"), MavenDependencyCleanupMojo.GOAL);
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
+
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
+
+  private MavenDependencyCleanupMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = MavenDependencyCleanupMojo.GOAL)
+  void setUp(MavenDependencyCleanupMojo clean) {
+    this.mojo = clean;
+  }
 
   @Test
-  public void noMavenDepsDir() throws Exception {
-    var mojo = compile.getMojo();
+  void noMavenDepsDir() throws Exception {
     var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     mojo.execute();
@@ -39,8 +50,7 @@ public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void cleanupMavenDepsDir() throws Exception {
-    var mojo = compile.getMojo();
+  void cleanupMavenDepsDir() throws Exception {
     var mvnLibDir = Files
         .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
     var mvnDep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), mvnLibDir.resolve("jjwt-0.9.1.jar"));
@@ -51,8 +61,7 @@ public class TestMavenDependencyCleanupMojo extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void dontCleanManualLibs() throws Exception {
-    var mojo = compile.getMojo();
+  void dontCleanManualLibs() throws Exception {
     var libDir = Files.createDirectories(mojo.project.getBasedir().toPath().resolve("lib"));
     var dep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), libDir.resolve("jjwt-0.9.1.jar"));
     assertThat(libDir).exists();

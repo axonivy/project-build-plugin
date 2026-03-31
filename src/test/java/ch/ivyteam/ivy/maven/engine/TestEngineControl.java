@@ -18,39 +18,67 @@ package ch.ivyteam.ivy.maven.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+
+import org.apache.maven.api.di.Provides;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.project.MavenProject;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
+import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.engine.EngineControl.EngineState;
+import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.StopTestEngineMojo;
 
-public class TestEngineControl extends BaseEngineProjectMojoTest {
+@MojoTest
+@ExtendWith(ProjectExtension.class)
+class TestEngineControl {
 
-  @Rule
-  public RunnableEngineMojoRule<StopTestEngineMojo> rule = new RunnableEngineMojoRule<>(
-      StopTestEngineMojo.GOAL);
+  private StopTestEngineMojo mojo;
+
+  @BeforeEach
+  @InjectMojo(goal = StopTestEngineMojo.GOAL)
+  void setUp(StopTestEngineMojo stop) throws Exception {
+    this.mojo = stop;
+    ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest.provideEngine(mojo);
+  }
+
+  @BeforeEach
+  @InjectMojo(goal = InstallEngineMojo.GOAL)
+  void setUpEngine(InstallEngineMojo install) throws Exception {
+    BaseEngineProjectMojoTest.provideEngine(install);
+  }
+
+  @Provides
+  MavenProject provideMockedComponent() throws IOException {
+    return ProjectExtension.project();
+  }
 
   @Test
-  public void resolveEngineState() throws MojoExecutionException {
-    var controller = rule.getMojo().createEngineController();
+  void resolveEngineState() throws MojoExecutionException {
+    var controller = mojo.createEngineController();
     assertThat(controller.state()).isNotNull();
   }
 
   @Test
-  public void stopNotRunningEngine() throws Exception {
-    var controller = rule.getMojo().createEngineController();
+  void stopNotRunningEngine() throws Exception {
+    var controller = mojo.createEngineController();
     controller.stop();
-    assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
+    Assertions.assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
   }
 
   @Test
-  public void startAndStop() throws Exception {
+  void startAndStop() throws Exception {
     var log = new LogCollector();
-    rule.getMojo().setLog(log);
-    var controller = rule.getMojo().createEngineController();
+    mojo.setLog(log);
+    var controller = mojo.createEngineController();
     assertThat(controller.state()).isEqualTo(EngineState.STOPPED);
 
     controller.start();
@@ -62,7 +90,7 @@ public class TestEngineControl extends BaseEngineProjectMojoTest {
   }
 
   @Test
-  public void evalutateIvyContext() {
+  void evalutateIvyContext() {
     assertThat(EngineControl.evaluateIvyContextFromUrl("sys/info.xhtml")).isEmpty();
     assertThat(EngineControl.evaluateIvyContextFromUrl("/sys/info123.xhtml")).isEmpty();
     assertThat(EngineControl.evaluateIvyContextFromUrl("ivy/sys/info")).isEqualTo("ivy/");
