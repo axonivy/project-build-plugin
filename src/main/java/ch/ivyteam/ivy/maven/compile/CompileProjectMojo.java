@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
@@ -59,14 +58,6 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
   @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
 
-  /**
-   * Set to <code>false</code> to ignore compilation failures that are caused by
-   * already existing generated Java sources.
-   * @since 12.0.9
-   */
-  @Parameter(property = "ivy.compiler.failOnExistingGeneratedSources", defaultValue = "true")
-  boolean failOnExistingGeneratedSources;
-
   @Override
   protected void engineExec(MavenProjectBuilderProxy projectBuilder) throws Exception {
     if (skipCompilation) {
@@ -96,6 +87,11 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     }
   }
 
+  /**
+   * Temporary plugin-side fallback until the engine honors
+   * {@link ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy.Options#FAIL_ON_EXISTING_GENERATED_SOURCES}
+   * directly.
+   */
   void handleExistingGeneratedSourcesException(Exception ex) throws Exception {
     if (isExistingGeneratedSourcesFailure(ex) && !failOnExistingGeneratedSources) {
       getLog().info("Ignoring already existing generated sources");
