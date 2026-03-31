@@ -17,10 +17,12 @@
 package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -151,6 +153,72 @@ public class TestCompileProjectMojo extends BaseEngineProjectMojoTest {
     assertThat(warning)
         .as("WARNING prefix is streamlined with Maven CLI")
         .startsWith("[WARNING]");
+  }
+
+  @Test
+  public void shouldDetectExistingGeneratedSourcesFailure() {
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new InvocationTargetException(filerProblem())))
+            .isTrue();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new InvocationTargetException(otherCompileFailure())))
+            .isFalse();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        filerProblem()))
+            .isFalse();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new IllegalStateException("Problem with Filer: Source file already exists : foo.Bar_")))
+            .isFalse();
+  }
+
+  @Test
+  public void shouldIgnoreExistingGeneratedSourcesCompileFailureWhenConfigured() throws Exception {
+    CompileProjectMojo mojo = compile.getMojo();
+    LogCollector log = new LogCollector();
+    mojo.setLog(log);
+    mojo.failOnExistingGeneratedSources = false;
+
+    mojo.handleExistingGeneratedSourcesException(new InvocationTargetException(filerProblem()));
+
+    assertThat(log.getInfos()).hasSize(1);
+    assertThat(log.getInfos().get(0).toString())
+        .contains("Ignoring already existing generated sources");
+  }
+
+  @Test
+  public void shouldNotIgnoreExistingGeneratedSourcesCompileFailureWhenConfigured() throws Exception {
+    CompileProjectMojo mojo = compile.getMojo();
+    LogCollector log = new LogCollector();
+    mojo.setLog(log);
+    mojo.failOnExistingGeneratedSources = true;
+    var filerProblem = filerProblem();
+
+    assertThatThrownBy(() -> mojo.handleExistingGeneratedSourcesException(
+        new InvocationTargetException(filerProblem)))
+        .isInstanceOf(InvocationTargetException.class)
+        .hasCause(filerProblem);
+
+    assertThat(log.getInfos()).isEmpty();
+  }
+
+  @Test
+  public void shouldStillFailOnOtherCompileFailures() throws Exception {
+    CompileProjectMojo mojo = compile.getMojo();
+    mojo.failOnExistingGeneratedSources = false;
+
+    assertThatThrownBy(() -> mojo.handleExistingGeneratedSourcesException(
+        new InvocationTargetException(otherCompileFailure())))
+        .isInstanceOf(InvocationTargetException.class)
+        .hasCause(otherCompileFailure());
+  }
+
+  private static RuntimeException filerProblem() {
+    return new RuntimeException(
+        "Java compiler error : 2. ERROR: Problem with Filer: Source file already exists : foo.Bar_");
+  }
+
+  private static RuntimeException otherCompileFailure() {
+    return new RuntimeException("Java compiler error : something else");
   }
 
 }
