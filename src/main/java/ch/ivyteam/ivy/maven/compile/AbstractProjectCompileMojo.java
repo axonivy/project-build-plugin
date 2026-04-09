@@ -76,6 +76,14 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
   @Parameter
   List<String> compilerOptions;
 
+  /**
+   * Set to <code>false</code> to ignore compilation failures that are caused by
+   * already existing generated Java sources.
+   * @since 12.0.9
+   */
+  @Parameter(property = "ivy.compiler.failOnExistingGeneratedSources", defaultValue = "true")
+  boolean failOnExistingGeneratedSources;
+
   protected Map<String, Object> getOptions() {
     Map<String, Object> options = new HashMap<>();
     options.put(MavenProjectBuilderProxy.Options.TEST_SOURCE_DIR,
@@ -85,6 +93,8 @@ public abstract class AbstractProjectCompileMojo extends AbstractEngineInstanceM
     options.put(MavenProjectBuilderProxy.Options.WARNINGS_ENABLED, Boolean.toString(compilerWarnings));
     options.put(MavenProjectBuilderProxy.Options.JDT_SETTINGS_FILE, getCompilerSettings());
     options.put(MavenProjectBuilderProxy.Options.JDT_OPTIONS, compilerOptions);
+    options.put(MavenProjectBuilderProxy.Options.FAIL_ON_EXISTING_GENERATED_SOURCES,
+        Boolean.toString(failOnExistingGeneratedSources));
     return options;
   }
 

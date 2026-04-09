@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
     var iarDependencies = getDependencies("iar").stream().map(Path::toFile).collect(Collectors.toList());
     var iarJars = projectBuilder.createIarJars(iarDependencies);
     Map<String, Object> options = getOptions();
-    projectBuilder.compile(project.getBasedir(), iarJars, options);
+    compile(projectBuilder, iarJars, options);
 
     if (skipScriptValidation) {
       getLog().info("Skipping ivy script validation");
@@ -76,6 +77,40 @@ public class CompileProjectMojo extends AbstractProjectCompileMojo {
       projectBuilder.validate(project.getBasedir(), iarDependencies, options);
     }
     writeDependencyIarJar(iarJars);
+  }
+
+  void compile(MavenProjectBuilderProxy projectBuilder, java.util.List<File> iarJars, Map<String, Object> options)
+      throws Exception {
+    try {
+      projectBuilder.compile(project.getBasedir(), iarJars, options);
+    } catch (Exception ex) {
+      handleExistingGeneratedSourcesException(ex);
+    }
+  }
+
+  /**
+   * Temporary plugin-side fallback until the engine honors
+   * {@link ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy.Options#FAIL_ON_EXISTING_GENERATED_SOURCES}
+   * directly.
+   */
+  void handleExistingGeneratedSourcesException(Exception ex) throws Exception {
+    if (isExistingGeneratedSourcesFailure(ex) && !failOnExistingGeneratedSources) {
+      getLog().info("Ignoring already existing generated sources");
+      return;
+    }
+    throw ex;
+  }
+
+  static boolean isExistingGeneratedSourcesFailure(Throwable error) {
+    if (!(error instanceof InvocationTargetException invocationTargetException)) {
+      return false;
+    }
+    var compileException = invocationTargetException.getCause();
+    if (compileException == null) {
+      return false;
+    }
+    var message = compileException.getMessage();
+    return message != null && message.contains("Problem with Filer: Source file already exists");
   }
 
   private void writeDependencyIarJar(Collection<File> iarJarDepenencies) throws IOException {
