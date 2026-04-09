@@ -70,6 +70,12 @@
 
   <dependencies>
     <dependency>
+      <!-- Required for project validation -->
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>6.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${maven.version}</version>
@@ -157,6 +163,12 @@
     <dependency>
       <groupId>com.axonivy.ivy.api.restricted</groupId>
       <artifactId>ivy-project-build-plugin-api</artifactId>
+      <version>${ivy.api}</version>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation -->
+      <groupId>com.axonivy.ivy.api</groupId>
+      <artifactId>ivy-runtime</artifactId>
       <version>${ivy.api}</version>
     </dependency>
     <dependency>
@@ -405,6 +417,7 @@
                   <includes>
                     <include>**/*.class</include>
                     <include>**/*.xhtml</include>
+                    <include>**/latestYaml.properties</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>
