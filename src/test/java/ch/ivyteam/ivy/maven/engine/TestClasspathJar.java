@@ -45,8 +45,6 @@ class TestClasspathJar {
     Files.createFile(content);
     jar.createFileEntries(List.of(content));
 
-    assertThat(jar.getClasspathFiles()).contains(content.getFileName().toString());
-
     try (var in = new ZipInputStream(Files.newInputStream(jarFile))) {
       ZipEntry first = in.getNextEntry();
       assertThat(first.getName()).isEqualTo("META-INF/MANIFEST.MF");

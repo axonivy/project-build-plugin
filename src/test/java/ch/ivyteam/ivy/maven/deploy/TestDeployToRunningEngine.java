@@ -32,7 +32,6 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +41,6 @@ import ch.ivyteam.ivy.maven.BaseEngineProjectMojoTest;
 import ch.ivyteam.ivy.maven.InstallEngineMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DeployMethod;
 import ch.ivyteam.ivy.maven.engine.EngineControl;
-import ch.ivyteam.ivy.maven.engine.Slf4jSimpleEngineProperties;
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.maven.test.StartTestEngineMojo;
@@ -56,12 +54,6 @@ class TestDeployToRunningEngine {
 
   StartTestEngineMojo mojo;
   DeployToEngineMojo deployMojo;
-
-  @BeforeAll
-  static void log() {
-    Slf4jSimpleEngineProperties.install();
-    Slf4jSimpleEngineProperties.enforceSimpleConfigReload();
-  }
 
   @BeforeEach
   @InjectMojo(goal = InstallEngineMojo.GOAL)
