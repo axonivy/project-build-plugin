@@ -36,8 +36,4 @@ public class SharedFile {
   public Path getEngineOSGiBootClasspathJar() {
     return targetDir.resolve("ivy.engine.osgi.boot.classpath.jar");
   }
-
-  public Path getEngineClasspathJar() {
-    return targetDir.resolve("ivy.engine.classpath.jar");
-  }
 }
