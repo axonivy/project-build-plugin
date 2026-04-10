@@ -11,7 +11,6 @@
         <phases>
           <clean>com.axonivy.ivy.ci:project-build-plugin:ivy-cleanup</clean>
           <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
-          <initialize>com.axonivy.ivy.ci:project-build-plugin:installEngine</initialize>
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:generate-data-class-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
