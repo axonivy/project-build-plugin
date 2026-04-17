@@ -26,15 +26,6 @@ import ch.ivyteam.ivy.maven.log.LogCollector;
 @ExtendWith(ProjectExtension.class)
 class TestValidateProjectMojo {
 
-  private static final String USERS_YAML = """
-    # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/users.json
-    Users:
-      - Name: Alex
-        Password: 123
-        FullName: Alexander
-        Mail: alex@alex.ch
-    """;
-
   private ValidateProjectMojo mojo;
 
   @BeforeEach
@@ -45,23 +36,15 @@ class TestValidateProjectMojo {
 
   @Test
   void invalideUser() throws IOException {
-    var projectDir = mojo.project.getBasedir().toPath();
-    var configDir = projectDir.resolve("config");
-    var usersFile = configDir.resolve("users.yaml");
-
-    Files.createDirectories(configDir);
     String yaml = """
       # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/users.json
       Users:
         - Name: Alex
-          Password: 123
-          FullName: Alexander
-          Mail: alex@alex.ch
           Roles:
             - Gangster
       """;
+    writeYaml(mojo.project.getBasedir().toPath(), "users", yaml);
     LogCollector log = new LogCollector();
-    Files.writeString(usersFile, yaml);
     mojo.setLog(log);
     mojo.execute();
     assertThat(log.getWarnings()).isNotEmpty();
@@ -69,9 +52,53 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void duplicateUserInRequiredProject(@TempDir Path requiredProjectDir) throws IOException {
-    writeUsersYaml(mojo.project.getBasedir().toPath());
-    writeUsersYaml(requiredProjectDir);
+  void invalideRole() throws IOException {
+    String yaml = """
+      # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/roles.json
+      Roles:
+        - Id: HR Manager
+          Parent: Manager
+      """;
+    writeYaml(mojo.project.getBasedir().toPath(), "roles", yaml);
+    LogCollector log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+    assertThat(log.getErrors()).isNotEmpty();
+    assertThat(log.getErrors().toString()).contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.");
+  }
+
+  @Test
+  void invalideWebService() throws IOException {
+    var projectDir = mojo.project.getBasedir().toPath();
+    var configDir = projectDir.resolve("config");
+    var rolesFile = configDir.resolve("webservice-clients.yaml");
+
+    Files.createDirectories(configDir);
+    String yaml = """
+      WebServiceClients:
+        test name:
+          Name: Test
+        test.name:
+          Name: Another
+      """;
+    LogCollector log = new LogCollector();
+    Files.writeString(rolesFile, yaml);
+    mojo.setLog(log);
+    mojo.execute();
+    assertThat(log.getWarnings()).isNotEmpty();
+    assertThat(log.getWarnings().toString()).contains("config/webservice-clients.yaml: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.");
+    assertThat(log.getWarnings().toString()).contains("config/webservice-clients.yaml: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
+  }
+
+  @Test
+  void duplicateUserInOtherProject(@TempDir Path requiredProjectDir) throws IOException {
+    var content = """
+      # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/users.json
+      Users:
+        - Name: Alex
+          """;
+    writeYaml(mojo.project.getBasedir().toPath(), "users", content);
+    writeYaml(requiredProjectDir, "users", content);
 
     var requiredArtifact = mockArtifact("ch.ivyteam.project.test", "required-project", requiredProjectDir);
     Mockito.when(mojo.project.getArtifacts()).thenReturn(Set.of(requiredArtifact));
@@ -86,10 +113,39 @@ class TestValidateProjectMojo {
     assertThat(log.getLogs().toString()).contains("config/users.yaml: User 'Alex' is defined more than once. This can lead to misbehaviour because only one user is available during the simulation.");
   }
 
-  private void writeUsersYaml(Path projectDir) throws IOException {
+  @Test
+  void duplicateRoleInOtherProject(@TempDir Path requiredProjectDir) throws IOException {
+    var content1 = """
+      Roles:
+        - Id: Manager
+        - Id: Employee
+          Parent: Manager
+      """;
+    writeYaml(mojo.project.getBasedir().toPath(), "roles", content1);
+    var content2 = """
+      Roles:
+        - Id: Admin
+        - Id: Employee
+          Parent: Admin
+      """;
+    writeYaml(requiredProjectDir, "roles", content2);
+
+    var requiredArtifact = mockArtifact("ch.ivyteam.project.test", "required-project", requiredProjectDir);
+    Mockito.when(mojo.project.getArtifacts()).thenReturn(Set.of(requiredArtifact));
+
+    var requiredMvnProject = mockMavenProject("required-project", requiredProjectDir);
+    mockSession(requiredMvnProject);
+
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+    assertThat(log.getLogs().toString()).contains("config/roles.yaml: Role 'Employee' exists in multiple projects with a different parent role. Maybe parent role should be 'Admin' instead of 'Manager'.");
+  }
+
+  private void writeYaml(Path projectDir, String name, String content) throws IOException {
     var configDir = projectDir.resolve("config");
     Files.createDirectories(configDir);
-    Files.writeString(configDir.resolve("users.yaml"), USERS_YAML);
+    Files.writeString(configDir.resolve(name + ".yaml"), content);
   }
 
   private void mockSession(MavenProject... projects) {
