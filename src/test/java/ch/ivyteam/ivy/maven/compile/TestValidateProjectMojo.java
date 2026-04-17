@@ -25,7 +25,6 @@ import ch.ivyteam.ivy.maven.log.LogCollector;
 
 @MojoTest
 @ExtendWith(ProjectExtension.class)
-@Disabled
 class TestValidateProjectMojo {
 
   private ValidateProjectMojo mojo;
@@ -93,6 +92,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
+  @Disabled
   void duplicateUserInOtherProject(@TempDir Path requiredProjectDir) throws IOException {
     var content = """
       # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/users.json
@@ -116,6 +116,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
+  @Disabled
   void duplicateRoleInOtherProject(@TempDir Path requiredProjectDir) throws IOException {
     var content1 = """
       Roles:
