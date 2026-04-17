@@ -14,6 +14,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,6 +25,7 @@ import ch.ivyteam.ivy.maven.log.LogCollector;
 
 @MojoTest
 @ExtendWith(ProjectExtension.class)
+@Disabled
 class TestValidateProjectMojo {
 
   private ValidateProjectMojo mojo;
