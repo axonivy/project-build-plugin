@@ -49,6 +49,17 @@ public class MavenDependencies {
         .toList();
   }
 
+  public List<MavenProject> dependents() {
+    if (session == null) {
+      return List.of();
+    }
+    return session.getAllProjects().stream()
+        .filter(p -> p.getArtifacts().stream()
+            .anyMatch(a -> a.getGroupId().equals(project.getGroupId())
+                && a.getArtifactId().equals(project.getArtifactId()) && "iar".equals(a.getType())))
+        .toList();
+  }
+
   public List<Path> all() {
     return stream(project.getArtifacts())
         .filter(this::include)
