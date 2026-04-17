@@ -49,7 +49,7 @@ public class MavenDependencies {
         .toList();
   }
 
-  public List<MavenProject> dependents() {
+  public List<MavenProject> dependent() {
     if (session == null) {
       return List.of();
     }
@@ -60,11 +60,16 @@ public class MavenDependencies {
         .toList();
   }
 
+  public List<Artifact> required() {
+    return stream(project.getArtifacts())
+        .filter(this::include)
+        .toList();
+  }
+
   public List<Path> all() {
     return stream(project.getArtifacts())
         .filter(this::include)
-        .map(this::toFile)
-        .map(File::toPath)
+        .map(this::toPath)
         .collect(Collectors.toList());
   }
 
@@ -83,10 +88,10 @@ public class MavenDependencies {
     return deps.stream();
   }
 
-  private File toFile(Artifact artifact) {
+  public Path toPath(Artifact artifact) {
     return findReactorProject(artifact)
-        .map(MavenProject::getBasedir)
-        .orElse(artifact.getFile());
+        .map(p -> p.getBasedir().toPath())
+        .orElse(artifact.getFile().toPath());
   }
 
   private boolean include(Artifact artifact) {

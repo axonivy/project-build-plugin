@@ -1,8 +1,8 @@
 package ch.ivyteam.ivy.maven.compile;
 
-import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -50,7 +50,7 @@ public class ValidateProjectMojo extends AbstractMojo {
   }
 
   private void validateProject() {
-    var ctx = ProjectValidatorContext.create(toProject(), toAllProjects());
+    var ctx = new ContextBuilder(project, session).build();
     var validators = List.of(
         new UserProjectValidator(),
         new RoleProjectValidator(),
@@ -71,42 +71,65 @@ public class ValidateProjectMojo extends AbstractMojo {
       case ERROR -> getLog().error(path + ": " + message.text());
       case WARN -> getLog().warn(path + ": " + message.text());
       case INFO -> getLog().info(path + ": " + message.text());
-      default -> {}
     }
   }
 
-  private Project toProject() {
-    return toProject(project)
-        .required(toRequiredProjects())
-        .dependent(toDependentProjects())
-        .build();
-  }
+  private static class ContextBuilder {
 
-  private static BasicProjectBuilder toProject(MavenProject p) {
-    return BasicProject.create()
-        .id(p.getId())
-        .name(p.getName())
-        .path(p.getBasedir().toPath());
-  }
+    private final MavenProject project;
+    private final MavenSession session;
+    private final MavenDependencies dependencies;
 
-  private static BasicProjectBuilder toProject(Path p) {
-    return BasicProject.create()
-        .id(p.toFile().getName())
-        .name(p.toFile().getName())
-        .path(p);
-  }
+    private ContextBuilder(MavenProject project, MavenSession session) {
+      this.project = project;
+      this.session = session;
+      this.dependencies = MavenDependencies.of(project).session(session);
+    }
 
-  private List<Project> toRequiredProjects() {
-    return MavenDependencies.of(project).session(session).all().stream().map(path -> toProject(path).build()).toList();
-  }
+    private ProjectValidatorContext build() {
+      return ProjectValidatorContext.create(toProject(), toAllProjects());
+    }
 
-  private List<Project> toDependentProjects() {
-    return MavenDependencies.of(project).session(session).dependents().stream().map(mvnProject -> toProject(mvnProject).build())
-        .toList();
-  }
+    private Project toProject() {
+      return toProject(project)
+          .required(toRequiredProjects())
+          .dependent(toDependentProjects())
+          .build();
+    }
 
-  private List<Project> toAllProjects() {
-    return session.getAllProjects().stream().map(mvnProject -> toProject(mvnProject).build()).toList();
-  }
+    private BasicProjectBuilder toProject(MavenProject p) {
+      return BasicProject.create()
+          .id(p.getId())
+          .name(p.getName())
+          .path(p.getBasedir().toPath());
+    }
 
+    private BasicProjectBuilder toProject(Artifact artifact) {
+      return BasicProject.create()
+          .id(artifact.getId())
+          .name(artifact.getId())
+          .path(dependencies.toPath(artifact));
+    }
+
+    private List<Project> toRequiredProjects() {
+      return dependencies.required().stream()
+          .map(this::toProject)
+          .map(BasicProjectBuilder::build)
+          .toList();
+    }
+
+    private List<Project> toDependentProjects() {
+      return dependencies.dependent().stream()
+          .map(this::toProject)
+          .map(BasicProjectBuilder::build)
+          .toList();
+    }
+
+    private List<Project> toAllProjects() {
+      return session.getAllProjects().stream()
+          .map(this::toProject)
+          .map(BasicProjectBuilder::build)
+          .toList();
+    }
+  }
 }
