@@ -16,7 +16,9 @@ import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
+import ch.ivyteam.ivy.role.impl.RoleProjectValidator;
 import ch.ivyteam.ivy.user.impl.UserProjectValidator;
+import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator;
 
 /**
  * Validates an ivy Project with an ivyEngine.
@@ -44,14 +46,21 @@ public class ValidateProjectMojo extends AbstractMojo {
       getLog().info("Skipping ivy script validation");
       return;
     }
-    validateUser();
+    validateProject();
   }
 
-  private void validateUser() {
+  private void validateProject() {
     var ctx = ProjectValidatorContext.create(toProject(), toAllProjects());
-    var result = new UserProjectValidator().validate(ctx);
-    for (var message : result.messages()) {
-      log(message);
+    var validators = List.of(
+        new UserProjectValidator(),
+        new RoleProjectValidator(),
+        new WebServiceClientProjectValidator());
+
+    for (var validator : validators) {
+      var result = validator.validate(ctx);
+      for (var message : result.messages()) {
+        log(message);
+      }
     }
   }
 
