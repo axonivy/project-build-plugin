@@ -17,8 +17,10 @@ import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
+import ch.ivyteam.ivy.rest.client.config.impl.RestClientProjectValidator;
 import ch.ivyteam.ivy.role.impl.RoleProjectValidator;
 import ch.ivyteam.ivy.user.impl.UserProjectValidator;
+import ch.ivyteam.ivy.vars.impl.VariableProjectValidator;
 import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator;
 
 /**
@@ -67,7 +69,9 @@ public class ValidateProjectMojo extends AbstractMojo {
     return List.of(
         new UserProjectValidator(),
         new RoleProjectValidator(),
-        new WebServiceClientProjectValidator());
+        new WebServiceClientProjectValidator(),
+        new VariableProjectValidator(),
+        new RestClientProjectValidator());
   }
 
   private void log(Message message) {
@@ -93,7 +97,7 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
 
     private ProjectValidatorContext build() {
-      return ProjectValidatorContext.create(toProject(), toAllProjects());
+      return ProjectValidatorContext.create().project(toProject()).allProjects(toAllProjects()).toContext();
     }
 
     private Project toProject() {
