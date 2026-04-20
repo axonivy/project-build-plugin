@@ -60,14 +60,34 @@ class TestValidateProjectMojo {
       """;
     Files.writeString(file, content);
 
+    file = dir.resolve("rest-clients.yaml");
+    content = """
+      RestClients:
+        test name:
+          Name: Test
+        test.name:
+          Name: Another
+      """;
+    Files.writeString(file, content);
+
+    file = dir.resolve("variables.yaml");
+    content = """
+      Variables:
+        Test: Something
+        Test: Something else
+      """;
+    Files.writeString(file, content);
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
     assertThat(log.getWarnings().toString())
         .contains("config/users.yaml: User 'Alex' is configured to have role 'Gangster' which is not defined.")
         .contains("config/webservice-clients.yaml: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
-        .contains("config/webservice-clients.yaml: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
+        .contains("config/webservice-clients.yaml: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.")
+        .contains("config/rest-clients.yaml: The rest client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
+        .contains("config/rest-clients.yaml: The rest client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
     assertThat(log.getErrors().toString())
-        .contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.");
+        .contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.")
+        .contains("config/variables.yaml: Variable 'Test' is defined multiple times in variables.yaml.");
   }
 }
