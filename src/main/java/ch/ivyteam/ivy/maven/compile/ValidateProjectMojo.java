@@ -1,8 +1,12 @@
 package ch.ivyteam.ivy.maven.compile;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -97,7 +101,11 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
 
     private ProjectValidatorContext build() {
-      return ProjectValidatorContext.create().project(toProject()).allProjects(toAllProjects()).toContext();
+      return ProjectValidatorContext.create()
+          .project(toProject())
+          .allProjects(toAllProjects())
+          .classLoader(toClassLoader())
+          .toContext();
     }
 
     private Project toProject() {
@@ -140,6 +148,24 @@ public class ValidateProjectMojo extends AbstractMojo {
           .map(this::toProject)
           .map(BasicProjectBuilder::build)
           .toList();
+    }
+
+    private ClassLoader toClassLoader() {
+      try {
+        var classpath = project.getCompileClasspathElements();
+        var urls = classpath.stream()
+            .map(path -> {
+              try {
+                return Path.of(path).toUri().toURL();
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .toArray(URL[]::new);
+        return new URLClassLoader(urls, null);
+      } catch (DependencyResolutionRequiredException ex) {
+        throw new RuntimeException(ex);
+      }
     }
   }
 }
