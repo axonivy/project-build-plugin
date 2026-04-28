@@ -16,13 +16,11 @@
 
 package ch.ivyteam.ivy.maven.engine;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -40,15 +38,6 @@ public class EngineClassLoaderFactory {
     String PLUGINS = INSTALL_AREA + "/plugins";
     String LIB_BOOT = "lib/boot";
   }
-
-  private static final List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
-      OsgiDir.INSTALL_AREA + "/" + OsgiDir.LIB_BOOT,
-      OsgiDir.PLUGINS,
-      OsgiDir.INSTALL_AREA + "/configuration/org.eclipse.osgi", // unpacked
-                                                                // jars from
-                                                                // OSGI
-                                                                // bundles
-      "webapps" + File.separator + "ivy" + File.separator + "WEB-INF" + File.separator + "lib");
 
   public static List<Path> getOsgiBootstrapClasspath(Path engineDirectory) {
     if (engineDirectory == null || !Files.isDirectory(engineDirectory)) {
@@ -71,28 +60,5 @@ public class EngineClassLoaderFactory {
         throw new RuntimeException(ex);
       }
     }
-  }
-
-  public static List<Path> getIvyEngineClassPathFiles(Path engineDirectory) {
-    if (engineDirectory == null) {
-      return List.of();
-    }
-
-    var classPathFiles = new ArrayList<Path>();
-    for (String libDirPath : ENGINE_LIB_DIRECTORIES) {
-      var jarDir = engineDirectory.resolve(libDirPath);
-      if (!Files.isDirectory(jarDir)) {
-        continue;
-      }
-      try (var walker = Files.walk(jarDir)) {
-        var jars = walker
-            .filter(p -> p.getFileName().toString().endsWith(".jar"))
-            .toList();
-        classPathFiles.addAll(jars);
-      } catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-    return classPathFiles;
   }
 }

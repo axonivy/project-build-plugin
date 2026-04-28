@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.OsgiDir;
 
 @MojoTest
+@SuppressWarnings("deprecation")
 class TestShareEngineClasspathMojo {
 
   private ShareEngineCoreClasspathMojo mojo;
