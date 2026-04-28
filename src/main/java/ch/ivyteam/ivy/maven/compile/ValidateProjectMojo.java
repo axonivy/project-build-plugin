@@ -65,7 +65,7 @@ public class ValidateProjectMojo extends AbstractMojo {
     getLog().info("Validation finished in " + duration + "ms");
   }
 
-  private List<ProjectValidator> validators() {
+  private List<ProjectValidator<?>> validators() {
     return List.of(
         new UserProjectValidator(),
         new RoleProjectValidator(),
