@@ -17,8 +17,10 @@
 package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -54,6 +56,7 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 class TestCompileProjectMojo {
 
   private Sysout sysout;
+  private CompileTestProjectMojo test;
 
   @BeforeAll
   static void log() {
@@ -72,7 +75,11 @@ class TestCompileProjectMojo {
     BaseEngineProjectMojoTest.provideEngine(install);
   }
 
-  private CompileTestProjectMojo test;
+  @BeforeEach
+  @InjectMojo(goal = CompileTestProjectMojo.GOAL)
+  void setupTestMojo(CompileTestProjectMojo mojo) {
+    this.test = mojo;
+  }
 
   @Provides
   MavenProject mockProject() throws IOException {
@@ -85,7 +92,7 @@ class TestCompileProjectMojo {
     CompileProjectMojo mojo = compile;
 
     BaseEngineProjectMojoTest.configureMojo(mojo);
-    mojo.localRepository = ch.ivyteam.ivy.maven.extension.LocalRepoTest.repo();
+    mojo.localRepository = LocalRepoTest.repo();
 
     Build build = mojo.project.getBuild();
     build.setTestSourceDirectory("src_test");
@@ -134,7 +141,7 @@ class TestCompileProjectMojo {
 
     CompileProjectMojo mojo = compile;
     BaseEngineProjectMojoTest.configureMojo(mojo);
-    mojo.localRepository = ch.ivyteam.ivy.maven.extension.LocalRepoTest.repo();
+    mojo.localRepository = LocalRepoTest.repo();
     mojo.setLog(log);
 
     mojo.compilerWarnings = false;
@@ -185,10 +192,85 @@ class TestCompileProjectMojo {
         .startsWith("[WARNING]");
   }
 
-  @BeforeEach
-  @InjectMojo(goal = CompileTestProjectMojo.GOAL)
-  void setupTestMojo(CompileTestProjectMojo mojo) {
-    this.test = mojo;
+  @Test
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void shouldDetectExistingGeneratedSourcesFailure(CompileProjectMojo compile) throws Exception {
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new InvocationTargetException(filerProblem())))
+            .isTrue();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new InvocationTargetException(otherCompileFailure())))
+            .isFalse();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        filerProblem()))
+            .isFalse();
+    assertThat(CompileProjectMojo.isExistingGeneratedSourcesFailure(
+        new IllegalStateException("Problem with Filer: Source file already exists : foo.Bar_")))
+            .isFalse();
   }
 
+  @Test
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void shouldIgnoreExistingGeneratedSourcesCompileFailureWhenConfigured(CompileProjectMojo compile) throws Exception {
+    LogCollector log = new LogCollector();
+
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+    mojo.setLog(log);
+    mojo.failOnExistingGeneratedSources = false;
+
+    mojo.handleExistingGeneratedSourcesException(new InvocationTargetException(filerProblem()));
+
+    assertThat(log.getInfos()).hasSize(1);
+    assertThat(log.getInfos().get(0).toString())
+        .contains("Ignoring already existing generated sources");
+  }
+
+  @Test
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void shouldNotIgnoreExistingGeneratedSourcesCompileFailureWhenConfigured(CompileProjectMojo compile) throws Exception {
+    LogCollector log = new LogCollector();
+
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+    mojo.setLog(log);
+    mojo.failOnExistingGeneratedSources = true;
+    var filerProblem = filerProblem();
+
+    assertThatThrownBy(() -> mojo.handleExistingGeneratedSourcesException(
+        new InvocationTargetException(filerProblem)))
+        .isInstanceOf(InvocationTargetException.class)
+        .hasCause(filerProblem);
+
+    assertThat(log.getInfos()).isEmpty();
+  }
+
+  @Test
+  @InjectMojo(goal = CompileProjectMojo.GOAL)
+  void shouldStillFailOnOtherCompileFailures(CompileProjectMojo compile) throws Exception {
+    CompileProjectMojo mojo = compile;
+    BaseEngineProjectMojoTest.configureMojo(mojo);
+    mojo.localRepository = LocalRepoTest.repo();
+    mojo.failOnExistingGeneratedSources = false;
+
+    assertThatThrownBy(() -> mojo.handleExistingGeneratedSourcesException(
+        new InvocationTargetException(otherCompileFailure())))
+        .isInstanceOf(InvocationTargetException.class)
+        .hasCause(otherCompileFailure());
+  }
+
+  private static RuntimeException filerProblem() {
+    return new RuntimeException(
+        "Java compiler error : 2. ERROR: Problem with Filer: Source file already exists : foo.Bar_");
+  }
+
+  private static RuntimeException otherCompileFailure() {
+    return new RuntimeException("Java compiler error : something else");
+  }
 }

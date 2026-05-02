@@ -183,6 +183,7 @@ public class MavenProjectBuilderProxy {
     String WARNINGS_ENABLED = "jdt.warnings.enabled";
     String JDT_SETTINGS_FILE = "jdt.settings.file";
     String JDT_OPTIONS = "jdt.options";
+    String FAIL_ON_EXISTING_GENERATED_SOURCES = "ivy.compiler.failOnExistingGeneratedSources";
   }
 
   public interface Result {
