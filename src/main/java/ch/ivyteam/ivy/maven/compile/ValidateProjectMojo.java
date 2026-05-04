@@ -20,7 +20,7 @@ import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
 import ch.ivyteam.ivy.rest.client.config.impl.RestClientProjectValidator;
 import ch.ivyteam.ivy.role.impl.RoleProjectValidator;
 import ch.ivyteam.ivy.user.impl.UserProjectValidator;
-import ch.ivyteam.ivy.vars.impl.VariableProjectValidator;
+import ch.ivyteam.ivy.variables.config.impl.VariableProjectValidator;
 import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator;
 
 /**
