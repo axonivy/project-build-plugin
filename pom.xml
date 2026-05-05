@@ -71,15 +71,9 @@
   <dependencies>
     <dependency>
       <!-- Required for project validation -->
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>6.0.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.1.1</version>
+      <groupId>com.axonivy.ivy.api.restricted</groupId>
+      <artifactId>ivy-project-validation-api</artifactId>
+      <version>${ivy.api}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -169,12 +163,6 @@
     <dependency>
       <groupId>com.axonivy.ivy.api.restricted</groupId>
       <artifactId>ivy-project-build-plugin-api</artifactId>
-      <version>${ivy.api}</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>com.axonivy.ivy.api</groupId>
-      <artifactId>ivy-runtime</artifactId>
       <version>${ivy.api}</version>
     </dependency>
     <dependency>
