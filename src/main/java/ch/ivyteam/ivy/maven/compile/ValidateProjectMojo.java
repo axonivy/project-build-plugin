@@ -1,8 +1,12 @@
 package ch.ivyteam.ivy.maven.compile;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -19,6 +23,7 @@ import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
 import ch.ivyteam.ivy.rest.client.config.impl.RestClientProjectValidator;
 import ch.ivyteam.ivy.role.impl.RoleProjectValidator;
+import ch.ivyteam.ivy.scripting.dataclass.validation.impl.DataClassProjectValidator;
 import ch.ivyteam.ivy.user.impl.UserProjectValidator;
 import ch.ivyteam.ivy.variables.config.impl.VariableProjectValidator;
 import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator;
@@ -71,7 +76,8 @@ public class ValidateProjectMojo extends AbstractMojo {
         new RoleProjectValidator(),
         new WebServiceClientProjectValidator(),
         new VariableProjectValidator(),
-        new RestClientProjectValidator());
+        new RestClientProjectValidator(),
+        new DataClassProjectValidator());
   }
 
   private void log(Message message) {
@@ -97,7 +103,7 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
 
     private ProjectValidatorContext build() {
-      return ProjectValidatorContext.create().project(toProject()).allProjects(toAllProjects()).toContext();
+      return ProjectValidatorContext.create().project(toProject()).allProjects(toAllProjects()).classLoader(toClassLoader()).toContext();
     }
 
     private Project toProject() {
@@ -140,6 +146,24 @@ public class ValidateProjectMojo extends AbstractMojo {
           .map(this::toProject)
           .map(BasicProjectBuilder::build)
           .toList();
+    }
+
+    private ClassLoader toClassLoader() {
+      try {
+        var classpath = project.getCompileClasspathElements();
+        var urls = classpath.stream()
+            .map(path -> {
+              try {
+                return Path.of(path).toUri().toURL();
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .toArray(URL[]::new);
+        return new URLClassLoader(urls, null);
+      } catch (DependencyResolutionRequiredException ex) {
+        throw new RuntimeException(ex);
+      }
     }
   }
 }

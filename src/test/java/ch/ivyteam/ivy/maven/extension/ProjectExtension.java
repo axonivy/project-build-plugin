@@ -24,12 +24,21 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
 public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
 
   public static final String TEST_BASE = "src/test/resources/base/";
+  private final String testBase;
 
   private static Path project;
   private static Path workspace;
   private static int count = 0;
 
   private Path userDir;
+
+  public ProjectExtension() {
+    this(TEST_BASE);
+  }
+
+  public ProjectExtension(String testBase) {
+    this.testBase = testBase;
+  }
 
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
@@ -51,7 +60,7 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    copyDirectory(userDir.resolve(TEST_BASE), project);
+    copyDirectory(userDir.resolve(testBase), project);
   }
 
   @Override
