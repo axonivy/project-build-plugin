@@ -39,6 +39,6 @@ class TestValidateProjectMojo {
     assertThat(log.getErrors().toString())
         .contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.")
         .contains("config/variables.yaml: Variable 'Test' is defined multiple times in variables.yaml.")
-        .contains("dataclasses/validation/BusinessProcessData.d.json: The name of an Attribute should not start with an uppercase or a single lowercase letter.");
+        .contains("dataclasses/validation/BusinessProcessData.d.json: The namespace 'invalid' does not match the directory of the Data Class.");
   }
 }
