@@ -9,6 +9,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -42,6 +43,9 @@ public class ValidateProjectMojo extends AbstractMojo {
   @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
 
+  @Parameter(property = "ivy.project.validation.classloader.enabled", defaultValue = "false")
+  boolean enableClassLoader;
+
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
@@ -59,7 +63,7 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   private void validateProject() {
     var time = System.currentTimeMillis();
-    var ctx = new ContextBuilder(project, session).build();
+    var ctx = new ContextBuilder(project, session, enableClassLoader, getLog()).build();
     for (var validator : validators()) {
       var result = validator.validate(ctx);
       for (var message : result.messages()) {
@@ -95,15 +99,25 @@ public class ValidateProjectMojo extends AbstractMojo {
     private final MavenProject project;
     private final MavenSession session;
     private final MavenDependencies dependencies;
+    private final boolean enableClassLoader;
+    private final Log log;
 
-    private ContextBuilder(MavenProject project, MavenSession session) {
+    private ContextBuilder(MavenProject project, MavenSession session, boolean enableClassLoader, Log log) {
       this.project = project;
       this.session = session;
       this.dependencies = MavenDependencies.of(project).session(session);
+      this.enableClassLoader = enableClassLoader;
+      this.log = log;
     }
 
     private ProjectValidatorContext build() {
-      return ProjectValidatorContext.create().project(toProject()).allProjects(toAllProjects()).classLoader(toClassLoader()).toContext();
+      var ctx = ProjectValidatorContext.create()
+          .project(toProject())
+          .allProjects(toAllProjects());
+      if (enableClassLoader) {
+        ctx.classLoader(toClassLoader());
+      }
+      return ctx.toContext();
     }
 
     private Project toProject() {
@@ -160,6 +174,9 @@ public class ValidateProjectMojo extends AbstractMojo {
               }
             })
             .toArray(URL[]::new);
+        for (var url : urls) {
+          log.debug("Classpath URL: " + url);
+        }
         return new URLClassLoader(urls, null);
       } catch (DependencyResolutionRequiredException ex) {
         throw new RuntimeException(ex);
