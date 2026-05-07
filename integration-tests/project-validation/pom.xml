@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.axonivy.ivy.ci</groupId>
+  <artifactId>project-validation</artifactId>
+  <version>14.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>project-validation</name>
+
+  <modules>
+    <module>main-project</module>
+    <module>a-project</module>
+    <module>b-project</module>
+    <module>c-project</module>
+    <module>d-project</module>
+    <module>standalone-project</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

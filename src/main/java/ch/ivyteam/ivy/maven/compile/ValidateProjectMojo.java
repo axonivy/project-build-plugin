@@ -86,7 +86,7 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   private void log(Message message) {
     var mvnProjectUri = project.getBasedir().toURI();
-    var path = mvnProjectUri.relativize(message.file()).getPath();
+    var path = project.getName() + " - " + mvnProjectUri.relativize(message.file()).getPath();
     switch (message.severity()) {
       case ERROR -> getLog().error(path + ": " + message.text());
       case WARN -> getLog().warn(path + ": " + message.text());
