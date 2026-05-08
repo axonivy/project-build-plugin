@@ -45,27 +45,55 @@ pipeline {
           dir('integration-tests/project-validation') {
             def expectedBlocks = [
               '''
-              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in project 'main.project'.
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in project 'a.project'.
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in project 'c.project'.
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in project 'd.project'.
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in project 'standalone.project'.
               [ERROR] b.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
               '''.stripIndent().trim(),
               '''
-              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in project 'main.project'.
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in project 'b.project'.
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in project 'c.project'.
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in project 'd.project'.
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in project 'standalone.project'.
               [ERROR] a.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+
               '''.stripIndent().trim(),
               '''
-              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in project 'a.project'.
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in project 'b.project'.
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in project 'c.project'.
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in project 'd.project'.
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in project 'standalone.project'.
               [ERROR] main.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+
               '''.stripIndent().trim(),
               '''
-              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in project 'main.project'.
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in project 'a.project'.
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in project 'b.project'.
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in project 'd.project'.
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in project 'standalone.project'.
               [ERROR] c.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+
               '''.stripIndent().trim(),
               '''
-              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in project 'main.project'.
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in project 'a.project'.
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in project 'b.project'.
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in project 'c.project'.
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in project 'standalone.project'.
               [ERROR] d.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+
               '''.stripIndent().trim(),
               '''
-              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in project 'main.project'.
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in project 'a.project'.
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in project 'b.project'.
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in project 'c.project'.
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in project 'd.project'.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'main.project'.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'a.project'.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'b.project'.
