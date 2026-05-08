@@ -26,7 +26,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
  *
  * @since 13.2.0
  */
-@Mojo(name = SetupIvyTestVmRuntimeMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = SetupIvyTestVmRuntimeMojo.GOAL, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class SetupIvyTestVmRuntimeMojo extends AbstractMojo {
   public static final String GOAL = "ivy-test-vm-runtime";
   public static final String IVY_TEST_VM_RUNTIME = "ivy.test.vm.runtime";

@@ -19,7 +19,7 @@ import ch.ivyteam.ivy.maven.util.PathUtils;
  *
  * @since 13.2.0
  */
-@Mojo(name = CleanupMojo.GOAL)
+@Mojo(name = CleanupMojo.GOAL, threadSafe = true)
 public class CleanupMojo extends AbstractMojo {
 
   public static final String GOAL = "ivy-cleanup";

@@ -38,7 +38,7 @@ import ch.ivyteam.ivy.scripting.dataclass.restricted.codegen.DataClassJavaSource
  *
  * @since 13.2.0
  */
-@Mojo(name = GenerateDataClassSourcesMojo.GOAL)
+@Mojo(name = GenerateDataClassSourcesMojo.GOAL, threadSafe = true)
 public class GenerateDataClassSourcesMojo extends AbstractMojo {
   public static final String GOAL = "generate-data-class-sources";
 

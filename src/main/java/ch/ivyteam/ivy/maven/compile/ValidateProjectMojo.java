@@ -32,7 +32,7 @@ import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator
 /**
  * Validates an ivy Project with an ivyEngine.
  */
-@Mojo(name = ValidateProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = ValidateProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidateProjectMojo extends AbstractMojo {
   public static final String GOAL = "validateProject";
   /**
