@@ -38,6 +38,53 @@ pipeline {
         }
       }
     }
+
+    stage('project-validation') {
+      steps {
+        script {
+          dir('integration-tests/project-validation') {
+            def expectedBlocks = [
+              '''
+              [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] b.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+              '''.stripIndent().trim(),
+              '''
+              [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] a.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+              '''.stripIndent().trim(),
+              '''
+              [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] main.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+              '''.stripIndent().trim(),
+              '''
+              [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] c.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+              '''.stripIndent().trim(),
+              '''
+              [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] d.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
+              '''.stripIndent().trim(),
+              '''
+              [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'main.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'a.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'b.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'c.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'd.project'.
+              '''.stripIndent().trim()
+            ]
+
+            def log = readFile('../../target/its/project-validation/build.log')
+            def normalizedLog = log.replace('\r\n', '\n').replaceAll('\\u001B\\[[;\\d]*m', '')
+            def missingBlocks = expectedBlocks.findAll { !normalizedLog.contains(it) }
+            if (!missingBlocks.isEmpty()) {
+              error "project-validation log misses expected block(s):\n\n" + missingBlocks.join("\n\n")
+            }
+          }
+        }
+      }
+    }
+
     stage('deploy-site') {
       when {
         expression { isReleasingBranch() && currentBuild.changeSets.size() > 0 }
