@@ -46,20 +46,19 @@ pipeline {
             def expectedBlocks = [
               '''
               [WARNING] b.project - config/users.yaml: User 'Alex' is also defined in another project.
-              [ERROR] b.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'main.project'.
-              [ERROR] b.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'd.project'.
               [ERROR] b.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
               '''.stripIndent().trim(),
               '''
               [WARNING] a.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] a.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
               '''.stripIndent().trim(),
               '''
               [WARNING] main.project - config/users.yaml: User 'Alex' is also defined in another project.
-              [ERROR] main.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'd.project'.
               [ERROR] main.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
               '''.stripIndent().trim(),
               '''
               [WARNING] c.project - config/users.yaml: User 'Alex' is also defined in another project.
+              [ERROR] c.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'standalone.project'.
               '''.stripIndent().trim(),
               '''
               [WARNING] d.project - config/users.yaml: User 'Alex' is also defined in another project.
@@ -68,7 +67,9 @@ pipeline {
               '''
               [WARNING] standalone.project - config/users.yaml: User 'Alex' is also defined in another project.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'main.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'a.project'.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'b.project'.
+              [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'c.project'.
               [ERROR] standalone.project - config/webservice-clients.yaml: The web service client key 'test' is not unique, it exists too in a not dependent project 'd.project'.
               '''.stripIndent().trim()
             ]

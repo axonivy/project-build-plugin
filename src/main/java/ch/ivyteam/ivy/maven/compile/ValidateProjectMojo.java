@@ -93,7 +93,6 @@ public class ValidateProjectMojo extends AbstractMojo {
       case INFO -> getLog().info(path + ": " + message.text());
     }
   }
-
   private static class ContextBuilder {
 
     private final MavenProject project;
@@ -111,13 +110,40 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
 
     private ProjectValidatorContext build() {
+      var rootProject = toProject();
+      if (log.isDebugEnabled()) {
+        log.debug("[graph] Project graph for: " + project.getId());
+        dumpTree(rootProject, 0);
+      }
+
       var ctx = ProjectValidatorContext.create()
-          .project(toProject())
+          .project(rootProject)
           .allProjects(toAllProjects());
       if (enableClassLoader) {
         ctx.classLoader(toClassLoader());
       }
       return ctx.toContext();
+    }
+
+    private void dumpTree(Project p, int depth) {
+      var indent = "  ".repeat(depth);
+      var required = p.debs().allRequired().toList();
+      var dependent = p.debs().allDependent().toList();
+
+      log.debug("[graph] " + indent + p.id()
+          + "  [required=" + required.size() + ", dependent=" + dependent.size() + "]");
+      if (!required.isEmpty()) {
+        log.debug("[graph] " + indent + "  required:");
+        for (var r : required) {
+          dumpTree(r, depth + 2);
+        }
+      }
+      if (!dependent.isEmpty()) {
+        log.debug("[graph] " + indent + "  dependent:");
+        for (var d : dependent) {
+          dumpTree(d, depth + 2);
+        }
+      }
     }
 
     private Project toProject() {
@@ -174,8 +200,10 @@ public class ValidateProjectMojo extends AbstractMojo {
               }
             })
             .toArray(URL[]::new);
-        for (var url : urls) {
-          log.debug("Classpath URL: " + url);
+        if (log.isDebugEnabled()) {
+          for (var url : urls) {
+            log.debug("Classpath URL: " + url);
+          }
         }
         return new URLClassLoader(urls, null);
       } catch (DependencyResolutionRequiredException ex) {

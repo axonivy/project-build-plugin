@@ -2,6 +2,8 @@ package ch.ivyteam.ivy.maven.util;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,10 +55,25 @@ public class MavenDependencies {
     if (session == null) {
       return List.of();
     }
+    var result = new LinkedHashSet<MavenProject>();
+    var queue = new ArrayDeque<>(dependentsOf(project));
+
+    while (!queue.isEmpty()) {
+      var current = queue.poll();
+      if (result.add(current)) {
+        queue.addAll(dependentsOf(current));
+      }
+    }
+
+    return List.copyOf(result);
+  }
+
+  private List<MavenProject> dependentsOf(MavenProject p) {
     return session.getAllProjects().stream()
-        .filter(p -> p.getArtifacts().stream()
-            .anyMatch(a -> a.getGroupId().equals(project.getGroupId())
-                && a.getArtifactId().equals(project.getArtifactId()) && "iar".equals(a.getType())))
+        .filter(candidate -> candidate.getDependencies().stream()
+            .anyMatch(d -> d.getGroupId().equals(p.getGroupId())
+                && d.getArtifactId().equals(p.getArtifactId())
+                && "iar".equals(d.getType())))
         .toList();
   }
 
