@@ -2,6 +2,9 @@ package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,5 +43,23 @@ class TestValidateProjectMojo {
         .contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.")
         .contains("config/variables.yaml: Variable 'Test' is defined multiple times in variables.yaml.")
         .contains("dataclasses/validation/BusinessProcessData.d.json: The namespace 'invalid' does not match the directory of the Data Class.");
+  }
+
+  @Test
+  void validate_outdated() throws IOException {
+    var dir = mojo.project.getBasedir().toPath();
+    Files.createDirectories(dir);
+    var file = dir.resolve(".ivyproject");
+    var content = """
+      name=validation
+      version=140013
+      """;
+
+    Files.writeString(file, content);
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+    assertThat(log.getWarnings().toString())
+        .contains("Project is outdated (version: 140013). Convert the project to the latest version.");
   }
 }
