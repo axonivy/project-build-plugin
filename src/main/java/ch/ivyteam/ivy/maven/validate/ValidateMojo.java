@@ -24,7 +24,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @since 12.0.1
  */
-@Mojo(name = ValidateMojo.GOAL, requiresProject = true)
+@Mojo(name = ValidateMojo.GOAL, requiresProject = true, threadSafe = true)
 public class ValidateMojo extends AbstractMojo {
 
   public static final String GOAL = "validate";
