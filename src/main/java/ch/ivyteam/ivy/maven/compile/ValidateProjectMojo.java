@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.project.model.Project;
+import ch.ivyteam.ivy.project.model.ProjectVersion;
 import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
@@ -64,6 +65,10 @@ public class ValidateProjectMojo extends AbstractMojo {
   private void validateProject() {
     var time = System.currentTimeMillis();
     var ctx = new ContextBuilder(project, session, enableClassLoader, getLog()).build();
+    var version = ProjectVersion.of(ctx.project());
+    if (!version.isLatest()) {
+      getLog().warn("Project is outdated (version: " + version + "). Convert the project to the latest version.");
+    }
     for (var validator : validators()) {
       var result = validator.validate(ctx);
       for (var message : result.messages()) {
