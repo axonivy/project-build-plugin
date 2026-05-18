@@ -34,17 +34,19 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 public class HttpDeployer {
   private static final String DEPLOY_URI = "/system/api/apps/";
   private final String serverUrl;
+  private final String targetSecurityContext;
   private final String targetApplication;
   private final Path deployFile;
   private final Path deploymentOptions;
   private final Server server;
   private final SecDispatcher secDispatcher;
 
-  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetApplication,
+  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetSecurityContext, String targetApplication,
       Path deployFile, Path deploymentOptions) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
+    this.targetSecurityContext = targetSecurityContext;
     this.targetApplication = targetApplication;
     this.deployFile = deployFile;
     this.deploymentOptions = deploymentOptions;
@@ -62,7 +64,7 @@ public class HttpDeployer {
 
   private void executeRequest(Log log, CloseableHttpClient client)
       throws IOException, URISyntaxException, MojoExecutionException {
-    String url = serverUrl + DEPLOY_URI + targetApplication;
+    String url = serverUrl + DEPLOY_URI + targetSecurityContext + "/" + targetApplication;
     HttpPost httpPost = new HttpPost(url);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
     httpPost.setEntity(getRequestData(deploymentOptions));
