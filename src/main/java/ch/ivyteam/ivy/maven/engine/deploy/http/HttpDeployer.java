@@ -19,6 +19,7 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -32,24 +33,24 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 public class HttpDeployer {
-  private static final String DEPLOY_URI = "/system/api/apps/";
+  private static final String DEPLOY_URI = "system/api/apps/";
   private final String serverUrl;
   private final String targetSecurityContext;
   private final String targetApplication;
   private final Path deployFile;
-  private final Path deploymentOptions;
+  private final String deployTestUsers;
   private final Server server;
   private final SecDispatcher secDispatcher;
 
   public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetSecurityContext, String targetApplication,
-      Path deployFile, Path deploymentOptions) {
+      Path deployFile, String deployTestUsers) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
     this.targetSecurityContext = targetSecurityContext;
     this.targetApplication = targetApplication;
     this.deployFile = deployFile;
-    this.deploymentOptions = deploymentOptions;
+    this.deployTestUsers = deployTestUsers;
   }
 
   public void deploy(Log log) throws MojoExecutionException {
@@ -67,7 +68,7 @@ public class HttpDeployer {
     String url = serverUrl + DEPLOY_URI + targetSecurityContext + "/" + targetApplication;
     HttpPost httpPost = new HttpPost(url);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
-    httpPost.setEntity(getRequestData(deploymentOptions));
+    httpPost.setEntity(getRequestData());
 
     HttpEntity resultEntity = null;
     log.info("Uploading file " + deployFile + " to " + url);
@@ -93,11 +94,11 @@ public class HttpDeployer {
     return EntityUtils.toString(resultEntity);
   }
 
-  private HttpEntity getRequestData(Path resolvedOptionsFile) {
+  private HttpEntity getRequestData() {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
     builder.addPart("fileToDeploy", new FileBody(deployFile.toFile()));
-    if (resolvedOptionsFile != null) {
-      builder.addPart("deploymentOptions", new FileBody(resolvedOptionsFile.toFile(), ContentType.TEXT_PLAIN));
+    if (deployTestUsers != null && !deployTestUsers.isBlank()) {
+      builder.addPart("deployTestUsers", new StringBody(deployTestUsers, ContentType.TEXT_PLAIN));
     }
     return builder.build();
   }

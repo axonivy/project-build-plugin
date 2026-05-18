@@ -137,21 +137,20 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       throw new MojoExecutionException(
           "The parameter 'deployToEngineApplication' for goal " + GOAL + " is missing.");
     }
-
-    var resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
-    try {
-      deployWithOptions(resolvedOptionsFile);
-    } finally {
-      deleteFile(resolvedOptionsFile);
-    }
+    deployWithOptions();
   }
 
-  private void deployWithOptions(Path resolvedOptionsFile) throws MojoExecutionException {
+  private void deployWithOptions() throws MojoExecutionException {
     getLog().info("Deploying project " + deployFile.getFileName());
     if (DeployMethod.DIRECTORY.equals(deployMethod)) {
-      deployToDirectory(resolvedOptionsFile);
+      var resolvedOptionsFile = createDeployOptionsFile(new DeploymentOptionsFileFactory(deployFile));
+      try {
+        deployToDirectory(resolvedOptionsFile);
+      } finally {
+        deleteFile(resolvedOptionsFile);
+      }
     } else if (DeployMethod.HTTP.equals(deployMethod)) {
-      deployToRestService(resolvedOptionsFile);
+      deployToRestService();
     } else {
       getLog().warn("Invalid deploy method  " + deployMethod
           + " configured in parameter deployMethod (Supported values are " + DeployMethod.DIRECTORY + ", "
@@ -176,7 +175,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
     deployToDirectory(resolvedOptionsFile, deployDir);
   }
 
-  private void deployToRestService(Path resolvedOptionsFile) throws MojoExecutionException {
+  private void deployToRestService() throws MojoExecutionException {
     checkHttpParams();
 
     Server server = session.getSettings().getServer(deployServerId);
@@ -184,7 +183,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId
           + "' is not definied. Try to deploy with default username, password");
     }
-    var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineSecurityContext, deployToEngineApplication, deployFile, resolvedOptionsFile);
+    var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineSecurityContext, deployToEngineApplication, deployFile, deployTestUsers);
     httpDeployer.deploy(getLog());
   }
 
