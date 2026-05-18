@@ -21,14 +21,11 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.filtering.MavenFileFilter;
 
 import ch.ivyteam.ivy.maven.IarPackagingMojo;
 import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
@@ -63,106 +60,6 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   @Parameter(property = "ivy.deploy.test.users", defaultValue = DefaultDeployOptions.DEPLOY_TEST_USERS)
   public String deployTestUsers;
 
-  /**
-   * The target version controls on which process model version (PMV) a project
-   * is re-deployed.
-   *
-   * <p>
-   * Matching:
-   * </p>
-   * <ul>
-   * <li>In all cases the library identifier (group id and project/artifact id)
-   * of the PMV and the project has to be equal.</li>
-   * <li>If multiple PMVs match the target version then the PMV with the highest
-   * library version is chosen.</li>
-   * <li>If no PMV matches the target version then a new PMV is created and the
-   * project is deployed to the new PMV.</li>
-   * </ul>
-   *
-   * <p>
-   * Possible values:
-   * </p>
-   * <ul>
-   * <li><code>AUTO</code>: a project is re-deployed if the version of the PMV
-   * is equal to the project's version.</li>
-   * <li><code>RELEASED</code>: a project is re-deployed to the released PMV.
-   * The version of the PMV and the project does not matter</li>
-   * <li>Maven version range: a project is re-deployed if the version of the PMV
-   * matches the given range. Some samples:
-   * <ul>
-   * <li><code>,</code> - Matches all version.</li>
-   * <li><code>,2.5]</code> - Matches every version up to 2.5 inclusive.</li>
-   * <li><code>(2.5,</code> - Matches every version from 2.5 exclusive.</li>
-   * <li><code>[2.0,3.0)</code> - Matches every version from 2.0 inclusive up to
-   * 3.0 exclusive.</li>
-   * <li><code>2.5</code> - Matches every version from 2.5 inclusive.</li>
-   * </ul>
-   * </li>
-   * </ul>
-   */
-  @Parameter(property = "ivy.deploy.target.version", defaultValue = DefaultDeployOptions.VERSION_AUTO)
-  public String deployTargetVersion;
-
-  /**
-   * The target state of all process model versions (PMVs) of the deployed
-   * projects.
-   *
-   * <ul>
-   * <li><code>ACTIVE_AND_RELEASED</code>: PMVs are activated and released after
-   * the deployment</li>
-   * <li><code>ACTIVE</code>: PMVs are activated but not released after the
-   * deployment</li>
-   * <li><code>INACTIVE</code>: PMVs are neither activated nor released after
-   * the deployment</li>
-   * </ul>
-   */
-  @Parameter(property = "ivy.deploy.target.state", defaultValue = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED)
-  public String deployTargetState;
-
-  /**
-   * <p>
-   * The file that contains deployment options.
-   * </p>
-   *
-   * Example options file content:
-   *
-   * <pre>
-   * <code>deployTestUsers: auto
-   * target:
-   * &nbsp;&nbsp;version: RELEASED
-   * &nbsp;&nbsp;state: ACTIVE_AND_RELEASED</code>
-   * </pre>
-   *
-   * <p>
-   * Inside the options file you can use property placeholders. The options file
-   * may look like this:
-   * </p>
-   *
-   * <pre>
-   * <code>deployTestUsers: ${ivy.deploy.test.users}
-   * target:
-   * &nbsp;&nbsp;version: AUTO
-   * &nbsp;&nbsp;state: ${ivy.deploy.target.state}</code>
-   * </pre>
-   *
-   * <p>
-   * All options in this file are optional. You only need to specify options
-   * that overwrite the default behavior.
-   * </p>
-   * <p>
-   * If configured, all Maven properties are ignored and only values in this
-   * file are used.
-   * </p>
-   *
-   * @see <a href=
-   *      "https://developer.axonivy.com/doc/7.1.latest/EngineGuideHtml/administration.html#administration.deployment.directory.options">Engine
-   *      Guide</a>
-   */
-  @Parameter(property = "ivy.deploy.options.file", required = false)
-  protected Path deployOptionsFile;
-
-  @Inject
-  private MavenFileFilter fileFilter;
   @Parameter(property = "project", required = false, readonly = true)
   protected MavenProject project;
   @Parameter(property = "session", required = true, readonly = true)
@@ -201,12 +98,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
     return false;
   }
 
-  protected final Path createDeployOptionsFile(DeploymentOptionsFileFactory optionsFileFactory)
-      throws MojoExecutionException {
-    if (deployOptionsFile != null) {
-      return optionsFileFactory.createFromTemplate(deployOptionsFile, project, session, fileFilter);
-    }
-
+  protected final Path createDeployOptionsFile(DeploymentOptionsFileFactory optionsFileFactory) throws MojoExecutionException {
     try {
       String yamlOptions = YamlOptionsFactory.toYaml(this);
       if (StringUtils.isNotBlank(yamlOptions)) {

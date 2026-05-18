@@ -33,7 +33,6 @@ public class YamlOptionsFactory {
 
     gen.writeStartObject(); // root
     writeTestUsers(config, gen);
-    writeTarget(config, gen);
     gen.writeEndObject();
 
     gen.close();
@@ -51,20 +50,4 @@ public class YamlOptionsFactory {
       gen.writeStringField("deployTestUsers", StringUtils.defaultString(deployTestUsers).toUpperCase());
     }
   }
-
-  private static void writeTarget(AbstractDeployMojo config, JsonGenerator gen) throws IOException {
-    boolean defaultVersion = DefaultDeployOptions.VERSION_AUTO.equals(config.deployTargetVersion);
-    boolean defaultState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED.equals(config.deployTargetState);
-    if (!defaultVersion || !defaultState) {
-      gen.writeObjectFieldStart("target");
-      if (!defaultVersion) {
-        gen.writeStringField("version", config.deployTargetVersion);
-      }
-      if (!defaultState) {
-        gen.writeStringField("state", config.deployTargetState);
-      }
-      gen.writeEndObject();
-    }
-  }
-
 }
