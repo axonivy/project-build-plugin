@@ -16,8 +16,6 @@ class TestYamlOptionsFactory {
   void yamlWithAllNonDefaultOptions() throws Exception {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = "true";
-    config.deployTargetVersion = "RELEASED";
-    config.deployTargetState = "ACTIVE";
 
     String yamlOptions = YamlOptionsFactory.toYaml(config);
     assertThat(yamlOptions).isEqualTo(getFileContent("allOptionsSet.yaml"));
@@ -33,9 +31,6 @@ class TestYamlOptionsFactory {
   void yamlWithAllDefaultOptions() throws Exception {
     DeployToEngineMojo config = new DeployToEngineMojo();
     config.deployTestUsers = DefaultDeployOptions.DEPLOY_TEST_USERS;
-    config.deployTargetVersion = DefaultDeployOptions.VERSION_AUTO;
-    config.deployTargetState = DefaultDeployOptions.STATE_ACTIVE_AND_RELEASED;
-
     String yamlOptions = YamlOptionsFactory.toYaml(config);
     assertThat(yamlOptions).isNullOrEmpty();
   }

@@ -75,38 +75,6 @@ class TestDeployToEngineMojo {
         .doesNotExist();
   }
 
-  @Test
-  @InjectMojo(goal = DeployToEngineMojo.GOAL)
-  void deployWithExistingOptionsFile(DeployToEngineMojo deploy) throws Throwable {
-    DeployToEngineMojo mojo = deploy;
-    setup(mojo);
-    mojo.project.getProperties().setProperty("doDeploy.test.user", "true");
-
-    mojo.deployOptionsFile = Path.of("src/test/resources/options.yaml");
-    var deployedIar = getTarget(mojo.deployFile, mojo);
-    var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
-
-    assertThat(deployedIar).doesNotExist();
-    assertThat(deploymentOptionsFile).doesNotExist();
-
-    DelayedOperation mockEngineDeployThread = new DelayedOperation(500, TimeUnit.MILLISECONDS);
-    Callable<Void> engineOperation = () -> {
-      assertThat(deploymentOptionsFile).exists();
-      assertThat(deploymentOptionsFile).hasContent("deployTestUsers: true\ntarget: AUTO");
-      Files.delete(deploymentOptionsFile);
-      assertThat(deployedIar).exists();
-      Files.delete(deployedIar);
-      return null;
-    };
-    mockEngineDeployThread.execute(engineOperation);
-    mojo.execute();
-    mockEngineDeployThread.failOnException();
-
-    assertThat(deployedIar)
-        .as("IAR should not exist in engine deploy directory")
-        .doesNotExist();
-  }
-
   @Provides
   MavenProject provideMockedComponent() {
     var project = new MavenProject();
@@ -124,8 +92,6 @@ class TestDeployToEngineMojo {
     setup(mojo);
 
     mojo.deployTestUsers = "true";
-    mojo.deployTargetVersion = "RELEASED";
-    mojo.deployTargetState = "INACTIVE";
 
     var deployedIar = getTarget(mojo.deployFile, mojo);
     var deploymentOptionsFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".options.yaml");
@@ -138,10 +104,7 @@ class TestDeployToEngineMojo {
       assertThat(deploymentOptionsFile).exists();
       assertThat(deploymentOptionsFile).hasContent(
           """
-            deployTestUsers: "TRUE"
-            target:
-              version: RELEASED
-              state: INACTIVE""");
+            deployTestUsers: "TRUE\"""");
       Files.delete(deploymentOptionsFile);
       assertThat(deployedIar).exists();
       Files.delete(deployedIar);
