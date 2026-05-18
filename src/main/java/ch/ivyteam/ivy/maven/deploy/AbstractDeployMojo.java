@@ -179,6 +179,10 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   @Parameter(defaultValue = "false", property = "ivy.deploy.skip")
   protected boolean skipDeploy;
 
+  /** The name of security context to which the file is deployed. */
+  @Parameter(property = "ivy.deploy.engine.context", required = false, defaultValue = "default")
+  String deployToEngineSecurityContext;
+
   /** The name of an ivy application to which the file is deployed. */
   @Parameter(property = "ivy.deploy.engine.app")
   String deployToEngineApplication;

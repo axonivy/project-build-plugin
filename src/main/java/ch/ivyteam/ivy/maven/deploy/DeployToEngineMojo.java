@@ -184,7 +184,7 @@ public class DeployToEngineMojo extends AbstractDeployMojo {
       getLog().warn("Can not load credentials from settings.xml because server '" + deployServerId
           + "' is not definied. Try to deploy with default username, password");
     }
-    var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineApplication, deployFile, resolvedOptionsFile);
+    var httpDeployer = new HttpDeployer(secDispatcher, server, deployEngineUrl, deployToEngineSecurityContext, deployToEngineApplication, deployFile, resolvedOptionsFile);
     httpDeployer.deploy(getLog());
   }
 
