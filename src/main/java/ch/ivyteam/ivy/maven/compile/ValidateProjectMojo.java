@@ -15,6 +15,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.java.config.index.impl.JavaClassLoaderIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.project.model.Project;
 import ch.ivyteam.ivy.project.model.ProjectVersion;
@@ -44,9 +45,6 @@ public class ValidateProjectMojo extends AbstractMojo {
   @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
 
-  @Parameter(property = "ivy.project.validation.classloader.enabled", defaultValue = "false")
-  boolean enableClassLoader;
-
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
@@ -64,7 +62,7 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   private void validateProject() {
     var time = System.currentTimeMillis();
-    var ctx = new ContextBuilder(project, session, enableClassLoader, getLog()).build();
+    var ctx = new ContextBuilder(project, session, getLog()).build();
     var version = ProjectVersion.of(ctx.project());
     if (!version.isLatest()) {
       getLog().warn("Project is outdated (version: " + version + "). Convert the project to the latest version.");
@@ -103,14 +101,12 @@ public class ValidateProjectMojo extends AbstractMojo {
     private final MavenProject project;
     private final MavenSession session;
     private final MavenDependencies dependencies;
-    private final boolean enableClassLoader;
     private final Log log;
 
-    private ContextBuilder(MavenProject project, MavenSession session, boolean enableClassLoader, Log log) {
+    private ContextBuilder(MavenProject project, MavenSession session, Log log) {
       this.project = project;
       this.session = session;
       this.dependencies = MavenDependencies.of(project).session(session);
-      this.enableClassLoader = enableClassLoader;
       this.log = log;
     }
 
@@ -124,9 +120,11 @@ public class ValidateProjectMojo extends AbstractMojo {
       var ctx = ProjectValidatorContext.create()
           .project(rootProject)
           .allProjects(toAllProjects());
-      if (enableClassLoader) {
-        ctx.classLoader(toClassLoader());
-      }
+
+      var cl = toClassLoader();
+      ctx.classLoader(cl)
+          .javaIndex(new JavaClassLoaderIndex(cl));
+
       return ctx.toContext();
     }
 
@@ -210,7 +208,7 @@ public class ValidateProjectMojo extends AbstractMojo {
             log.debug("Classpath URL: " + url);
           }
         }
-        return new URLClassLoader(urls, null);
+        return new URLClassLoader(urls);
       } catch (DependencyResolutionRequiredException ex) {
         throw new RuntimeException(ex);
       }
