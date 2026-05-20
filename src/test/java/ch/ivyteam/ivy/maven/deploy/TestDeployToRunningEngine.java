@@ -98,6 +98,7 @@ class TestDeployToRunningEngine {
 
   @Test
   void canDeployIar() throws Exception {
+    deployMojo.deployToEngineSecurityContext = "default";
     deployMojo.deployToEngineApplication = "Portal";
     var deployedIar = getTarget(deployMojo.deployFile, deployMojo);
     var deployedIarFlagFile = deployedIar.resolveSibling(deployedIar.getFileName() + ".deployed");
@@ -170,6 +171,7 @@ class TestDeployToRunningEngine {
   private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
     return mojo.deployEngineDirectory
         .resolve(mojo.deployDirectory)
+        .resolve(mojo.deployToEngineSecurityContext)
         .resolve(mojo.deployToEngineApplication)
         .resolve(iar.getFileName().toString());
   }

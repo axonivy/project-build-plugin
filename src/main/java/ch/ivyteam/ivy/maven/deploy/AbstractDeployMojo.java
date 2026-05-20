@@ -32,7 +32,6 @@ import ch.ivyteam.ivy.maven.deploy.DeployToEngineMojo.DefaultDeployOptions;
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.YamlOptionsFactory;
 import ch.ivyteam.ivy.maven.engine.deploy.dir.FileDeployer;
-import ch.ivyteam.ivy.maven.engine.deploy.dir.IvyDeployer;
 import ch.ivyteam.ivy.maven.test.AbstractIntegrationTestMojo;
 
 public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
@@ -120,16 +119,16 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
     }
   }
 
-  protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir)
-      throws MojoExecutionException {
+  protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir) throws MojoExecutionException {
     var targetDeployableFile = createTargetDeployableFile(deployDir);
     String deployablePath = deployDir.relativize(targetDeployableFile).toString();
-    IvyDeployer deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
+    var deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
 
   private final Path createTargetDeployableFile(Path deployDir) {
     return deployDir
+        .resolve(deployToEngineSecurityContext)
         .resolve(deployToEngineApplication)
         .resolve(deployFile.getFileName().toString());
   }

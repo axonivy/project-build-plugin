@@ -150,12 +150,14 @@ class TestDeployToEngineMojo {
   private static Path getTarget(Path iar, DeployToEngineMojo mojo) {
     return mojo.deployEngineDirectory
         .resolve(mojo.deployDirectory)
+        .resolve(mojo.deployToEngineSecurityContext)
         .resolve(mojo.deployToEngineApplication)
         .resolve(iar.getFileName().toString());
   }
 
   static void setup(DeployToEngineMojo mojo) throws IOException {
     mojo.deployEngineDirectory = createEngineDir();
+    mojo.deployToEngineSecurityContext = "default";
     mojo.deployToEngineApplication = "TestApp";
 
     try {
