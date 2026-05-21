@@ -134,6 +134,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
     return deployDir
         .resolve(deployToEngineSecurityContext)
         .resolve(deployToEngineApplication)
+        .resolve(deployToEngineApplicationVersion)
         .resolve(deployFile.getFileName().toString());
   }
 }
