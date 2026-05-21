@@ -159,8 +159,8 @@ class TestDeployToRunningEngine {
       deployMojo.execute();
 
       assertThat(log.getDebug().toString())
-          .contains("Start deploying project(s) of file")
-          .contains("Create and activate new application 'test'")
+          .contains("Start deploying")
+          .contains("Create new application 'default/test/")
           .contains("Deploying users ...")
           .doesNotContain("deployDirectory is set but will not be used for HTTP Deployment.");
     } finally {
