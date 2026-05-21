@@ -83,6 +83,10 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   @Parameter(property = "ivy.deploy.engine.app")
   String deployToEngineApplication;
 
+  /** The application version to which the file is deployed. */
+  @Parameter(property = "ivy.deploy.engine.app", required = false, defaultValue = "new")
+  String deployToEngineApplicationVersion;
+
   public AbstractDeployMojo() {}
 
   protected final boolean checkSkip() {
@@ -121,7 +125,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
 
   protected final void deployToDirectory(Path resolvedOptionsFile, Path deployDir) throws MojoExecutionException {
     var targetDeployableFile = createTargetDeployableFile(deployDir);
-    String deployablePath = deployDir.relativize(targetDeployableFile).toString();
+    var deployablePath = deployDir.relativize(targetDeployableFile).toString();
     var deployer = new FileDeployer(deployDir, resolvedOptionsFile, deployTimeoutInSeconds, deployFile, targetDeployableFile);
     deployer.deploy(deployablePath, getLog());
   }
