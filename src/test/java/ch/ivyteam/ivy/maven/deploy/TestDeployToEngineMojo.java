@@ -152,6 +152,7 @@ class TestDeployToEngineMojo {
         .resolve(mojo.deployDirectory)
         .resolve(mojo.deployToEngineSecurityContext)
         .resolve(mojo.deployToEngineApplication)
+        .resolve(mojo.deployToEngineApplicationVersion)
         .resolve(iar.getFileName().toString());
   }
 
@@ -159,10 +160,12 @@ class TestDeployToEngineMojo {
     mojo.deployEngineDirectory = createEngineDir();
     mojo.deployToEngineSecurityContext = "default";
     mojo.deployToEngineApplication = "TestApp";
+    mojo.deployToEngineApplicationVersion = "new";
 
     try {
-      mojo.deployFile.toFile().getParentFile().mkdir();
-      mojo.deployFile.toFile().createNewFile();
+      var file = mojo.deployFile.toFile();
+      file.getParentFile().mkdir();
+      file.createNewFile();
     } catch (IOException ex) {
       System.err.println("Failed to create IAR @ " + mojo.deployFile.toAbsolutePath());
       throw ex;
