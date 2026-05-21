@@ -12,7 +12,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIUtils;
@@ -33,28 +32,37 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 public class HttpDeployer {
+
   private static final String DEPLOY_URI = "system/api/apps/";
   private final String serverUrl;
   private final String targetSecurityContext;
   private final String targetApplication;
+  private final String targetApplicationVersion;
   private final Path deployFile;
   private final String deployTestUsers;
   private final Server server;
   private final SecDispatcher secDispatcher;
 
-  public HttpDeployer(SecDispatcher secDispatcher, Server server, String serverUrl, String targetSecurityContext, String targetApplication,
-      Path deployFile, String deployTestUsers) {
+  public HttpDeployer(SecDispatcher secDispatcher,
+      Server server,
+      String serverUrl,
+      String targetSecurityContext,
+      String targetApplication,
+      String targetApplicationVersion,
+      Path deployFile,
+      String deployTestUsers) {
     this.secDispatcher = secDispatcher;
     this.server = server;
     this.serverUrl = serverUrl;
     this.targetSecurityContext = targetSecurityContext;
     this.targetApplication = targetApplication;
+    this.targetApplicationVersion = targetApplicationVersion;
     this.deployFile = deployFile;
     this.deployTestUsers = deployTestUsers;
   }
 
   public void deploy(Log log) throws MojoExecutionException {
-    try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+    try (var client = HttpClientBuilder.create().build()) {
       executeRequest(log, client);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to build request body", ex);
@@ -63,18 +71,17 @@ public class HttpDeployer {
     }
   }
 
-  private void executeRequest(Log log, CloseableHttpClient client)
-      throws IOException, URISyntaxException, MojoExecutionException {
-    String url = serverUrl + DEPLOY_URI + targetSecurityContext + "/" + targetApplication;
+  private void executeRequest(Log log, CloseableHttpClient client) throws IOException, URISyntaxException, MojoExecutionException {
+    String url = serverUrl + DEPLOY_URI + targetSecurityContext + "/" + targetApplication + "/deploy/" + targetApplicationVersion;
     HttpPost httpPost = new HttpPost(url);
     httpPost.addHeader("X-Requested-By", "maven-build-plugin");
     httpPost.setEntity(getRequestData());
 
     HttpEntity resultEntity = null;
     log.info("Uploading file " + deployFile + " to " + url);
-    try (CloseableHttpResponse response = client.execute(httpPost, getRequestContext(url))) {
+    try (var response = client.execute(httpPost, getRequestContext(url))) {
       resultEntity = response.getEntity();
-      String deploymentLog = readDeploymentLog(resultEntity);
+      var deploymentLog = readDeploymentLog(resultEntity);
       int status = response.getStatusLine().getStatusCode();
       if (status != HttpStatus.SC_OK) {
         log.error(deploymentLog);
@@ -95,7 +102,7 @@ public class HttpDeployer {
   }
 
   private HttpEntity getRequestData() {
-    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    var builder = MultipartEntityBuilder.create();
     builder.addPart("fileToDeploy", new FileBody(deployFile.toFile()));
     if (deployTestUsers != null && !deployTestUsers.isBlank()) {
       builder.addPart("deployTestUsers", new StringBody(deployTestUsers, ContentType.TEXT_PLAIN));
