@@ -84,7 +84,7 @@ public abstract class AbstractDeployMojo extends AbstractIntegrationTestMojo {
   String deployToEngineApplication;
 
   /** The application version to which the file is deployed. */
-  @Parameter(property = "ivy.deploy.engine.app", required = false, defaultValue = "new")
+  @Parameter(property = "ivy.deploy.engine.app.version", required = false, defaultValue = "new")
   String deployToEngineApplicationVersion;
 
   public AbstractDeployMojo() {}
