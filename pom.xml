@@ -52,7 +52,11 @@
   </properties>
 
   <distributionManagement>
-    <snapshotRepository>
+    <repository>
+      <id>nexus.ivyteam.io</id>
+      <url>https://nexus.ivyteam.io/repository/maven-snapshots/</url>
+    </repository>
+    <!-- <snapshotRepository>
       <id>central.snapshots</id>
       <name>Maven Central Snapshots Repo</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -61,7 +65,7 @@
       <id>central.releases</id>
       <name>Maven Central Releases Repo</name>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
-    </repository>
+    </repository> -->
     <site>
       <id>github</id>
       <url>scm:git:git@github.com:axonivy/project-build-plugin.git</url>
