@@ -47,7 +47,7 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
  *
  * @since 9.2.0
  */
-@Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = MavenDependencyMojo.GOAL, requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM)
 public class MavenDependencyMojo extends AbstractProjectCompileMojo {
   public static final String GOAL = "maven-dependency";
 
