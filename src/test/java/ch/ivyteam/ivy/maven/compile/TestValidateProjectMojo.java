@@ -59,7 +59,7 @@ class TestValidateProjectMojo {
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
-    assertThat(log.getWarnings().toString())
+    assertThat(log.getErrors().toString())
         .contains("Project is outdated (version: 140013). Convert the project to the latest version.");
   }
 }
