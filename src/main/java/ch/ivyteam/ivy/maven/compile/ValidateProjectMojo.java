@@ -15,6 +15,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.java.config.index.impl.JavaClassLoaderIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.project.model.Project;
 import ch.ivyteam.ivy.project.model.ProjectVersion;
@@ -67,7 +68,8 @@ public class ValidateProjectMojo extends AbstractMojo {
     var ctx = new ContextBuilder(project, session, enableClassLoader, getLog()).build();
     var version = ProjectVersion.of(ctx.project());
     if (!version.isLatest()) {
-      getLog().warn("Project is outdated (version: " + version + "). Convert the project to the latest version.");
+      getLog().error("Project is outdated (version: " + version + "). Convert the project to the latest version.");
+      return;
     }
     for (var validator : validators()) {
       var result = validator.validate(ctx);
@@ -125,7 +127,8 @@ public class ValidateProjectMojo extends AbstractMojo {
           .project(rootProject)
           .allProjects(toAllProjects());
       if (enableClassLoader) {
-        ctx.classLoader(toClassLoader());
+        var cl = toClassLoader();
+        ctx.javaIndex(new JavaClassLoaderIndex(cl));
       }
       return ctx.toContext();
     }
@@ -210,7 +213,7 @@ public class ValidateProjectMojo extends AbstractMojo {
             log.debug("Classpath URL: " + url);
           }
         }
-        return new URLClassLoader(urls, null);
+        return new URLClassLoader(urls);
       } catch (DependencyResolutionRequiredException ex) {
         throw new RuntimeException(ex);
       }
