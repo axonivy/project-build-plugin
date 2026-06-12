@@ -3,7 +3,7 @@
   <groupId>com.axonivy.ivy.ci</groupId>
   <artifactId>project-build-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>14.0.0-SNAPSHOT</version>
+  <version>14.9.0-SNAPSHOT</version>
 
   <name>Axon Ivy Project Build Plugin</name>
   <description>Maven plugin for the automated building of Axon Ivy Projects. Referenced from the pom.xml of Axon Ivy Projects.</description>
@@ -48,11 +48,15 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ivy.api>14.0.0-SNAPSHOT</ivy.api>
+    <ivy.api>14.9.0-SNAPSHOT</ivy.api>
   </properties>
 
   <distributionManagement>
-    <snapshotRepository>
+    <repository>
+      <id>nexus.ivyteam.io</id>
+      <url>https://nexus.ivyteam.io/repository/maven-snapshots/</url>
+    </repository>
+    <!-- <snapshotRepository>
       <id>central.snapshots</id>
       <name>Maven Central Snapshots Repo</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -61,7 +65,7 @@
       <id>central.releases</id>
       <name>Maven Central Releases Repo</name>
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
-    </repository>
+    </repository> -->
     <site>
       <id>github</id>
       <url>scm:git:git@github.com:axonivy/project-build-plugin.git</url>
@@ -79,7 +83,7 @@
       <!-- Required for project validation -->
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
-      <version>2.1.6</version>
+      <version>4.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -177,9 +181,9 @@
       <version>3.2.0</version>
     </dependency>
     <dependency>
-      <groupId>javax.jws</groupId>
-      <artifactId>javax.jws-api</artifactId>
-      <version>1.1</version>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>3.0.0</version>
     </dependency>
 
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
