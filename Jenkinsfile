@@ -15,6 +15,9 @@ pipeline {
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
       defaultValue: 'https://product.ivyteam.io')
+    string(name: 'sprintQualifier',
+      description: "Optional sprint qualifier (e.g. m7 for Sprint 7). Empty keeps the original project version.",
+      defaultValue: '')
   }
 
   stages {
@@ -23,6 +26,10 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
+            def qualifier = params.sprintQualifier?.trim()
+            if (qualifier) {
+              applyVersionQualifier(qualifier)
+            }
             def phase = isReleasingBranch() ? 'deploy' : 'verify'
             maven cmd: "clean ${phase} " +
               "-Dgpg.skip=false " +
@@ -167,4 +174,11 @@ def collectBuildArtifacts()  {
     excludeType('cyclonedx:makeBom')
   ]
   recordIssues tools: [java()], qualityGates: [[threshold: 1, type: 'TOTAL']]
+}
+
+def applyVersionQualifier(String qualifier) {
+  def currentVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+  def qualified  = currentVersion.replaceFirst(/-SNAPSHOT$/, "-${qualifier}")
+  echo "Using version '${qualified}' for this build."
+  maven cmd: "versions:set -DnewVersion=${qualified} -DgenerateBackupPoms=false"
 }
