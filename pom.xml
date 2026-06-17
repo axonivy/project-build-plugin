@@ -386,6 +386,7 @@
         <configuration>
           <outputFormat>json</outputFormat>
           <includeLicenseText>true</includeLicenseText>
+          <skipNotDeployed>false</skipNotDeployed>
         </configuration>
       </plugin>
       <plugin>
