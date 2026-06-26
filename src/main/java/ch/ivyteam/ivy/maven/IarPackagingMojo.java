@@ -50,7 +50,8 @@ public class IarPackagingMojo extends AbstractMojo {
     String[] INCLUDES = {"**/*"};
     String[] EXCLUDES = {"target/"};
     String[] TARGET_INCLUDES = {
-        "target/src_hd/**/*"
+        "target/src_hd/**/*",
+        "target/lib/mvn-deps/*"
     };
     String PREFIX = "META-INF/ivy/";
   }
@@ -78,7 +79,7 @@ public class IarPackagingMojo extends AbstractMojo {
    * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion
    * declarations.
    *
-   * From the 'target' directory only 'classes' and 'src_hd' are included by default.
+   * From the 'target' directory only 'classes', 'src_hd' and 'lib/mvn-deps' are included by default.
    * See {@link ch.ivyteam.ivy.maven.IarPackagingMojo.Defaults#TARGET_INCLUDES}.
    *
    * <pre>

@@ -57,9 +57,10 @@ public class MavenDependencyMojo extends AbstractMojo {
     }
 
     var deps = MavenDependencies.of(project).localTransient();
+    var targetDir = Path.of(project.getBuild().getDirectory());
 
     if (isM2eBuild()) {
-      writeM2eDependencyHint(Path.of(project.getBuild().getDirectory()), deps);
+      writeM2eDependencyHint(targetDir, deps);
       return;
     }
 
@@ -69,7 +70,7 @@ public class MavenDependencyMojo extends AbstractMojo {
       return;
     }
     try {
-      var mvnLibDir = Files.createDirectories(project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
+      var mvnLibDir = Files.createDirectories(targetDir.resolve("lib").resolve("mvn-deps"));
       copyDependency(mvnLibDir, deps);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to create mvn-deps directory", ex);
