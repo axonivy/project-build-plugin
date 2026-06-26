@@ -10,10 +10,25 @@ hs_err_pid*
 
 # maven
 target/
+!target/
+target/*
+!target/classes/
+target/classes/*
+!target/classes/invalid/
+target/classes/invalid/*
+!target/classes/invalid/BusinessProcessData.class
+!target/classes/validation/
+target/classes/validation/*
+!target/classes/validation/ProcessTestData.class
 lib/mvn-deps/
 
 # ivy
 classes/
+!target/classes/
+!target/classes/invalid/
+!target/classes/invalid/BusinessProcessData.class
+!target/classes/validation/
+!target/classes/validation/ProcessTestData.class
 src_generated/dataclass/
 src_generated/wsprocess/
 src_generated/repo/
