@@ -27,14 +27,15 @@ class TestCleanupMojo {
 
   @Test
   void noMavenDepsDir() throws Exception {
-    var mvnLibDir = mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps");
+    var buildDir = Path.of(mojo.project.getBuild().getDirectory());
+    var mvnLibDir = buildDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     mojo.execute();
     assertThat(mvnLibDir).doesNotExist();
   }
 
   @Test
-  void cleanupMavenDepsDir() throws Exception {
+  void cleanupLegacyMavenDepsDir() throws Exception {
     var mvnLibDir = Files
         .createDirectories(mojo.project.getBasedir().toPath().resolve("lib").resolve("mvn-deps"));
     var mvnDep = Files.copy(Path.of("src/test/resources/jjwt-0.9.1.jar"), mvnLibDir.resolve("jjwt-0.9.1.jar"));

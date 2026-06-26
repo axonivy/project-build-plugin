@@ -19,6 +19,7 @@ import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoExtension;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Build;
 import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.AfterEach;
@@ -35,6 +36,7 @@ class TestMavenDependencyMojo {
 
   private MavenDependencyMojo mojo;
   private final Path projectDir = Path.of(TEST_BASE);
+  private final Path mvnLibDir = projectDir.resolve("target/lib/mvn-deps");
 
   @BeforeEach
   @InjectMojo(goal = MavenDependencyMojo.GOAL)
@@ -45,13 +47,14 @@ class TestMavenDependencyMojo {
   @AfterEach
   void tearDown() {
     artifacts.clear();
-    var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     PathUtils.delete(mvnLibDir);
   }
 
   @Provides
   MavenProject provideMockedComponent() throws IOException {
     MavenProject pom = Mockito.mock(MavenProject.class);
+    var build = new Build();
+    build.setDirectory(projectDir.resolve("target").toAbsolutePath().toString());
     var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
     Mockito.lenient().when(pom.getArtifact()).thenReturn(self);
     Mockito.lenient().when(pom.getArtifacts()).thenReturn(artifacts);
@@ -59,6 +62,8 @@ class TestMavenDependencyMojo {
     Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");
     Mockito.lenient().when(pom.getBasedir())
         .thenReturn(Paths.get(MojoExtension.getBasedir()).toFile());
+    Mockito.lenient().when(pom.getBuild())
+        .thenReturn(build);
     return pom;
   }
 
@@ -67,7 +72,6 @@ class TestMavenDependencyMojo {
   @Test
   @Basedir(TEST_BASE)
   void noMavenDeps() throws Exception {
-    var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     mojo.execute();
     assertThat(mvnLibDir).doesNotExist();
@@ -76,7 +80,6 @@ class TestMavenDependencyMojo {
   @Test
   @Basedir(TEST_BASE)
   void exportMavenDepsToLibDir() throws Exception {
-    var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
 
@@ -94,7 +97,6 @@ class TestMavenDependencyMojo {
   @Test
   @Basedir(TEST_BASE)
   void onlyLocalDeps() throws Exception {
-    var mvnLibDir = projectDir.resolve("lib").resolve("mvn-deps");
     assertThat(mvnLibDir).doesNotExist();
     Artifact artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
     artifact.setFile(Path.of("src/test/resources/jjwt-0.9.1.jar").toFile());
