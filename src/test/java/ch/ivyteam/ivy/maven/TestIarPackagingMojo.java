@@ -232,6 +232,25 @@ class TestIarPackagingMojo {
   }
 
   @Test
+  void includeTarget_mvnDeps() throws Exception {
+    var target = mojo.project.getBasedir().toPath().resolve("target");
+    var mvnDep = target.resolve("lib/mvn-deps").resolve("thirdParty.jar");
+    Files.createDirectories(mvnDep.getParent());
+    Files.writeString(mvnDep, "hello");
+
+    mojo.execute();
+
+    var iarFiles = iarFiles(mojo.project.getBasedir().toPath().resolve("target"));
+    assertThat(iarFiles).hasSize(1);
+
+    var iarFile = iarFiles.getFirst();
+    try (var archive = new ZipFile(iarFile.toFile())) {
+      assertThat(getProjectZipFileEntry(archive, "target/lib/mvn-deps/thirdParty.jar"))
+          .isNotNull();
+    }
+  }
+
+  @Test
   void validDefaultExcludePatternsForWindows() {
     for (var defaultExclude : IarPackagingMojo.Defaults.EXCLUDES) {
       defaultExclude = StringUtils.replace(defaultExclude, "/", "\\\\"); // see
