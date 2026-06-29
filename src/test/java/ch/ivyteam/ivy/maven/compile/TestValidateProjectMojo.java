@@ -47,7 +47,8 @@ class TestValidateProjectMojo {
         .contains("dataclasses/validation/BusinessProcessData.d.json: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
         .contains("processes/validation/TestProcess.p.json: Invalid character in signaturename at position 1")
         .contains("processes/validation/TestProcess.p.json: Output code: Variable 'wrong' cannot be resolved")
-        .contains("src_hd/validation/TestForm/TestForm.f.json: Button action cannot be empty");
+        .contains("src_hd/validation/TestForm/TestForm.f.json: Button action cannot be empty")
+        .contains("config/databases.yaml: The database connection key 'testdb' is duplicated in the same project");
   }
 
   @Test
