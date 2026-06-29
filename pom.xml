@@ -100,10 +100,28 @@
       <version>1.63.0</version>
     </dependency>
     <dependency>
+      <!-- Required for project validation -->
+      <groupId>jakarta.el</groupId>
+      <artifactId>jakarta.el-api</artifactId>
+      <version>6.0.1</version>
+     </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${maven.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation -->
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jasper-el</artifactId>
+      <version>11.0.23</version>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation -->
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>4.0.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
