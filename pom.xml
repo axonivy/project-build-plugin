@@ -82,6 +82,24 @@
       <version>4.0.0</version>
     </dependency>
     <dependency>
+      <!-- Required for project validation -->
+      <groupId>com.github.vbmacher</groupId>
+      <artifactId>java-cup-runtime</artifactId>
+      <version>11b-20160615</version>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation -->
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk</artifactId>
+      <version>1.63.0</version>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation -->
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+      <version>1.63.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${maven.version}</version>
@@ -414,6 +432,7 @@
                     <include>**/*.class</include>
                     <include>**/*.xhtml</include>
                     <include>**/latestYaml.properties</include>
+                    <include>plugin.xml</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>
