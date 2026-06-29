@@ -15,9 +15,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.database.impl.DatabaseProjectValidator;
-import ch.ivyteam.ivy.datawrapper.internal.validation.ProcessValidator;
-import ch.ivyteam.ivy.dialog.form.validation.FormProjectValidator;
 import ch.ivyteam.ivy.java.config.index.JavaIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.project.model.Project;
@@ -27,12 +24,6 @@ import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
-import ch.ivyteam.ivy.rest.client.config.impl.RestClientProjectValidator;
-import ch.ivyteam.ivy.role.impl.RoleProjectValidator;
-import ch.ivyteam.ivy.scripting.dataclass.validation.impl.DataClassProjectValidator;
-import ch.ivyteam.ivy.user.impl.UserProjectValidator;
-import ch.ivyteam.ivy.variables.config.impl.VariableProjectValidator;
-import ch.ivyteam.ivy.webservice.datamodel.impl.WebServiceClientProjectValidator;
 
 /**
  * Validates an ivy Project with an ivyEngine.
@@ -71,7 +62,7 @@ public class ValidateProjectMojo extends AbstractMojo {
       getLog().error("Project is outdated (version: " + version + "). Convert the project to the latest version.");
       return;
     }
-    for (var validator : validators()) {
+    for (var validator : ProjectValidator.all()) {
       var result = validator.validate(ctx);
       for (var message : result.messages()) {
         log(message);
@@ -79,19 +70,6 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
     var duration = System.currentTimeMillis() - time;
     getLog().info("Validation finished in " + duration + "ms");
-  }
-
-  private List<ProjectValidator<?>> validators() {
-    return List.of(
-        new UserProjectValidator(),
-        new RoleProjectValidator(),
-        new WebServiceClientProjectValidator(),
-        new VariableProjectValidator(),
-        new RestClientProjectValidator(),
-        new DataClassProjectValidator(),
-        new ProcessValidator(),
-        new FormProjectValidator(),
-        new DatabaseProjectValidator());
   }
 
   private void log(Message message) {
