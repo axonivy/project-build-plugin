@@ -15,6 +15,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.database.impl.DatabaseProjectValidator;
 import ch.ivyteam.ivy.datawrapper.internal.validation.ProcessValidator;
 import ch.ivyteam.ivy.dialog.form.validation.FormProjectValidator;
 import ch.ivyteam.ivy.java.config.index.JavaIndex;
@@ -89,7 +90,8 @@ public class ValidateProjectMojo extends AbstractMojo {
         new RestClientProjectValidator(),
         new DataClassProjectValidator(),
         new ProcessValidator(),
-        new FormProjectValidator());
+        new FormProjectValidator(),
+        new DatabaseProjectValidator());
   }
 
   private void log(Message message) {

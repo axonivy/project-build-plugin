@@ -82,7 +82,7 @@
       <version>4.0.0</version>
     </dependency>
     <dependency>
-      <!-- Required for project validation -->
+      <!-- Required for project validation. Parsing IvyScript -->
       <groupId>com.github.vbmacher</groupId>
       <artifactId>java-cup-runtime</artifactId>
       <version>11b-20160615</version>
@@ -100,7 +100,7 @@
       <version>1.63.0</version>
     </dependency>
     <dependency>
-      <!-- Required for project validation -->
+      <!-- Required for project validation. Validating EL-Expressions  -->
       <groupId>jakarta.el</groupId>
       <artifactId>jakarta.el-api</artifactId>
       <version>6.0.1</version>
@@ -112,13 +112,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <!-- Required for project validation -->
+      <!-- Required for project validation. Validating EL-Expressions  -->
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-jasper-el</artifactId>
       <version>11.0.23</version>
     </dependency>
     <dependency>
-      <!-- Required for project validation -->
+      <!-- Required for project validation. Validating EL-Expressions -->
       <groupId>org.apache.myfaces.core</groupId>
       <artifactId>myfaces-api</artifactId>
       <version>4.0.3</version>
@@ -449,8 +449,12 @@
                   <includes>
                     <include>**/*.class</include>
                     <include>**/*.xhtml</include>
+                    <!-- Required for project validation -->
                     <include>**/latestYaml.properties</include>
+                    <!-- Required for project validation. Ensure successful extension points usage -->
                     <include>plugin.xml</include>
+                    <!-- Required for project validation. Validating Database-Config using CryptoUtils -->
+                    <include>**/AES.key</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>

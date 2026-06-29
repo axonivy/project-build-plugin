@@ -1,2 +1,14 @@
 # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0-dev/config/databases-1.json
 Databases:
+  testDB:
+    Url: jdbc:mysql://null
+    Driver: com.mysql.cj.jdbc.Driver
+    Password: ${decrypt:}
+    MaxConnections: 5
+    Name: testDB
+  testDB:
+    Url: jdbc:mysql://null
+    Driver: com.mysql.cj.jdbc.Driver
+    Password: ${decrypt:}
+    MaxConnections: 5
+    Name: testDB
