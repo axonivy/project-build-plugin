@@ -124,6 +124,12 @@
       <version>4.0.3</version>
     </dependency>
     <dependency>
+      <!-- Required for project validation. -->
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-core-jakarta</artifactId>
+      <version>2.2.52</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
       <version>${maven.version}</version>
@@ -217,7 +223,6 @@
       <artifactId>jakarta.jws-api</artifactId>
       <version>3.0.0</version>
     </dependency>
-
     <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
     <dependency>
       <groupId>org.slf4j</groupId>
