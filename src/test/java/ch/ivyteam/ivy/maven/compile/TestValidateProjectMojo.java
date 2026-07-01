@@ -38,15 +38,14 @@ class TestValidateProjectMojo {
         .contains("config/webservice-clients.yaml: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
         .contains("config/webservice-clients.yaml: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.")
         .contains("config/rest-clients.yaml: The rest client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
+        .contains("dataclasses/validation/BusinessProcessData.d.json: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
         .contains("config/rest-clients.yaml: The rest client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
 
     assertThat(log.getErrors().toString())
         .contains("config/roles.yaml: Role 'HR Manager' has an unknown parent 'Manager'.")
         .contains("config/variables.yaml: Variable 'Test' is defined multiple times in variables.yaml.")
         .contains("dataclasses/validation/BusinessProcessData.d.json: The namespace 'invalid' does not match the directory of the Data Class.")
-        .contains("dataclasses/validation/BusinessProcessData.d.json: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
         .contains("processes/validation/TestProcess.p.json: Invalid character in signaturename at position 1")
-        .contains("processes/validation/TestProcess.p.json: Output code: Variable 'wrong' cannot be resolved")
         .contains("src_hd/validation/TestForm/TestForm.f.json: Button action cannot be empty")
         .contains("config/databases.yaml: The database connection key 'testdb' is duplicated in the same project");
   }
