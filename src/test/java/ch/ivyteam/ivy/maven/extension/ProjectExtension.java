@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Properties;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -28,7 +29,6 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
 
   private static Path project;
   private static Path workspace;
-  private static int count = 0;
 
   private Path userDir;
 
@@ -44,12 +44,8 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
   public void beforeAll(ExtensionContext context) throws Exception {
     this.userDir = SystemUtils.getUserDirPath();
     workspace = Files.createTempDirectory("copySpace");
-    nextProject(context);
-  }
-
-  private void nextProject(ExtensionContext context) {
-    count++;
-    project = workspace.resolve("base_" + context.getDisplayName() + count);
+    project = workspace.resolve("base_" + context.getDisplayName());
+    Files.createDirectories(project);
     System.setProperty("basedir", project.toString());
   }
 
@@ -60,13 +56,13 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
+    clearDirectory(project);
     copyDirectory(userDir.resolve(testBase), project);
   }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
-    PathUtils.delete(project);
-    nextProject(context);
+    clearDirectory(project);
   }
 
   public static MavenProject project() throws IOException {
@@ -116,6 +112,25 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
           throw new UncheckedIOException(ex);
         }
       });
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  private static void clearDirectory(Path dir) {
+    if (!Files.exists(dir)) {
+      return;
+    }
+    try (var walker = Files.walk(dir)) {
+      walker.sorted(Comparator.reverseOrder())
+          .filter(p -> !p.equals(dir))
+          .forEach(p -> {
+            try {
+              Files.delete(p);
+            } catch (IOException ex) {
+              throw new UncheckedIOException(ex);
+            }
+          });
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
