@@ -60,7 +60,7 @@
                 <requireFilesExist>
                   <files>
                     <file>${project.basedir}/lib/mvn-deps/jspecify-1.0.0.jar</file>
-                    <file>${project.basedir}/lib/mvn-deps/docusign-esign-java-6.6.0.jar</file>
+                    <file>${project.basedir}/lib/mvn-deps/docusign-esign-java-*.jar</file>
                   </files>
                 </requireFilesExist>
               </rules>
