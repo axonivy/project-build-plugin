@@ -72,7 +72,7 @@
                   <files>
                     <file>${project.basedir}/target/lib/mvn-deps/jspecify-1.0.0.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
-                    <file>${project.basedir}lib/demo-1.0-SNAPSHOT.jar</file>
+                    <file>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/demo-1.0-SNAPSHOT.jar</file>
                   </files>
                 </requireFilesExist>
