@@ -40,6 +40,13 @@
       <version>1.0.0</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>ch.ivy.test.local.jar</groupId>
+      <artifactId>local-jar-in-lib</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</systemPath>
+    </dependency>
   </dependencies>
   
   <build>
@@ -63,8 +70,10 @@
               <rules>
                 <requireFilesExist>
                   <files>
-                    <file>${project.basedir}/lib/mvn-deps/jspecify-1.0.0.jar</file>
-                    <file>${project.basedir}/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
+                    <file>${project.basedir}/target/lib/mvn-deps/jspecify-1.0.0.jar</file>
+                    <file>${project.basedir}/target/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
+                    <file>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</file>
+                    <file>${project.basedir}/target/lib/mvn-deps/demo-1.0-SNAPSHOT.jar</file>
                   </files>
                 </requireFilesExist>
               </rules>
