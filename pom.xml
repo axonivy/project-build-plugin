@@ -121,7 +121,7 @@
       <!-- Required for project validation. Validating EL-Expressions  -->
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-jasper-el</artifactId>
-      <version>11.0.23</version>
+      <version>11.0.24</version>
     </dependency>
     <dependency>
       <!-- Required for project validation. Validating EL-Expressions -->
