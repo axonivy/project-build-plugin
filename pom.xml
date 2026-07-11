@@ -97,13 +97,13 @@
       <!-- Required for project validation -->
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk</artifactId>
-      <version>1.63.0</version>
+      <version>1.64.0</version>
     </dependency>
     <dependency>
       <!-- Required for project validation -->
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-      <version>1.63.0</version>
+      <version>1.64.0</version>
     </dependency>
     <dependency>
       <!-- Required for project validation. Validating EL-Expressions  -->
