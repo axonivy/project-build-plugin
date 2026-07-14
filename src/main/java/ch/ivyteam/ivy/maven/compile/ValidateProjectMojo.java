@@ -3,6 +3,7 @@ package ch.ivyteam.ivy.maven.compile;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
@@ -26,18 +27,67 @@ import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
 
 /**
- * Validates an ivy Project with an ivyEngine.
+ * Validates an ivy Project.
  */
 @Mojo(name = ValidateProjectMojo.GOAL, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidateProjectMojo extends AbstractMojo {
   public static final String GOAL = "validateProject";
+
+  /**
+   * Set to <code>true</code> to completely skip the project validation.
+   * @since 14.0.0
+   */
+  @Parameter(property = "ivy.validation.skip", defaultValue = "false")
+  boolean skipProjectValidation;
+
   /**
    * Set to <code>false</code> to perform the validation of ivyScript code
    * within ivy processes.
+   *
+   * @deprecated use {@link #skipProjectValidation} (property <code>ivy.validation.skip</code>)
+   *             instead, which skips the validation entirely rather than
+   *             just the script validation part. This parameter will be
+   *             removed in a future version.
    * @since 8.0.3
    */
+  @Deprecated(since = "14.0.0", forRemoval = true)
   @Parameter(property = "ivy.script.validation.skip", defaultValue = "false")
   boolean skipScriptValidation;
+
+  /**
+   * List of validators to deliberately exclude from the validation run.
+   * The following are currently included:
+   * <ul>
+   * <li><code>role</code></li>
+   * <li><code>database</code></li>
+   * <li><code>form</code></li>
+   * <li><code>dataclass</code></li>
+   * <li><code>process</code></li>
+   * <li><code>restclient</code></li>
+   * <li><code>webserviceclient</code></li>
+   * <li><code>variable</code></li>
+   * <li><code>user</code></li>
+   * </ul>
+   *
+   * Configure a fixed set in the POM:
+   * <pre>
+   * &lt;configuration&gt;
+   * &lt;excludeValidators&gt;
+   * &lt;validator&gt;process&lt;/validator&gt;
+   * &lt;validator&gt;role&lt;/validator&gt;
+   * &lt;/excludeValidators&gt;
+   * &lt;/configuration&gt;
+   * </pre>
+   *
+   * Or set it directly from the command line as a comma-separated list,
+   * without touching the POM:
+   * <pre>
+   * mvn install -Divy.validation.excludeValidators=role,webservice
+   * </pre>
+   * @since 14.0.0
+   */
+  @Parameter(property = "ivy.validation.excludeValidators")
+  List<String> excludeValidators;
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -47,11 +97,20 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   @Override
   public void execute() {
-    if (skipScriptValidation) {
-      getLog().info("Skipping ivy script validation");
+    if (isSkip()) {
+      getLog().info("Skipping ivy project validation");
       return;
     }
     validateProject();
+  }
+
+  private boolean isSkip() {
+    if (skipScriptValidation) {
+      getLog().warn("The parameter 'ivy.script.validation.skip' is deprecated and will be removed "
+          + "in a future version. Use 'ivy.validation.skip' instead.");
+      return true;
+    }
+    return skipProjectValidation;
   }
 
   private void validateProject() {
@@ -62,7 +121,7 @@ public class ValidateProjectMojo extends AbstractMojo {
       getLog().error("Project is outdated (version: " + version + "). Convert the project to the latest version.");
       return;
     }
-    for (var validator : ProjectValidator.all()) {
+    for (var validator : validators()) {
       var result = validator.validate(ctx);
       for (var message : result.messages()) {
         log(message);
@@ -70,6 +129,37 @@ public class ValidateProjectMojo extends AbstractMojo {
     }
     var duration = System.currentTimeMillis() - time;
     getLog().info("Validation finished in " + duration + "ms");
+  }
+
+  @SuppressWarnings("rawtypes")
+  private List<ProjectValidator> validators() {
+    var excluded = excludedKeywords();
+    if (excluded.isEmpty()) {
+      return ProjectValidator.all();
+    }
+    return ProjectValidator.all().stream()
+        .filter(validator -> !isExcluded(validator, excluded))
+        .toList();
+  }
+
+  private List<String> excludedKeywords() {
+    var keywords = new ArrayList<String>();
+    if (excludeValidators != null) {
+      keywords.addAll(excludeValidators);
+    }
+    return keywords;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private boolean isExcluded(ProjectValidator validator, List<String> excluded) {
+    var id = validator.id();
+    var isExcluded = excluded.stream()
+        .filter(keyword -> keyword != null && !keyword.isBlank())
+        .anyMatch(keyword -> id.equalsIgnoreCase(keyword));
+    if (isExcluded) {
+      getLog().info("Skipping validator '" + validator.id() + "' (excluded by configuration)");
+    }
+    return isExcluded;
   }
 
   private void log(Message message) {

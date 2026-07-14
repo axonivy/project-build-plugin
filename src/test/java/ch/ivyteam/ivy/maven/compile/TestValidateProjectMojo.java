@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
@@ -67,4 +68,59 @@ class TestValidateProjectMojo {
     assertThat(log.getErrors().toString())
         .contains("Project is outdated (version: 140013). Convert the project to the latest version.");
   }
+
+  @Test
+  void skip_completelySkipsValidation() {
+    mojo.skipProjectValidation = true;
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getInfos().toString()).contains("Skipping ivy project validation");
+    assertThat(log.getErrors()).isEmpty();
+    assertThat(log.getWarnings()).isEmpty();
+  }
+
+  @SuppressWarnings("removal")
+  @Test
+  void deprecatedSkipScriptValidation_stillSkipsEntireValidation() {
+    mojo.skipScriptValidation = true;
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getWarnings().toString())
+        .contains("The parameter 'ivy.script.validation.skip' is deprecated");
+    assertThat(log.getInfos().toString()).contains("Skipping ivy project validation");
+    assertThat(log.getErrors()).isEmpty();
+  }
+
+  @Test
+  void excludedValidators_excludesConfiguredValidatorByKeyword() {
+    mojo.excludeValidators = List.of("Role");
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getInfos().toString())
+        .contains("Skipping validator 'role' (excluded by configuration)");
+    assertThat(log.getErrors().toString())
+        .doesNotContain("Role 'HR Manager' has an unknown parent 'Manager'.")
+        // other validators still run
+        .contains("config/variables.yaml: Variable 'Test' is defined multiple times in variables.yaml.");
+  }
+
+  @Test
+  void excludedValidators_isCaseInsensitiveAndMatchesSimpleName() {
+    mojo.excludeValidators = List.of("role", "webServiceClient");
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getErrors().toString())
+        .doesNotContain("Role 'HR Manager' has an unknown parent 'Manager'.");
+    assertThat(log.getWarnings().toString())
+        .doesNotContain("config/webservice-clients.yaml: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.");
+  }
+
 }
