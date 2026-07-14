@@ -144,16 +144,19 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
 -Divy.engine.os.arch=Linux_x64
 </pre></td></tr>
 <tr class="a">
+<td><a href="./ivy-add-resource-mojo.html">ivy:ivy-add-resource</a></td>
+<td>Dynamically adds resource directories to the Maven build. All direct subdirectories of <code>src_generated/rest/</code> and <code>src_generated/ws/</code> are added as resource directories.</td></tr>
+<tr class="b">
 <td><a href="./ivy-cleanup-mojo.html">ivy:ivy-cleanup</a></td>
 <td>Deletes directories that contain generated sources. By default, the following directories are removed: <code>lib/mvn-deps</code> and <code>src_generated</code>.</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="./ivy-integration-test-properties-mojo.html">ivy:ivy-integration-test-properties</a></td>
 <td><p>Shares crucial test engine internals with the forked JVM that runs tests.</p>
 <p>The property being set is called <code>argLine</code> and classically used by the 'maven-failsafe-plugin'.</p></td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="./ivy-test-vm-runtime-mojo.html">ivy:ivy-test-vm-runtime</a></td>
 <td>Provides a property file containing project-related information such as dependent projects. Tries to auto-configure 'maven-surefire-plugin' so that the test VM can access the provided information.</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="./maven-dependency-mojo.html">ivy:maven-dependency</a></td>
 <td>Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven dependencies</a> to a specific folder. 
 <p>To reduce the size of your ivy archives, make sure that your dependencies are configured correctly:</p>
@@ -161,14 +164,14 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
  <li>Mark test dependencies with the scope <b>test</b></li>
  <li><a href="https://maven.apache.org/pom.html#exclusions">Exclude transient dependencies</a> which are already delivered by the core</li>
 </ul></td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="./pack-iar-mojo.html">ivy:pack-iar</a></td>
 <td>Packs the compiled project as ivy-archive (IAR).</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="./share-engine-core-classpath-mojo.html">ivy:share-engine-core-classpath</a></td>
 <td>
 <div><strong>Deprecated.</strong> Sharing the classpath of the Axon Ivy Engine is no longer needed, because all dependencies are available as Maven dependencies.</div><br />Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="./start-test-engine-mojo.html">ivy:start-test-engine</a></td>
 <td>Starts the Axon Ivy Engine for integration testing. 
 <p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>. You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine. However, in an <code>iar-integration-test</code> lifecycle this is already provided by the 'ivy-integration-test-properties' goal.</p>
@@ -179,13 +182,13 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
   &lt;/configuration&gt;
 </code>
 </pre></td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="./stop-test-engine-mojo.html">ivy:stop-test-engine</a></td>
 <td>Stops the Axon Ivy Engine after integration testing</td></tr>
-<tr class="a">
+<tr class="b">
 <td><a href="./validate-mojo.html">ivy:validate</a></td>
 <td>Validates that only one version of the project-build-plugin is active in one maven reactor.</td></tr>
-<tr class="b">
+<tr class="a">
 <td><a href="./validateProject-mojo.html">ivy:validateProject</a></td>
 <td>Validates an ivy Project.</td></tr></table></section><section><a id="System_Requirements"></a>
 <h2>System Requirements</h2>
