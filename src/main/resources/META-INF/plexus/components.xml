@@ -16,6 +16,9 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
+          <generate-resources>
+            com.axonivy.ivy.ci:project-build-plugin:ivy-add-resource
+          </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
           <process-classes>com.axonivy.ivy.ci:project-build-plugin:validateProject</process-classes>
@@ -49,6 +52,9 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-dialog-form-sources,
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
+          <generate-resources>
+            com.axonivy.ivy.ci:project-build-plugin:ivy-add-resource
+          </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
           <process-classes>com.axonivy.ivy.ci:project-build-plugin:validateProject</process-classes>
