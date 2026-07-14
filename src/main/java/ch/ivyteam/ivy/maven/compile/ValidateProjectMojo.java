@@ -24,7 +24,6 @@ import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
-import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
 
 /**
  * Validates an ivy Project.
@@ -121,14 +120,15 @@ public class ValidateProjectMojo extends AbstractMojo {
       getLog().error("Project is outdated (version: " + version + "). Convert the project to the latest version.");
       return;
     }
+    var reporter = new ValidationReporter(getLog(), project);
     for (var validator : validators()) {
       var result = validator.validate(ctx);
       for (var message : result.messages()) {
-        log(message);
+        reporter.report(message);
       }
     }
     var duration = System.currentTimeMillis() - time;
-    getLog().info("Validation finished in " + duration + "ms");
+    reporter.logSummary(project.getName(), duration);
   }
 
   @SuppressWarnings("rawtypes")
@@ -162,15 +162,6 @@ public class ValidateProjectMojo extends AbstractMojo {
     return isExcluded;
   }
 
-  private void log(Message message) {
-    var mvnProjectUri = project.getBasedir().toURI();
-    var path = project.getName() + " - " + mvnProjectUri.relativize(message.file()).getPath();
-    switch (message.severity()) {
-      case ERROR -> getLog().error(path + ": " + message.text());
-      case WARN -> getLog().warn(path + ": " + message.text());
-      case INFO -> getLog().info(path + ": " + message.text());
-    }
-  }
   private static class ContextBuilder {
 
     private final MavenProject project;
