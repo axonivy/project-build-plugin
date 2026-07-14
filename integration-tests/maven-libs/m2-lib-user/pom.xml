@@ -76,7 +76,7 @@
                     <file>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/demo-1.0-SNAPSHOT.jar</file>
                     <!-- checks for AddResourceMojo -->
-                    <file>${project.basedir}/target/classes/ch/test/nested.file</file>
+                    <file>${project.basedir}/target/classes/ch/test/nested2.file</file>
                     <file>${project.basedir}/target/classes/root.file</file>
                   </files>
                 </requireFilesExist>
