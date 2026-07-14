@@ -1,29 +1,16 @@
 package ch.ivyteam.ivy.maven.compile;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.java.config.index.JavaIndex;
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
-import ch.ivyteam.ivy.project.model.Project;
 import ch.ivyteam.ivy.project.model.ProjectVersion;
-import ch.ivyteam.ivy.project.model.basic.BasicProject;
-import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
-import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 
 /**
  * Validates an ivy Project.
@@ -113,170 +100,26 @@ public class ValidateProjectMojo extends AbstractMojo {
   }
 
   private void validateProject() {
-    var time = System.currentTimeMillis();
-    var ctx = new ContextBuilder(project, session, getLog()).build();
+    var start = System.currentTimeMillis();
+    var ctx = new ValidationContextFactory(project, session, getLog()).create();
+
     var version = ProjectVersion.of(ctx.project());
     if (!version.isLatest()) {
       getLog().error("Project is outdated (version: " + version + "). Convert the project to the latest version.");
       return;
     }
+
     var reporter = new ValidationReporter(getLog(), project);
-    for (var validator : validators()) {
-      var result = validator.validate(ctx);
-      for (var message : result.messages()) {
-        reporter.report(message);
-      }
+    for (var validator : validatorsToRun()) {
+      validator.validate(ctx).messages().forEach(reporter::report);
     }
-    var duration = System.currentTimeMillis() - time;
-    reporter.logSummary(project.getName(), duration);
+    reporter.logSummary(project.getName(), System.currentTimeMillis() - start);
   }
 
   @SuppressWarnings("rawtypes")
-  private List<ProjectValidator> validators() {
-    var excluded = excludedKeywords();
-    if (excluded.isEmpty()) {
-      return ProjectValidator.all();
-    }
-    return ProjectValidator.all().stream()
-        .filter(validator -> !isExcluded(validator, excluded))
-        .toList();
+  private List<ProjectValidator> validatorsToRun() {
+    var filter = new ValidatorFilter(excludeValidators, getLog());
+    return filter.apply(ProjectValidator.all());
   }
 
-  private List<String> excludedKeywords() {
-    var keywords = new ArrayList<String>();
-    if (excludeValidators != null) {
-      keywords.addAll(excludeValidators);
-    }
-    return keywords;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private boolean isExcluded(ProjectValidator validator, List<String> excluded) {
-    var id = validator.id();
-    var isExcluded = excluded.stream()
-        .filter(keyword -> keyword != null && !keyword.isBlank())
-        .anyMatch(keyword -> id.equalsIgnoreCase(keyword));
-    if (isExcluded) {
-      getLog().info("Skipping validator '" + validator.id() + "' (excluded by configuration)");
-    }
-    return isExcluded;
-  }
-
-  private static class ContextBuilder {
-
-    private final MavenProject project;
-    private final MavenSession session;
-    private final MavenDependencies dependencies;
-    private final Log log;
-
-    private ContextBuilder(MavenProject project, MavenSession session, Log log) {
-      this.project = project;
-      this.session = session;
-      this.dependencies = MavenDependencies.of(project).session(session);
-      this.log = log;
-    }
-
-    private ProjectValidatorContext build() {
-      var rootProject = toProject();
-      if (log.isDebugEnabled()) {
-        log.debug("[graph] Project graph for: " + project.getId());
-        dumpTree(rootProject, 0);
-      }
-
-      var ctx = ProjectValidatorContext.create()
-          .project(rootProject)
-          .isMaven(true)
-          .allProjects(toAllProjects());
-      var cl = toClassLoader();
-      ctx.javaIndex(JavaIndex.of(cl));
-
-      return ctx.toContext();
-    }
-
-    private void dumpTree(Project p, int depth) {
-      var indent = "  ".repeat(depth);
-      var required = p.debs().allRequired().toList();
-      var dependent = p.debs().allDependent().toList();
-
-      log.debug("[graph] " + indent + p.id()
-          + "  [required=" + required.size() + ", dependent=" + dependent.size() + "]");
-      if (!required.isEmpty()) {
-        log.debug("[graph] " + indent + "  required:");
-        for (var r : required) {
-          dumpTree(r, depth + 2);
-        }
-      }
-      if (!dependent.isEmpty()) {
-        log.debug("[graph] " + indent + "  dependent:");
-        for (var d : dependent) {
-          dumpTree(d, depth + 2);
-        }
-      }
-    }
-
-    private Project toProject() {
-      return toProject(project)
-          .required(toRequiredProjects())
-          .dependent(toDependentProjects())
-          .build();
-    }
-
-    private BasicProjectBuilder toProject(MavenProject p) {
-      return BasicProject.create()
-          .id(p.getId())
-          .name(p.getName())
-          .path(p.getBasedir().toPath());
-    }
-
-    private BasicProjectBuilder toProject(Artifact artifact) {
-      return BasicProject.create()
-          .id(artifact.getId())
-          .name(artifact.getId())
-          .path(dependencies.toPath(artifact));
-    }
-
-    private List<Project> toRequiredProjects() {
-      return dependencies.required().stream()
-          .map(this::toProject)
-          .map(BasicProjectBuilder::build)
-          .toList();
-    }
-
-    private List<Project> toDependentProjects() {
-      return dependencies.dependent().stream()
-          .map(this::toProject)
-          .map(BasicProjectBuilder::build)
-          .toList();
-    }
-
-    private List<Project> toAllProjects() {
-      return session.getAllProjects().stream()
-          .map(this::toProject)
-          .map(BasicProjectBuilder::build)
-          .toList();
-    }
-
-    private ClassLoader toClassLoader() {
-      try {
-        var classpath = project.getCompileClasspathElements();
-        var urls = classpath.stream()
-            .map(path -> {
-              try {
-                return Path.of(path).toUri().toURL();
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            })
-            .toArray(URL[]::new);
-        if (log.isDebugEnabled()) {
-          for (var url : urls) {
-            log.debug("Classpath URL: " + url);
-          }
-        }
-        return new URLClassLoader(urls);
-      } catch (DependencyResolutionRequiredException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-  }
 }
