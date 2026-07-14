@@ -8,6 +8,7 @@
           <goal>generate-dialog-form-sources</goal>
           <goal>generate-web-service-sources</goal>
           <goal>maven-dependency</goal>
+          <goal>ivy-add-resource</goal>
         </goals>
       </pluginExecutionFilter>
       <action>
