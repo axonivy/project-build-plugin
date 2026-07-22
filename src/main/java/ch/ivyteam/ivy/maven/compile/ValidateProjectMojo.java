@@ -109,17 +109,14 @@ public class ValidateProjectMojo extends AbstractMojo {
       return;
     }
 
+    var filter = new ValidatorFilter(excludeValidators, getLog());
+    var validators = filter.apply(ProjectValidator.all());
+
     var reporter = new ValidationReporter(getLog(), project);
-    for (var validator : validatorsToRun()) {
+    for (var validator : validators) {
       validator.validate(ctx).messages().forEach(reporter::report);
     }
-    reporter.logSummary(project.getName(), System.currentTimeMillis() - start);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private List<ProjectValidator> validatorsToRun() {
-    var filter = new ValidatorFilter(excludeValidators, getLog());
-    return filter.apply(ProjectValidator.all());
+    reporter.logSummary(project.getName(), System.currentTimeMillis() - start, filter.skipped());
   }
 
 }

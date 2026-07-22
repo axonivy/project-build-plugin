@@ -2,7 +2,11 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.net.URI;
 import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -17,6 +21,7 @@ class ValidationReporter {
   private final Log log;
   private final URI basedir;
   private final Map<Severity, Integer> counts = new EnumMap<>(Severity.class);
+  private final Set<URI> filesWithMessages = new HashSet<>();
 
   ValidationReporter(Log log, MavenProject project) {
     this.log = log;
@@ -31,18 +36,52 @@ class ValidationReporter {
       case INFO -> log.info(line);
     }
     counts.merge(message.severity(), 1, Integer::sum);
+    if (message.file() != null) {
+      filesWithMessages.add(message.file());
+    }
   }
 
-  void logSummary(String projectName, long durationMs) {
-    log.info(RULE);
-    log.info("Project validation summary: " + projectName);
-    log.info(RULE);
-    log.info("  Errors:    " + count(Severity.ERROR));
-    log.info("  Warnings:  " + count(Severity.WARN));
-    log.info("  Info:      " + count(Severity.INFO));
-    log.info("  Total:     " + total());
-    log.info("  Duration:  " + durationMs + " ms");
-    log.info(RULE);
+  void logSummary(String projectName, long durationMs, List<String> skippedValidators) {
+    log.info("Project validation finished with " + findingsSummary());
+    var logger = summaryLogger();
+    logger.accept(RULE);
+    logger.accept("Project validation summary: " + projectName);
+    logger.accept(RULE);
+    logger.accept("  Errors:    " + count(Severity.ERROR));
+    logger.accept("  Warnings:  " + count(Severity.WARN));
+    logger.accept("  Info:      " + count(Severity.INFO));
+    logger.accept("  Total:     " + total());
+    logger.accept("  Duration:  " + durationMs + " ms");
+    logSkipped(logger, skippedValidators);
+    logger.accept(RULE);
+  }
+
+  private String findingsSummary() {
+    if (total() == 0) {
+      return "no issues";
+    }
+    var fileCount = filesWithMessages.size();
+    return fileCount + " file" + (fileCount > 1 ? "s" : "") + " with findings";
+  }
+
+  private void logSkipped(Consumer<CharSequence> logger, List<String> skippedValidators) {
+    if (skippedValidators == null || skippedValidators.isEmpty()) {
+      return;
+    }
+    logger.accept("  Skipped validators (" + skippedValidators.size() + "):");
+    for (var id : skippedValidators) {
+      logger.accept("    - " + id);
+    }
+  }
+
+  private Consumer<CharSequence> summaryLogger() {
+    if (count(Severity.ERROR) > 0) {
+      return log::error;
+    }
+    if (count(Severity.WARN) > 0) {
+      return log::warn;
+    }
+    return log::info;
   }
 
   boolean hasErrors() {
