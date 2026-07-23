@@ -3,7 +3,7 @@
   <groupId>com.axonivy.ivy.ci</groupId>
   <artifactId>project-build-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>14.0.0-jakarta-SNAPSHOT</version>
+  <version>14.0.0-SNAPSHOT</version>
 
   <name>Axon Ivy Project Build Plugin</name>
   <description>Maven plugin for the automated building of Axon Ivy Projects. Referenced from the pom.xml of Axon Ivy Projects.</description>
@@ -48,7 +48,7 @@
     <other.site.name>Stable</other.site.name>
     <autoRelease>false</autoRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ivy.api>14.0.0-jakarta-SNAPSHOT</ivy.api>
+    <ivy.api>14.0.0-SNAPSHOT</ivy.api>
   </properties>
 
   <distributionManagement>
