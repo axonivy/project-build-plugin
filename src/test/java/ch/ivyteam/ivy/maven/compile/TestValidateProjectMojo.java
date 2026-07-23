@@ -123,4 +123,85 @@ class TestValidateProjectMojo {
         .doesNotContain("config/webservice-clients.yaml [test.name]: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.");
   }
 
+  @Test
+  void summary_logsAtErrorLevel_whenErrorsArePresent() {
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getErrors().toString())
+        .contains("Project validation summary")
+        .contains("Errors:    ")
+        .contains("Warnings:  6")
+        .contains("Info:      0")
+        .contains("Total:     ");
+    assertThat(log.getWarnings().toString()).doesNotContain("Project validation summary");
+    assertThat(log.getInfos().toString()).doesNotContain("Project validation summary");
+  }
+
+  @Test
+  void summary_logsAtWarnLevel_whenOnlyWarningsArePresent() {
+    mojo.excludeValidators = List.of("role", "variable", "dataclass", "process", "form", "database");
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getErrors()).isEmpty();
+    assertThat(log.getWarnings().toString())
+        .contains("Project validation summary")
+        .contains("Errors:    0")
+        .contains("Warnings:  5")
+        .contains("Skipped validators (6):");
+    assertThat(log.getInfos().toString()).doesNotContain("Project validation summary");
+  }
+
+  @Test
+  void summary_logsAtInfoLevel_whenNoErrorsOrWarningsArePresent() {
+    mojo.excludeValidators = List.of(
+        "role", "database", "form", "dataclass", "process",
+        "restclient", "webserviceclient", "variable", "user");
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getErrors()).isEmpty();
+    assertThat(log.getWarnings()).isEmpty();
+    assertThat(log.getInfos().toString())
+        .contains("Project validation finished with no issues")
+        .contains("Project validation summary")
+        .contains("Errors:    0")
+        .contains("Warnings:  0")
+        .contains("Total:     0")
+        .contains("Skipped validators (9):")
+        .contains("- role")
+        .contains("- database")
+        .contains("- form")
+        .contains("- dataclass")
+        .contains("- process")
+        .contains("- restclient")
+        .contains("- webserviceclient")
+        .contains("- variable")
+        .contains("- user");
+  }
+
+  @Test
+  void summary_isPrecededByPlainInfoLine_soJenkinsDoesNotMisattributeTheFailure() {
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getInfos().toString())
+        .contains("Project validation finished with")
+        .contains("files with findings");
+  }
+
+  @Test
+  void summary_doesNotListSkippedValidators_whenNoneAreExcluded() {
+    var log = new LogCollector();
+    mojo.setLog(log);
+    mojo.execute();
+
+    assertThat(log.getErrors().toString()).doesNotContain("Skipped validators");
+  }
+
 }
