@@ -13,7 +13,7 @@ import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.java.config.index.JavaIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
-import ch.ivyteam.ivy.project.model.Project;
+import ch.ivyteam.ivy.project.model.ProjectModel;
 import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
@@ -46,7 +46,7 @@ class ValidationContextFactory {
     return ctx.toContext();
   }
 
-  private void dumpTree(Project p, int depth) {
+  private void dumpTree(ProjectModel p, int depth) {
     var indent = "  ".repeat(depth);
     var required = p.debs().allRequired().toList();
     var dependent = p.debs().allDependent().toList();
@@ -66,7 +66,7 @@ class ValidationContextFactory {
     }
   }
 
-  private Project toProject() {
+  private ProjectModel toProject() {
     return toProject(project)
         .required(toRequiredProjects())
         .dependent(toDependentProjects())
@@ -87,21 +87,21 @@ class ValidationContextFactory {
         .path(dependencies.toPath(artifact));
   }
 
-  private List<Project> toRequiredProjects() {
+  private List<ProjectModel> toRequiredProjects() {
     return dependencies.required().stream()
         .map(this::toProject)
         .map(BasicProjectBuilder::build)
         .toList();
   }
 
-  private List<Project> toDependentProjects() {
+  private List<ProjectModel> toDependentProjects() {
     return dependencies.dependent().stream()
         .map(this::toProject)
         .map(BasicProjectBuilder::build)
         .toList();
   }
 
-  private List<Project> toAllProjects() {
+  private List<ProjectModel> toAllProjects() {
     return session.getAllProjects().stream()
         .map(this::toProject)
         .map(BasicProjectBuilder::build)
