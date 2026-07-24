@@ -26,16 +26,18 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            def qualifier = params.sprintQualifier?.trim()
-            if (qualifier) {
-              applyVersionQualifier(qualifier)
-            }
-            def phase = isReleasingBranch() ? 'deploy' : 'verify'
-            maven cmd: "clean ${phase} " +
+            def args = "" +
               "-Dgpg.skip=false " +
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
-              "-Dmaven.test.failure.ignore=true"
+              "-Dmaven.test.failure.ignore=true "
+            def qualifier = params.sprintQualifier?.trim()
+            if (qualifier) {
+              applyVersionQualifier(qualifier)
+              args += "-PcentralDeploy "
+            }
+            def phase = isReleasingBranch() ? 'deploy' : 'verify'
+            maven cmd: "clean ${phase} ${args}"
             if (isReleasingBranch()) {
               def version = sh (script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true)
               uploadBOM(projectName: 'project-build-plugin', projectVersion: version, bomFile: 'target/bom.json')
