@@ -78,6 +78,9 @@
                     <!-- checks for AddResourceMojo -->
                     <file>${project.basedir}/target/classes/ch/test/nested.file</file>
                     <file>${project.basedir}/target/classes/root.file</file>
+                    <!-- checks for AddSourceMojo -->
+                    <file>${project.basedir}/target/classes/ch/test/NestedClass.class</file>
+                    <file>${project.basedir}/target/classes/RootClass.class</file>
                   </files>
                 </requireFilesExist>
               </rules>
