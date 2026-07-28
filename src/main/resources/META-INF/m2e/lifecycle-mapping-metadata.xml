@@ -9,6 +9,7 @@
           <goal>generate-web-service-sources</goal>
           <goal>maven-dependency</goal>
           <goal>ivy-add-resource</goal>
+          <goal>ivy-add-source</goal>
         </goals>
       </pluginExecutionFilter>
       <action>
