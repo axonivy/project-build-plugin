@@ -21,7 +21,7 @@ import org.codehaus.plexus.util.DirectoryScanner;
 @Mojo(name = AddSourceMojo.GOAL, defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public class AddSourceMojo extends AbstractMojo {
 
-  public static final String GOAL = "ivy-add-source";
+  public static final String GOAL = "ivy-add-generated-source-roots";
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
