@@ -25,27 +25,27 @@ class TestGenerateDialogFormSourcesMojo {
 
   @Test
   void generateFormSources() {
-    var targetSrcHd = mojo.project.getBasedir().toPath().resolve("target").resolve("src_hd");
-    PathUtils.delete(targetSrcHd);
+    var targetDialog = mojo.project.getBasedir().toPath().resolve("target").resolve("dialog");
+    PathUtils.delete(targetDialog);
 
-    assertThat(targetSrcHd).doesNotExist();
+    assertThat(targetDialog).doesNotExist();
 
     mojo.execute();
 
-    assertThat(targetSrcHd)
+    assertThat(targetDialog)
         .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("myForm.xhtml"));
   }
 
   @Test
   void skipGenerateSources() {
-    var targetSrcHd = mojo.project.getBasedir().toPath().resolve("target").resolve("src_hd");
-    PathUtils.delete(targetSrcHd);
+    var targetDialog = mojo.project.getBasedir().toPath().resolve("target").resolve("dialog");
+    PathUtils.delete(targetDialog);
 
-    assertThat(targetSrcHd).doesNotExist();
+    assertThat(targetDialog).doesNotExist();
 
     mojo.skipGenerateSources = true;
     mojo.execute();
 
-    assertThat(targetSrcHd).doesNotExist();
+    assertThat(targetDialog).doesNotExist();
   }
 }

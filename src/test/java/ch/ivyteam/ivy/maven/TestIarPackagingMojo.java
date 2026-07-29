@@ -62,7 +62,7 @@ class TestIarPackagingMojo {
   }
 
   private static void createEmptySrcDirs(Path projectDir) {
-    var emptySrcDirNames = List.of("src_generated/dataclass", "src_hd", "src_rd", "src_ws", "src_generated/wsprocess");
+    var emptySrcDirNames = List.of("src_generated/dataclass", "dialog", "src_rd", "src_ws", "src_generated/wsprocess");
     for (var emptySrcDirName : emptySrcDirNames) {
       var srcDir = projectDir.resolve(emptySrcDirName);
       PathUtils.clean(srcDir);
@@ -96,7 +96,7 @@ class TestIarPackagingMojo {
         .isEqualTo(iarFile.toFile());
 
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
-      assertThat(getProjectZipFileEntry(archive, "src_hd")).as("Empty directories should be included (by default) "
+      assertThat(getProjectZipFileEntry(archive, "dialog")).as("Empty directories should be included (by default) "
           + "so that the IAR can be re-imported into the designer").isNotNull();
       assertThat(getProjectZipFileEntry(archive, "target/sampleOutput.txt"))
           .as("'target/sampleOutput.txt' should not be packed").isNull();
@@ -188,7 +188,7 @@ class TestIarPackagingMojo {
     mojo.execute();
 
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
-      assertThat(getProjectZipFileEntry(archive, "src_hd")).as("Empty directory should be excluded by mojo configuration")
+      assertThat(getProjectZipFileEntry(archive, "dialog")).as("Empty directory should be excluded by mojo configuration")
           .isNull();
     }
   }
@@ -211,9 +211,9 @@ class TestIarPackagingMojo {
   }
 
   @Test
-  void includeTarget_srcHdGenerated() throws Exception {
+  void includeTarget_dialogGenerated() throws Exception {
     var target = mojo.project.getBasedir().toPath().resolve("target");
-    var viewGenerated = target.resolve("src_hd")
+    var viewGenerated = target.resolve("dialog")
         .resolve("com").resolve("acme").resolve("FormDialog").resolve("FormDialog.xhtml");
     Files.createDirectories(viewGenerated.getParent());
     Files.writeString(viewGenerated, "<html/>", StandardOpenOption.CREATE_NEW);
@@ -226,7 +226,7 @@ class TestIarPackagingMojo {
 
     var iarFile = iarFiles.getFirst();
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
-      assertThat(getProjectZipFileEntry(archive, "target/src_hd/com/acme/FormDialog/FormDialog.xhtml"))
+      assertThat(getProjectZipFileEntry(archive, "target/dialog/com/acme/FormDialog/FormDialog.xhtml"))
           .as("generated jsf.dialog views are included").isNotNull();
     }
   }
