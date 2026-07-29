@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.1.0" />
-    <title>ivy:validate – Axon Ivy Project Build Plugin</title>
+    <title>ivy:ivy-add-generated-source-roots – Axon Ivy Project Build Plugin</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.11.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,19 +60,38 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<section><a id="ivy.3Avalidate"></a>
-<h1>ivy:validate</h1>
+<section><a id="ivy.3Aivy-add-generated-source-roots"></a>
+<h1>ivy:ivy-add-generated-source-roots</h1>
 <p><strong>Full name</strong>:</p>
-<p>com.axonivy.ivy.ci:project-build-plugin:14.0.0-SNAPSHOT:validate</p>
+<p>com.axonivy.ivy.ci:project-build-plugin:14.0.0-SNAPSHOT:ivy-add-generated-source-roots</p>
 <p><strong>Description</strong>:</p>
-<p>Validates that only one version of the project-build-plugin is active in one maven reactor.</p>
+<p>Dynamically adds source directories to the Maven build. All direct subdirectories of <code>src_generated/rest/</code> and <code>src_generated/ws/</code> are added as source directories.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
 <li>Requires a Maven project to be executed.</li>
 <li>The goal is thread-safe and supports parallel builds.</li>
-<li>Since version: <code>12.0.1</code>.</li></ul><section><a id="Parameters"></a>
-<h2>Parameters</h2>
-<p>(no parameters)</p></section></section>
+<li>Since version: <code>14.0.0</code>.</li>
+<li>Binds by default to the <a class="externalLink" href="https://maven.apache.org/ref/current/maven-core/lifecycles.html">lifecycle phase</a>: <code>generate-sources</code>.</li></ul><section><a id="Optional_Parameters"></a>
+<h2>Optional Parameters</h2>
+<table class="table table-striped">
+<tr class="a">
+<th>Name</th>
+<th>Type</th>
+<th>Since</th>
+<th>Description</th></tr>
+<tr class="b">
+<td><a href="#skipIvyAddSource"><code>&lt;skipIvyAddSource&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>-</code></td>
+<td>Set to <code>true</code> to skip this mojo entirely.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.add.source.skip</code></td></tr></table></section><section><a id="Parameter_Details"></a>
+<h2>Parameter Details</h2><a id="skipIvyAddSource"></a><section><a id="a.3CskipIvyAddSource.3E"></a>
+<h3>&lt;skipIvyAddSource&gt;</h3>
+<div>Set to <code>true</code> to skip this mojo entirely.</div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.add.source.skip</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul></section></section></section>
         </main>
       </div>
     </div>
