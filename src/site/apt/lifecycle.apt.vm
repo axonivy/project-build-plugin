@@ -9,7 +9,8 @@ iar Lifecycle
 *--------*---------*
  validate          | ${project.groupId}:${project.artifactId}:{{{./validate-mojo.html}validate}}
 *--------*---------*
- generate-sources  | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
+ generate-sources  | ${project.groupId}:${project.artifactId}:{{{./ivy-add-generated-source-roots-mojo.html}ivy-add-generated-source-roots}}
+                   | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources-mojo.html}generate-dialog-form-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
 *--------*---------*
