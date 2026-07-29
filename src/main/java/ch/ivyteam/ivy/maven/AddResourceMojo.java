@@ -23,7 +23,7 @@ import org.codehaus.plexus.util.DirectoryScanner;
 @Mojo(name = AddResourceMojo.GOAL, defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
 public class AddResourceMojo extends AbstractMojo {
 
-  public static final String GOAL = "ivy-add-resource";
+  public static final String GOAL = "ivy-add-generated-resource-roots";
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;

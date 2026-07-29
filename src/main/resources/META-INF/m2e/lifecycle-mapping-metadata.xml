@@ -20,7 +20,7 @@
     <pluginExecution>
       <pluginExecutionFilter>
         <goals>
-          <goal>ivy-add-resource</goal>
+          <goal>ivy-add-generated-resource-roots</goal>
           <goal>ivy-add-generated-source-roots</goal>
         </goals>
       </pluginExecutionFilter>
