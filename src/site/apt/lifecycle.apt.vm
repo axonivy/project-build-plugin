@@ -14,7 +14,7 @@ iar Lifecycle
                    | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources-mojo.html}generate-dialog-form-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
 *--------*---------*
- generate-resources| ${project.groupId}:${project.artifactId}:{{{./ivy-add-resource-mojo.html}ivy-add-resource}}
+ generate-resources| ${project.groupId}:${project.artifactId}:{{{./ivy-add-generated-resource-roots-mojo.html}ivy-add-generated-resource-roots}}
 *--------*---------*
  process-resources | org.apache.maven.plugins:maven-resources-plugin:resources
 *--------*---------*

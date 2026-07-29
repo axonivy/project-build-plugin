@@ -18,7 +18,7 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
           <generate-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-add-resource
+            com.axonivy.ivy.ci:project-build-plugin:ivy-add-generated-resource-roots
           </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
@@ -55,7 +55,7 @@
             com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
           </generate-sources>
           <generate-resources>
-            com.axonivy.ivy.ci:project-build-plugin:ivy-add-resource
+            com.axonivy.ivy.ci:project-build-plugin:ivy-add-generated-resource-roots
           </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
