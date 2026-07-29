@@ -53,7 +53,7 @@ public class GenerateDialogFormSourcesMojo extends AbstractMojo {
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
 
-  private static final String[] INCLUDEDS = {"src_hd/**/*" + DialogFormIO.JSON_EXT};
+  private static final String[] INCLUDEDS = {"dialog/**/*" + DialogFormIO.JSON_EXT};
 
   @Override
   public void execute() {
