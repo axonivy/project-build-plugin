@@ -82,12 +82,6 @@
     </dependency>
     <dependency>
       <!-- Required for project validation -->
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>7.0.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
       <version>4.0.0</version>
