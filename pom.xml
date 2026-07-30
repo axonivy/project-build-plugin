@@ -41,8 +41,8 @@
   <properties>
     <java.version>25</java.version>
     <maven.version>3.9.16</maven.version>
-    <slf4j.version>2.0.18</slf4j.version>
     <junit-jupiter.version>6.1.2</junit-jupiter.version>
+    <log4j2-version>2.26.1</log4j2-version>
     <site.path>snapshot</site.path>
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
@@ -69,6 +69,17 @@
   </distributionManagement>
 
   <dependencies>
+    <!-- required for generate sources mojo -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j2-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
+      <version>${log4j2-version}</version>
+    </dependency>
     <dependency>
       <!-- Required for project validation -->
       <groupId>com.google.inject</groupId>
@@ -234,22 +245,6 @@
       <groupId>jakarta.jws</groupId>
       <artifactId>jakarta.jws-api</artifactId>
       <version>3.0.0</version>
-    </dependency>
-    <!-- Logging environment: Required for engine classLoader (but not for the plugin runtime itself) -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
 
     <!-- TEST scoped -->
