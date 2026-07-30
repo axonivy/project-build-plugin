@@ -62,7 +62,7 @@ class TestIarPackagingMojo {
   }
 
   private static void createEmptySrcDirs(Path projectDir) {
-    var emptySrcDirNames = List.of("src_generated/dataclass", "dialog", "src_rd", "src_ws", "src_generated/wsprocess");
+    var emptySrcDirNames = List.of("target/dataclass", "dialog", "src_rd", "src_ws", "target/wsprocess");
     for (var emptySrcDirName : emptySrcDirNames) {
       var srcDir = projectDir.resolve(emptySrcDirName);
       PathUtils.clean(srcDir);
