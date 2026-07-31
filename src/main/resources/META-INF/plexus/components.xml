@@ -9,7 +9,6 @@
       </implementation>
       <configuration>
         <phases>
-          <clean>com.axonivy.ivy.ci:project-build-plugin:ivy-cleanup</clean>
           <validate>com.axonivy.ivy.ci:project-build-plugin:validate</validate>
           <generate-sources>
             com.axonivy.ivy.ci:project-build-plugin:ivy-add-generated-source-roots,
