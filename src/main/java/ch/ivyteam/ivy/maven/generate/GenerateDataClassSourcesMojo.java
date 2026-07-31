@@ -53,8 +53,8 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
   MavenProject project;
 
   private static final String[] INCLUDEDS = {
-      "dataclasses/**/*.d.json",
-      "src_hd/**/*.d.json"
+      "dataclass/**/*.d.json",
+      "dialog/**/*.d.json"
   };
 
   @Override

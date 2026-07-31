@@ -39,15 +39,15 @@ class TestValidateProjectMojo {
         .contains("config/webservice-clients.yaml [test.name]: The web service client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
         .contains("config/webservice-clients.yaml [test name]: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.")
         .contains("config/rest-clients.yaml [test.name]: The rest client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
-        .contains("dataclasses/validation/BusinessProcessData.d.json [Test]: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
+        .contains("dataclass/validation/BusinessProcessData.d.json [Test]: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
         .contains("config/rest-clients.yaml [test name]: The rest client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
 
     assertThat(log.getErrors().toString())
         .contains("config/roles.yaml [HR Manager]: Role 'HR Manager' has an unknown parent 'Manager'.")
         .contains("config/variables.yaml [Test]: Variable 'Test' is defined multiple times in variables.yaml.")
-        .contains("dataclasses/validation/BusinessProcessData.d.json [#class]: The namespace 'invalid' does not match the directory of the Data Class.")
-        .contains("processes/validation/TestProcess.p.json [19F039C4FF9700FD-f0]: Invalid character in signaturename at position 1")
-        .contains("src_hd/validation/TestForm/TestForm.f.json [button1]: Button action cannot be empty")
+        .contains("dataclass/validation/BusinessProcessData.d.json [#class]: The namespace 'invalid' does not match the directory of the Data Class.")
+        .contains("process/validation/TestProcess.p.json [19F039C4FF9700FD-f0]: Invalid character in signaturename at position 1")
+        .contains("dialog/validation/TestForm/TestForm.f.json [button1]: Button action cannot be empty")
         .contains("config/databases.yaml [testdb]: The database connection key 'testdb' is duplicated in the same project");
   }
 
