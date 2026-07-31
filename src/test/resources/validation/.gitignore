@@ -20,7 +20,6 @@ target/classes/invalid/*
 !target/classes/validation/
 target/classes/validation/*
 !target/classes/validation/ProcessTestData.class
-lib/mvn-deps/
 
 # ivy
 classes/
@@ -32,4 +31,3 @@ classes/
 src_generated/dataclass/
 src_generated/wsprocess/
 src_generated/repo/
-logs/

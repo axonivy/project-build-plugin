@@ -1,9 +1,9 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/process.json",
-  "id" : "198C1A82F40ED945",
+  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/process-1.json",
+  "id" : "19F122632879B5B6",
   "kind" : "HTML_DIALOG",
   "config" : {
-    "data" : "base.myForm.myFormData"
+    "data" : "validation.TestForm.TestFormData"
   },
   "elements" : [ {
       "id" : "f0",
@@ -11,7 +11,7 @@
       "name" : "start()",
       "config" : {
         "signature" : "start",
-        "guid" : "198C1A82F44E310D"
+        "guid" : "19F1226328A9144E"
       },
       "visual" : {
         "at" : { "x" : 96, "y" : 64 }
@@ -30,7 +30,7 @@
       "type" : "HtmlDialogEventStart",
       "name" : "close",
       "config" : {
-        "guid" : "198C1A82F53FDEF3"
+        "guid" : "19F1226329180DDF"
       },
       "visual" : {
         "at" : { "x" : 96, "y" : 160 }
