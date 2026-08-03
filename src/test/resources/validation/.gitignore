@@ -28,6 +28,3 @@ classes/
 !target/classes/invalid/BusinessProcessData.class
 !target/classes/validation/
 !target/classes/validation/ProcessTestData.class
-src_generated/dataclass/
-src_generated/wsprocess/
-src_generated/repo/
