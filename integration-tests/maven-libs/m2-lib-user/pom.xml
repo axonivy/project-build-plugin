@@ -16,6 +16,7 @@
 
   <properties>
     <docusign.version>6.7.0</docusign.version>
+    <jspecify.version>1.0.1</jspecify.version>
   </properties>
 
   <dependencies>
@@ -37,7 +38,7 @@
     <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
-      <version>1.0.1</version>
+      <version>${jspecify.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -71,7 +72,7 @@
                 <requireFilesExist>
                   <files>
                     <!-- checks for MavenDependencyMojo -->
-                    <file>${project.basedir}/target/lib/mvn-deps/jspecify-1.0.0.jar</file>
+                    <file>${project.basedir}/target/lib/mvn-deps/jspecify-${jspecify.version}.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
                     <file>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/demo-1.0-SNAPSHOT.jar</file>
