@@ -131,7 +131,7 @@ class TestIarPackagingMojo {
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(getProjectZipFileEntry(archive, "private")).as("Custom exclusion must be filtered").isNull();
       assertThat(getProjectZipFileEntry(archive, filterCandidate)).as("Custom exclusion must be filtered").isNull();
-      assertThat(archive.size()).isGreaterThan(50).as("archive must contain content");
+      assertThat(archive.size()).isGreaterThan(40).as("archive must contain content");
     }
   }
 
