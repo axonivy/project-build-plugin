@@ -5,8 +5,6 @@ iar Lifecycle
 *--------*---------*
  <<phase>>         | <<default executions>> 
 *--------*---------*
- clean             | ${project.groupId}:${project.artifactId}:{{{./ivy-cleanup-mojo.html}ivy-cleanup}}
-*--------*---------*
  validate          | ${project.groupId}:${project.artifactId}:{{{./validate-mojo.html}validate}}
 *--------*---------*
  generate-sources  | ${project.groupId}:${project.artifactId}:{{{./ivy-add-generated-source-roots-mojo.html}ivy-add-generated-source-roots}}
