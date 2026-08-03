@@ -9,13 +9,15 @@
   
   <properties>
     <project.build.plugin.version>${project.version}</project.build.plugin.version>
+    <docusign.version>3.23.0</docusign.version>
+    <jspecify.version>1.0.1</jspecify.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.docusign</groupId>
       <artifactId>docusign-esign-java</artifactId>
-      <version>3.23.0</version>
+      <version>${docusign.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -26,7 +28,7 @@
     <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
-      <version>1.0.0</version>
+      <version>${jspecify.version}</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -54,8 +56,8 @@
               <rules>
                 <requireFilesExist>
                   <files>
-                    <file>${project.basedir}/lib/mvn-deps/jspecify-1.0.0.jar</file>
-                    <file>${project.basedir}/lib/mvn-deps/docusign-esign-java-3.23.0.jar</file>
+                    <file>${project.basedir}/lib/mvn-deps/jspecify-${jspecify.version}.jar</file>
+                    <file>${project.basedir}/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
                   </files>
                 </requireFilesExist>
               </rules>
