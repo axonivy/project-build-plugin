@@ -12,7 +12,9 @@ pipeline {
 
   stages {
     stage('build') {
-     
+      when {
+        branch 'master'
+      }
       steps {
         script {
           docker.build('maven').inside {
