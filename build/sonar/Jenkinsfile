@@ -17,18 +17,10 @@ pipeline {
         script {
           docker.build('maven').inside {
             withCredentials([string(credentialsId: 'sonar.ivyteam.io', variable: 'token')]) {
-              maven cmd: 'clean compile org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar ' +
-                        '-Dsonar.host.url=https://sonar.ivyteam.io ' +
-                        '-Dsonar.projectKey=project-build-plugin ' +
-                        '-Dsonar.projectName=project-build-plugin ' +
-                        "-Dsonar.test.exclusions=**/*.p12 " +
-                        "-Dsonar.token=${token}"
+              sonar projectName: 'project-build-plugin'
             }
           }
-          recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']], filters: [
-            //excludeMessage('Use of preview features have been detected during analysis. Enable DEBUG mode to see them.*'),
-            //excludeMessage('Unresolved imports/types have been detected during analysis. Enable DEBUG mode to see them.*'),
-          ]
+          recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']]
         }
       }
     }
