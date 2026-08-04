@@ -56,8 +56,6 @@ class TestEngineControlEngineDirectory {
 
   @Test
   void engineControl_engineDir_isNull() throws Exception {
-    mojo.project = mojo.project;
-    mojo.engineDirectory = mojo.engineCacheDirectory;
     assertThat(mojo.createEngineController()).isNotNull();
   }
 }
