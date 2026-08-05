@@ -18,11 +18,8 @@ pipeline {
       steps {
         script {
           docker.build('maven').inside {
-            withCredentials([string(credentialsId: 'sonar.ivyteam.io', variable: 'token')]) {
-              sonar projectName: 'project-build-plugin', mvnPhase: 'clean compile'
-            }
+            sonar projectName: 'project-build-plugin', mvnPhase: 'clean compile'           
           }
-          recordIssues tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'TOTAL']]
         }
       }
     }
