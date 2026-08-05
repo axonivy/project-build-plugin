@@ -1,10 +1,95 @@
 {
   "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/form.json",
   "components" : [ {
-    "cid" : "input1",
-    "type" : "Input",
+    "cid" : "datatable1",
+    "type" : "DataTable",
     "config" : {
-      "label" : "Input"
+      "components" : [ {
+        "cid" : "datatablecolumn4",
+        "type" : "DataTableColumn",
+        "config" : {
+          "header" : "Actions",
+          "components" : [ {
+            "cid" : "button5",
+            "type" : "Button",
+            "config" : {
+              "action" : "editRow",
+              "type" : "EDIT",
+              "icon" : "ti ti-pencil"
+            }
+          }, {
+            "cid" : "button6",
+            "type" : "Button",
+            "config" : {
+              "action" : "deleteRow",
+              "variant" : "DANGER",
+              "type" : "DELETE",
+              "icon" : "ti ti-trash",
+              "confirmDialog" : true,
+              "confirmHeader" : "Delete Confirmation",
+              "confirmMessage" : "Are you sure you want to delete row: #{currentRow}?",
+              "confirmOkValue" : "Yes",
+              "confirmCancelValue" : "No"
+            }
+          } ],
+          "asActionColumn" : true
+        }
+      }, {
+        "cid" : "datatablecolumn7",
+        "type" : "DataTableColumn",
+        "config" : {
+          "header" : "newAttribute",
+          "value" : "#{currentRow.newAttribute}"
+        }
+      }, {
+        "cid" : "datatablecolumn8",
+        "type" : "DataTableColumn",
+        "config" : {
+          "header" : "newAttribute2",
+          "value" : "#{currentRow.newAttribute2}"
+        }
+      } ],
+      "value" : "#{data.businessProcess.positionen}",
+      "maxRows" : "10",
+      "isEditable" : true,
+      "editDialogId" : "dialog2",
+      "addButton" : true
+    }
+  }, {
+    "cid" : "dialog2",
+    "type" : "Dialog",
+    "config" : {
+      "components" : [ {
+        "cid" : "input9",
+        "type" : "Input",
+        "config" : {
+          "label" : "Input",
+          "value" : "#{currentRow.newAttribute}",
+          "validationMessage" : "Invalid E-Mail"
+        }
+      } ],
+      "header" : "Edit Row",
+      "linkedComponent" : "datatable1",
+      "buttons" : [ {
+        "cid" : "button2",
+        "type" : "Button",
+        "config" : {
+          "name" : "Cancel",
+          "action" : "cancelEdit",
+          "variant" : "SECONDARY",
+          "style" : "FLAT",
+          "type" : "DIALOGCANCEL"
+        }
+      }, {
+        "cid" : "button3",
+        "type" : "Button",
+        "config" : {
+          "name" : "Save",
+          "action" : "saveEdit",
+          "type" : "DIALOGSAVE",
+          "icon" : "ti ti-check"
+        }
+      } ]
     }
   } ]
 }

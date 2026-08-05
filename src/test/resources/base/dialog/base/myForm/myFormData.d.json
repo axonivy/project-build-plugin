@@ -1,5 +1,9 @@
 {
   "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/data-class.json",
   "simpleName" : "myFormData",
-  "namespace" : "base.myForm"
+  "namespace" : "base.myForm",
+  "fields" : [ {
+    "name" : "businessProcess",
+    "type" : "Test.BusinessProcessData"
+  } ]
 }
