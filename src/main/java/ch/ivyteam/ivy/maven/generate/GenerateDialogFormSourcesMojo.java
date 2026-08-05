@@ -3,6 +3,7 @@ package ch.ivyteam.ivy.maven.generate;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -68,7 +69,7 @@ public class GenerateDialogFormSourcesMojo extends AbstractMojo {
     for (var jsonFile : jsonFiles) {
       try (var is = Files.newInputStream(projectDir.resolve(jsonFile))) {
         var form = DialogFormIO.read(is).form();
-        new JsonFormResourceBuilder(form, renderer, FilePath.of(jsonFile)).write(writer);
+        new JsonFormResourceBuilder(form, renderer, FilePath.of(Path.of(jsonFile))).write(writer);
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
       }

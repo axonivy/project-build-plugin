@@ -33,7 +33,8 @@ class TestGenerateDialogFormSourcesMojo {
     mojo.execute();
 
     assertThat(targetDialog)
-        .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("myForm.xhtml"));
+        .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().endsWith("myForm.xhtml"))
+        .isDirectoryRecursivelyContaining(f -> f.getFileName().toString().startsWith("dialog"));
   }
 
   @Test
