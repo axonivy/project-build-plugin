@@ -40,6 +40,7 @@ import org.codehaus.plexus.util.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
@@ -328,6 +329,22 @@ class TestIarPackagingMojo {
 
     try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(archive.getEntry("large-iar-file19999").getSize()).isEqualTo(512);
+    }
+  }
+
+  @Test
+  void customOutputLocation(@TempDir Path tempDir) throws Exception {
+    mojo.finalName = "customFileName";
+    mojo.outputDirectory = tempDir.resolve("customOutputDir");
+    mojo.execute();
+
+    var iarFile = tempDir.resolve("customOutputDir").resolve("customFileName.iar");
+    assertThat(mojo.project.getArtifact().getFile())
+        .as("Created IAR must be registered as artifact for later repository installation.")
+        .isEqualTo(iarFile.toFile());
+
+    try (var archive = new ZipFile(iarFile.toFile())) {
+      assertThat(getProjectZipFileEntry(archive, "pom.xml")).isNotNull();
     }
   }
 
