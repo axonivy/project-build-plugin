@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.model.FileSet;
@@ -103,16 +104,36 @@ public class IarPackagingMojo extends AbstractMojo {
   @Parameter(defaultValue = "true")
   boolean iarIncludesEmptyDirs;
 
+  /**
+   * Directory containing the generated IAR.
+   */
+  @Parameter(defaultValue = "${project.build.directory}", property = "ivy.output.directory")
+  Path outputDirectory;
+
+  /**
+   * Name of the generated IAR.
+   */
+  @Parameter(defaultValue = "${project.build.finalName}", property = "ivy.final.name")
+  String finalName;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    var iarName = project.getArtifactId() + "-" + project.getVersion() + ".iar";
-    var iar = Path.of(project.getBuild().getDirectory()).resolve(iarName);
+    var iar = getIarFile();
     createIvyArchive(project.getBasedir(), iar);
 
     var artifact = project.getArtifact();
     artifact.setFile(iar.toFile());
     project.setArtifact(artifact);
     getLog().info("Attached " + artifact + ".");
+  }
+
+  private Path getIarFile() {
+    var basedir = outputDirectory != null ? outputDirectory : Path.of(project.getBuild().getDirectory());
+    var resultFinalName = finalName != null ? finalName : project.getBuild().getFinalName();
+    Objects.requireNonNull(basedir, "basedir is not allowed to be null");
+    Objects.requireNonNull(resultFinalName, "finalName is not allowed to be null");
+    var fileName = resultFinalName + ".iar";
+    return basedir.resolve(fileName);
   }
 
   private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
