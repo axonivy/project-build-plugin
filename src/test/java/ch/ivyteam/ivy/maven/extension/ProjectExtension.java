@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.api.plugin.testing.MojoExtension;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.testing.ArtifactStubFactory;
 import org.apache.maven.project.MavenProject;
@@ -74,7 +75,7 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
     Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");
     Mockito.lenient().when(pom.getVersion()).thenReturn("1.0.0");
 
-    var build = build();
+    var build = build(self);
     Mockito.lenient().when(pom.getBuild()).thenReturn(build);
     Mockito.lenient().when(pom.getProperties())
         .thenReturn(new Properties());
@@ -85,11 +86,12 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
     return pom;
   }
 
-  private static Build build() {
+  private static Build build(Artifact artifact) {
     var b = new Build();
     var target = project.resolve("target");
     b.setDirectory(target.toAbsolutePath().toString());
     b.setOutputDirectory(target.resolve("classes").toAbsolutePath().toString());
+    b.setFinalName(artifact.getArtifactId() + "-" + artifact.getBaseVersion());
     return b;
   }
 
