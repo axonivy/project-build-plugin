@@ -97,14 +97,6 @@ public class IarPackagingMojo extends AbstractMojo {
   FileSet[] iarFileSets;
 
   /**
-   * Includes empty directories in the packed IAR. If set to <code>false</code>,
-   * the IAR can not be re-imported as Designer project as standard project
-   * artifacts (e.g. source folders) could be missing.
-   */
-  @Parameter(defaultValue = "true")
-  boolean iarIncludesEmptyDirs;
-
-  /**
    * Directory containing the generated IAR.
    */
   @Parameter(defaultValue = "${project.build.directory}", property = "ivy.output.directory")
@@ -181,7 +173,7 @@ public class IarPackagingMojo extends AbstractMojo {
 
   private DefaultFileSet createFs(File sourceDir) {
     return DefaultFileSet.fileSet(sourceDir)
-        .includeEmptyDirs(iarIncludesEmptyDirs);
+        .includeEmptyDirs(false);
   }
 
 }

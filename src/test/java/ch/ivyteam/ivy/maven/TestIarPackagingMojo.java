@@ -97,8 +97,7 @@ class TestIarPackagingMojo {
         .isEqualTo(iarFile.toFile());
 
     try (ZipFile archive = new ZipFile(iarFile.toFile())) {
-      assertThat(getProjectZipFileEntry(archive, "dialog")).as("Empty directories should be included (by default) "
-          + "so that the IAR can be re-imported into the designer").isNotNull();
+      assertThat(getProjectZipFileEntry(archive, "dialog")).isNull();
       assertThat(getProjectZipFileEntry(archive, "target/sampleOutput.txt"))
           .as("'target/sampleOutput.txt' should not be packed").isNull();
       assertThat(getProjectZipFileEntry(archive, "target")).as("'target' must be packed because there are target/classes")
@@ -184,12 +183,12 @@ class TestIarPackagingMojo {
   }
 
   @Test
-  void canExcludeEmptyDirectories() throws Exception {
-    mojo.iarIncludesEmptyDirs = false;
+  void emptyDirectoriesAreExcluded() throws Exception {
     mojo.execute();
 
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
-      assertThat(getProjectZipFileEntry(archive, "dialog")).as("Empty directory should be excluded by mojo configuration")
+      assertThat(getProjectZipFileEntry(archive, "dialog"))
+          .as("Empty directory should be excluded")
           .isNull();
     }
   }
