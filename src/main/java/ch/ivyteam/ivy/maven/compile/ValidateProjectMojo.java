@@ -53,6 +53,7 @@ public class ValidateProjectMojo extends AbstractMojo {
    * <li><code>webserviceclient</code></li>
    * <li><code>variable</code></li>
    * <li><code>user</code></li>
+   * <li><code>xhtml</code></li>
    * </ul>
    *
    * Configure a fixed set in the POM:
