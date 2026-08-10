@@ -102,7 +102,7 @@ public class BaseEngineProjectMojoTest {
       cal.add(Calendar.DAY_OF_YEAR, -1);
       long yesterday = cal.getTimeInMillis();
       return yesterday > createTimeMillis;
-    } catch (IOException ex) { // corrupt state - trigger re-download
+    } catch (IOException _) { // corrupt state - trigger re-download
       return true;
     }
   }
