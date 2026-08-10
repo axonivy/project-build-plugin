@@ -28,19 +28,16 @@ public class YamlOptionsFactory {
   }
 
   public static String toYaml(AbstractDeployMojo config) throws IOException {
-    StringWriter writer = new StringWriter();
-    JsonGenerator gen = yamlFactory.createGenerator(writer);
-
-    gen.writeStartObject(); // root
-    writeTestUsers(config, gen);
-    gen.writeEndObject();
-
-    gen.close();
-    String yaml = writer.toString();
+    var writer = new StringWriter();
+    try (var generator = yamlFactory.createGenerator(writer)) {
+      generator.writeStartObject(); // root
+      writeTestUsers(config, generator);
+      generator.writeEndObject();
+    }
+    var yaml = writer.toString();
     if ("{}\n".equals(yaml)) {
       return null;
     }
-
     return yaml;
   }
 
