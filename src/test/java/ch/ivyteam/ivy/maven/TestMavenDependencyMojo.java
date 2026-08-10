@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 @MojoTest
@@ -110,22 +109,23 @@ class TestMavenDependencyMojo {
   }
 
   @Test
-  @Basedir(TEST_BASE)
-  void m2eDepsHint(@TempDir Path tempDir) throws Exception {
-    var m2eDeps = tempDir.resolve("m2e.deps");
-    assertThat(m2eDeps).doesNotExist();
-    MavenDependencyMojo.writeM2eDependencyHint(tempDir, MavenDependencies.of(mojo.project).localTransient());
-    assertThat(m2eDeps).content().isEmpty();
+  void cleanupDependencies(@TempDir Path tempDir) throws Exception {
+    assertThat(tempDir).isEmptyDirectory();
+    MavenDependencyMojo.cleanupDependencies(tempDir, List.of());
+    assertThat(tempDir).isEmptyDirectory();
 
-    var artifact = new ArtifactStubFactory().createArtifact("io.jsonwebtoken", "jjwt", "0.9.1");
-    var self = new ArtifactStubFactory().createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
-    artifact.setDependencyTrail(List.of(self.toString()));
-    var jar = Path.of("src/test/resources/jjwt-0.9.1.jar");
-    artifact.setFile(jar.toFile());
-    this.artifacts.add(artifact);
+    Files.writeString(tempDir.resolve("jarToKeep.jar"), "test jar to keep");
+    Files.writeString(tempDir.resolve("jarToDelete.jar"), "test jar to delete");
+    assertThat(tempDir).isNotEmptyDirectory();
+    MavenDependencyMojo.cleanupDependencies(tempDir, List.of(Path.of("path", "to", "jarToKeep.jar")));
+    assertThat(tempDir)
+        .isDirectoryContaining(p -> p.endsWith("jarToKeep.jar"))
+        .isDirectoryNotContaining(p -> p.endsWith("jarToDelete.jar"));
+  }
 
-    MavenDependencyMojo.writeM2eDependencyHint(tempDir, MavenDependencies.of(mojo.project).localTransient());
-    assertThat(m2eDeps).content().isEqualToIgnoringNewLines(jar.toString());
+  @Test
+  void cleanupDependenciesDirDoesNotExist(@TempDir Path tempDir) {
+    MavenDependencyMojo.cleanupDependencies(tempDir.resolve("does-not-exist"), List.of());
   }
 
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {
