@@ -5,6 +5,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -14,6 +15,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
@@ -58,10 +60,10 @@ public class MavenDependencyMojo extends AbstractMojo {
 
     var deps = MavenDependencies.of(project).localTransient();
     var targetDir = Path.of(project.getBuild().getDirectory());
+    var mvnLibDir = targetDir.resolve("lib").resolve("mvn-deps");
 
     if (isM2eBuild()) {
-      writeM2eDependencyHint(targetDir, deps);
-      return;
+      cleanupDependencies(mvnLibDir, deps);
     }
 
     getLog().info("Copy maven dependencies...");
@@ -70,7 +72,7 @@ public class MavenDependencyMojo extends AbstractMojo {
       return;
     }
     try {
-      var mvnLibDir = Files.createDirectories(targetDir.resolve("lib").resolve("mvn-deps"));
+      Files.createDirectories(targetDir.resolve("lib").resolve("mvn-deps"));
       copyDependency(mvnLibDir, deps);
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to create mvn-deps directory", ex);
@@ -97,14 +99,22 @@ public class MavenDependencyMojo extends AbstractMojo {
     return "EclipseBuildContext".equals(buildContext.getClass().getSimpleName());
   }
 
-  protected static void writeM2eDependencyHint(Path targetDir, List<Path> deps) throws MojoExecutionException {
-    var m2eDepsPath = targetDir.resolve("m2e.deps");
-    try {
-      Files.createDirectories(m2eDepsPath.getParent());
-      Files.write(m2eDepsPath, deps.stream().map(Path::toString).toList());
-    } catch (IOException ex) {
-      throw new MojoExecutionException("Failed to create m2e.deps file", ex);
+  protected static void cleanupDependencies(Path mvnLibDir, List<Path> deps) {
+    if (!Files.isDirectory(mvnLibDir)) {
+      return;
     }
+    var expectedJars = deps.stream().map(p -> p.getFileName().toString()).toList();
+    var scanner = new DirectoryScanner();
+    scanner.setBasedir(mvnLibDir.toFile());
+    scanner.scan();
+    Stream.of(scanner.getIncludedFiles())
+        .filter(jar -> !expectedJars.contains(jar))
+        .map(jar -> mvnLibDir.resolve(jar))
+        .forEach(jar -> {
+          try {
+            Files.delete(jar);
+          } catch (IOException _) {}
+        });
   }
 
 }
