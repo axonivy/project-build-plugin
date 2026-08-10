@@ -127,7 +127,7 @@ public class FileDeployer implements IvyDeployer {
           throw new TimeoutException("Operation reached timeout of " + duration + " " + unit);
         }
         Thread.sleep(100);
-      } catch (InterruptedException ex) {}
+      } catch (InterruptedException _) {}
     }
   }
 

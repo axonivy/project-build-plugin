@@ -217,7 +217,7 @@ public class EngineControl {
   private EngineState parse(String line) {
     try {
       return EngineState.valueOf(line.strip());
-    } catch (Exception ex) {
+    } catch (Exception _) {
       // output can contain log4j configuration outputs -> ignore them!
       return null;
     }
@@ -258,7 +258,7 @@ public class EngineControl {
       if (out != null) {
         try {
           out.close();
-        } catch (IOException ex) {
+        } catch (IOException _) {
           // silent
         }
       }
@@ -322,7 +322,7 @@ public class EngineControl {
           context.log.debug("Evalutate '" + defaultContext + "' as default context");
           return defaultContext;
         }).orElse(result);
-      } catch (IOException | InterruptedException ex) {
+      } catch (IOException | InterruptedException _) {
         context.log.warn("Couldn't evaluate default context of engine > use 'ivy/'");
       }
       return result;

@@ -84,7 +84,7 @@ public class MavenDependencyMojo extends AbstractMojo {
         Files.copy(dep, mvnLibDir.resolve(dep.getFileName().toString()));
         getLog().debug("Copied dependency: " + dep.getFileName());
         count++;
-      } catch (FileAlreadyExistsException ex) {
+      } catch (FileAlreadyExistsException _) {
         getLog().debug("Ignore dependecy '" + dep.getFileName() + "' as it already exists at: " + mvnLibDir);
       } catch (IOException ex) {
         getLog().warn("Couldn't copy depedency '" + deps + "' to: " + mvnLibDir, ex);
