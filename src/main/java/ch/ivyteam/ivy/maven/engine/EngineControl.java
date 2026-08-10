@@ -132,8 +132,8 @@ public class EngineControl {
     cmds.add("-Djava.awt.headless=true");
     cmds.add("-Dosgi.install.area=" + osgiDir.toAbsolutePath());
 
-    context.vmOptions.additionalVmArgs(context.log).stream().forEach(arg -> cmds.add(arg));
-    new EngineModuleHints(context.engineDirectory, context.log).asStream().forEach(option -> cmds.add(option));
+    context.vmOptions.additionalVmArgs(context.log).stream().forEach(cmds::add);
+    new EngineModuleHints(context.engineDirectory, context.log).asStream().forEach(cmds::add);
 
     cmds.add("org.eclipse.equinox.launcher.Main");
     cmds.add("-application");

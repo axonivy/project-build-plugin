@@ -37,7 +37,7 @@ class ValidatorFilter {
     var id = validator.id();
     var excluded = excludeKeywords.stream()
         .filter(keyword -> keyword != null && !keyword.isBlank())
-        .anyMatch(keyword -> id.equalsIgnoreCase(keyword));
+        .anyMatch(id::equalsIgnoreCase);
     if (excluded) {
       skipped.add(id);
       log.info("Skipping validator '" + id + "' (excluded by configuration)");

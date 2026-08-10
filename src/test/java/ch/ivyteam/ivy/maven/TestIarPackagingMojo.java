@@ -128,10 +128,10 @@ class TestIarPackagingMojo {
 
     mojo.iarExcludes = new String[] {"private", "private/**/*"};
     mojo.execute();
-    try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+    try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(getProjectZipFileEntry(archive, "private")).as("Custom exclusion must be filtered").isNull();
       assertThat(getProjectZipFileEntry(archive, filterCandidate)).as("Custom exclusion must be filtered").isNull();
-      assertThat(archive.size()).isGreaterThan(40).as("archive must contain content");
+      assertThat(archive.size()).as("archive must contain content").isGreaterThan(40);
     }
   }
 
