@@ -13,7 +13,8 @@ class TestLatestMinorVersionRange {
     assertThat(new LatestMinorVersionRange("8.0.1").get().toString()).isEqualTo("[8.0.1,8.1.0)");
     assertThat(new LatestMinorVersionRange("8.1.0").get().toString()).isEqualTo("[8.1.0,8.2.0)");
 
-    assertThatThrownBy(() -> new LatestMinorVersionRange("8").get())
+    var range = new LatestMinorVersionRange("8");
+    assertThatThrownBy(() -> range.get())
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not calculate version spec from 8");
   }
