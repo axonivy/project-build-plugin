@@ -16,7 +16,7 @@
 package ch.ivyteam.ivy.maven.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -138,10 +138,9 @@ class TestDeployToEngineMojo {
     mojo.setLog(new LogCollector()); // do not print errors to console (avoid Maven build assumes error)
     mockEngineDeployThread.execute(engineOperation);
     try {
-      mojo.execute();
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageContaining("failed!");
+      assertThatThrownBy(() -> mojo.execute())
+          .isInstanceOf(MojoExecutionException.class)
+          .hasMessageContaining("failed!");
     } finally {
       mockEngineDeployThread.failOnException();
     }

@@ -17,7 +17,7 @@ package ch.ivyteam.ivy.maven;
 
 import static ch.ivyteam.ivy.maven.AbstractEngineMojo.DEFAULT_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -247,12 +247,9 @@ class TestInstallEngineMojo {
 
     mojo.engineDownloadUrl = URI.create("http://localhost:7123/fakeEngine.zip").toURL(); // not reachable: but proxy knows how :)
     var downloader = (URLEngineDownloader) mojo.getDownloader();
-    try {
-      downloader.downloadEngine();
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageStartingWith("Failed to download engine from 'http://localhost");
-    }
+    assertThatThrownBy(() -> downloader.downloadEngine())
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageStartingWith("Failed to download engine from 'http://localhost");
 
     downloader.proxies = this::localTestProxy;
     var downloaded = downloader.downloadEngine();
@@ -276,26 +273,19 @@ class TestInstallEngineMojo {
     mojo.ivyVersion = "9999.0.0";
     mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
     mojo.engineDownloadUrl = mockEngineZip();
+    assertThatThrownBy(() -> mojo.execute())
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageStartingWith("Automatic installation of an ivyEngine failed.");
 
-    try {
-      mojo.execute();
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageStartingWith("Automatic installation of an ivyEngine failed.");
-    }
   }
 
   @Test
   void testEngineDownload_canDisableAutoDownload() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
     mojo.autoInstallEngine = false;
-
-    try {
-      mojo.execute();
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageContaining("no valid ivy Engine is available");
-    }
+    assertThatThrownBy(() -> mojo.execute())
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageContaining("no valid ivy Engine is available");
   }
 
   @Test
@@ -340,27 +330,18 @@ class TestInstallEngineMojo {
   void testEngineLinkFinder_wrongVersion() throws Exception {
     mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Windows_x86";
-    try {
-      findLink("<a href=\"6.2.0/AxonIvyEngine6.2.0.46949_Windows_x86.zip\">the latest engine</a>");
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageStartingWith(
-          "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
-    }
+    assertThatThrownBy(() -> findLink("<a href=\"6.2.0/AxonIvyEngine6.2.0.46949_Windows_x86.zip\">the latest engine</a>"))
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageStartingWith("Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
   }
 
   @Test
   void testEngineLinkFinder_wrongArchitecture() throws Exception {
     mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Linux_x86";
-    try {
-      findLink("<a href=\"" + DEFAULT_VERSION + "/AxonIvyEngine"
-          + DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>");
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageStartingWith(
-          "Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
-    }
+    assertThatThrownBy(() -> findLink("<a href=\"" + DEFAULT_VERSION + "/AxonIvyEngine" + DEFAULT_VERSION + ".46949_Windows_x86.zip\">the latest engine</a>"))
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageStartingWith("Could not find a link to engine for version '" + DEFAULT_VERSION + "'");
   }
 
   @Test
@@ -369,7 +350,6 @@ class TestInstallEngineMojo {
     mojo.restrictVersionToMinimalCompatible = false;
     mojo.osArchitecture = "Linux_x86";
     mojo.engineListPageUrl = URI.create("http://localhost/").toURL();
-
     assertThat(findLink(
         "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Windows_x86.zip\">the latest engine</a>" // windows
             + "<a href=\"7.0.0/AxonIvyEngine7.0.0.46949_Linux_x86.zip\">the latest engine</a>")) // linux
@@ -389,7 +369,7 @@ class TestInstallEngineMojo {
       return;
     }
 
-    String engineUrl = getUrlDownloader().findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
+    var engineUrl = getUrlDownloader().findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
     assertThat(engineUrl)
         .as("The default engine list page url '" + mojo.engineListPageUrl.toExternalForm() + "' "
             + "must provide an engine for the current default engine version '" + mojo.ivyVersion
@@ -404,12 +384,9 @@ class TestInstallEngineMojo {
   @Test
   void testIvyVersion_mustMatchMinimalPluginVersion() {
     mojo.ivyVersion = "5.1.0";
-    try {
-      mojo.execute();
-      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
-    } catch (MojoExecutionException ex) {
-      assertThat(ex).hasMessageContaining("'5.1.0' is lower than the minimal compatible version");
-    }
+    assertThatThrownBy(() -> mojo.execute())
+        .isInstanceOf(MojoExecutionException.class)
+        .hasMessageContaining("'5.1.0' is lower than the minimal compatible version");
   }
 
   @Test
