@@ -15,8 +15,8 @@ pipeline {
     string(name: 'engineListUrl',
       description: 'Engine to use for build',
       defaultValue: 'https://product.ivyteam.io')
-    string(name: 'sprintQualifier',
-      description: "Optional sprint qualifier (e.g. m7 for Sprint 7). Empty keeps the original project version.",
+    string(name: 'qualifier',
+      description: "Optional qualifier (e.g. m7-SNAPSHOT for Sprint 7). Empty keeps the original project version.",
       defaultValue: '')
   }
 
@@ -31,10 +31,10 @@ pipeline {
               "-Dgpg.project-build.password='${env.GPG_PWD}' " +
               "-Divy.engine.list.url=${params.engineListUrl} " +
               "-Dmaven.test.failure.ignore=true "
-            def qualifier = params.sprintQualifier?.trim()
+            def qualifier = params.qualifier?.trim()
             if (qualifier) {
               applyVersionQualifier(qualifier)
-              if (!qualifier.endsWith("SNAPSHOT")) {
+              if (!qualifier.endsWith("-SNAPSHOT")) {
                 args += "-PcentralDeploy "
               }
             }
