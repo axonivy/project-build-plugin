@@ -34,7 +34,9 @@ pipeline {
             def qualifier = params.sprintQualifier?.trim()
             if (qualifier) {
               applyVersionQualifier(qualifier)
-              args += "-PcentralDeploy "
+              if (!qualifier.endsWith("SNAPSHOT")) {
+                args += "-PcentralDeploy "
+              }
             }
             def phase = isReleasingBranch() ? 'deploy' : 'verify'
             maven cmd: "clean ${phase} ${args}"
