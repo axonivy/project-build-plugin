@@ -63,7 +63,12 @@ class TestIarPackagingMojo {
   }
 
   private static void createEmptySrcDirs(Path projectDir) {
-    var emptySrcDirNames = List.of("target/dataclass", "dialog", "src_rd", "src_ws", "target/wsprocess");
+    var emptySrcDirNames = List.of(
+        "dialog",
+        "src_rd",
+        "src_ws",
+        "target/generated-sources/ivy-dataclass",
+        "target/generated-sources/ivy-wsprocess");
     for (var emptySrcDirName : emptySrcDirNames) {
       var srcDir = projectDir.resolve(emptySrcDirName);
       PathUtils.clean(srcDir);

@@ -26,8 +26,8 @@ class TestGenerateWebServiceSourcesMojo {
   @Test
   void generateWebServiceSources() {
     var projectDir = mojo.project.getBasedir().toPath();
-    var dataClassDir = projectDir.resolve("target/dataclass");
-    var wsProcDir = projectDir.resolve("target/wsprocess");
+    var dataClassDir = projectDir.resolve("target/generated-sources/ivy-dataclass");
+    var wsProcDir = projectDir.resolve("target/generated-sources/ivy-wsprocess");
     var classDir = projectDir.resolve("classes");
     var targetClasses = projectDir.resolve("target").resolve("classes");
     PathUtils.delete(dataClassDir);
@@ -51,7 +51,7 @@ class TestGenerateWebServiceSourcesMojo {
 
   @Test
   void skipGenerateSources() {
-    var wsProcDir = mojo.project.getBasedir().toPath().resolve("target/wsprocess");
+    var wsProcDir = mojo.project.getBasedir().toPath().resolve("target/generated-sources/ivy-wsprocess");
     PathUtils.delete(wsProcDir);
     assertThat(wsProcDir).doesNotExist();
 
