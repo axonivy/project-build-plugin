@@ -67,8 +67,8 @@ class TestIarPackagingMojo {
         "dialog",
         "src_rd",
         "src_ws",
-        "target/generated-sources/ivy/dataclass",
-        "target/generated-sources/ivy/wsprocess");
+        "target/generated-sources/ivy-dataclass",
+        "target/generated-sources/ivy-wsprocess");
     for (var emptySrcDirName : emptySrcDirNames) {
       var srcDir = projectDir.resolve(emptySrcDirName);
       PathUtils.clean(srcDir);

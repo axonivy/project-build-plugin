@@ -26,8 +26,8 @@ class TestGenerateDataClassSourcesMojo {
   @Test
   void generateDataClassSources() throws Exception {
     var projectDir = mojo.project.getBasedir().toPath();
-    var dataClassDir = projectDir.resolve("target/generated-sources/ivy/dataclass");
-    var wsProcDir = projectDir.resolve("target/generated-sources/ivy/wsprocess");
+    var dataClassDir = projectDir.resolve("target/generated-sources/ivy-dataclass");
+    var wsProcDir = projectDir.resolve("target/generated-sources/ivy-wsprocess");
     var classDir = projectDir.resolve("classes");
     var targetClasses = projectDir.resolve("target").resolve("classes");
     PathUtils.delete(dataClassDir);
@@ -52,7 +52,7 @@ class TestGenerateDataClassSourcesMojo {
 
   @Test
   void skipGenerateSources() throws Exception {
-    var dataClassDir = mojo.project.getBasedir().toPath().resolve("target/generated-sources/ivy/dataclass");
+    var dataClassDir = mojo.project.getBasedir().toPath().resolve("target/generated-sources/ivy-dataclass");
     PathUtils.delete(dataClassDir);
 
     assertThat(dataClassDir).doesNotExist();
