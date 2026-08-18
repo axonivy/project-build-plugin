@@ -1,9 +1,12 @@
 package ch.ivyteam.ivy.maven.compile;
 
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -42,8 +45,41 @@ class ValidationContextFactory {
         .project(rootProject)
         .isMaven(true)
         .allProjects(toAllProjects());
-    ctx.javaIndex(JavaIndex.of(toClassLoader()));
+    ctx.javaIndex(JavaIndex.of(toClassLoader(), toClassFolderUrls()));
     return ctx.toContext();
+  }
+
+  private List<URI> toClassFolderUrls() {
+    var urls = new LinkedHashSet<URI>();
+    urls.add(toOutputDir(project));
+    for (var artifact : dependencies.required()) {
+      if (artifact.getType().contains("iar")) {
+        urls.add(toOutputDir(artifact));
+      }
+    }
+    return List.copyOf(urls);
+  }
+
+  private URI toOutputDir(MavenProject p) {
+    return Path.of(p.getBuild().getOutputDirectory()).toUri();
+  }
+
+  private URI toOutputDir(Artifact artifact) {
+    return findReactorProject(artifact)
+        .map(this::toOutputDir)
+        .orElseGet(() -> dependencies.toPath(artifact).toUri());
+  }
+
+  private Optional<MavenProject> findReactorProject(Artifact artifact) {
+    return session.getAllProjects().stream()
+        .filter(p -> isSameArtifact(p, artifact))
+        .findFirst();
+  }
+
+  private boolean isSameArtifact(MavenProject p, Artifact artifact) {
+    return p.getGroupId().equals(artifact.getGroupId())
+        && p.getArtifactId().equals(artifact.getArtifactId())
+        && p.getVersion().equals(artifact.getVersion());
   }
 
   private void dumpTree(ProjectModel p, int depth) {

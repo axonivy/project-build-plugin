@@ -40,7 +40,7 @@ class ValidatorFilter {
         .anyMatch(id::equalsIgnoreCase);
     if (excluded) {
       skipped.add(id);
-      log.info("Skipping validator '" + id + "' (excluded by configuration)");
+      log.info("Skipping validator '" + id + "'");
     }
     return excluded;
   }

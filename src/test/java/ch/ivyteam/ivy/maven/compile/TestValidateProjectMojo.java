@@ -10,12 +10,14 @@ import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 
 @MojoTest
+@ExtendWith(EnglishLocaleExtension.class)
 class TestValidateProjectMojo {
 
   @RegisterExtension
@@ -40,7 +42,8 @@ class TestValidateProjectMojo {
         .contains("config/webservice-clients.yaml [test name]: The web service client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.")
         .contains("config/rest-clients.yaml [test.name]: The rest client key 'test.name' should be sanitized to 'testname' to avoid potential issues. Use the name for a better readability.")
         .contains("dataclass/validation/BusinessProcessData.d.json [Test]: The name of the Attribute 'Test' starts with an uppercasename. It should not start with an uppercase or a single lowercase letter.")
-        .contains("config/rest-clients.yaml [test name]: The rest client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.");
+        .contains("config/rest-clients.yaml [test name]: The rest client key 'test name' should be sanitized to 'test-name' to avoid potential issues. Use the name for a better readability.")
+        .contains("dialog/validation/TestDialog/TestDialog.xhtml [xhtml]: Unknown element 'fooorm' in namespace 'h'");
 
     assertThat(log.getErrors().toString())
         .contains("config/roles.yaml [HR Manager]: Role 'HR Manager' has an unknown parent 'Manager'.")
@@ -48,7 +51,8 @@ class TestValidateProjectMojo {
         .contains("dataclass/validation/BusinessProcessData.d.json [#class]: The namespace 'invalid' does not match the directory of the Data Class.")
         .contains("process/validation/TestProcess.p.json [19F039C4FF9700FD-f0]: Invalid character in signaturename at position 1")
         .contains("dialog/validation/TestForm/TestForm.f.json [button1]: Button action cannot be empty")
-        .contains("config/databases.yaml [testdb]: The database connection key 'testdb' is duplicated in the same project");
+        .contains("config/databases.yaml [testdb]: The database connection key 'testdb' is duplicated in the same project")
+        .contains("dialog/validation/TestDialog/TestDialog.xhtml [xhtml]: The element type \"h:form\" must be terminated by the matching end-tag \"</h:form>\"");
   }
 
   @Test
@@ -103,10 +107,9 @@ class TestValidateProjectMojo {
     mojo.execute();
 
     assertThat(log.getInfos().toString())
-        .contains("Skipping validator 'role' (excluded by configuration)");
+        .contains("Skipping validator 'role'");
     assertThat(log.getErrors().toString())
         .doesNotContain("Role 'HR Manager' has an unknown parent 'Manager'.")
-        // other validators still run
         .contains("config/variables.yaml [Test]: Variable 'Test' is defined multiple times in variables.yaml.");
   }
 
@@ -132,7 +135,7 @@ class TestValidateProjectMojo {
     assertThat(log.getErrors().toString())
         .contains("Project validation summary")
         .contains("Errors:    ")
-        .contains("Warnings:  6")
+        .contains("Warnings:  7")
         .contains("Info:      0")
         .contains("Total:     ");
     assertThat(log.getWarnings().toString()).doesNotContain("Project validation summary");
@@ -141,7 +144,7 @@ class TestValidateProjectMojo {
 
   @Test
   void summary_logsAtWarnLevel_whenOnlyWarningsArePresent() {
-    mojo.excludeValidators = List.of("role", "variable", "dataclass", "process", "form", "database");
+    mojo.excludeValidators = List.of("role", "variable", "dataclass", "process", "form", "database", "xhtml");
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -151,7 +154,7 @@ class TestValidateProjectMojo {
         .contains("Project validation summary")
         .contains("Errors:    0")
         .contains("Warnings:  5")
-        .contains("Skipped validators (6):");
+        .contains("Skipped validators (7):");
     assertThat(log.getInfos().toString()).doesNotContain("Project validation summary");
   }
 
@@ -159,7 +162,7 @@ class TestValidateProjectMojo {
   void summary_logsAtInfoLevel_whenNoErrorsOrWarningsArePresent() {
     mojo.excludeValidators = List.of(
         "role", "database", "form", "dataclass", "process",
-        "restclient", "webserviceclient", "variable", "user");
+        "restclient", "webserviceclient", "variable", "user", "xhtml");
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -172,7 +175,7 @@ class TestValidateProjectMojo {
         .contains("Errors:    0")
         .contains("Warnings:  0")
         .contains("Total:     0")
-        .contains("Skipped validators (9):")
+        .contains("Skipped validators (10):")
         .contains("- role")
         .contains("- database")
         .contains("- form")
@@ -181,6 +184,7 @@ class TestValidateProjectMojo {
         .contains("- restclient")
         .contains("- webserviceclient")
         .contains("- variable")
+        .contains("- xhtml")
         .contains("- user");
   }
 

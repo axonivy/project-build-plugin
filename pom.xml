@@ -121,7 +121,13 @@
       <groupId>jakarta.el</groupId>
       <artifactId>jakarta.el-api</artifactId>
       <version>6.0.1</version>
-     </dependency>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation. Validating XHTML  -->
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>4.8.189</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
@@ -156,7 +162,7 @@
       <!-- Required for project validation. Parsing OpenAPI specs of REST clients -->
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser</artifactId>
-      <version>2.1.46</version> 
+      <version>2.1.46</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -474,6 +480,14 @@
                     <include>plugin.xml</include>
                     <!-- Required for project validation. Validating Database-Config using CryptoUtils -->
                     <include>**/AES.key</include>
+                    <!-- Required for project validation. Validating XHTML-Files -->
+                    <include>xsd/**/*.xsd</include>
+                    <!-- Required for project validation. Validating XHTML-Files -->
+                    <include>xsd/**/*.xml</include>
+                    <!-- Required for project validation. Validating XHTML-Files -->
+                    <include>xsd-gen/**/*.xsd</include>
+                    <!-- Required for project validation. Validating XHTML-Files -->
+                    <include>xsd-gen/**/*.xml</include>
                   </includes>
                   <excludes>
                     <exclude>META-INF/*.MF</exclude>
