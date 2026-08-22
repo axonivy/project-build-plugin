@@ -162,7 +162,7 @@
       <!-- Required for project validation. Parsing OpenAPI specs of REST clients -->
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser</artifactId>
-      <version>2.1.46</version>
+      <version>2.1.47</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
