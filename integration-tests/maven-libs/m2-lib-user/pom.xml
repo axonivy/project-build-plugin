@@ -15,7 +15,7 @@
   </parent>
 
   <properties>
-    <docusign.version>6.7.0</docusign.version>
+    <docusign.version>6.8.0</docusign.version>
     <jspecify.version>1.0.1</jspecify.version>
   </properties>
 
