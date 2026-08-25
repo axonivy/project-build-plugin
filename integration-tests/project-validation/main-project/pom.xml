@@ -18,6 +18,10 @@
       <artifactId>ivy-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.axonivy.ivy.api.extension</groupId>
+      <artifactId>ivy-process-extension-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.axonivy.validation</groupId>
       <artifactId>a.project</artifactId>
       <version>${project.version}</version>
