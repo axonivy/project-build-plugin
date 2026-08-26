@@ -136,6 +136,12 @@
     </dependency>
     <dependency>
       <!-- Required for project validation. Validating EL-Expressions  -->
+      <groupId>io.smallrye</groupId>
+      <artifactId>jandex</artifactId>
+      <version>3.6.0</version>
+    </dependency>
+    <dependency>
+      <!-- Required for project validation. Validating EL-Expressions  -->
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-jasper-el</artifactId>
       <version>11.0.25</version>
