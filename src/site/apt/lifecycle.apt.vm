@@ -26,7 +26,8 @@ iar Lifecycle
                    | org.apache.maven.plugins:maven-surefire-plugin:test 
 *--------*---------*
  package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}}\
-                   | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}} 
+                   | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}}
+                   | ${project.groupId}:${project.artifactId}:{{{./pack-app-mojo.html}pack-app-mojo}} 
 *--------*---------*
  deploy            | org.apache.maven.plugins:maven-deploy-plugin:deploy 
 *--------*---------*

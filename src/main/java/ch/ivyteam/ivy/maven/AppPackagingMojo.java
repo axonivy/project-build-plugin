@@ -34,7 +34,7 @@ public class AppPackagingMojo extends AbstractMojo {
 
   /**
    * Whether to create the application zip. Defaults to {@code false}.
-   * When enabled, the archive contains the project IAR, all runtime IAR
+   * When enabled, the archive contains the project IAR, all IAR
    * dependencies, and the optional {@code config/app} project directory.
    */
   @Parameter(property = "ivy.run.pack.app", defaultValue = "false")
