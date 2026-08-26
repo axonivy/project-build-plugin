@@ -3,6 +3,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -65,6 +66,7 @@ public class AppPackagingMojo extends AbstractMojo {
         .map(Path::toFile);
 
     Stream.concat(Stream.of(project.getArtifact().getFile()), deps)
+        .filter(Objects::nonNull)
         .filter(file -> file.isFile() && file.getName().endsWith(".iar"))
         .forEach(file -> archiver.addFile(file, file.getName()));
 
