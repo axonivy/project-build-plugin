@@ -35,7 +35,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
  *
  * @since 6.2.0
  */
-@Mojo(name = StopTestEngineMojo.GOAL)
+@Mojo(name = StopTestEngineMojo.GOAL, threadSafe = true)
 public class StopTestEngineMojo extends AbstractIntegrationTestMojo {
 
   public static final String GOAL = "stop-test-engine";

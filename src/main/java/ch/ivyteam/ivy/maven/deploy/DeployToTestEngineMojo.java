@@ -49,7 +49,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
  *
  * @since 9.1.0
  */
-@Mojo(name = DeployToTestEngineMojo.TEST_GOAL, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = DeployToTestEngineMojo.TEST_GOAL, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class DeployToTestEngineMojo extends AbstractDeployMojo {
   public static final String TEST_GOAL = "deploy-to-test-engine";
 

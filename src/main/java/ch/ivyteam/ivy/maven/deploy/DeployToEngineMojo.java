@@ -68,7 +68,7 @@ import ch.ivyteam.ivy.maven.engine.deploy.http.HttpDeployer;
  *
  * @since 7.1.0
  */
-@Mojo(name = DeployToEngineMojo.GOAL, requiresProject = false)
+@Mojo(name = DeployToEngineMojo.GOAL, requiresProject = false, threadSafe = true)
 public class DeployToEngineMojo extends AbstractDeployMojo {
   private static final String DEPLOY_ENGINE_DIR_DEFAULT = "${" + ENGINE_DIRECTORY_PROPERTY + "}";
   private static final String HTTP_ENGINE_URL_DEFAULT = "http://localhost:8080/ivy";

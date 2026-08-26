@@ -42,7 +42,7 @@ import ch.ivyteam.ivy.maven.util.MavenProperties;
  *
  * @since 9.1
  */
-@Mojo(name = SetupIntegrationTestPropertiesMojo.GOAL)
+@Mojo(name = SetupIntegrationTestPropertiesMojo.GOAL, threadSafe = true)
 public class SetupIntegrationTestPropertiesMojo extends AbstractEngineMojo {
   public static final String GOAL = "ivy-integration-test-properties";
 
