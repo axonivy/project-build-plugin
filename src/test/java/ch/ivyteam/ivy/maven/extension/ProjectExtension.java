@@ -69,7 +69,7 @@ public class ProjectExtension implements BeforeAllCallback, AfterAllCallback, Be
   public static MavenProject project() throws IOException {
     MavenProject pom = Mockito.mock(MavenProject.class);
     var self = new ArtifactStubFactory()
-        .createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "iar");
+        .createArtifact("ch.ivyteam.project.test", "base", "1.0.0", "compile", "iar", "");
     Mockito.lenient().when(pom.getArtifact()).thenReturn(self);
     Mockito.lenient().when(pom.getGroupId()).thenReturn("ch.ivyteam.project.test");
     Mockito.lenient().when(pom.getArtifactId()).thenReturn("base");

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
@@ -26,12 +25,17 @@ import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 @ExtendWith(ProjectExtension.class)
 class TestAppPackagingMojo {
 
-  private AppPackagingMojo mojo;
+  AppPackagingMojo mojo;
+  Path appZip;
 
   @BeforeEach
   @InjectMojo(goal = AppPackagingMojo.GOAL)
-  void setUp(AppPackagingMojo pack) {
-    this.mojo = pack;
+  void setUp(AppPackagingMojo pack) throws IOException {
+    mojo = pack;
+    mojo.runPackApp = true;
+    var selfIar = Files.createFile(mojo.project.getBasedir().toPath().resolve("self.iar"));
+    mojo.project.getArtifact().setFile(selfIar.toFile());
+    appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-app-1.0.0.zip");
   }
 
   @Provides
@@ -40,64 +44,60 @@ class TestAppPackagingMojo {
   }
 
   @Test
-  void packsIarDependenciesOnly() throws Exception {
+  void skipPackApp() throws Exception {
+    mojo.runPackApp = false;
+    assertThat(appZip).doesNotExist();
+    mojo.execute();
+    assertThat(appZip).doesNotExist();
+  }
+
+  @Test
+  void packApp() throws Exception {
+    assertThat(appZip).doesNotExist();
+    mojo.execute();
+    assertThat(appZip).exists();
+    try (var zip = new ZipFile(appZip.toFile())) {
+      assertThat(zip.getEntry("self.iar")).isNotNull();
+      assertThat(zip.getEntry("config")).isNull();
+    }
+  }
+
+  @Test
+  void packAppWithDeps() throws Exception {
     var basedir = mojo.project.getBasedir().toPath();
     var iarDep = Files.createFile(basedir.resolve("dep-one.iar"));
     var jarDep = Files.createFile(basedir.resolve("dep-two.jar"));
 
-    var artifacts = new HashSet<Artifact>();
-    artifacts.add(artifact("dep-one", "1.0.0", "iar", iarDep));
-    artifacts.add(artifact("dep-two", "1.0.0", "jar", jarDep));
-
+    var artifacts = Set.of(artifact("dep-one", "1.0.0", "iar", iarDep),
+        artifact("dep-two", "1.0.0", "jar", jarDep));
     Mockito.lenient().when(mojo.project.getArtifacts()).thenReturn(artifacts);
 
     mojo.execute();
 
-    var appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("app.zip");
+    var appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-app-1.0.0.zip");
     assertThat(appZip).exists();
     try (var zip = new ZipFile(appZip.toFile())) {
       assertThat(zip.getEntry("dep-one.iar")).isNotNull();
+      assertThat(zip.getEntry("self.iar")).isNotNull();
       assertThat(zip.getEntry("dep-two.jar")).isNull();
+      assertThat(zip.getEntry("config")).isNull();
     }
   }
 
   @Test
-  void packsConfigDirectoryIfPresent() throws Exception {
-    Mockito.when(mojo.project.getArtifacts()).thenReturn(Set.of());
-    var configFile = mojo.project.getBasedir().toPath().resolve("config/app.yaml");
-    Files.createDirectories(configFile.getParent());
-    Files.writeString(configFile, "name: demo");
-
+  void packAppWithConfig() throws Exception {
+    var appYaml = mojo.project.getBasedir().toPath().resolve("config/app/app.yaml");
+    Files.createDirectories(appYaml.getParent());
+    Files.writeString(appYaml, "test: value");
     mojo.execute();
-
-    var appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("app.zip");
     assertThat(appZip).exists();
     try (var zip = new ZipFile(appZip.toFile())) {
+      assertThat(zip.getEntry("self.iar")).isNotNull();
       assertThat(zip.getEntry("config/app.yaml")).isNotNull();
     }
   }
 
-  @Test
-  void packsReactorDependenciesFromPackedIar() throws Exception {
-    var basedir = mojo.project.getBasedir().toPath();
-    var reactorProject = basedir.resolve("reactor-project");
-    var packedIar = reactorProject.resolve("target/reactor-project.iar");
-    Files.createDirectories(packedIar.getParent());
-    Files.writeString(packedIar, "iar");
-
-    Mockito.when(mojo.project.getArtifacts())
-        .thenReturn(Set.of(artifact("reactor-project", "1.0.0", "iar", reactorProject)));
-
-    mojo.execute();
-
-    var appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("app.zip");
-    assertThat(appZip).exists();
-    try (var zip = new ZipFile(appZip.toFile())) {
-      assertThat(zip.getEntry("reactor-project.iar")).isNotNull();
-    }
-  }
-
-  private static Artifact artifact(String artifactId, String version, String type, Path file) throws IOException {
+  static Artifact artifact(String artifactId, String version, String type, Path file) throws IOException {
     var artifact = new ArtifactStubFactory()
         .createArtifact("ch.ivyteam.project.test", artifactId, version, "runtime", type, "");
     artifact.setFile(file.toFile());
