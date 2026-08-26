@@ -45,41 +45,8 @@ class ValidationContextFactory {
         .project(rootProject)
         .isMaven(true)
         .allProjects(toAllProjects());
-    ctx.javaIndex(JavaIndex.of(toClassLoader(), toClassFolderUrls()));
+    ctx.javaIndex(JavaIndex.of(rootProject, toClassLoader()));
     return ctx.toContext();
-  }
-
-  private List<URI> toClassFolderUrls() {
-    var urls = new LinkedHashSet<URI>();
-    urls.add(toOutputDir(project));
-    for (var artifact : dependencies.required()) {
-      if (artifact.getType().contains("iar")) {
-        urls.add(toOutputDir(artifact));
-      }
-    }
-    return List.copyOf(urls);
-  }
-
-  private URI toOutputDir(MavenProject p) {
-    return Path.of(p.getBuild().getOutputDirectory()).toUri();
-  }
-
-  private URI toOutputDir(Artifact artifact) {
-    return findReactorProject(artifact)
-        .map(this::toOutputDir)
-        .orElseGet(() -> dependencies.toPath(artifact).toUri());
-  }
-
-  private Optional<MavenProject> findReactorProject(Artifact artifact) {
-    return session.getAllProjects().stream()
-        .filter(p -> isSameArtifact(p, artifact))
-        .findFirst();
-  }
-
-  private boolean isSameArtifact(MavenProject p, Artifact artifact) {
-    return p.getGroupId().equals(artifact.getGroupId())
-        && p.getArtifactId().equals(artifact.getArtifactId())
-        && p.getVersion().equals(artifact.getVersion());
   }
 
   private void dumpTree(ProjectModel p, int depth) {
