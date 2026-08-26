@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,7 @@ import net.lingala.zip4j.ZipFile;
  * @author Reguel Wermelinger
  * @since 6.0.0
  */
-@Mojo(name = InstallEngineMojo.GOAL, requiresProject = false)
+@Mojo(name = InstallEngineMojo.GOAL, requiresProject = false, threadSafe = true)
 public class InstallEngineMojo extends AbstractEngineMojo {
   public static final String GOAL = "installEngine";
   public static final String ENGINE_LIST_URL_PROPERTY = "ivy.engine.list.url";
@@ -148,10 +149,18 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   @SuppressWarnings("deprecation")
   org.apache.maven.artifact.manager.WagonManager wagonManager;
 
+  private static final ReentrantLock LOCK = new ReentrantLock();
+
   @Override
   public void execute() throws MojoExecutionException {
     getLog().info("Provide engine for ivy version " + ivyVersion);
-    ensureEngineIsInstalled();
+    getLog().info("Engine download isLocked state: " + LOCK.isLocked());
+    LOCK.lock();
+    try {
+      ensureEngineIsInstalled();
+    } finally {
+      LOCK.unlock();
+    }
     getLog().info("Using engine in '" + getRawEngineDirectory() + "'");
   }
 

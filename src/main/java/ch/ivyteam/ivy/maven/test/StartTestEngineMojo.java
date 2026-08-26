@@ -55,7 +55,7 @@ import ch.ivyteam.ivy.maven.engine.EngineVmOptions;
  *
  * @since 6.2.0
  */
-@Mojo(name = StartTestEngineMojo.GOAL)
+@Mojo(name = StartTestEngineMojo.GOAL, threadSafe = true)
 public class StartTestEngineMojo extends AbstractIntegrationTestMojo {
   public static final String GOAL = "start-test-engine";
   public static final String IVY_ENGINE_START_TIMEOUT_SECONDS = "ivy.engine.start.timeout.seconds";
