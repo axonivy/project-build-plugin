@@ -35,7 +35,7 @@ class TestAppPackagingMojo {
     mojo.runPackApp = true;
     var selfIar = Files.createFile(mojo.project.getBasedir().toPath().resolve("self.iar"));
     mojo.project.getArtifact().setFile(selfIar.toFile());
-    appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-app-1.0.0.zip");
+    appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-1.0.0.zip");
   }
 
   @Provides
@@ -74,7 +74,6 @@ class TestAppPackagingMojo {
 
     mojo.execute();
 
-    var appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-app-1.0.0.zip");
     assertThat(appZip).exists();
     try (var zip = new ZipFile(appZip.toFile())) {
       assertThat(zip.getEntry("dep-one.iar")).isNotNull();
@@ -86,7 +85,7 @@ class TestAppPackagingMojo {
 
   @Test
   void packAppWithConfig() throws Exception {
-    var appYaml = mojo.project.getBasedir().toPath().resolve("config/app/app.yaml");
+    var appYaml = mojo.project.getBasedir().toPath().resolve("config/app/config/app.yaml");
     Files.createDirectories(appYaml.getParent());
     Files.writeString(appYaml, "test: value");
     mojo.execute();

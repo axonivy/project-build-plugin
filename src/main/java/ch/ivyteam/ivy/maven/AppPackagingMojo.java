@@ -20,10 +20,8 @@ import ch.ivyteam.ivy.maven.util.MavenDependencies;
 
 /**
  * Creates an application zip containing the packaged project and its IAR dependencies.
- *
- * <p>The resulting zip is written to the Maven build directory.
- * If the project contains a {@code config/app} directory, its contents are included below the
- * {@code config/} directory in the zip.</p>
+ * The resulting zip is written to the Maven build directory.
+ * If the project contains a {@code config/app} directory, its contents are included in the zip.
  *
  * @since 14.0.0
  */
@@ -36,9 +34,8 @@ public class AppPackagingMojo extends AbstractMojo {
 
   /**
    * Whether to create the application zip. Defaults to {@code false}.
-   *
-   * <p>When enabled, the archive contains the project IAR, all runtime IAR
-   * dependencies, and the optional {@code config/app} project directory.</p>
+   * When enabled, the archive contains the project IAR, all runtime IAR
+   * dependencies, and the optional {@code config/app} project directory.
    */
   @Parameter(property = "ivy.run.pack.app", defaultValue = "false")
   boolean runPackApp;
@@ -54,7 +51,7 @@ public class AppPackagingMojo extends AbstractMojo {
   }
 
   private Path getAppZipFile() {
-    var appZipName = project.getArtifactId() + "-app-" + project.getVersion() + ".zip";
+    var appZipName = project.getBuild().getFinalName() + ".zip";
     return Path.of(project.getBuild().getDirectory()).resolve(appZipName);
   }
 
@@ -74,7 +71,6 @@ public class AppPackagingMojo extends AbstractMojo {
     var appConfigDir = project.getBasedir().toPath().resolve("config").resolve("app");
     if (Files.isDirectory(appConfigDir)) {
       archiver.addFileSet(DefaultFileSet.fileSet(appConfigDir.toFile())
-          .prefixed("config/")
           .includeEmptyDirs(false));
     }
 
