@@ -1,10 +1,13 @@
 package ch.ivyteam.ivy.maven;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -13,6 +16,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
@@ -34,31 +38,33 @@ public class AppPackagingMojo extends AbstractMojo {
   MavenProject project;
 
   /**
-   * Whether to create the application zip. Defaults to {@code false}.
-   * When enabled, the archive contains the project IAR, all IAR
-   * dependencies, and the optional {@code config/app} project directory.
+   * Whether to skip the creation of the application zip. Defaults to {@code true}.
    */
-  @Parameter(property = "ivy.run.pack.app", defaultValue = "false")
-  boolean runPackApp;
+  @Parameter(property = "ivy.pack.app.skip", defaultValue = "true")
+  boolean skipPackApp;
+
+  @Inject
+  private MavenProjectHelper projectHelper;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    if (!runPackApp) {
+    if (skipPackApp) {
       return;
     }
     var appZip = getAppZipFile();
     createAppArchive(appZip);
-    getLog().info("Created app zip at " + appZip.toAbsolutePath());
+    projectHelper.attachArtifact(project, "zip", appZip);
+    getLog().info("Created app zip at " + appZip);
   }
 
-  private Path getAppZipFile() {
+  private File getAppZipFile() {
     var appZipName = project.getBuild().getFinalName() + ".zip";
-    return Path.of(project.getBuild().getDirectory()).resolve(appZipName);
+    return Path.of(project.getBuild().getDirectory()).resolve(appZipName).toFile();
   }
 
-  private void createAppArchive(Path appZip) throws MojoExecutionException {
+  private void createAppArchive(File appZip) throws MojoExecutionException {
     var archiver = new ZipArchiver();
-    archiver.setDestFile(appZip.toFile());
+    archiver.setDestFile(appZip);
 
     var deps = MavenDependencies.of(project)
         .typeFilter("iar")
@@ -79,7 +85,7 @@ public class AppPackagingMojo extends AbstractMojo {
     try {
       archiver.createArchive();
     } catch (ArchiverException | IOException ex) {
-      throw new MojoExecutionException("Failed to create app zip: " + appZip.toAbsolutePath(), ex);
+      throw new MojoExecutionException("Failed to create app zip: " + appZip, ex);
     }
   }
 }
