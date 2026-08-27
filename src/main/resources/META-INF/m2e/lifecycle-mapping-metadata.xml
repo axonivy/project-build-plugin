@@ -37,6 +37,7 @@
           <goal>validate</goal>
           <goal>installEngine</goal>
           <goal>validateProject</goal>
+          <goal>pack-app</goal>
         </goals>
       </pluginExecutionFilter>
       <action>
