@@ -32,7 +32,7 @@ class TestAppPackagingMojo {
   @InjectMojo(goal = AppPackagingMojo.GOAL)
   void setUp(AppPackagingMojo pack) throws IOException {
     mojo = pack;
-    mojo.runPackApp = true;
+    mojo.skipPackApp = false;
     var selfIar = Files.createFile(mojo.project.getBasedir().toPath().resolve("self.iar"));
     mojo.project.getArtifact().setFile(selfIar.toFile());
     appZip = Path.of(mojo.project.getBuild().getDirectory()).resolve("base-1.0.0.zip");
@@ -45,7 +45,7 @@ class TestAppPackagingMojo {
 
   @Test
   void skipPackApp() throws Exception {
-    mojo.runPackApp = false;
+    mojo.skipPackApp = true;
     assertThat(appZip).doesNotExist();
     mojo.execute();
     assertThat(appZip).doesNotExist();
