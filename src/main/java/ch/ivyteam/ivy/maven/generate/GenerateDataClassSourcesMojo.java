@@ -68,7 +68,7 @@ public class GenerateDataClassSourcesMojo extends AbstractMojo {
     var writer = new NioSourceWriter(projectDir);
     for (var jsonFile : jsonFiles) {
       try (var is = Files.newInputStream(projectDir.resolve(jsonFile))) {
-        var model = DataClassSerializer.builder().build().load(is).model();
+        var model = DataClassSerializer.load(is).model();
         var classInfo = IvyScriptClassInfoMapper.toIvyScriptClassInfo(model);
         new DataClassJavaSource(classInfo).write(writer);
       } catch (IOException ex) {
