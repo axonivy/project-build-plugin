@@ -4,6 +4,7 @@
   "namespace" : "base.myForm",
   "fields" : [ {
     "name" : "businessProcess",
-    "type" : "Test.BusinessProcessData"
+    "type" : "Test.BusinessProcessData",
+    "modifiers" : [ ]
   } ]
 }
