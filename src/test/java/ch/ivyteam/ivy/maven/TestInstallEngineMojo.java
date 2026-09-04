@@ -212,7 +212,7 @@ class TestInstallEngineMojo {
     Files.createDirectories(nonOsgiDir);
 
     mojo.execute();
-    assertThat(mojo.engineDirectory.getFileName().toString()).isEqualTo("7.0.0");
+    assertThat(mojo.engineDirectory.getFileName()).hasToString("7.0.0");
   }
 
   @Test
