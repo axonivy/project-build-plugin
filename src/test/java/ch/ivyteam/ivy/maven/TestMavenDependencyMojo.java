@@ -128,6 +128,20 @@ class TestMavenDependencyMojo {
     MavenDependencyMojo.cleanupDependencies(tempDir.resolve("does-not-exist"), List.of());
   }
 
+  @Test
+  void handleWorkspaceDependency(@TempDir Path tempDir) throws IOException {
+    var mvnDeps = tempDir.resolve("mvn-deps");
+    var target = tempDir.resolve("target");
+    Files.createDirectories(mvnDeps);
+    Files.createDirectories(target);
+    Files.writeString(target.resolve("test.jar"), "test jar content");
+    Files.writeString(target.resolve("other.jar"), "other jar content");
+    Files.writeString(target.resolve("notajar.txt"), "not a jar content");
+    MavenDependencyMojo.handleWorkspaceDependency(target.resolve("classes"), mvnDeps);
+    assertThat(getMavenLibs(mvnDeps))
+        .containsExactlyInAnyOrder("test.jar", "other.jar");
+  }
+
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {
     if (!Files.isDirectory(mvnLibDir)) {
       return Collections.emptyList();
