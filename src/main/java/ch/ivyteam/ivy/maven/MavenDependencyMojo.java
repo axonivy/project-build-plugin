@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,6 +84,10 @@ public class MavenDependencyMojo extends AbstractMojo {
     var count = 0;
     for (var dep : deps) {
       try {
+        if (isM2eBuild() && Files.isDirectory(dep)) {
+          handleWorkspaceDependency(dep, mvnLibDir);
+          continue;
+        }
         Files.copy(dep, mvnLibDir.resolve(dep.getFileName().toString()));
         getLog().debug("Copied dependency: " + dep.getFileName());
         count++;
@@ -97,6 +102,20 @@ public class MavenDependencyMojo extends AbstractMojo {
 
   private boolean isM2eBuild() {
     return "EclipseBuildContext".equals(buildContext.getClass().getSimpleName());
+  }
+
+  protected static void handleWorkspaceDependency(Path workspaceDependency, Path mvnLibDir) throws IOException {
+    try (var paths = Files.walk(workspaceDependency.getParent())) {
+      paths.filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(".jar"))
+          .forEach(jar -> {
+            try {
+              Files.copy(jar, mvnLibDir.resolve(jar.getFileName().toString()));
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
+    }
   }
 
   protected static void cleanupDependencies(Path mvnLibDir, List<Path> deps) {
