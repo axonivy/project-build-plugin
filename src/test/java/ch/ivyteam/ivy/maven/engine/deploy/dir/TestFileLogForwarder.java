@@ -49,17 +49,17 @@ class TestFileLogForwarder {
       log.write("WARNING: starting");
       await().untilAsserted(() -> assertThat(mavenLog.getWarnings()).hasSize(1));
       LogEntry firstEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size() - 1);
-      assertThat(firstEntry.toString()).isEqualTo(" ENGINE: starting");
+      assertThat(firstEntry).hasToString(" ENGINE: starting");
 
       log.write("WARNING: finished");
       await().untilAsserted(() -> assertThat(mavenLog.getWarnings()).hasSize(2));
       LogEntry lastEntry = mavenLog.getWarnings().get(mavenLog.getWarnings().size() - 1);
-      assertThat(lastEntry.toString()).isEqualTo(" ENGINE: finished");
+      assertThat(lastEntry).hasToString(" ENGINE: finished");
 
       log.write("INFO: hi");
       await().untilAsserted(() -> assertThat(mavenLog.getDebug()).hasSize(1));
       LogEntry debugEntry = mavenLog.getDebug().get(mavenLog.getDebug().size() - 1);
-      assertThat(debugEntry.toString()).isEqualTo(" ENGINE: hi");
+      assertThat(debugEntry).hasToString(" ENGINE: hi");
 
     } finally {
       logForwarder.deactivate();

@@ -83,7 +83,7 @@ class TestDeployToTestEngineMojo {
         Files.createFile(workspace.resolve("demoTest.iar")),
         reactorProject,
         builtTarget.getParent()));
-    assertThat(appZip.getFileName().toString()).isEqualTo("myApp-app.zip");
+    assertThat(appZip.getFileName()).hasToString("myApp-app.zip");
     assertThat(DeployToTestEngineMojo.findPackedIar(builtTarget.getParent())).isPresent();
     assertThat(getRootFiles(appZip))
         .containsOnly("demo.iar", "demoTest.iar", "myReactorProject", "alreadyPacked.iar");

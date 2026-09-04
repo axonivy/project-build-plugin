@@ -51,8 +51,8 @@ class TestValidateMojo {
     assertThatThrownBy(() -> mojo.validateConsistentPluginVersion(List.of(p1, p2)))
         .isInstanceOf(MojoExecutionException.class);
     assertThat(log.getErrors()).hasSize(1);
-    assertThat(log.getErrors().get(0).toString())
-        .isEqualTo("""
+    assertThat(log.getErrors().get(0))
+        .hasToString("""
           Several versions of project-build-plugins are configured [13.1.0, 13.1.1]:
           13.1.0 -> [project1]
           13.1.1 -> [project2]""");
