@@ -126,7 +126,7 @@
       <!-- Required for project validation. Validating XHTML  -->
       <groupId>io.github.classgraph</groupId>
       <artifactId>classgraph</artifactId>
-      <version>4.8.193</version>
+      <version>4.8.194</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
