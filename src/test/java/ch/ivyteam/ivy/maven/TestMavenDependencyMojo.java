@@ -117,7 +117,10 @@ class TestMavenDependencyMojo {
     Files.writeString(tempDir.resolve("jarToKeep.jar"), "test jar to keep");
     Files.writeString(tempDir.resolve("jarToDelete.jar"), "test jar to delete");
     assertThat(tempDir).isNotEmptyDirectory();
-    MavenDependencyMojo.cleanupDependencies(tempDir, List.of(Path.of("path", "to", "jarToKeep.jar")));
+    var artifact = new ArtifactStubFactory()
+        .createArtifact("ch.ivyteam.project.test", "keepMe", "1.0.0", "runtime", "jar", "");
+    artifact.setFile(tempDir.resolve("jarToKeep.jar").toFile());
+    MavenDependencyMojo.cleanupDependencies(tempDir, List.of(artifact));
     assertThat(tempDir)
         .isDirectoryContaining(p -> p.endsWith("jarToKeep.jar"))
         .isDirectoryNotContaining(p -> p.endsWith("jarToDelete.jar"));
@@ -132,14 +135,42 @@ class TestMavenDependencyMojo {
   void handleWorkspaceDependency(@TempDir Path tempDir) throws IOException {
     var mvnDeps = tempDir.resolve("mvn-deps");
     var target = tempDir.resolve("target");
+    var targetClasses = target.resolve("classes");
     Files.createDirectories(mvnDeps);
-    Files.createDirectories(target);
-    Files.writeString(target.resolve("test.jar"), "test jar content");
-    Files.writeString(target.resolve("other.jar"), "other jar content");
-    Files.writeString(target.resolve("notajar.txt"), "not a jar content");
-    MavenDependencyMojo.handleWorkspaceDependency(target.resolve("classes"), mvnDeps);
-    assertThat(getMavenLibs(mvnDeps))
-        .containsExactlyInAnyOrder("test.jar", "other.jar");
+    Files.createDirectories(targetClasses);
+
+    var artifact = new ArtifactStubFactory()
+        .createArtifact("ch.ivyteam.project.test", "test-jar", "1.0.0", "runtime", "jar", "");
+    artifact.setFile(targetClasses.toFile());
+
+    Files.writeString(target.resolve("test-jar.jar"), "test jar content");
+    MavenDependencyMojo.handleWorkspaceDependency(artifact, mvnDeps);
+    assertThat(getMavenLibs(mvnDeps)).isEmpty();
+
+    Files.writeString(target.resolve("test-jar-1.0.0.jar"), "test jar content");
+    MavenDependencyMojo.handleWorkspaceDependency(artifact, mvnDeps);
+    assertThat(getMavenLibs(mvnDeps)).containsExactly("test-jar-1.0.0.jar");
+  }
+
+  @Test
+  void handleWorkspaceDependencyWithClassifier(@TempDir Path tempDir) throws IOException {
+    var mvnDeps = tempDir.resolve("mvn-deps");
+    var target = tempDir.resolve("target");
+    var targetClasses = target.resolve("classes");
+    Files.createDirectories(mvnDeps);
+    Files.createDirectories(targetClasses);
+
+    var artifact = new ArtifactStubFactory()
+        .createArtifact("ch.ivyteam.project.test", "test-jar", "1.0.0", "runtime", "jar", "customClassifier");
+    artifact.setFile(targetClasses.toFile());
+
+    Files.writeString(target.resolve("test-jar-1.0.0.jar"), "test jar content");
+    MavenDependencyMojo.handleWorkspaceDependency(artifact, mvnDeps);
+    assertThat(getMavenLibs(mvnDeps)).isEmpty();
+
+    Files.writeString(target.resolve("test-jar-1.0.0-customClassifier.jar"), "test jar content");
+    MavenDependencyMojo.handleWorkspaceDependency(artifact, mvnDeps);
+    assertThat(getMavenLibs(mvnDeps)).containsExactly("test-jar-1.0.0-customClassifier.jar");
   }
 
   private static List<String> getMavenLibs(Path mvnLibDir) throws IOException {

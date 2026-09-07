@@ -1,11 +1,9 @@
 package ch.ivyteam.ivy.maven.util;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,12 +40,10 @@ public class MavenDependencies {
     return this;
   }
 
-  public List<Path> localTransient() {
+  public List<Artifact> localTransient() {
     return stream(project.getArtifacts())
         .filter(this::isLocalDep)
-        .map(Artifact::getFile)
-        .map(File::toPath)
-        .filter(Objects::nonNull)
+        .filter(a -> a.getFile() != null)
         .toList();
   }
 

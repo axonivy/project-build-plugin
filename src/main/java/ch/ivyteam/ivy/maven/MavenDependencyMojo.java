@@ -1,5 +1,6 @@
 package ch.ivyteam.ivy.maven;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -10,6 +11,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -80,19 +82,20 @@ public class MavenDependencyMojo extends AbstractMojo {
     }
   }
 
-  private void copyDependency(Path mvnLibDir, List<Path> deps) {
+  private void copyDependency(Path mvnLibDir, List<Artifact> deps) {
     var count = 0;
     for (var dep : deps) {
+      var depFilePath = dep.getFile().toPath();
       try {
-        if (isM2eBuild() && Files.isDirectory(dep)) {
+        if (isM2eBuild() && Files.isDirectory(depFilePath)) {
           handleWorkspaceDependency(dep, mvnLibDir);
           continue;
         }
-        Files.copy(dep, mvnLibDir.resolve(dep.getFileName().toString()));
-        getLog().debug("Copied dependency: " + dep.getFileName());
+        Files.copy(depFilePath, mvnLibDir.resolve(depFilePath.getFileName().toString()));
+        getLog().debug("Copied dependency: " + depFilePath.getFileName());
         count++;
       } catch (FileAlreadyExistsException _) {
-        getLog().debug("Ignore dependecy '" + dep.getFileName() + "' as it already exists at: " + mvnLibDir);
+        getLog().debug("Ignore dependecy '" + depFilePath.getFileName() + "' as it already exists at: " + mvnLibDir);
       } catch (IOException ex) {
         getLog().warn("Couldn't copy depedency '" + deps + "' to: " + mvnLibDir, ex);
       }
@@ -104,10 +107,15 @@ public class MavenDependencyMojo extends AbstractMojo {
     return "EclipseBuildContext".equals(buildContext.getClass().getSimpleName());
   }
 
-  protected static void handleWorkspaceDependency(Path workspaceDependency, Path mvnLibDir) throws IOException {
-    try (var paths = Files.walk(workspaceDependency.getParent())) {
-      paths.filter(Files::isRegularFile)
-          .filter(path -> path.toString().endsWith(".jar"))
+  protected static void handleWorkspaceDependency(Artifact artifact, Path mvnLibDir) throws IOException {
+    var targetDir = artifact.getFile().toPath().getParent(); // in default case the parent should point to target folder
+    var expectedJarName = expectedJarName(artifact);
+    if (expectedJarName == null) {
+      return;
+    }
+    try (var targetPaths = Files.walk(targetDir)) {
+      targetPaths.filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(expectedJarName))
           .forEach(jar -> {
             try {
               Files.copy(jar, mvnLibDir.resolve(jar.getFileName().toString()));
@@ -118,11 +126,27 @@ public class MavenDependencyMojo extends AbstractMojo {
     }
   }
 
-  protected static void cleanupDependencies(Path mvnLibDir, List<Path> deps) {
+  private static String expectedJarName(Artifact artifact) {
+    if (artifact.getArtifactId() == null || artifact.getVersion() == null) {
+      return null;
+    }
+    var jarName = artifact.getArtifactId() + "-" + artifact.getVersion();
+    if (artifact.getClassifier() != null && !artifact.getClassifier().isBlank()) {
+      jarName += "-" + artifact.getClassifier();
+    }
+    return jarName + ".jar";
+  }
+
+  protected static void cleanupDependencies(Path mvnLibDir, List<Artifact> deps) {
     if (!Files.isDirectory(mvnLibDir)) {
       return;
     }
-    var expectedJars = deps.stream().map(p -> p.getFileName().toString()).toList();
+    var expectedJars = deps.stream()
+        .map(Artifact::getFile)
+        .map(File::toPath)
+        .map(Path::getFileName)
+        .map(Path::toString)
+        .toList();
     var scanner = new DirectoryScanner();
     scanner.setBasedir(mvnLibDir.toFile());
     scanner.scan();
