@@ -35,7 +35,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -223,12 +223,12 @@ public class EngineControl {
     }
   }
 
-  private static long waitFor(Supplier<Boolean> condition, long duration, TimeUnit unit) throws Exception {
+  private static long waitFor(BooleanSupplier condition, long duration, TimeUnit unit) throws Exception {
     StopWatch watch = new StopWatch();
     watch.start();
     long timeout = unit.toMillis(duration);
 
-    while (!condition.get()) {
+    while (!condition.getAsBoolean()) {
       Thread.sleep(500);
       if (watch.getDuration().toMillis() > timeout) {
         throw new TimeoutException("Condition not reached in " + duration + " " + unit);

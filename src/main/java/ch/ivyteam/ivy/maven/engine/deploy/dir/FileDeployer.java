@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -116,12 +116,12 @@ public class FileDeployer implements IvyDeployer {
     }
   }
 
-  private static void wait(Supplier<Boolean> condition, long duration, TimeUnit unit)
+  private static void wait(BooleanSupplier condition, long duration, TimeUnit unit)
       throws TimeoutException {
     long waitMs = unit.toMillis(duration);
     long startMs = System.currentTimeMillis();
     long maxMs = waitMs + startMs;
-    while (!condition.get()) {
+    while (!condition.getAsBoolean()) {
       try {
         if (System.currentTimeMillis() > maxMs) {
           throw new TimeoutException("Operation reached timeout of " + duration + " " + unit);
