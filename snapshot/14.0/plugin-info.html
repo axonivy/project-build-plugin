@@ -133,10 +133,10 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
 <td><a href="./help-mojo.html">ivy:help</a></td>
 <td>Display help information on project-build-plugin.
 <br />
- Call <code>mvn ivy:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display parameter details.</td></tr>
+Call <code>mvn ivy:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display parameter details.</td></tr>
 <tr class="b">
 <td><a href="./installEngine-mojo.html">ivy:installEngine</a></td>
-<td>Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version. 
+<td>Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version.
 <p>Command line invocation is supported. E.g.</p>
 <pre>mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:installEngine
 -Divy.engine.directory=c:/axonviy/engine
@@ -158,7 +158,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
 <td>Provides a property file containing project-related information such as dependent projects. Tries to auto-configure 'maven-surefire-plugin' so that the test VM can access the provided information.</td></tr>
 <tr class="a">
 <td><a href="./maven-dependency-mojo.html">ivy:maven-dependency</a></td>
-<td>Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven dependencies</a> to a specific folder. 
+<td>Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven dependencies</a> to a specific folder.
 <p>To reduce the size of your ivy archives, make sure that your dependencies are configured correctly:</p>
 <ul>
  <li>Mark test dependencies with the scope <b>test</b></li>
@@ -176,7 +176,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:generate-web-service-sources
 <div><strong>Deprecated.</strong> Sharing the classpath of the Axon Ivy Engine is no longer needed, because all dependencies are available as Maven dependencies.</div><br />Shares the Engine core classpath with the property: <code>ivy.engine.core.classpath</code>.</td></tr>
 <tr class="a">
 <td><a href="./start-test-engine-mojo.html">ivy:start-test-engine</a></td>
-<td>Starts the Axon Ivy Engine for integration testing. 
+<td>Starts the Axon Ivy Engine for integration testing.
 <p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>. You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine. However, in an <code>iar-integration-test</code> lifecycle this is already provided by the 'ivy-integration-test-properties' goal.</p>
 <pre><code>  &lt;artifactId&gt;maven-failsafe-plugin&lt;/artifactId&gt;
   ...

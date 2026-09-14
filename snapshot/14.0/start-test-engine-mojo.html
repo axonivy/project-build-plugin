@@ -65,7 +65,7 @@
 <p><strong>Full name</strong>:</p>
 <p>com.axonivy.ivy.ci:project-build-plugin:14.0.0-SNAPSHOT:start-test-engine</p>
 <p><strong>Description</strong>:</p>
-<p>Starts the Axon Ivy Engine for integration testing. 
+<p>Starts the Axon Ivy Engine for integration testing.
 <p>After starting the engine, this goal provides the url of the engine as property <code>test.engine.url</code>. You can use this property to configure your 'maven-failsafe-plugin' to work against this test engine. However, in an <code>iar-integration-test</code> lifecycle this is already provided by the 'ivy-integration-test-properties' goal.</p>
 <pre><code>  &lt;artifactId&gt;maven-failsafe-plugin&lt;/artifactId&gt;
   ...
@@ -90,7 +90,7 @@
 <td><a href="#ivyVersion"><code>&lt;ivyVersion&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples: 
+<td>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples:
 <br />
 <ul>
  <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
@@ -124,13 +124,14 @@
 <td><a href="#engineCacheDirectory"><code>&lt;engineCacheDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>Location where ivy engines in required version can be extracted to. 
+<td>Location where ivy engines in required version can be extracted to.
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code><br /><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></td></tr>
 <tr class="b">
 <td><a href="#engineDirectory"><code>&lt;engineDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
+<td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated -->
+ exists.
 <p>If parameter is not set it will be a sub-directory of the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
 <tr class="a">
@@ -157,11 +158,11 @@
 <td><a href="#testEngine"><code>&lt;testEngine&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>8.0.4</code></td>
-<td>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
+<td>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle.
 <ul>
  <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
  <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
+ <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well.
   <ul>
    <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
   </ul></li>
@@ -191,7 +192,7 @@
 <li><strong>Required</strong>: <code>No</code></li>
 <li><strong>User Property</strong>: <code>ivy.engine.start.additional.vmoptions</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
 <h3>&lt;engineCacheDirectory&gt;</h3>
-<div>Location where ivy engines in required version can be extracted to. 
+<div>Location where ivy engines in required version can be extracted to.
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
@@ -199,7 +200,8 @@
 <li><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></li>
 <li><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code></li></ul><hr /></section><a id="engineDirectory"></a><section><a id="a.3CengineDirectory.3E"></a>
 <h3>&lt;engineDirectory&gt;</h3>
-<div>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
+<div>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated -->
+ exists.
 <p>If parameter is not set it will be a sub-directory of the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
 <ul>
@@ -214,7 +216,7 @@
 <li><strong>User Property</strong>: <code>ivy.engine.start.log</code></li>
 <li><strong>Default</strong>: <code>${project.build.directory}/testEngineOut.log</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
 <h3>&lt;ivyVersion&gt;</h3>
-<div>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples: 
+<div>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples:
 <br />
 <ul>
  <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
@@ -248,11 +250,11 @@
 <li><strong>User Property</strong>: <code>ivy.engine.start.timeout.seconds</code></li>
 <li><strong>Default</strong>: <code>120</code></li></ul><hr /></section><a id="testEngine"></a><section><a id="a.3CtestEngine.3E"></a>
 <h3>&lt;testEngine&gt;</h3>
-<div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
+<div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle.
 <ul>
  <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
  <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
+ <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well.
   <ul>
    <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
   </ul></li>

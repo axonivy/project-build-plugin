@@ -98,7 +98,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#ivyVersion"><code>&lt;ivyVersion&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples: 
+<td>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples:
 <br />
 <ul>
  <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
@@ -121,9 +121,9 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#deployEngineDirectory"><code>&lt;deployEngineDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>The path to the Axon Ivy Engine to which we deploy the file. 
+<td>The path to the Axon Ivy Engine to which we deploy the file.
 <br />
- The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code><br /><strong>Default</strong>: <code>${ivy.engine.directory}</code><br /><strong>User Property</strong>: <code>ivy.deploy.engine.dir</code></td></tr>
+The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code><br /><strong>Default</strong>: <code>${ivy.engine.directory}</code><br /><strong>User Property</strong>: <code>ivy.deploy.engine.dir</code></td></tr>
 <tr class="b">
 <td><a href="#deployEngineUrl"><code>&lt;deployEngineUrl&gt;</code></a></td>
 <td><code>String</code></td>
@@ -133,12 +133,13 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#deployFile"><code>&lt;deployFile&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the <code>ch.ivyteam.ivy.maven.IarPackagingMojo.GOAL</code><!-- no javadoc sites associated --> is used.<br /><strong>Default</strong>: <code>${project.build.directory}/${project.artifactId}-${project.version}.iar</code><br /><strong>User Property</strong>: <code>ivy.deploy.file</code></td></tr>
+<td>The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the <code>ch.ivyteam.ivy.maven.IarPackagingMojo.GOAL</code><!-- no javadoc sites associated -->
+ is used.<br /><strong>Default</strong>: <code>${project.build.directory}/${project.artifactId}-${project.version}.iar</code><br /><strong>User Property</strong>: <code>ivy.deploy.file</code></td></tr>
 <tr class="b">
 <td><a href="#deployMethod"><code>&lt;deployMethod&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>7.4</code></td>
-<td>The deploy method 
+<td>The deploy method
 <p>Possible values:</p>
 <ul>
  <li><code>DIRECTORY</code>: use filesystem to deploy to local engine</li>
@@ -153,7 +154,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#deployTestUsers"><code>&lt;deployTestUsers&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>-</code></td>
-<td>If set to <code>true</code> then test users defined in the projects are deployed to the engine. If set to <code>auto</code> then test users will only deployed when engine runs in demo mode. Should only be used for testing. 
+<td>If set to <code>true</code> then test users defined in the projects are deployed to the engine. If set to <code>auto</code> then test users will only deployed when engine runs in demo mode. Should only be used for testing.
 <p>This option is only in charge if security system is set to <i>Ivy Security System</i>. This means if the security system is Active Directory or Novell eDirectory test users will never deployed.</p><br /><strong>Default</strong>: <code>AUTO</code><br /><strong>User Property</strong>: <code>ivy.deploy.test.users</code></td></tr>
 <tr class="a">
 <td><a href="#deployTimeoutInSeconds"><code>&lt;deployTimeoutInSeconds&gt;</code></a></td>
@@ -179,13 +180,14 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#engineCacheDirectory"><code>&lt;engineCacheDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>Location where ivy engines in required version can be extracted to. 
+<td>Location where ivy engines in required version can be extracted to.
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code><br /><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></td></tr>
 <tr class="b">
 <td><a href="#engineDirectory"><code>&lt;engineDirectory&gt;</code></a></td>
 <td><code>Path</code></td>
 <td><code>-</code></td>
-<td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
+<td>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated -->
+ exists.
 <p>If parameter is not set it will be a sub-directory of the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p><br /><strong>User Property</strong>: <code>ivy.engine.directory</code></td></tr>
 <tr class="a">
@@ -197,11 +199,11 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <td><a href="#testEngine"><code>&lt;testEngine&gt;</code></a></td>
 <td><code>String</code></td>
 <td><code>8.0.4</code></td>
-<td>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
+<td>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle.
 <ul>
  <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
  <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
+ <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well.
   <ul>
    <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
   </ul></li>
@@ -220,9 +222,9 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>User Property</strong>: <code>ivy.deploy.dir</code></li>
 <li><strong>Default</strong>: <code>deploy</code></li></ul><hr /></section><a id="deployEngineDirectory"></a><section><a id="a.3CdeployEngineDirectory.3E"></a>
 <h3>&lt;deployEngineDirectory&gt;</h3>
-<div>The path to the Axon Ivy Engine to which we deploy the file. 
+<div>The path to the Axon Ivy Engine to which we deploy the file.
 <br />
- The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code></div>
+The path can reference a remote engine by using UNC paths e.g. <code>\\myRemoteHost\myEngineShare</code></div>
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
@@ -237,14 +239,15 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>User Property</strong>: <code>ivy.deploy.engine.url</code></li>
 <li><strong>Default</strong>: <code>http://localhost:8080/ivy</code></li></ul><hr /></section><a id="deployFile"></a><section><a id="a.3CdeployFile.3E"></a>
 <h3>&lt;deployFile&gt;</h3>
-<div>The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the <code>ch.ivyteam.ivy.maven.IarPackagingMojo.GOAL</code><!-- no javadoc sites associated --> is used.</div>
+<div>The file to deploy. Can either be a *.iar project file or a *.zip file containing a full application (set of projects). By default the packed IAR from the <code>ch.ivyteam.ivy.maven.IarPackagingMojo.GOAL</code><!-- no javadoc sites associated -->
+ is used.</div>
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
 <li><strong>User Property</strong>: <code>ivy.deploy.file</code></li>
 <li><strong>Default</strong>: <code>${project.build.directory}/${project.artifactId}-${project.version}.iar</code></li></ul><hr /></section><a id="deployMethod"></a><section><a id="a.3CdeployMethod.3E"></a>
 <h3>&lt;deployMethod&gt;</h3>
-<div>The deploy method 
+<div>The deploy method
 <p>Possible values:</p>
 <ul>
  <li><code>DIRECTORY</code>: use filesystem to deploy to local engine</li>
@@ -264,7 +267,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>Required</strong>: <code>No</code></li>
 <li><strong>User Property</strong>: <code>ivy.deploy.server.id</code></li></ul><hr /></section><a id="deployTestUsers"></a><section><a id="a.3CdeployTestUsers.3E"></a>
 <h3>&lt;deployTestUsers&gt;</h3>
-<div>If set to <code>true</code> then test users defined in the projects are deployed to the engine. If set to <code>auto</code> then test users will only deployed when engine runs in demo mode. Should only be used for testing. 
+<div>If set to <code>true</code> then test users defined in the projects are deployed to the engine. If set to <code>auto</code> then test users will only deployed when engine runs in demo mode. Should only be used for testing.
 <p>This option is only in charge if security system is set to <i>Ivy Security System</i>. This means if the security system is Active Directory or Novell eDirectory test users will never deployed.</p></div>
 <ul>
 <li><strong>Type</strong>: <code>java.lang.String</code></li>
@@ -299,7 +302,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>User Property</strong>: <code>ivy.deploy.engine.context</code></li>
 <li><strong>Default</strong>: <code>default</code></li></ul><hr /></section><a id="engineCacheDirectory"></a><section><a id="a.3CengineCacheDirectory.3E"></a>
 <h3>&lt;engineCacheDirectory&gt;</h3>
-<div>Location where ivy engines in required version can be extracted to. 
+<div>Location where ivy engines in required version can be extracted to.
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
 <ul>
 <li><strong>Type</strong>: <code>java.nio.file.Path</code></li>
@@ -307,7 +310,8 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>User Property</strong>: <code>ivy.engine.cache.directory</code></li>
 <li><strong>Default</strong>: <code>${settings.localRepository}/.cache/ivy</code></li></ul><hr /></section><a id="engineDirectory"></a><section><a id="a.3CengineDirectory.3E"></a>
 <h3>&lt;engineDirectory&gt;</h3>
-<div>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated --> exists. 
+<div>Location where an unpacked (may pre-configured) ivy Engine in the <code>required version</code><!-- no javadoc sites associated -->
+ exists.
 <p>If parameter is not set it will be a sub-directory of the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</p>
 <p>If the Engine does not yet exist, it can be automatically downloaded.</p></div>
 <ul>
@@ -315,7 +319,7 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>Required</strong>: <code>No</code></li>
 <li><strong>User Property</strong>: <code>ivy.engine.directory</code></li></ul><hr /></section><a id="ivyVersion"></a><section><a id="a.3CivyVersion.3E"></a>
 <h3>&lt;ivyVersion&gt;</h3>
-<div>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples: 
+<div>The ivy Engine version or version-range that must be used. Must be equal or higher than "14.0.0" Examples:
 <br />
 <ul>
  <li>"<code>6.1.2</code>" means ivyVersion = 6.1.2</li>
@@ -335,11 +339,11 @@ mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
 <li><strong>User Property</strong>: <code>ivy.deploy.skip</code></li>
 <li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="testEngine"></a><section><a id="a.3CtestEngine.3E"></a>
 <h3>&lt;testEngine&gt;</h3>
-<div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle. 
+<div>Configure if the test engine gets copied to the maven target folder. With this you can start each test cycle with a clean engine. Integration tests may leave resources like deployed projects behind which may lead to unwanted side effects on the next test cycle.
 <ul>
  <li><code>COPY_FROM_CACHE</code> = copy the engine if it comes from the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineCacheDirectory</code><!-- no javadoc sites associated -->.</li>
  <li><code>MODIFY_EXISTING</code> = don't copy the engine, this could lead to unforeseen behaviour if the same engine is used multiple times.</li>
- <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well. 
+ <li><code>COPY_FROM_TEMPLATE</code> = always copy the engine. If you have a preconfigured engine in the <code>ch.ivyteam.ivy.maven.AbstractEngineMojo.engineDirectory</code><!-- no javadoc sites associated --> it will be copied as well.
   <ul>
    <li><b style="color:yellow">Note</b>: that we advise you to move the configuration of such engine to the build cycle itself instead of using a preconfigured one.</li>
   </ul></li>

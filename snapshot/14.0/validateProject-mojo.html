@@ -82,7 +82,7 @@
 <td><a href="#excludeValidators"><code>&lt;excludeValidators&gt;</code></a></td>
 <td><code>List&lt;String&gt;</code></td>
 <td><code>14.0.0</code></td>
-<td>List of validators to deliberately exclude from the validation run. The following are currently included: 
+<td>List of validators to deliberately exclude from the validation run. The following are currently included:
 <ul>
  <li><code>role</code></li>
  <li><code>database</code></li>
@@ -94,14 +94,16 @@
  <li><code>variable</code></li>
  <li><code>user</code></li>
  <li><code>xhtml</code></li>
-</ul> Configure a fixed set in the POM: 
+</ul>
+Configure a fixed set in the POM:
 <pre>&lt;configuration&gt;
 &lt;excludeValidators&gt;
 &lt;validator&gt;process&lt;/validator&gt;
 &lt;validator&gt;role&lt;/validator&gt;
 &lt;/excludeValidators&gt;
 &lt;/configuration&gt;
-</pre> Or set it directly from the command line as a comma-separated list, without touching the POM: 
+</pre>
+Or set it directly from the command line as a comma-separated list, without touching the POM:
 <pre>mvn install -Divy.validation.excludeValidators=role,webservice
 </pre><br /><strong>User Property</strong>: <code>ivy.validation.excludeValidators</code></td></tr>
 <tr class="a">
@@ -114,10 +116,11 @@
 <td><code>boolean</code></td>
 <td><code>8.0.3</code></td>
 <td>
-<div><strong>Deprecated.</strong><br />use <code>skipProjectValidation</code><!-- no javadoc sites associated --> (property <code>ivy.validation.skip</code>) instead, which skips the validation entirely rather than just the script validation part. This parameter will be removed in a future version.</div><br />Set to <code>false</code> to perform the validation of ivyScript code within ivy processes.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.script.validation.skip</code></td></tr></table></section><section><a id="Parameter_Details"></a>
+<div><strong>Deprecated.</strong><br />use <code>skipProjectValidation</code><!-- no javadoc sites associated -->
+ (property <code>ivy.validation.skip</code>) instead, which skips the validation entirely rather than just the script validation part. This parameter will be removed in a future version.</div><br />Set to <code>false</code> to perform the validation of ivyScript code within ivy processes.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.script.validation.skip</code></td></tr></table></section><section><a id="Parameter_Details"></a>
 <h2>Parameter Details</h2><a id="excludeValidators"></a><section><a id="a.3CexcludeValidators.3E"></a>
 <h3>&lt;excludeValidators&gt;</h3>
-<div>List of validators to deliberately exclude from the validation run. The following are currently included: 
+<div>List of validators to deliberately exclude from the validation run. The following are currently included:
 <ul>
  <li><code>role</code></li>
  <li><code>database</code></li>
@@ -129,14 +132,16 @@
  <li><code>variable</code></li>
  <li><code>user</code></li>
  <li><code>xhtml</code></li>
-</ul> Configure a fixed set in the POM: 
+</ul>
+Configure a fixed set in the POM:
 <pre>&lt;configuration&gt;
 &lt;excludeValidators&gt;
 &lt;validator&gt;process&lt;/validator&gt;
 &lt;validator&gt;role&lt;/validator&gt;
 &lt;/excludeValidators&gt;
 &lt;/configuration&gt;
-</pre> Or set it directly from the command line as a comma-separated list, without touching the POM: 
+</pre>
+Or set it directly from the command line as a comma-separated list, without touching the POM:
 <pre>mvn install -Divy.validation.excludeValidators=role,webservice
 </pre></div>
 <ul>
@@ -153,7 +158,8 @@
 <li><strong>User Property</strong>: <code>ivy.validation.skip</code></li>
 <li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="skipScriptValidation"></a><section><a id="a.3CskipScriptValidation.3E"></a>
 <h3>&lt;skipScriptValidation&gt;</h3>
-<div><strong>Deprecated.</strong><br />use <code>skipProjectValidation</code><!-- no javadoc sites associated --> (property <code>ivy.validation.skip</code>) instead, which skips the validation entirely rather than just the script validation part. This parameter will be removed in a future version.</div><br />
+<div><strong>Deprecated.</strong><br />use <code>skipProjectValidation</code><!-- no javadoc sites associated -->
+ (property <code>ivy.validation.skip</code>) instead, which skips the validation entirely rather than just the script validation part. This parameter will be removed in a future version.</div><br />
 <div>Set to <code>false</code> to perform the validation of ivyScript code within ivy processes.</div>
 <ul>
 <li><strong>Type</strong>: <code>boolean</code></li>
