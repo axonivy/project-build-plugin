@@ -68,7 +68,7 @@ public class ReactorClasspath {
   }
 
   private static Map<String, List<String>> sessionClasspaths(MavenSession session) {
-    return CLASSPATHS.computeIfAbsent(session, ignored -> new ConcurrentHashMap<>());
+    return CLASSPATHS.computeIfAbsent(session, _ -> new ConcurrentHashMap<>());
   }
 
 }
