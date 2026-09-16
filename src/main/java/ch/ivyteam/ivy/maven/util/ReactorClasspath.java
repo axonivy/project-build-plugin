@@ -15,18 +15,20 @@ import org.apache.maven.project.MavenProject;
 
 public class ReactorClasspath {
 
-  private static final Map<String, List<String>> CLASSPATHS = new ConcurrentHashMap<>();
+  private static final Map<MavenSession, Map<String, List<String>>> CLASSPATHS = new ConcurrentHashMap<>();
 
   private final ReactorSession reactorSession;
+  private final Map<String, List<String>> sessionClasspaths;
 
   public ReactorClasspath(MavenSession session) {
     this.reactorSession = new ReactorSession(session);
+    this.sessionClasspaths = sessionClasspaths(session);
   }
 
   public void addProject(MavenProject project, Set<String> classpath) {
     var projectClasspath = new LinkedHashSet<String>();
     addCompileClasspath(project, projectClasspath);
-    CLASSPATHS.put(projectKey(project), List.copyOf(projectClasspath));
+    sessionClasspaths.put(projectKey(project), List.copyOf(projectClasspath));
     classpath.addAll(projectClasspath);
   }
 
@@ -39,7 +41,7 @@ public class ReactorClasspath {
   }
 
   private void addReactorClasspath(MavenProject project, Set<String> classpath) {
-    var cached = CLASSPATHS.get(projectKey(project));
+    var cached = sessionClasspaths.get(projectKey(project));
     if (cached == null) {
       addProject(project, classpath);
     } else {
@@ -63,6 +65,10 @@ public class ReactorClasspath {
 
   private String projectKey(MavenProject project) {
     return project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion();
+  }
+
+  private static Map<String, List<String>> sessionClasspaths(MavenSession session) {
+    return CLASSPATHS.computeIfAbsent(session, ignored -> new ConcurrentHashMap<>());
   }
 
 }
