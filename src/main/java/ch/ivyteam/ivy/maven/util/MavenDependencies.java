@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,9 +79,10 @@ public class MavenDependencies {
   }
 
   public List<Path> all() {
+    var reactor = new ReactorSession(session);
     return stream(project.getArtifacts())
         .filter(this::include)
-        .map(this::toPath)
+        .map(reactor::toPathBasedir)
         .collect(Collectors.toList());
   }
 
@@ -101,12 +101,6 @@ public class MavenDependencies {
     return deps.stream();
   }
 
-  public Path toPath(Artifact artifact) {
-    return findReactorProject(artifact)
-        .map(p -> p.getBasedir().toPath())
-        .orElse(artifact.getFile().toPath());
-  }
-
   private boolean include(Artifact artifact) {
     if (typeFilter == null) {
       return true;
@@ -117,12 +111,4 @@ public class MavenDependencies {
     return typeFilter.equals(artifact.getType());
   }
 
-  private Optional<MavenProject> findReactorProject(Artifact artifact) {
-    if (session == null) {
-      return Optional.empty();
-    }
-    return session.getAllProjects().stream()
-        .filter(p -> p.getArtifact().equals(artifact))
-        .findAny();
-  }
 }

@@ -3,16 +3,18 @@ package ch.ivyteam.ivy.maven.compile;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.java.config.index.JavaIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
+import ch.ivyteam.ivy.maven.util.ReactorClasspath;
+import ch.ivyteam.ivy.maven.util.ReactorSession;
 import ch.ivyteam.ivy.project.model.ProjectModel;
 import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
@@ -23,12 +25,14 @@ class ValidationContextFactory {
   private final MavenProject project;
   private final MavenSession session;
   private final MavenDependencies dependencies;
+  private final ReactorClasspath reactorClasspath;
   private final Log log;
 
   ValidationContextFactory(MavenProject project, MavenSession session, Log log) {
     this.project = project;
     this.session = session;
     this.dependencies = MavenDependencies.of(project).session(session);
+    this.reactorClasspath = new ReactorClasspath(session);
     this.log = log;
   }
 
@@ -84,7 +88,7 @@ class ValidationContextFactory {
     return BasicProject.create()
         .id(artifact.getId())
         .name(artifact.getId())
-        .path(dependencies.toPath(artifact));
+        .path(new ReactorSession(session).toPathBasedir(artifact));
   }
 
   private List<ProjectModel> toRequiredProjects() {
@@ -109,25 +113,23 @@ class ValidationContextFactory {
   }
 
   private ClassLoader toClassLoader() {
-    try {
-      var classpath = project.getCompileClasspathElements();
-      var urls = classpath.stream()
-          .map(path -> {
-            try {
-              return Path.of(path).toUri().toURL();
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-          })
-          .toArray(URL[]::new);
-      if (log.isDebugEnabled()) {
-        for (var url : urls) {
-          log.debug("Classpath URL: " + url);
-        }
+    var classpath = new LinkedHashSet<String>();
+    reactorClasspath.addProject(project, classpath);
+    reactorClasspath.addRequiredProjects(dependencies.required(), classpath);
+    var urls = classpath.stream()
+        .map(path -> {
+          try {
+            return Path.of(path).toUri().toURL();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .toArray(URL[]::new);
+    if (log.isDebugEnabled()) {
+      for (var url : urls) {
+        log.debug("Classpath URL: " + url);
       }
-      return new URLClassLoader(urls);
-    } catch (DependencyResolutionRequiredException ex) {
-      throw new RuntimeException(ex);
     }
+    return new URLClassLoader(urls);
   }
 }
