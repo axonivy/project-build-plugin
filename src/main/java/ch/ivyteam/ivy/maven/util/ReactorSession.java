@@ -28,7 +28,7 @@ public class ReactorSession {
   public Path toPathBasedir(Artifact artifact) {
     return project(artifact)
         .map(p -> p.getBasedir().toPath())
-        .orElse(artifact.getFile().toPath());
+        .orElseGet(() -> artifact.getFile().toPath());
   }
 
   public Optional<Path> toPathIAR(Artifact artifact) {
