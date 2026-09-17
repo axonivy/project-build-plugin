@@ -5,6 +5,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -116,6 +117,7 @@ class ValidationContextFactory {
     var classpath = new LinkedHashSet<String>();
     reactorClasspath.addProject(project, classpath);
     reactorClasspath.addRequiredProjects(dependencies.required(), classpath);
+    addValidationRuntimeClasses(classpath);
     var urls = classpath.stream()
         .map(path -> {
           try {
@@ -131,5 +133,19 @@ class ValidationContextFactory {
       }
     }
     return new URLClassLoader(urls);
+  }
+
+  private void addValidationRuntimeClasses(Set<String> classpath) {
+    addClassLocation("ch.ivyteam.ivy.process.extension.beans.Wait", classpath);
+  }
+
+  private void addClassLocation(String className, Set<String> classpath) {
+    try {
+      var location = Class.forName(className, false, getClass().getClassLoader())
+          .getProtectionDomain().getCodeSource().getLocation();
+      classpath.add(Path.of(location.toURI()).toString());
+    } catch (Exception e) {
+      throw new IllegalStateException("Cannot add validation runtime class: " + className, e);
+    }
   }
 }
