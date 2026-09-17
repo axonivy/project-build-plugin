@@ -21,11 +21,12 @@
       "id" : "f1",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 352, "y" : 64 }
+        "at" : { "x" : 608, "y" : 64 }
       }
     }, {
       "id" : "f3",
       "type" : "ProgramInterface",
+      "name" : "MyProgram",
       "config" : {
         "javaClass" : "com.acme.program.MyProgram"
       },
@@ -33,17 +34,54 @@
         "at" : { "x" : 224, "y" : 64 }
       },
       "connect" : [
-        { "id" : "f4", "to" : "f1", "color" : "default" }
+        { "id" : "f4", "to" : "f7", "color" : "default" }
       ]
     }, {
       "id" : "f5",
       "type" : "ProcessAnnotation",
       "name" : "Use program from transient dependency: main-project",
       "visual" : {
-        "at" : { "x" : 328, "y" : 184 }
+        "at" : { "x" : 224, "y" : 192 }
       },
       "connect" : [
         { "id" : "f6", "to" : "f3" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "WaitEvent",
+      "name" : "FileIntermediate:core",
+      "config" : {
+        "javaClass" : "ch.ivyteam.ivy.process.intermediateevent.beans.FileIntermediateEventBean",
+        "eventId" : "java.util.UUID.randomUUID().toString()"
+      },
+      "visual" : {
+        "at" : { "x" : 352, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f8", "to" : "f9", "color" : "default" }
+      ]
+    }, {
+      "id" : "f9",
+      "type" : "ProgramInterface",
+      "name" : "Wait:core",
+      "config" : {
+        "javaClass" : "ch.ivyteam.ivy.process.extension.beans.Wait"
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f1", "color" : "default" }
+      ]
+    }, {
+      "id" : "f11",
+      "type" : "ProcessAnnotation",
+      "name" : "platform standard extension",
+      "visual" : {
+        "at" : { "x" : 464, "y" : 152 }
+      },
+      "connect" : [
+        { "id" : "f12", "to" : "f9" }
       ]
     } ]
 }
