@@ -1,0 +1,70 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/14.0/project/process.json",
+  "id" : "1A0AED4DC1EC68D3",
+  "config" : {
+    "data" : "com.axonivy.standalone.StandaloneGreeterData"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f3" }
+      ]
+    }, {
+      "id" : "f3",
+      "type" : "WaitEvent",
+      "name" : "FileIntermediate:core",
+      "config" : {
+        "javaClass" : "ch.ivyteam.ivy.process.intermediateevent.beans.FileIntermediateEventBean",
+        "eventId" : "java.util.UUID.randomUUID().toString()"
+      },
+      "visual" : {
+        "at" : { "x" : 208, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f4", "to" : "f5", "color" : "default" }
+      ]
+    }, {
+      "id" : "f5",
+      "type" : "ProgramInterface",
+      "name" : "Wait:core",
+      "config" : {
+        "javaClass" : "ch.ivyteam.ivy.process.extension.beans.Wait",
+        "userConfig" : {
+          "waitMs" : "2"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 336, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f7", "color" : "default" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 464, "y" : 64 }
+      }
+    }, {
+      "id" : "f8",
+      "type" : "RequestStart",
+      "name" : "start2",
+      "config" : {
+        "signature" : "start2"
+      },
+      "visual" : {
+        "at" : { "x" : 248, "y" : 184 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f5" }
+      ]
+    } ]
+}
