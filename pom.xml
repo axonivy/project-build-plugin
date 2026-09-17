@@ -482,6 +482,7 @@
               <artifactSet>
                 <includes>
                   <include>com.axonivy.ivy.api.restricted:*</include>
+                  <include>com.axonivy.ivy.api.extension:ivy-process-extension-api</include>
                 </includes>
               </artifactSet>
               <filters>
@@ -514,6 +515,12 @@
                   <excludes>
                     <exclude>ch/ivyteam/ivy/process/model/**</exclude>
                   </excludes>
+                </filter>
+                <filter>
+                  <artifact>com.axonivy.ivy.api.extension:ivy-process-extension-api</artifact>
+                  <includes> <!-- enable validation of beans in the process Wait/FileIntermediate...-->
+                    <include>**/*.class</include>
+                  </includes>
                 </filter>
               </filters>
             </configuration>
