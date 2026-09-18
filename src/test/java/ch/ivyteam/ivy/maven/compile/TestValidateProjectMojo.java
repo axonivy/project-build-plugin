@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
+import ch.ivyteam.ivy.project.model.ProjectVersion;
 
 @MojoTest
 @ExtendWith(EnglishLocaleExtension.class)
@@ -70,7 +71,7 @@ class TestValidateProjectMojo {
     mojo.setLog(log);
     mojo.execute();
     assertThat(log.getErrors().toString())
-        .contains("Project is outdated (version: 140013). Convert the project to the latest version.");
+        .contains("Project is outdated (version: 140013). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
   }
 
   @Test
