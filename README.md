@@ -26,6 +26,8 @@ Since 9.4: Releasing is only possible on a release branch.
 
 - Run the [release build](build/release/Jenkinsfile) on the release branch
 
+- For milestone builds, pass the qualifier to the main [Jenkins build](Jenkinsfile), for example `m33-SNAPSHOT`. The build updates both engine properties to the qualified engine version for that build.
+
 - Merge the Pull Request for next development iteration
 
 - If you have created a new release branch: 

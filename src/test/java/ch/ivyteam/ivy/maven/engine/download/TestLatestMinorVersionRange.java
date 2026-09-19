@@ -12,6 +12,7 @@ class TestLatestMinorVersionRange {
     assertThat(new LatestMinorVersionRange("8.0.0").get()).hasToString("[8.0.0,8.1.0)");
     assertThat(new LatestMinorVersionRange("8.0.1").get()).hasToString("[8.0.1,8.1.0)");
     assertThat(new LatestMinorVersionRange("8.1.0").get()).hasToString("[8.1.0,8.2.0)");
+    assertThat(new LatestMinorVersionRange("8.0.0-m33").get()).hasToString("[8.0.0-m33,8.1.0)");
 
     var range = new LatestMinorVersionRange("8");
     assertThatThrownBy(() -> range.get())

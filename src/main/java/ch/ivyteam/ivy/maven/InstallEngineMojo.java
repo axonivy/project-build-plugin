@@ -30,7 +30,6 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -165,7 +164,6 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   }
 
   private void ensureEngineIsInstalled() throws MojoExecutionException {
-    VersionRange ivyVersionRange = getIvyVersionRange();
     if (identifyAndGetEngineDirectory() == null) {
       handleNoInstalledEngine();
     } else {
@@ -179,8 +177,8 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       }
       ArtifactVersion installedEngineVersion = getInstalledEngineVersion(getRawEngineDirectory());
 
-      if (installedEngineVersion == null ||
-          !ivyVersionRange.containsVersion(installedEngineVersion)) {
+        if (installedEngineVersion == null ||
+          !isEngineVersionCompatible(installedEngineVersion)) {
         handleWrongIvyVersion(installedEngineVersion);
       }
     }
@@ -235,7 +233,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
             "Can not determine installed engine version in directory '" + getRawEngineDirectory() + "'. "
                 + "Possibly a non-OSGi engine.");
       }
-      if (!getIvyVersionRange().containsVersion(installedEngineVersion)) {
+      if (!isEngineVersionCompatible(installedEngineVersion)) {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
             + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
             + "'.");
@@ -262,7 +260,12 @@ public class InstallEngineMojo extends AbstractEngineMojo {
     if (matcher.find()) {
       String version = matcher.group(1);
       if (version != null) {
-        return EngineVersionEvaluator.toReleaseVersion(matcher.group(1));
+        String releaseVersion = EngineVersionEvaluator.toReleaseVersion(version);
+        Matcher milestoneMatcher = Pattern.compile("(?:-|\\.)m(\\d+)").matcher(engineZipFileName);
+        if (milestoneMatcher.find()) {
+          return releaseVersion + "-m" + milestoneMatcher.group(1);
+        }
+        return releaseVersion;
       }
     }
     return engineZipFileName; // fallback: no version in file name
