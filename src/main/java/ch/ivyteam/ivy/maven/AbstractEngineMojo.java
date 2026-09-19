@@ -123,7 +123,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
       }
 
       ArtifactVersion candidateVersion = getInstalledEngineVersion(engineDirCandidate.toPath());
-      if (candidateVersion == null || !getIvyVersionRange().containsVersion(candidateVersion)) {
+      if (candidateVersion == null || !isEngineVersionCompatible(candidateVersion)) {
         continue;
       }
       if (versionOfEngineToTake == null || versionOfEngineToTake.compareTo(candidateVersion) < 0) {
@@ -146,6 +146,16 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
     }
   }
 
+  protected final boolean isEngineVersionCompatible(ArtifactVersion engineVersion)
+      throws MojoExecutionException {
+    if (getIvyVersionRange().containsVersion(engineVersion)) {
+      return true;
+    }
+    return ivyVersion.matches("\\d+(?:\\.\\d+){2}-m\\d+")
+        && EngineVersionEvaluator.toReleaseVersion(ivyVersion.replaceFirst("-m\\d+$", ""))
+            .equals(engineVersion.toString());
+  }
+
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException {
     try {
       VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(ivyVersion);
@@ -166,6 +176,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
     }
   }
 
+  
   private VersionRange restrictToMinimalCompatible(VersionRange ivyVersionRange)
       throws InvalidVersionSpecificationException, MojoExecutionException {
     VersionRange minimalCompatibleVersionRange = VersionRange

@@ -83,7 +83,7 @@ class TestInstallEngineMojo {
     mock.when(request().withPath("/listPageUrl.html/"))
         .respond(response(list));
 
-    var zip = createFakeEngineZip(mojo.ivyVersion);
+    var zip = createFakeEngineZip(DEFAULT_VERSION.replaceFirst("-m\\d+$", ""));
     mockZipResponse(zip);
 
     // test setup can not expand expression ${settings.localRepository}: so we
@@ -191,7 +191,7 @@ class TestInstallEngineMojo {
         .isEmptyDirectory();
 
     mojo.autoInstallEngine = true;
-    mockZipResponse(createFakeEngineZip(mojo.ivyVersion));
+    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
     mojo.engineDownloadUrl = mockEngineZip();
 
     mojo.execute();
@@ -327,6 +327,23 @@ class TestInstallEngineMojo {
   }
 
   @Test
+  void testEngineLinkFinder_milestoneVersionQualifier() throws Exception {
+    String originalVersion = mojo.ivyVersion;
+    String originalArchitecture = mojo.osArchitecture;
+    try {
+      mojo.ivyVersion = "14.0.0-m33";
+      mojo.osArchitecture = "Slim_All_x64";
+      assertThat(findLink(
+          "<a href=\"https://download.axonivy.com/14.0.0-m33/AxonIvyEngine14.0.0.2609041050.m33_Slim_All_x64.zip\">"
+              + "Axon Ivy Engine Slim All x64</a>"))
+                  .isEqualTo("https://download.axonivy.com/14.0.0-m33/AxonIvyEngine14.0.0.2609041050.m33_Slim_All_x64.zip");
+    } finally {
+      mojo.ivyVersion = originalVersion;
+      mojo.osArchitecture = originalArchitecture;
+    }
+  }
+
+  @Test
   void testEngineLinkFinder_wrongVersion() throws Exception {
     mojo.ivyVersion = DEFAULT_VERSION;
     mojo.osArchitecture = "Windows_x86";
@@ -393,6 +410,9 @@ class TestInstallEngineMojo {
   void testZipFileEngineVersionParser() {
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.1.1.51869_Linux_x64.zip"))
         .isEqualTo("6.1.1");
+    assertThat(InstallEngineMojo.ivyEngineVersionOfZip(
+        "AxonIvyEngine14.0.0.2609041050.m33_Slim_All_x64.zip"))
+        .isEqualTo("14.0.0-m33");
     assertThat(InstallEngineMojo.ivyEngineVersionOfZip("AxonIvyEngine6.2_Windows_x64.zip"))
         .isEqualTo("6.2");
     assertThat(InstallEngineMojo

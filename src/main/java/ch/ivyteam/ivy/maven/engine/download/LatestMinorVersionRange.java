@@ -15,9 +15,8 @@ public class LatestMinorVersionRange {
     try {
       var majorVersionNr = StringUtils.substringBefore(version, ".");
       var minorVersionNr = StringUtils.substringBetween(version, ".");
-      var bugfixVersionNr = StringUtils.substringAfterLast(version, ".");
       var nextMinorVersionNr = Integer.parseInt(minorVersionNr) + 1;
-      var minVersion = majorVersionNr + "." + minorVersionNr + "." + bugfixVersionNr;
+      var minVersion = version;
       var maxVersion = majorVersionNr + "." + nextMinorVersionNr + ".0";
       return VersionRange.createFromVersionSpec("[" + minVersion + "," + maxVersion + ")");
     } catch (Exception ex) {

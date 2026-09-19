@@ -142,8 +142,7 @@ public class URLEngineDownloader implements EngineDownloader {
         }
         String versionString = StringUtils.substringBetween(engineLinkMatch, "AxonIvyEngine",
             "_" + osArchitecture);
-        ArtifactVersion version = new DefaultArtifactVersion(
-            EngineVersionEvaluator.toReleaseVersion(versionString));
+        ArtifactVersion version = new DefaultArtifactVersion(toEngineVersion(versionString));
         if (ivyVersionRange.containsVersion(version)) {
           engineLink = Strings.CS.replace(engineLinkMatch, "\"", "'");
           engineLink = StringUtils.substringBetween(engineLink, "href='", "'");
@@ -151,6 +150,18 @@ public class URLEngineDownloader implements EngineDownloader {
       }
       return toAbsoluteLink(engineListPageUrl, engineLink);
     }
+  }
+
+  static String toEngineVersion(String versionString) {
+    String releaseVersion = EngineVersionEvaluator.toReleaseVersion(versionString);
+    if (releaseVersion.matches(".*-m\\d+")) {
+      return releaseVersion;
+    }
+    String qualifier = StringUtils.substringAfterLast(versionString, ".");
+    if (qualifier.matches("m\\d+")) {
+      return releaseVersion + "-" + qualifier;
+    }
+    return releaseVersion;
   }
 
   private static URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException, URISyntaxException {

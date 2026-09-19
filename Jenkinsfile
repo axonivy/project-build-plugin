@@ -185,4 +185,11 @@ def applyVersionQualifier(String qualifier) {
   def qualified  = currentVersion.replaceFirst(/-SNAPSHOT$/, "-${qualifier}")
   echo "Using version '${qualified}' for this build."
   maven cmd: "versions:set -DnewVersion=${qualified} -DgenerateBackupPoms=false"
+
+  def engineVersion = qualified.replaceFirst(/-SNAPSHOT$/, '')
+  def versionsFile = 'src/main/resources-filtered/versions.properties'
+  def versions = readFile(versionsFile)
+  versions = versions.replaceFirst(/(?m)^engine_default=.*$/, "engine_default=${engineVersion}")
+  versions = versions.replaceFirst(/(?m)^engine_minimal=.*$/, "engine_minimal=${engineVersion}")
+  writeFile(file: versionsFile, text: versions)
 }
