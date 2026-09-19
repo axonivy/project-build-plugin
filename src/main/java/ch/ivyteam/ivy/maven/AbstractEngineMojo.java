@@ -38,11 +38,11 @@ import ch.ivyteam.ivy.maven.engine.download.LatestMinorVersionRange;
  */
 public abstract class AbstractEngineMojo extends AbstractMojo {
   /**
-   * keep synch with pom.xml &gt; reporting &gt; maven-plugin-plugin &gt;
-   * requirements
+   * The runtime value comes from the property in
+   * {@code src/main/resources-filtered/versions.properties};
    */
-  protected static final String MINIMAL_COMPATIBLE_VERSION = "14.0.0";
-  protected static final String DEFAULT_VERSION = "14.0.0";
+  protected static final String MINIMAL_COMPATIBLE_VERSION = EngineVersions.readVersion("engine_minimal");
+  protected static final String DEFAULT_VERSION = EngineVersions.readVersion("engine_default");
 
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
 
@@ -77,8 +77,8 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * <li>"<code>(6.0.0,]</code>" means ivyVersion &gt; 6.0.0</li>
    * </ul>
    */
-  @Parameter(property = "ivy.engine.version", defaultValue = DEFAULT_VERSION, required = true)
-  protected String ivyVersion;
+  @Parameter(property = "ivy.engine.version", required = true)
+  protected String ivyVersion = DEFAULT_VERSION;
 
   /** If set to true it will download the latest available minor version */
   @Parameter(property = "ivy.engine.version.latest.minor", defaultValue = "false")
