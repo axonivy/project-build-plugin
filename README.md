@@ -14,10 +14,9 @@ Maven plugin for the automated building of Axon Ivy Projects.
 #### Preparation
 
 - Update the default engine version in:
-  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
-  - [pom.xml](pom.xml#L483)
+  - [versions.properties](src/main/resources-filtered/versions.properties), property `engine_default`
 - Raise the minimal engine version needs to be updated at least if you introduce a new minor or major version:
-  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L41)
+  - [versions.properties](src/main/resources-filtered/versions.properties), property `engine_minimal`
 
 #### Release
 
@@ -52,7 +51,7 @@ Wait until the maven central release is available: this may take several hours u
   
   - Merge the generated PRs on GitHub
 
-- If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
+- If you prepared for a new release train: update `engine_default` in [versions.properties](src/main/resources-filtered/versions.properties)
 
 - Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version!
 
