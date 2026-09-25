@@ -42,7 +42,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * requirements
    */
   protected static final String MINIMAL_COMPATIBLE_VERSION = "14.0.0";
-  protected static final String DEFAULT_VERSION = "14.0.0";
+  protected static final String DEFAULT_VERSION = "14.0.1";
 
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
 
