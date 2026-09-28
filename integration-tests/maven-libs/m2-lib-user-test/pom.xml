@@ -2,18 +2,16 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.axonivy.ivy.api</groupId>
+    <artifactId>ivy-project-parent</artifactId>
+    <version>14.0.1-SNAPSHOT</version>
+    <relativePath></relativePath>
+  </parent>
   <groupId>com.axonivy.test</groupId>
   <artifactId>m2-lib-user-test</artifactId>
   <version>11.1.0-SNAPSHOT</version>
   <packaging>iar</packaging>
-
-  <parent>
-    <groupId>com.axonivy.ivy.api</groupId>
-    <artifactId>ivy-project-parent</artifactId>
-    <version>14.0.0-SNAPSHOT</version>
-    <relativePath></relativePath>
-  </parent>
-
   <dependencies>
     <dependency>
       <groupId>com.axonivy.test</groupId>
@@ -26,22 +24,43 @@
       <artifactId>ivy-api</artifactId>
     </dependency>
     <dependency>
-      <!-- ensure this dependency is not packed into IAR, see maven-antrun-plugin condition -->
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
       <version>1.0.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>maven.axonivy.com</id>
+      <url>https://maven.axonivy.com</url>
+    </repository>
+  </repositories>
   <build>
     <testSourceDirectory>src_test</testSourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.axonivy.ivy.ci</groupId>
         <artifactId>project-build-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -53,8 +72,7 @@
               <target>
                 <fail message="Directory should not exist: ${project.basedir}/lib">
                   <condition>
-                    <available file="${project.basedir}/lib"
-                      type="dir" />
+                    <available file="${project.basedir}/lib" type="dir" />
                   </condition>
                 </fail>
               </target>
@@ -63,15 +81,5 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 </project>
