@@ -2,23 +2,20 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.axonivy.ivy.api</groupId>
+    <artifactId>ivy-project-parent</artifactId>
+    <version>14.0.1-SNAPSHOT</version>
+    <relativePath></relativePath>
+  </parent>
   <groupId>com.axonivy.test</groupId>
   <artifactId>m2-lib-user</artifactId>
   <version>11.1.0-SNAPSHOT</version>
   <packaging>iar</packaging>
-
-  <parent>
-    <groupId>com.axonivy.ivy.api</groupId>
-    <artifactId>ivy-project-parent</artifactId>
-    <version>14.0.0-SNAPSHOT</version>
-    <relativePath></relativePath>
-  </parent>
-
   <properties>
-    <docusign.version>6.8.0</docusign.version>
     <jspecify.version>1.0.1</jspecify.version>
+    <docusign.version>6.8.0</docusign.version>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.axonivy.ivy.api</groupId>
@@ -49,15 +46,36 @@
       <systemPath>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</systemPath>
     </dependency>
   </dependencies>
-  
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>maven.axonivy.com</id>
+      <url>https://maven.axonivy.com</url>
+    </repository>
+  </repositories>
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.axonivy.ivy.ci</groupId>
         <artifactId>project-build-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.6.3</version>
         <executions>
@@ -71,15 +89,12 @@
               <rules>
                 <requireFilesExist>
                   <files>
-                    <!-- checks for MavenDependencyMojo -->
                     <file>${project.basedir}/target/lib/mvn-deps/jspecify-${jspecify.version}.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/docusign-esign-java-${docusign.version}.jar</file>
                     <file>${project.basedir}/lib/demo-1.0-SNAPSHOT.jar</file>
                     <file>${project.basedir}/target/lib/mvn-deps/demo-1.0-SNAPSHOT.jar</file>
-                    <!-- checks for AddResourceMojo -->
                     <file>${project.basedir}/target/classes/ch/test/nested.file</file>
                     <file>${project.basedir}/target/classes/root.file</file>
-                    <!-- checks for AddSourceMojo -->
                     <file>${project.basedir}/target/classes/ch/test/NestedClass.class</file>
                     <file>${project.basedir}/target/classes/RootClass.class</file>
                   </files>
@@ -90,15 +105,5 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 </project>
