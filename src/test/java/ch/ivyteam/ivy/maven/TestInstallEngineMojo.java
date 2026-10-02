@@ -216,31 +216,8 @@ class TestInstallEngineMojo {
   }
 
   @Test
-  void testEngineDownload_existingTmpFileNotOverwritten() throws Exception {
-    mojo.engineDirectory = createTempDir("tmpEngine");
-
-    var alreadyExistingFile = mojo.getDownloadDirectory().resolve("fakeEngine.zip");
-    if (!Files.exists(alreadyExistingFile)) {
-      Files.createFile(alreadyExistingFile);
-    }
-
-    mojo.autoInstallEngine = true;
-    mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
-    mojo.engineDownloadUrl = mockEngineZip();
-
-    mojo.execute();
-
-    assertThat(alreadyExistingFile).exists();
-  }
-
-  @Test
   void testEngineDownload_overProxy() throws Exception {
     mojo.engineDirectory = createTempDir("tmpEngine");
-
-    var alreadyExistingFile = mojo.getDownloadDirectory().resolve("fakeEngine.zip");
-    if (!Files.exists(alreadyExistingFile)) {
-      Files.createFile(alreadyExistingFile);
-    }
 
     mojo.autoInstallEngine = true;
     mockZipResponse(createFakeEngineZip(DEFAULT_VERSION));
