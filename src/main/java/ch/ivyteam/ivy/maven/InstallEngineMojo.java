@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -254,7 +253,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
     ProxyInfoProvider proxies = wagonManager::getProxy;
     return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
-        getIvyVersionRange(), getLog(), getDownloadDirectory(), proxies);
+        getIvyVersionRange(), getLog(), proxies);
   }
 
   static String ivyEngineVersionOfZip(String engineZipFileName) {
@@ -291,9 +290,5 @@ public class InstallEngineMojo extends AbstractEngineMojo {
     } catch (IOException ex) {
       throw new MojoExecutionException("Failed to unpack downloaded engine '" + downloadZip + "'.", ex);
     }
-  }
-
-  Path getDownloadDirectory() {
-    return SystemUtils.getJavaIoTmpDir().toPath();
   }
 }
