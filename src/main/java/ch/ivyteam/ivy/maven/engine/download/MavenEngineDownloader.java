@@ -48,11 +48,11 @@ public class MavenEngineDownloader implements EngineDownloader {
   @Override
   public Path downloadEngine() throws MojoExecutionException {
     log.info("Downloading engine " + engineArtifact.getVersion() + " using maven plugin repositories");
-    return resolveArtifact().getArtifact().getFile().toPath();
+    return resolveArtifact().getArtifact().getPath();
   }
 
   @Override
   public String getZipFileNameFromDownloadLocation() throws MojoExecutionException {
-    return resolveArtifact().getArtifact().getFile().getName();
+    return resolveArtifact().getArtifact().getPath().getFileName().toString();
   }
 }
