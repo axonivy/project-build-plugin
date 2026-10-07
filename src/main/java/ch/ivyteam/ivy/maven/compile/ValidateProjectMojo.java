@@ -2,12 +2,15 @@ package ch.ivyteam.ivy.maven.compile;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
 
 import ch.ivyteam.ivy.project.model.ProjectVersion;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
@@ -82,6 +85,9 @@ public class ValidateProjectMojo extends AbstractMojo {
   @Parameter(defaultValue = "${session}", readonly = true)
   MavenSession session;
 
+  @Inject
+  ProjectBuilder projectBuilder;
+
   @Override
   public void execute() {
     if (isSkip()) {
@@ -102,7 +108,7 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   private void validateProject() {
     var start = System.currentTimeMillis();
-    var ctx = new ValidationContextFactory(project, session, getLog()).create();
+    var ctx = new ValidationContextFactory(project, session, projectBuilder, getLog()).create();
 
     var version = ProjectVersion.of(ctx.project());
     if (!version.isLatest()) {
