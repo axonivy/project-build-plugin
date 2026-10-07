@@ -47,6 +47,7 @@
     <other.site.path>release</other.site.path>
     <other.site.name>Stable</other.site.name>
     <autoRelease>false</autoRelease>
+    <skip.it.build.plugin>false</skip.it.build.plugin>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <ivy.api>14.0.1-SNAPSHOT</ivy.api>
   </properties>
@@ -375,15 +376,61 @@
         </configuration>
         <executions>
           <execution>
-            <id>integration-test.build.plugin</id>
+            <id>it.build.plugin.install</id>
             <phase>integration-test</phase>
             <goals>
               <goal>install</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>it.build.plugin</id>
+            <phase>integration-test</phase>
+            <goals>
               <goal>run</goal>
             </goals>
             <configuration>
+              <skipInvocation>${skip.it.build.plugin}</skipInvocation>
+              <logDirectory>${project.build.directory}/its</logDirectory>
               <postBuildHookScript>assert-project-validation</postBuildHookScript>
               <ignoreFailures>false</ignoreFailures>
+            </configuration>
+          </execution>
+          <execution>
+            <id>it.project-validation:local.repo.install</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pomIncludes>
+                <pomInclude>project-validation/pom.xml</pomInclude>
+              </pomIncludes>
+              <cloneProjectsTo>${project.build.directory}/its-project-validation-install</cloneProjectsTo>
+              <goals>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+          </execution>
+          <execution>
+            <id>it.project-validation.local.repo.consume</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pomIncludes>
+                <pomInclude>project-validation/d-project/pom.xml</pomInclude>
+              </pomIncludes>
+              <cloneProjectsTo>${project.build.directory}/its-project-validation-consume</cloneProjectsTo>
+              <goals>
+                <goal>verify</goal>
+              </goals>
+              <logDirectory>${project.build.directory}/invoker-project-validation</logDirectory>
+              <ignoreFailures>false</ignoreFailures>
+              <scriptVariables>
+                <buildLog>${project.build.directory}/invoker-project-validation/project-validation/d-project/build.log</buildLog>
+              </scriptVariables>
+              <failIfNoProjects>true</failIfNoProjects>
             </configuration>
           </execution>
         </executions>
