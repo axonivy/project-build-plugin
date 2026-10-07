@@ -1,14 +1,10 @@
-def assertProblems() {
-  def log = readFile('target/its/project-validation/build.log')
-  def normalizedLog = log.replace('\r\n', '\n').replaceAll('\\u001B\\[[;\\d]*m', '')
-  def missingBlocks = expectedBlocks().findAll { !normalizedLog.contains(it) }
-  if (!missingBlocks.isEmpty()) {
-    error "project-validation log misses expected block(s):\n\n" + missingBlocks.join("\n\n")
-  }
+def logFile = new File(basedir, 'build.log')
+if (!logFile.isFile()) {
+  throw new FileNotFoundException("project-validation log not found: ${logFile}")
 }
 
-def expectedBlocks() {
-  [
+def normalizedLog = logFile.getText('UTF-8').replace('\r\n', '\n').replaceAll('\\u001B\\[[;\\d]*m', '')
+def expectedBlocks = [
   '''
   [WARNING] config/users.yaml:[Alex] User 'Alex' is also defined in project 'main.project'.
   [WARNING] config/users.yaml:[Alex] User 'Alex' is also defined in project 'a.project'.
@@ -80,7 +76,11 @@ def expectedBlocks() {
   [ERROR] ------------------------------------------------------------------------
   [ERROR] Project validation summary: standalone.project
   '''.stripIndent().trim()
-  ]
+]
+
+def missingBlocks = expectedBlocks.findAll { !normalizedLog.contains(it) }
+if (!missingBlocks.isEmpty()) {
+  throw new IllegalStateException("project-validation log misses expected block(s):\n\n" + missingBlocks.join('\n\n'))
 }
 
-return this
+return true

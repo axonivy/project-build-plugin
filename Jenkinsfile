@@ -50,15 +50,6 @@ pipeline {
       }
     }
 
-    stage('project-validation') {
-      steps {
-        script {
-          def validator = load 'build/validate/project-validation.groovy'
-          validator.assertProblems()
-        }
-      }
-    }
-
     stage('deploy-site') {
       when {
         expression { isReleasingBranch() && currentBuild.changeSets.size() > 0 }

@@ -381,6 +381,10 @@
               <goal>install</goal>
               <goal>run</goal>
             </goals>
+            <configuration>
+              <postBuildHookScript>assert-project-validation</postBuildHookScript>
+              <ignoreFailures>false</ignoreFailures>
+            </configuration>
           </execution>
         </executions>
       </plugin>
