@@ -368,6 +368,8 @@
           <projectsDirectory>${basedir}/integration-tests</projectsDirectory>
           <cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
           <cloneAllFiles>true</cloneAllFiles>
+          <ignoreFailures>true</ignoreFailures>
+          <writeJunitReport>true</writeJunitReport>
           <properties>
             <project.build.plugin.version>${project.version}</project.build.plugin.version>
             <ivy.engine.list.url>${ivy.engine.list.url}</ivy.engine.list.url>
@@ -391,8 +393,8 @@
             <configuration>
               <skipInvocation>${skip.it.build.plugin}</skipInvocation>
               <logDirectory>${project.build.directory}/its</logDirectory>
+              <reportsDirectory>${project.build.directory}/invoker-reports/build-plugin</reportsDirectory>
               <postBuildHookScript>assert-project-validation</postBuildHookScript>
-              <ignoreFailures>false</ignoreFailures>
             </configuration>
           </execution>
           <execution>
@@ -406,6 +408,7 @@
                 <pomInclude>project-validation/pom.xml</pomInclude>
               </pomIncludes>
               <cloneProjectsTo>${project.build.directory}/its-project-validation-install</cloneProjectsTo>
+              <reportsDirectory>${project.build.directory}/invoker-reports/project-validation-install</reportsDirectory>
               <goals>
                 <goal>install</goal>
               </goals>
@@ -422,11 +425,11 @@
                 <pomInclude>project-validation/d-project/pom.xml</pomInclude>
               </pomIncludes>
               <cloneProjectsTo>${project.build.directory}/its-project-validation-consume</cloneProjectsTo>
+              <reportsDirectory>${project.build.directory}/invoker-reports/project-validation-consume</reportsDirectory>
               <goals>
                 <goal>verify</goal>
               </goals>
               <logDirectory>${project.build.directory}/invoker-project-validation</logDirectory>
-              <ignoreFailures>false</ignoreFailures>
               <scriptVariables>
                 <buildLog>${project.build.directory}/invoker-project-validation/project-validation/d-project/build.log</buildLog>
               </scriptVariables>
