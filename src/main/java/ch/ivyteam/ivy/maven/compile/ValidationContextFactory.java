@@ -10,6 +10,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
 
 import ch.ivyteam.ivy.java.config.index.JavaIndex;
 import ch.ivyteam.ivy.maven.util.MavenDependencies;
@@ -28,11 +29,11 @@ class ValidationContextFactory {
   private final ReactorClasspath reactorClasspath;
   private final Log log;
 
-  ValidationContextFactory(MavenProject project, MavenSession session, Log log) {
+  ValidationContextFactory(MavenProject project, MavenSession session, ProjectBuilder projectBuilder, Log log) {
     this.project = project;
     this.session = session;
     this.dependencies = MavenDependencies.of(project).session(session);
-    this.reactorClasspath = new ReactorClasspath(session);
+    this.reactorClasspath = new ReactorClasspath(session, projectBuilder, log);
     this.log = log;
   }
 

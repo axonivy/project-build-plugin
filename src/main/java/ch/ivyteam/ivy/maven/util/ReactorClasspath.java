@@ -11,17 +11,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 
 public class ReactorClasspath {
 
   private static final Map<MavenSession, Map<String, List<String>>> CLASSPATHS = new ConcurrentHashMap<>();
 
   private final ReactorSession reactorSession;
+  private final MavenSession session;
+  private final ProjectBuilder projectBuilder;
+  private final Log log;
   private final Map<String, List<String>> sessionClasspaths;
 
-  public ReactorClasspath(MavenSession session) {
+
+  public ReactorClasspath(MavenSession session, ProjectBuilder projectBuilder, Log log) {
+    this.session = session;
+    this.log = log;
     this.reactorSession = new ReactorSession(session);
+    this.projectBuilder = projectBuilder;
     this.sessionClasspaths = sessionClasspaths(session);
   }
 
@@ -35,8 +46,24 @@ public class ReactorClasspath {
   public void addRequiredProjects(Iterable<Artifact> artifacts, Set<String> classpath) {
     for (var artifact : artifacts) {
       if (artifact.getType().contains("iar")) {
-        reactorSession.project(artifact).ifPresent(project -> addReactorClasspath(project, classpath));
+        reactorSession.project(artifact)
+          .or(() -> resolveProjectFromRepo(artifact))
+          .ifPresent(p -> addReactorClasspath(p, classpath));
       }
+    }
+  }
+
+  private Optional<MavenProject> resolveProjectFromRepo(Artifact artifact) {
+    try {
+      var pomArtifact = artifact.getArtifactId() + "-" + artifact.getBaseVersion() + ".pom";
+      var pom = artifact.getFile().toPath().resolveSibling(pomArtifact);
+      var request = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+      request.setResolveDependencies(true);
+      var project = projectBuilder.build(pom.toFile(), request).getProject();
+      return Optional.of(project);
+    } catch (ProjectBuildingException ex) {
+      log.error("Failed to resolve artifact POM for artifact: " + artifact, ex);
+      return Optional.empty();
     }
   }
 
