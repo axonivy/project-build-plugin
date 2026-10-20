@@ -35,7 +35,7 @@ pipeline {
             if (qualifier) {
               applyVersionQualifier(qualifier)
               if (!qualifier.endsWith("-SNAPSHOT")) {
-                args += "-PcentralDeploy "
+                args += "-PnexusDeploy "
               }
             }
             def phase = isReleasingBranch() ? 'deploy' : 'verify'
