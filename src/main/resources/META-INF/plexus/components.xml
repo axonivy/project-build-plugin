@@ -21,13 +21,10 @@
           </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
-          <process-classes>
-            io.smallrye:jandex-maven-plugin:jandex,
-            com.axonivy.ivy.ci:project-build-plugin:validateProject
-          </process-classes>
           <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
           <test-compile>org.apache.maven.plugins:maven-compiler-plugin:testCompile</test-compile>
           <test>
+            com.axonivy.ivy.ci:project-build-plugin:validateProject,
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-vm-runtime,
             org.apache.maven.plugins:maven-surefire-plugin:test
           </test>
@@ -62,13 +59,10 @@
           </generate-resources>
           <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
           <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
-          <process-classes>
-            io.smallrye:jandex-maven-plugin:jandex,
-            com.axonivy.ivy.ci:project-build-plugin:validateProject
-          </process-classes>
           <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
           <test-compile>org.apache.maven.plugins:maven-compiler-plugin:testCompile</test-compile>
           <test>
+            com.axonivy.ivy.ci:project-build-plugin:validateProject,
             com.axonivy.ivy.ci:project-build-plugin:ivy-test-vm-runtime,
             org.apache.maven.plugins:maven-surefire-plugin:test
           </test>

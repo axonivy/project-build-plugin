@@ -18,11 +18,10 @@ iar Lifecycle
 *--------*---------*
  compile           | org.apache.maven.plugins:maven-compiler-plugin:compile 
 *--------*---------*
- process-classes   | ${project.groupId}:${project.artifactId}:{{{./validateProject-mojo.html}validateProject}} 
-*--------*---------*
  test-compile      | org.apache.maven.plugins:maven-compiler-plugin:testCompile
 *--------*---------*
- test              | ${project.groupId}:${project.artifactId}:{{{./ivy-test-vm-runtime-mojo.html}ivy-test-vm-runtime}}\
+ test              | ${project.groupId}:${project.artifactId}:{{{./validateProject-mojo.html}validateProject}} 
+                   | ${project.groupId}:${project.artifactId}:{{{./ivy-test-vm-runtime-mojo.html}ivy-test-vm-runtime}}\
                    | org.apache.maven.plugins:maven-surefire-plugin:test 
 *--------*---------*
  package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}}\
