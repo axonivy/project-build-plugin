@@ -19,7 +19,7 @@ pipeline {
       steps {
         script {
           docker.build('maven').inside {
-            def publishingUri = "https://central.sonatype.com/publishing/deployments"
+            def publishingUri = "https://nexus.axonivy.com/#browse/browse:maven-releases"
             def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
             sh "git config --global user.name 'ivy-team'"
             sh "git config --global user.email 'info@ivyteam.ch'"
@@ -32,7 +32,7 @@ pipeline {
 
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-              def args = "-PcentralDeploy " +
+              def args = "-PnexusDeploy " +
                 "-Divy.engine.list.url=${params.engineListUrl} " +
                 "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                 "-Dgithub.site.skip=false ";
@@ -48,14 +48,14 @@ pipeline {
                 sh "git push -u origin ${targetBranch}"
                 
                 def title = "Prepare for next development cycle (${env.BRANCH_NAME})"
-                def message = ":warning: merge this PR only if you published the artifact on [CentralPortal](${publishingUri})"
+                def message = ":warning: merge this PR only if you verified the artifact is published on [Axon Ivy Nexus](${publishingUri})"
                 withCredentials([file(credentialsId: 'github-ivyteam-token-repo-manager', variable: 'tokenFile')]) {
                   sh "gh auth login --with-token < ${tokenFile}"
                   sh "gh pr create --title '${title}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
                 }
 
                 // publish site from 'mvn release' run
-                maven cmd: "site site:stage scm-publish:publish-scm -PcentralDeploy"
+                maven cmd: "site site:stage scm-publish:publish-scm -PnexusDeploy"
               }
             }
           }
