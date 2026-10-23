@@ -60,10 +60,10 @@ Check that the release is available on [Axon Ivy Nexus](https://nexus.axonivy.co
 
 The Apache License, Version 2.0
 
-[lts]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=14&label=LTS&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[le]: https://img.shields.io/maven-metadata/v.svg?label=LE&logo=apachemaven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[central]: https://repo1.maven.org/maven2/com/axonivy/ivy/ci/project-build-plugin/
-[snap]: https://img.shields.io/maven-metadata/v?versionPrefix=15&label=dev&logo=sonatype&metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
-[sonatype]: https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/axonivy/ivy/ci/project-build-plugin/
+[lts]: https://img.shields.io/maven-metadata/v.svg?versionPrefix=14&label=LTS&logo=apachemaven&metadataUrl=https%3A%2F%2Fmaven.axonivy.com%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[le]: https://img.shields.io/maven-metadata/v.svg?label=LE&logo=apachemaven&metadataUrl=https%3A%2F%2Fmaven.axonivy.com%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[central]: https://maven.axonivy.com/com/axonivy/ivy/ci/project-build-plugin/
+[snap]: https://img.shields.io/maven-metadata/v?versionPrefix=15&label=dev&logo=apachemaven&metadataUrl=https%3A%2F%2Fmaven.axonivy.com%2Fcom%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2Fmaven-metadata.xml
+[sonatype]: https://maven.axonivy.com/com/axonivy/ivy/ci/project-build-plugin/
 [blue]: https://img.shields.io/badge/-Documentation-blue
 [plugin-doc]: https://axonivy.github.io/project-build-plugin/release/
