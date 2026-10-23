@@ -1,11 +1,11 @@
-# yaml-language-server: $schema=https://json-schema.axonivy.com/14.0/config/webservice-clients.json
+# yaml-language-server: $schema=https://json-schema.axonivy.com/15.1/config/webservice-clients.json
 WebServiceClients:
-  test.name:
-    Name: testname
+  testname:
+    Name: test.name
     Endpoints:
       ? ''
       :   - ''
-  test name:
+  test-name:
     Name: test name
     Endpoints:
       ? ''
