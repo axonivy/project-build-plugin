@@ -41,7 +41,7 @@ Since 9.4: Releasing is only possible on a release branch.
 
 #### Post-Release
 
-Wait until the maven central release is available: this may take several hours until it's fully distributed.
+Check that the release is available on [Axon Ivy Nexus](https://nexus.axonivy.com/).
 
 - Release-Drafter changes, if a new-release train was introduced:
   
