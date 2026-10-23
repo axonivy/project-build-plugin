@@ -48,7 +48,7 @@
     <other.site.name>Stable</other.site.name>
     <skip.it.build.plugin>false</skip.it.build.plugin>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ivy.api>14.0.1-SNAPSHOT</ivy.api>
+    <ivy.api>14.0.2-SNAPSHOT</ivy.api>
   </properties>
 
   <distributionManagement>
