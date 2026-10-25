@@ -14,7 +14,7 @@
   <packaging>iar</packaging>
   <properties>
     <jspecify.version>1.0.1</jspecify.version>
-    <docusign.version>6.8.0</docusign.version>
+    <docusign.version>6.9.0</docusign.version>
   </properties>
   <dependencies>
     <dependency>
