@@ -5,36 +5,6 @@ Examples
 	* {{https://github.com/axonivy/project-build-examples/tree/master}}
 
 
-Snapshots
-
- To use a snapshot release:
- 
- [[1]] define an additional plugin repository as snapshots are not released to public maven central repos.
- POM.xml:
- 
-+------------------------------------------------------------------------------------+
-<project>
-  ....
-  <pluginRepositories>
-    <!-- Snapshot releases are available from sonatype -->
-    <pluginRepository>
-      <id>sonatype</id>
-      <url>https://central.sonatype.com/repository/maven-snapshots</url>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-  ...
-</project>
-+------------------------------------------------------------------------------------+
- 
- [[2]] provide an URI where a compatible 'dev' engine can be found:
- 
-+------------------------------------------------------------------------------------+
- mvn clean install -Divy.engine.list.url=https://dev.axonivy.com/download/nightly
-+------------------------------------------------------------------------------------+
- 
 Proxy
 
  If your environment enforces the usage of a proxy to access the web, configure it in your settings.xml
