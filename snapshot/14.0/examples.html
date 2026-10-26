@@ -64,27 +64,7 @@
 <h1>Examples</h1>
 <p>Sample projects that use the project-build-plugin are available on github: </p>
 <ul>
-<li><a class="externalLink" href="https://github.com/axonivy/project-build-examples/tree/master">https://github.com/axonivy/project-build-examples/tree/master</a></li></ul></section><section><a id="Snapshots"></a>
-<h1>Snapshots</h1>
-<p>To use a snapshot release:</p>
-<ol style="list-style-type: decimal;">
-<li>define an additional plugin repository as snapshots are not released to public maven central repos. POM.xml:
-<pre><code>&lt;project&gt;
-  ....
-  &lt;pluginRepositories&gt;
-    &lt;!-- Snapshot releases are available from sonatype --&gt;
-    &lt;pluginRepository&gt;
-      &lt;id&gt;sonatype&lt;/id&gt;
-      &lt;url&gt;https://central.sonatype.com/repository/maven-snapshots&lt;/url&gt;
-      &lt;snapshots&gt;
-        &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
-      &lt;/snapshots&gt;
-    &lt;/pluginRepository&gt;
-  &lt;/pluginRepositories&gt;
-  ...
-&lt;/project&gt;</code></pre></li>
-<li>provide an URI where a compatible 'dev' engine can be found:
-<pre><code> mvn clean install -Divy.engine.list.url=https://dev.axonivy.com/download/nightly</code></pre></li></ol></section><section><a id="Proxy"></a>
+<li><a class="externalLink" href="https://github.com/axonivy/project-build-examples/tree/master">https://github.com/axonivy/project-build-examples/tree/master</a></li></ul></section><section><a id="Proxy"></a>
 <h1>Proxy</h1>
 <p>If your environment enforces the usage of a proxy to access the web, configure it in your settings.xml as described here <a class="externalLink" href="https://maven.apache.org/guides/mini/guide-proxies.html">https://maven.apache.org/guides/mini/guide-proxies.html</a>.</p>
 <p>The maven proxy configuration is considered, when downloading the IvyEngine to compile projects.</p></section>
