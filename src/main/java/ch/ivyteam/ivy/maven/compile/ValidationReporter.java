@@ -11,9 +11,7 @@ import java.util.function.Consumer;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Location;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
-import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.PositionRange;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Severity;
 
 class ValidationReporter {
@@ -99,46 +97,7 @@ class ValidationReporter {
   }
 
   private String format(Message message) {
-    var sb = new StringBuilder();
-    sb.append(relativize(message.file()));
-
-    var location = message.location();
-    var position = location == null ? null : location.position();
-
-    if (position != null) {
-      appendPosition(sb, position);
-    } else {
-      appendPath(sb, location);
-    }
-
-    sb.append(' ').append(message.text());
-    return sb.toString();
-  }
-
-  private static void appendPosition(StringBuilder sb, PositionRange position) {
-    var start = position.start();
-    sb.append(":[")
-        .append(start.line())
-        .append(',')
-        .append(start.column())
-        .append(']');
-  }
-
-  private static void appendPath(StringBuilder sb, Location location) {
-    if (location == null || location.path() == null || location.path().parts().isEmpty()) {
-      return;
-    }
-
-    sb.append(":[")
-        .append(String.join(".", location.path().parts().getFirst()))
-        .append(']');
-  }
-
-  private String relativize(URI file) {
-    if (file == null) {
-      return "<unknown file>";
-    }
-    return basedir.relativize(file).getPath();
+    return ValidationMessageFormatter.format(message, basedir);
   }
 
 }
