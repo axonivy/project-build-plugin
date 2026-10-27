@@ -1,0 +1,51 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release draft tag to publish (e.g. v14.0.1)
+        type: string
+        required: true
+
+jobs:
+  publish_release_draft:
+    permissions:
+      contents: write
+      pull-requests: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find release draft
+        id: release
+        uses: actions/github-script@v9
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        with:
+          script: |
+            const tag = process.env.RELEASE_TAG;
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              ...context.repo, per_page: 100
+            });
+            const release = releases.find(release => release.tag_name === tag);
+            if (!release) {
+              throw new Error(`No release draft found for ${tag}.`);
+            }
+            if (!release.draft) {
+              throw new Error(`${tag} is already published.`);
+            }
+            const target = release.target_commitish.replace(/^refs\/heads\//, '');
+            core.setOutput('target', target);
+
+      - uses: release-drafter/release-drafter@v7
+        with:
+          config-name: release-drafter.yml
+          commitish: ${{ steps.release.outputs.target }}
+          name: ${{ inputs.tag || github.ref_name }}
+          tag: ${{ inputs.tag || github.ref_name }}
+          publish: true
+          latest: legacy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
