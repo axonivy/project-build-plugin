@@ -4,23 +4,20 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types: [opened, reopened, synchronize]
+      - release/14.0
+      - release/12.0
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  update_release_draft:
+  release_drafter:
     permissions:
       contents: write
-      pull-requests: write
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@v7
         with:
           config-name: release-drafter.yml
-          commitish: ${{ github.event_name == 'push' && github.ref_name || 'master' }}
+          commitish: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
