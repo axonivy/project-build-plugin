@@ -1,43 +1,45 @@
-name-template: 'v$RESOLVED_VERSION 🧪'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: v$RESOLVED_VERSION 🧪
+tag-template: v$RESOLVED_VERSION
+filter-by-commitish: true
 categories:
-  - title: '🚀 Features'
-    labels:
-      - 'feature'
-      - 'enhancement'
-  - title: '🐛 Bug Fixes'
-    labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
-  - title: '📦 Dependencies'
-    label: 'dependencies'
+  - title: 🚀 Features
+    when:
+      labels:
+        - feature
+        - enhancement
+  - title: 🐛 Bug Fixes
+    when:
+      labels:
+        - fix
+        - bugfix
+        - bug
+  - title: 📦 Dependencies
+    when:
+      label: dependencies
   - title: ⚠️ Changes
-    labels:
-      - deprecated
+    when:
+      label: deprecated
   - title: 📄 Documentation
-    labels:
-      - docs
-      - documentation
-exclude-labels:
-  - 'skip-changelog'
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
-change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
-version-resolver:
-  major:
-    labels:
-      - 'major'
-  minor:
-    labels:
-      - 'minor'
-  patch:
-    labels:
-      - 'patch'
-  default: patch
+    when:
+      labels:
+        - docs
+        - documentation
+  - type: pre-exclude
+    when:
+      label: skip-changelog
+  - type: version-resolver
+    semver-increment: major
+    when:
+      label: major
+  - type: version-resolver
+    semver-increment: minor
+    when:
+      label: minor
+  - type: version-resolver
+    semver-increment: patch
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: \<*_&
 template: |
   ## Changes
 
   $CHANGES
-references:
-  - master
-  - v.+
