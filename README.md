@@ -1,8 +1,8 @@
-[![lts-version][lts] ![le]][releases]  [![snapshot-version][snap]][snapshots] [![blue]][plugin-doc]
+[![lts-version][lts] ![le]][releases] [![snapshot-version][snap]][snapshots] [![blue]][plugin-doc]
 
 # Axon Ivy Project build plugin
 
-Maven plugin for the automated building of Axon Ivy Projects. 
+Maven plugin for the automated building of Axon Ivy Projects.
 
 ## Documentation
 
@@ -11,50 +11,40 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 ## Release new version
 
-#### Preparation
+### Preparation
 
 - Update the default engine version in:
-  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
-  - [pom.xml](pom.xml#L483)
-- Raise the minimal engine version needs to be updated at least if you introduce a new minor or major version:
-  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L41)
+  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L45)
+  - [pom.xml](pom.xml#L676)
+- Raise the minimum engine version when introducing a new minor or major version:
+  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L44)
 
-#### Release
+### Release
 
-Since 9.4: Releasing is only possible on a release branch.
+- Create a release branch if it does not exist yet (e.g. `release/13.2`).
+- Run the [release build][release-build] on the respective release branch.
+- Merge the pull request for the next development iteration.
+- If you have created a new release branch, manually raise the version on the `master` branch to the next major or minor version:
+  - Execute the following command in the root of this project (adjust version number accordingly):
 
-- Create a release branch if it does not exist yet (e.g. release/10.0)
-
-- Run the [release build](build/release/Jenkinsfile) on the release branch
-
-- Merge the Pull Request for next development iteration
-
-- If you have created a new release branch: 
-  
-  - on `master` manually raise the version to the next major or minor version by executing the following command in the root of this project and make the steps in 'preperation' on the master branch :
-    
     ```bash
-    mvn versions:set -DnewVersion=10.0.0-SNAPSHOT -DprocessAllModules -DgenerateBackupPoms=false
+    mvn versions:set -DnewVersion=15.1.0-SNAPSHOT -DprocessAllModules -DgenerateBackupPoms=false
     ```
 
-- If the master reflects a new release-cycle; reflect it in the `versionPrefix` query parameter on the badges below.
+  - Repeat the preparation steps on the `master` branch.
+  - If this change reflects a major bump, update the `versionPrefix` query parameter in the badge URLs below.
+  - Add the appropriate label (`major` or `minor`) to the pull request so that the release drafter creates a separate, versioned release draft for the `master` branch and tracks changes appropriately.
 
-#### Post-Release
+### Post Release
 
-Check that the release is available on [Axon Ivy Nexus](https://nexus.axonivy.com/).
+- Verify that the release is available on [Axon Ivy Nexus][axon-ivy-nexus].
+- Raise `project-build-plugin` in consuming repos by triggering the [raise version job][raise-version-job].
 
-- Release-Drafter changes, if a new-release train was introduced:
-  
-  - on github UI (PR View):  flag the latest PR which was only merged to master with the label `major`.  
-    ... now release-drafter action runs should create new draft PRs for the new release; without overwriting the existing master drafts.
+## Authors
 
-- Raise project-build-plugin in other repos by triggering this [build](https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/)
-  
-  - Merge the generated PRs on GitHub
+[ivyTeam](https://developer.axonivy.com/)
 
-- If you prepared for a new release train: update the default engine version in the [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L42)
-
-- Inform team-wawa @Teams to update to update Portal onto the latest project-build-plugin version!
+[![Axon Ivy](https://www.axonivy.com/hubfs/brand/axonivy-logo-black.svg)](http://www.axonivy.com)
 
 ## License
 
@@ -67,3 +57,6 @@ The Apache License, Version 2.0
 [snapshots]: https://nexus.axonivy.com/#browse/browse:maven-snapshots
 [blue]: https://img.shields.io/badge/-Documentation-blue
 [plugin-doc]: https://axonivy.github.io/project-build-plugin/release/
+[raise-version-job]: https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/
+[release-build]: https://jenkins.ivyteam.io/job/project-build-plugin_release/
+[axon-ivy-nexus]: https://nexus.axonivy.com/
