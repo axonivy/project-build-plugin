@@ -48,7 +48,7 @@ pipeline {
                 sh "git push -u origin ${targetBranch}"
                 
                 def title = "Prepare for next development cycle (${env.BRANCH_NAME})"
-                def message = ":warning: merge this PR only if you verified the artifact is published on [Axon Ivy Nexus](${publishingUri})"
+                def message = ":warning: merge this PR only if you verified the artifact is published on [Axon Ivy Nexus](${publishingUri}) and the release is published on GitHub ([Releases](https://github.com/axonivy/project-build-plugin/releases))"
                 withCredentials([file(credentialsId: 'github-ivyteam-token-repo-manager', variable: 'tokenFile')]) {
                   sh "gh auth login --with-token < ${tokenFile}"
                   sh "gh pr create --title '${title}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
