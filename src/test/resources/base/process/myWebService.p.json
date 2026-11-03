@@ -14,7 +14,7 @@
         "signature" : "call",
         "input" : {
           "params" : [
-            { "name" : "myText", "type" : "String", "desc" : "" }
+            { "name" : "myText", "type" : "String", "desc" : "Input text parameter for the web service call" }
           ],
           "map" : { },
           "code" : "//TEMPLATE!!"
