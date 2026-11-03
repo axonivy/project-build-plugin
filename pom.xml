@@ -67,101 +67,6 @@
   </distributionManagement>
 
   <dependencies>
-    <!-- required for generate sources mojo -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>${log4j2-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-1.2-api</artifactId>
-      <version>${log4j2-version}</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>6.0.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>jakarta.ws.rs</groupId>
-      <artifactId>jakarta.ws.rs-api</artifactId>
-      <version>4.0.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>4.0.3</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Parsing IvyScript -->
-      <groupId>com.github.vbmacher</groupId>
-      <artifactId>java-cup-runtime</artifactId>
-      <version>11b-20160615-3</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk</artifactId>
-      <version>1.67.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation -->
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-      <version>1.67.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Validating EL-Expressions  -->
-      <groupId>jakarta.el</groupId>
-      <artifactId>jakarta.el-api</artifactId>
-      <version>6.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${maven.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Validating EL-Expressions  -->
-      <groupId>io.smallrye</groupId>
-      <artifactId>jandex</artifactId>
-      <version>3.6.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Validating EL-Expressions  -->
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-jasper-el</artifactId>
-      <version>11.0.27</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Validating EL-Expressions -->
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-api</artifactId>
-      <version>4.1.4</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Validating EL-Expressions -->
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-      <version>4.1.0</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. -->
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-core-jakarta</artifactId>
-      <version>2.2.55</version>
-    </dependency>
-    <dependency>
-      <!-- Required for project validation. Parsing OpenAPI specs of REST clients -->
-      <groupId>io.swagger.parser.v3</groupId>
-      <artifactId>swagger-parser</artifactId>
-      <version>2.1.48</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
@@ -247,19 +152,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.axonivy.ivy.api.restricted</groupId>
-      <artifactId>ivy-project-build-plugin-api</artifactId>
+      <groupId>com.axonivy.ivy.api.test</groupId>
+      <artifactId>ivy-test-api</artifactId>
       <version>${ivy.api}</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <version>3.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.jws</groupId>
-      <artifactId>jakarta.jws-api</artifactId>
-      <version>3.0.0</version>
     </dependency>
 
     <!-- TEST scoped -->
@@ -504,61 +399,6 @@
           <includeLicenseText>true</includeLicenseText>
           <skipNotDeployed>false</skipNotDeployed>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.2</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createSourcesJar>false</createSourcesJar>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-              <artifactSet>
-                <includes>
-                  <include>com.axonivy.ivy.api.restricted:*</include>
-                </includes>
-              </artifactSet>
-              <filters>
-                <filter>
-                  <artifact>com.axonivy.ivy.api*:*</artifact>
-                  <includes>
-                    <include>**/*.class</include>
-                    <include>**/*.xhtml</include>
-                    <!-- Required for project validation -->
-                    <include>**/latestYaml.properties</include>
-                    <!-- Required for project validation. Ensure successful extension points usage -->
-                    <include>plugin.xml</include>
-                    <!-- Required for project validation. Validating Database-Config using CryptoUtils -->
-                    <include>**/AES.key</include>
-                    <!-- Required for project validation. Validating XHTML-Files -->
-                    <include>xsd/**/*.xsd</include>
-                    <!-- Required for project validation. Validating XHTML-Files -->
-                    <include>xsd/**/*.xml</include>
-                    <!-- Required for project validation. Validating XHTML-Files -->
-                    <include>xsd-gen/**/*.xsd</include>
-                    <!-- Required for project validation. Validating XHTML-Files -->
-                    <include>xsd-gen/**/*.xml</include>
-                  </includes>
-                  <excludes>
-                    <exclude>META-INF/*.MF</exclude>
-                  </excludes>
-                </filter>
-                <filter>
-                  <artifact>com.axonivy.ivy.api:ivy-core-api</artifact>
-                  <excludes>
-                    <exclude>ch/ivyteam/ivy/process/model/**</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
 
