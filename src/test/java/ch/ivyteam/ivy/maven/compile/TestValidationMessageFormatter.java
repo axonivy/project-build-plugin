@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
+import ch.ivyteam.ivy.project.validation.ValidationIssue;
 
 class TestValidationMessageFormatter {
 
@@ -49,8 +50,9 @@ class TestValidationMessageFormatter {
   }
 
   private Message message(URI file, List<String> path) {
-    return Message.error(path.toArray(String[]::new))
+    return Message.error(() -> new ValidationIssue("test", "invalid-value", "${text}"))
+        .param("text", TEXT)
         .file(file)
-        .text(TEXT);
+        .location(path.toArray(String[]::new));
   }
 }
