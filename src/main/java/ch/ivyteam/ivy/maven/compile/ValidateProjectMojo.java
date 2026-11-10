@@ -12,8 +12,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 
+import ch.ivyteam.ivy.java.config.index.JavaIndex;
+import ch.ivyteam.ivy.maven.project.ProjectContextFactory;
+import ch.ivyteam.ivy.maven.project.ProjectContextFactory.ProjectCtxt;
 import ch.ivyteam.ivy.project.model.ProjectVersion;
 import ch.ivyteam.ivy.project.validation.ProjectValidator;
+import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 
 /**
  * Validates an ivy Project.
@@ -108,9 +112,9 @@ public class ValidateProjectMojo extends AbstractMojo {
 
   private void validateProject() {
     var start = System.currentTimeMillis();
-    var ctx = new ValidationContextFactory(project, session, projectBuilder, getLog()).create();
+    var projectCtx = new ProjectContextFactory(project, session, projectBuilder, getLog()).create();
 
-    var version = ProjectVersion.of(ctx.project());
+    var version = ProjectVersion.of(projectCtx.project());
     if (!version.isLatest()) {
       getLog().error("Project is outdated (version: " + version + "). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
       return;
@@ -120,10 +124,20 @@ public class ValidateProjectMojo extends AbstractMojo {
     var validators = filter.apply(ProjectValidator.all());
 
     var reporter = new ValidationReporter(getLog(), project);
+    var ctx = validationContextOf(projectCtx);
     for (var validator : validators) {
       validator.validate(ctx).messages().forEach(reporter::report);
     }
     reporter.logSummary(project.getName(), System.currentTimeMillis() - start, filter.skipped());
+  }
+
+  private static ProjectValidatorContext validationContextOf(ProjectCtxt p) {
+    return ProjectValidatorContext.create()
+        .project(p.project())
+        .isMaven(true)
+        .allProjects(p.all())
+        .javaIndex(JavaIndex.of(p.project(), p.classLoader()))
+        .toContext();
   }
 
 }

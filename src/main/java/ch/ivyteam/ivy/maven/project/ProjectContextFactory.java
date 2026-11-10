@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.compile;
+package ch.ivyteam.ivy.maven.project;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -12,16 +12,11 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 
-import ch.ivyteam.ivy.java.config.index.JavaIndex;
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
-import ch.ivyteam.ivy.maven.util.ReactorClasspath;
-import ch.ivyteam.ivy.maven.util.ReactorSession;
 import ch.ivyteam.ivy.project.model.ProjectModel;
 import ch.ivyteam.ivy.project.model.basic.BasicProject;
 import ch.ivyteam.ivy.project.model.basic.BasicProjectBuilder;
-import ch.ivyteam.ivy.project.validation.ProjectValidatorContext;
 
-class ValidationContextFactory {
+public class ProjectContextFactory {
 
   private final MavenProject project;
   private final MavenSession session;
@@ -29,7 +24,7 @@ class ValidationContextFactory {
   private final ReactorClasspath reactorClasspath;
   private final Log log;
 
-  ValidationContextFactory(MavenProject project, MavenSession session, ProjectBuilder projectBuilder, Log log) {
+  public ProjectContextFactory(MavenProject project, MavenSession session, ProjectBuilder projectBuilder, Log log) {
     this.project = project;
     this.session = session;
     this.dependencies = MavenDependencies.of(project).session(session);
@@ -37,19 +32,16 @@ class ValidationContextFactory {
     this.log = log;
   }
 
-  ProjectValidatorContext create() {
+  public ProjectCtxt create() {
     var rootProject = toProject();
     if (log.isDebugEnabled()) {
       log.debug("[graph] Project graph for: " + project.getId());
       dumpTree(rootProject, 0);
     }
-    var ctx = ProjectValidatorContext.create()
-        .project(rootProject)
-        .isMaven(true)
-        .allProjects(toAllProjects());
-    ctx.javaIndex(JavaIndex.of(rootProject, toClassLoader()));
-    return ctx.toContext();
+    return new ProjectCtxt(rootProject, toAllProjects(), toClassLoader());
   }
+
+  public record ProjectCtxt(ProjectModel project, List<ProjectModel> all, ClassLoader classLoader) {}
 
   private void dumpTree(ProjectModel p, int depth) {
     var indent = "  ".repeat(depth);
@@ -78,7 +70,7 @@ class ValidationContextFactory {
         .build();
   }
 
-  private BasicProjectBuilder toProject(MavenProject p) {
+  private static BasicProjectBuilder toProject(MavenProject p) {
     return BasicProject.create()
         .id(p.getId())
         .name(p.getName())
@@ -101,14 +93,14 @@ class ValidationContextFactory {
 
   private List<ProjectModel> toDependentProjects() {
     return dependencies.dependent().stream()
-        .map(this::toProject)
+        .map(ProjectContextFactory::toProject)
         .map(BasicProjectBuilder::build)
         .toList();
   }
 
   private List<ProjectModel> toAllProjects() {
     return session.getAllProjects().stream()
-        .map(this::toProject)
+        .map(ProjectContextFactory::toProject)
         .map(BasicProjectBuilder::build)
         .toList();
   }
