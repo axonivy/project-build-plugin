@@ -21,7 +21,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
+import ch.ivyteam.ivy.maven.project.MavenDependencies;
 
 /**
  * Creates an application zip containing the packaged project and its IAR dependencies.

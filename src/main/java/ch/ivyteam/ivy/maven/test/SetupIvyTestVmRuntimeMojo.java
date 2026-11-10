@@ -16,8 +16,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.maven.project.MavenDependencies;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**

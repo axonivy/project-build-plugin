@@ -34,7 +34,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import ch.ivyteam.ivy.maven.engine.deploy.DeploymentOptionsFileFactory;
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
+import ch.ivyteam.ivy.maven.project.MavenDependencies;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
 /**

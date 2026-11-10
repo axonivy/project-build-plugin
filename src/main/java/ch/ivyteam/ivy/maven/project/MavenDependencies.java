@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.maven.util;
+package ch.ivyteam.ivy.maven.project;
 
 import java.nio.file.Path;
 import java.util.ArrayDeque;
