@@ -245,6 +245,12 @@
       <version>4.5.14</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.victools</groupId>
+      <artifactId>jsonschema-generator</artifactId>
+      <version>5.0.0</version>
+      <scope>compile</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.axonivy.ivy.api.restricted</groupId>

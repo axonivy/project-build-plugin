@@ -1,0 +1,46 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/14.0/project/process.json",
+  "id" : "1A1C059B8025E217",
+  "kind" : "CALLABLE_SUB",
+  "config" : {
+    "data" : "ch.ivyteam.project.test.myFunctionData"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "CallSubStart",
+      "name" : "userInfo()",
+      "config" : {
+        "signature" : "call",
+        "input" : {
+          "params" : [
+            { "name" : "userId", "type" : "Integer", "desc" : "" }
+          ],
+          "map" : { }
+        },
+        "result" : {
+          "params" : [
+            { "name" : "firstName", "type" : "String", "desc" : "" },
+            { "name" : "lastName", "type" : "String", "desc" : "" }
+          ],
+          "map" : { }
+        }
+      },
+      "tags" : [
+        "connector"
+      ],
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 },
+        "description" : "lookup user information",
+        "icon" : "std:Message"
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "CallSubEnd",
+      "visual" : {
+        "at" : { "x" : 352, "y" : 64 }
+      }
+    } ]
+}
