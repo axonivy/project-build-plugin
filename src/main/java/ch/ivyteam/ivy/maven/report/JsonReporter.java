@@ -22,6 +22,7 @@ import ch.ivyteam.ivy.process.model.element.event.start.CallSubStart;
 import ch.ivyteam.ivy.process.model.element.event.start.value.CallSignature;
 import ch.ivyteam.ivy.process.model.value.scripting.VariableDesc;
 import ch.ivyteam.ivy.process.schema.adapter.call.ProcessRefAdapter;
+import ch.ivyteam.ivy.scripting.types.loader.QualifiedTypeLoader;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
@@ -130,7 +131,7 @@ public class JsonReporter {
 
   private Optional<Type> load(String fullType) {
     try {
-      var type = typeLoader.apply(fullType);
+      var type = QualifiedTypeLoader.of(typeLoader).load(fullType);
       return Optional.of(type);
     } catch (Throwable ex) {
       log.error("Skipping schema for unresolvable type " + fullType, ex);

@@ -93,6 +93,27 @@ class TestJsonReporter {
         .contains("Skipping schema for unresolvable type com.acme.oblivion.Person");
   }
 
+  @Test
+  void process_typeRefs_parameterized() {
+    var process = loadProcess("/base/process/myFunction.p.json", "myFunction");
+    var start = process.search().type(CallSubStart.class).findOne();
+    var updated = start.getSignature()
+        .setInputParameters(List.of(new VariableDesc("user", "java.util.List<" + MyPerson.class.getName() + ">")))
+        .setOutputParameters(List.of());
+    start.setSignature(updated);
+
+    var json = reportCallables(process);
+
+    var userProperty = json.get("elements").get(0).get("param").get("properties").get("user");
+    assertThat(userProperty.get("type").asString())
+        .as("collection type is propagated to schema")
+        .isEqualTo("array");
+    assertThat(userProperty.get("items").get("$ref").asString())
+        .as("nested type is propagated to $defs")
+        .isEqualTo("#/$defs/MyPerson");
+
+  }
+
   private static JsonNode reportCallables(Process process) {
     var reporter = new JsonReporter(TestComponentsMojo.testLoader(), new LogCollector());
     var callables = process.search().type(CallSubStart.class).findDeep();
