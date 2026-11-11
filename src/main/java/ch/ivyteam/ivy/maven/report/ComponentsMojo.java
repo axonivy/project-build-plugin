@@ -71,7 +71,7 @@ public class ComponentsMojo extends AbstractMojo {
     var processes = new ProcessReader(mavenProject.getBasedir().toPath()).processes();
     var callables = callSubStarts(processes);
 
-    JsonReporter processReport = new JsonReporter(loader);
+    JsonReporter processReport = new JsonReporter(loader, getLog());
     processReport.callables(callables);
     var json = processReport.finish();
     try {
