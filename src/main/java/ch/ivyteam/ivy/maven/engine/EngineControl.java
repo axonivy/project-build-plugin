@@ -188,17 +188,15 @@ public class EngineControl {
 
   private String executeSynch(ProcessBuilder statusCmd) throws IOException {
     var process = statusCmd.start();
-    var in = process.getInputStream();
-    try {
+    // read before waiting: a full pipe buffer would otherwise block the process forever
+    try (var in = process.getInputStream()) {
+      var output = new String(in.readAllBytes());
       process.waitFor();
+      return output;
     } catch (InterruptedException ex) {
+      process.destroy();
       Thread.currentThread().interrupt();
       throw new RuntimeException(ex);
-    }
-    try {
-      return new String(in.readAllBytes());
-    } finally {
-      in.close();
     }
   }
 
