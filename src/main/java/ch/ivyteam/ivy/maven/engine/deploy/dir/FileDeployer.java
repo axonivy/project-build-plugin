@@ -117,17 +117,15 @@ public class FileDeployer implements IvyDeployer {
   }
 
   private static void wait(BooleanSupplier condition, long duration, TimeUnit unit)
-      throws TimeoutException {
+      throws TimeoutException, InterruptedException {
     long waitMs = unit.toMillis(duration);
     long startMs = System.currentTimeMillis();
     long maxMs = waitMs + startMs;
     while (!condition.getAsBoolean()) {
-      try {
-        if (System.currentTimeMillis() > maxMs) {
-          throw new TimeoutException("Operation reached timeout of " + duration + " " + unit);
-        }
-        Thread.sleep(100);
-      } catch (InterruptedException _) {}
+      if (System.currentTimeMillis() > maxMs) {
+        throw new TimeoutException("Operation reached timeout of " + duration + " " + unit);
+      }
+      Thread.sleep(100);
     }
   }
 
