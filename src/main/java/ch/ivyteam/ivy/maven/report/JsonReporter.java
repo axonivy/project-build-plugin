@@ -7,6 +7,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.apache.maven.plugin.logging.Log;
+
 import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaBuilder;
@@ -30,9 +32,11 @@ public class JsonReporter {
   private final Function<String, Type> typeLoader;
   private final SchemaBuilder schemaGenerator;
   private final ObjectNode components;
+  private final Log log;
 
-  public JsonReporter(Function<String, Type> typeLoader) {
+  public JsonReporter(Function<String, Type> typeLoader, Log log) {
     this.typeLoader = typeLoader;
+    this.log = log;
     this.schemaGenerator = schemaGenerator();
     this.components = JsonNodeFactory.instance.objectNode();
   }
@@ -85,7 +89,7 @@ public class JsonReporter {
 
       var fullType = variable.getType().fullQualifiedName();
       var varSchema = load(fullType)
-          .map(type -> schemaGenerator.createSchemaReference(type))
+          .map(this::typeRef)
           .orElseGet(JsonReporter::object);
       props.set(variable.getName(), varSchema);
 
@@ -98,6 +102,15 @@ public class JsonReporter {
       }
     }
     return schema;
+  }
+
+  private ObjectNode typeRef(Type type) {
+    try {
+      return schemaGenerator.createSchemaReference(type);
+    } catch (Throwable ex) {
+      log.error("Skipping schema for unresolvable type " + type, ex);
+      return JsonReporter.object();
+    }
   }
 
   public JsonNode finish() {
@@ -119,7 +132,8 @@ public class JsonReporter {
     try {
       var type = typeLoader.apply(fullType);
       return Optional.of(type);
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
+      log.error("Skipping schema for unresolvable type " + fullType, ex);
       return Optional.empty();
     }
   }

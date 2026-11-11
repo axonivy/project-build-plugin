@@ -3,9 +3,11 @@ package ch.ivyteam.ivy.maven.report;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
+import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.element.event.start.CallSubStart;
 import ch.ivyteam.ivy.process.model.value.ProcessName;
@@ -69,8 +71,30 @@ class TestJsonReporter {
         .containsExactly("firstName", "lastName");
   }
 
+  @Test
+  void process_typeRefs_unresolvable() {
+    var process = loadProcess("/base/process/myFunction.p.json", "myFunction");
+    var start = process.search().type(CallSubStart.class).findOne();
+    var updated = start.getSignature()
+        .setInputParameters(List.of(new VariableDesc("user", "com.acme.oblivion.Person")))
+        .setOutputParameters(List.of());
+    start.setSignature(updated);
+
+    LogCollector log = new LogCollector();
+    var reporter = new JsonReporter(TestComponentsMojo.testLoader(), log);
+    reporter.callables(Stream.of(start));
+    var json = reporter.finish();
+    assertThat(json.get("elements").get(0).get("param").get("properties").get("user").get("x-java-type").asString())
+        .as("type-hint for java is present; json writing succeeds even if types are partially unresolvable")
+        .isEqualTo("com.acme.oblivion.Person");
+
+    assertThat(log.getErrors()).hasSize(1);
+    assertThat(log.getErrors().get(0).toString())
+        .contains("Skipping schema for unresolvable type com.acme.oblivion.Person");
+  }
+
   private static JsonNode reportCallables(Process process) {
-    var reporter = new JsonReporter(TestComponentsMojo.testLoader());
+    var reporter = new JsonReporter(TestComponentsMojo.testLoader(), new LogCollector());
     var callables = process.search().type(CallSubStart.class).findDeep();
     reporter.callables(callables.stream());
     return reporter.finish();
