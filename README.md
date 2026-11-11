@@ -18,12 +18,17 @@ Maven plugin for the automated building of Axon Ivy Projects.
   - [pom.xml](pom.xml#L676)
 - Raise the minimum engine version when introducing a new minor or major version:
   - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L44)
+- Create a release branch if it does not exist yet (e.g. `release/13.2`).
 
 ### Release
 
-- Create a release branch if it does not exist yet (e.g. `release/13.2`).
 - Run the [release build][release-build] on the respective release branch.
+
+### Post Release
+
 - Merge the pull request for the next development iteration.
+  - Verify that the release is available on [Axon Ivy Nexus][axon-ivy-nexus].
+  - Verify that the release is published on GitHub. ([Releases][github-releases])
 - If you have created a new release branch, manually raise the version on the `master` branch to the next major or minor version:
   - Execute the following command in the root of this project (adjust version number accordingly):
 
@@ -35,9 +40,6 @@ Maven plugin for the automated building of Axon Ivy Projects.
   - If this change reflects a major bump, update the `versionPrefix` query parameter in the badge URLs below.
   - Add the appropriate label (`major` or `minor`) to the pull request so that the release drafter creates a separate, versioned release draft for the `master` branch and tracks changes appropriately.
 
-### Post Release
-
-- Verify that the release is available on [Axon Ivy Nexus][axon-ivy-nexus].
 - Raise `project-build-plugin` in consuming repos by triggering the [raise version job][raise-version-job].
 
 ## Authors
@@ -57,6 +59,7 @@ The Apache License, Version 2.0
 [snapshots]: https://nexus.axonivy.com/#browse/browse:maven-snapshots
 [blue]: https://img.shields.io/badge/-Documentation-blue
 [plugin-doc]: https://axonivy.github.io/project-build-plugin/release/
-[raise-version-job]: https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/
 [release-build]: https://jenkins.ivyteam.io/job/project-build-plugin_release/
 [axon-ivy-nexus]: https://nexus.axonivy.com/
+[github-releases]: https://github.com/axonivy/project-build-plugin/releases
+[raise-version-job]: https://jenkins.ivyteam.io/view/jobs/job/github-repo-manager_raise-build-plugin-version/job/master/
