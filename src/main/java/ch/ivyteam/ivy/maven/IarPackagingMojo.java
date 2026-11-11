@@ -113,10 +113,10 @@ public class IarPackagingMojo extends AbstractMojo {
     var iar = getIarFile();
     createIvyArchive(project.getBasedir(), iar);
 
-    var artifact = project.getArtifact();
-    artifact.setFile(iar.toFile());
-    project.setArtifact(artifact);
-    getLog().info("Attached " + artifact + ".");
+    //var artifact = project.getArtifact();
+    //artifact.setFile(iar.toFile());
+    //project.setArtifact(artifact);
+    //getLog().info("Attached " + artifact + ".");
   }
 
   private Path getIarFile() {
