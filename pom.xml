@@ -471,7 +471,10 @@
             <configuration>
               <target>
                 <move todir="${project.build.directory}/site/${site.path}/${pluginVersion.majorVersion}.${pluginVersion.minorVersion}">
-                  <fileset dir="${project.build.directory}/site" />
+                  <fileset dir="${project.build.directory}/site">
+                    <exclude name="${site.path}/**" />
+                    <exclude name="${other.site.path}/**" />
+                  </fileset>
                 </move>
                 <copy todir="${project.build.directory}/site/${site.path}/">
                   <fileset dir="${basedir}/src/site/gh/pages/" />
