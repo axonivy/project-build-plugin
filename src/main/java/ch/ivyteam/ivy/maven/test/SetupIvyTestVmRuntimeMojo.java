@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -17,6 +18,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.project.MavenDependencies;
+import ch.ivyteam.ivy.maven.project.ReactorSession;
 import ch.ivyteam.ivy.maven.test.bpm.IvyTestRuntime;
 import ch.ivyteam.ivy.maven.util.MavenProperties;
 
@@ -75,13 +77,21 @@ public class SetupIvyTestVmRuntimeMojo extends AbstractMojo {
   }
 
   private List<URI> projectLocations() {
+    var reactor = new ReactorSession(session);
     return Stream.concat(Stream.of(project.getBasedir().toPath()),
         MavenDependencies.of(project)
             .session(session)
             .typeFilter("iar")
-            .all()
-            .stream())
+            .required()
+            .stream()
+            .map(artifact -> dependencyLocation(artifact, reactor)))
         .map(Path::toUri)
         .toList();
+  }
+
+  static Path dependencyLocation(Artifact artifact, ReactorSession reactor) {
+    return reactor.toPathIAR(artifact)
+        .filter(path -> path.getFileName().toString().endsWith(".iar"))
+        .orElseGet(() -> reactor.toPathBasedir(artifact));
   }
 }
