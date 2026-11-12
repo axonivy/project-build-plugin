@@ -41,7 +41,7 @@ pipeline {
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
               def args = "-PcentralDeploy " +
-                "-Divy.engine.list.url=${params.engineListUrl} " +
+                "-Divy.engine.list.url=${params.engineSource} " +
                 "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                 "-Dgithub.site.skip=false ";
               maven cmd: 'clean deploy site ' + args
