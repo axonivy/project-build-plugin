@@ -21,7 +21,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import ch.ivyteam.ivy.maven.util.MavenDependencies;
+import ch.ivyteam.ivy.maven.project.MavenDependencies;
 
 /**
  * Copy <a href="https://maven.apache.org/pom.html#Dependencies">maven

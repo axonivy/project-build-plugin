@@ -150,6 +150,12 @@
       <version>4.5.14</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.victools</groupId>
+      <artifactId>jsonschema-generator</artifactId>
+      <version>5.0.0</version>
+      <scope>compile</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.axonivy.ivy.api.test</groupId>
@@ -407,7 +413,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-site-plugin</artifactId>

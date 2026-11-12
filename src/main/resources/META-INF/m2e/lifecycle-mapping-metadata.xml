@@ -38,6 +38,7 @@
           <goal>installEngine</goal>
           <goal>validateProject</goal>
           <goal>pack-app</goal>
+          <goal>report-components</goal>
         </goals>
       </pluginExecutionFilter>
       <action>
