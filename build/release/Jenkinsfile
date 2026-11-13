@@ -6,16 +6,23 @@ pipeline {
   }
 
   parameters {
-    string(name: 'engineListUrl',
-      description: 'Engine to use for build',
-      defaultValue: 'https://product.ivyteam.io')
+    string(name: 'version', description: 'Version to release.')
+    string(name: 'engineSource', defaultValue: 'https://product.ivyteam.io', description: 'Engine page url.')
   }
 
   stages {
-    stage('build') {
-      when {
-        expression { isReleaseBranch() }
+    stage('Validate preparations') {
+      steps {
+        script {
+          assertReleaseBranch()
+          assertReleaseVersionFormat()
+          assertReleaseVersionMatchesProjectVersion()
+          currentBuild.description = params.version
+        }
       }
+    }
+
+    stage('Build') {
       steps {
         script {
           docker.build('maven').inside {
@@ -26,23 +33,23 @@ pipeline {
             sh "git checkout -b ${targetBranch}"
             sh "git tag -l | xargs git tag -d"
             
-            def releasedVersion = version('-DremoveSnapshot=true')
-            sh "git add . ;git commit -m 'update versions for release ${releasedVersion}'"
-            sh "git tag \"v${releasedVersion}\" -a -m \"Official release ${releasedVersion}\""
+            setVersion(params.version)
+            sh "git add . ;git commit -m 'update versions for release ${params.version}'"
+            sh "git tag \"v${params.version}\" -a -m \"Official release ${params.version}\""
 
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
               def args = "-PcentralDeploy " +
-                "-Divy.engine.list.url=${params.engineListUrl} " +
+                "-Divy.engine.list.url=${params.engineSource} " +
                 "-Dgpg.project-build.password='${env.GPG_PWD}' " +
                 "-Dgithub.site.skip=false ";
               maven cmd: 'clean deploy site ' + args
             }
-            currentBuild.description = "<a href='${publishingUri}'>publishing</a>"
+            currentBuild.description = "<a href='${publishingUri}'>${params.version}</a>"
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
-                def nextVersion=version('-DnextSnapshot=true')
+                def nextVersion = setNextSnapshotVersion(params.version)
                 sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
                 sh "git push origin --tags"
                 sh "git push -u origin ${targetBranch}"
@@ -66,19 +73,43 @@ pipeline {
   }
 }
 
-def isReleaseBranch() {
-  return env.BRANCH_NAME.startsWith('release/') 
+def assertReleaseBranch() {
+  if (!isReleasingBranch()) {
+    error 'Releasing is only possible from a release branch.'
+  }
+}
+
+def assertReleaseVersionFormat() {
+  if (!(params.version ==~ /\d+\.\d+\.\d+/)) {
+    error "Expected a valid release version, got '${params.version}'."
+  }
+}
+
+def assertReleaseVersionMatchesProjectVersion() {
+  def sourceVersion
+  docker.build('maven').inside {
+    sourceVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+  }
+  def expectedVersion = sourceVersion.replaceFirst(/-SNAPSHOT$/, '')
+  if (params.version != expectedVersion) {
+    error "Requested release ${params.version}, but pom.xml resolves to ${expectedVersion}."
+  }
+}
+
+def setNextSnapshotVersion(def version) {
+  def versionParts = version.tokenize('.')
+  versionParts[2] = "${(versionParts[2] as int) + 1}-SNAPSHOT"
+  def nextVersion = versionParts.join('.')
+  setVersion(nextVersion)
+  return nextVersion
+}
+
+def setVersion(def version) {
+  sh "mvn org.codehaus.mojo:versions-maven-plugin:2.18.0:set -DnewVersion=${version} -DgenerateBackupPoms=false | grep '\\[.*' "
 }
 
 def setupGPGEnvironment() {
   withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
     sh "gpg --batch --import ${env.GPG_FILE}"
   }
-}
-
-def version(def param) {
-  sh "mvn org.codehaus.mojo:versions-maven-plugin:2.18.0:set ${param} -DgenerateBackupPoms=false | grep '\\[.*' "
-  def evalCmd='mvn help:evaluate -Dexpression=\'project.version\' -q -DforceStdout'
-  def current = sh(script: evalCmd, returnStdout: true)
-  return current;
 }
