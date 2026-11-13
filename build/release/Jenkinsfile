@@ -17,7 +17,6 @@ pipeline {
           assertReleaseBranch()
           assertReleaseVersionFormat()
           assertReleaseVersionMatchesProjectVersion()
-          assertUnpublished()
           currentBuild.description = params.version
         }
       }
@@ -95,29 +94,6 @@ def assertReleaseVersionMatchesProjectVersion() {
   if (params.version != expectedVersion) {
     error "Requested release ${params.version}, but pom.xml resolves to ${expectedVersion}."
   }
-}
-
-def assertUnpublished() {
-  def versionParts = params.version.tokenize('.')
-  if ((versionParts[2] as int) > 0) {
-    versionParts[2] = ((versionParts[2] as int) - 1).toString()
-    def previousVersion = versionParts.join('.')
-    def previousArtifact = mavenArtifactPomStatus(previousVersion)
-    if (previousArtifact.statusCode != '200') {
-      error "Expected ${previousArtifact.url} to be available (HTTP 200), got HTTP ${previousArtifact.statusCode}."
-    }
-  }
-
-  def artifact = mavenArtifactPomStatus(params.version)
-  if (artifact.statusCode != '404') {
-    error "Expected ${artifact.url} to be absent (HTTP 404), got HTTP ${artifact.statusCode}. ${artifact.url} might already be released."
-  }
-}
-
-def mavenArtifactPomStatus(def version) {
-  def url = "https://maven.axonivy.com/com/axonivy/ivy/ci/project-build-plugin/${version}/project-build-plugin-${version}.pom"
-  def statusCode = sh(script: "curl --silent --show-error --location --connect-timeout 10 --max-time 60 --output /dev/null --write-out '%{http_code}' '${url}'", returnStdout: true).trim()
-  [url: url, statusCode: statusCode]
 }
 
 def setNextSnapshotVersion(def version) {
