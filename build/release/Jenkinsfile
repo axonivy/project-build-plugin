@@ -15,12 +15,17 @@ pipeline {
     stage('Validate preparations') {
       steps {
         script {
+          def version = params.version
+          if (params.dryRun && !version) {
+            version = evaluateProjectVersion()
+          }
+          env.RELEASE_VERSION = version
           if (!params.dryRun) {
             assertReleaseBranch()
           }
-          assertReleaseVersionFormat()
-          assertReleaseVersionMatchesProjectVersion()
-          currentBuild.description = params.dryRun ? "Dry run (${params.version})" : params.version
+          assertReleaseVersionFormat(version)
+          assertReleaseVersionMatchesProjectVersion(version)
+          currentBuild.description = params.dryRun ? "Dry run (${version})" : version
         }
       }
     }
@@ -29,7 +34,7 @@ pipeline {
       steps {
         script {
           docker.build('maven').inside {
-            setVersion(params.version)
+            setVersion(env.RELEASE_VERSION)
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
               def args = [
@@ -63,19 +68,19 @@ pipeline {
         script {
           docker.build('maven').inside {
             def publishingUri = "https://nexus.axonivy.com/#browse/browse:maven-releases"
-            currentBuild.description = "<a href='${publishingUri}'>${params.version}</a>"
+            currentBuild.description = "<a href='${publishingUri}'>${env.RELEASE_VERSION}</a>"
 
             def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
             sh "git config --global user.name 'ivy-team'"
             sh "git config --global user.email 'info@ivyteam.ch'"
             sh "git checkout -b ${targetBranch}"
             sh "git tag -l | xargs git tag -d"
-            sh "git add . ;git commit -m 'update versions for release ${params.version}'"
-            sh "git tag \"v${params.version}\" -a -m \"Official release ${params.version}\""
+            sh "git add . ;git commit -m 'update versions for release ${env.RELEASE_VERSION}'"
+            sh "git tag \"v${env.RELEASE_VERSION}\" -a -m \"Official release ${env.RELEASE_VERSION}\""
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
-                def nextVersion = setNextSnapshotVersion(params.version)
+                def nextVersion = setNextSnapshotVersion(env.RELEASE_VERSION)
                 sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
                 sh "git push origin --tags"
                 sh "git push -u origin ${targetBranch}"
@@ -103,21 +108,25 @@ def assertReleaseBranch() {
   }
 }
 
-def assertReleaseVersionFormat() {
-  if (!(params.version ==~ /\d+\.\d+\.\d+/)) {
-    error "Expected a valid release version, got '${params.version}'."
+def assertReleaseVersionFormat(def version) {
+  if (!(version ==~ /\d+\.\d+\.\d+/)) {
+    error "Expected a valid release version, got '${version}'."
   }
 }
 
-def assertReleaseVersionMatchesProjectVersion() {
-  def sourceVersion
+def assertReleaseVersionMatchesProjectVersion(def version) {
+  def sourceVersion = evaluateProjectVersion()
+  if (version != sourceVersion) {
+    error "Requested release ${version}, but pom.xml resolves to ${sourceVersion}."
+  }
+}
+
+def evaluateProjectVersion() {
+  def projectVersion
   docker.build('maven').inside {
-    sourceVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+    projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
   }
-  def expectedVersion = sourceVersion.replaceFirst(/-SNAPSHOT$/, '')
-  if (params.version != expectedVersion) {
-    error "Requested release ${params.version}, but pom.xml resolves to ${expectedVersion}."
-  }
+  return projectVersion.replaceFirst(/-SNAPSHOT$/, '')
 }
 
 def setNextSnapshotVersion(def version) {
