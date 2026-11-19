@@ -26,7 +26,8 @@ final class ValidationMessageFormatter {
       appendPath(sb, location, message.file());
     }
 
-    sb.append(' ').append(message.text());
+    sb.append(' ').append(message.text())
+        .append(" [").append(message.code()).append(']');
     return sb.toString();
   }
 
