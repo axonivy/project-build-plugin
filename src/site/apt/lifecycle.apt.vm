@@ -10,7 +10,7 @@ iar Lifecycle
  generate-sources  | ${project.groupId}:${project.artifactId}:{{{./ivy-add-generated-source-roots-mojo.html}ivy-add-generated-source-roots}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-data-class-sources-mojo.html}generate-data-class-sources}}
                    | ${project.groupId}:${project.artifactId}:{{{./generate-dialog-form-sources-mojo.html}generate-dialog-form-sources}}
-                   | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources-sources}}
+                   | ${project.groupId}:${project.artifactId}:{{{./generate-web-service-sources-mojo.html}generate-web-service-sources}}
 *--------*---------*
  generate-resources| ${project.groupId}:${project.artifactId}:{{{./ivy-add-generated-resource-roots-mojo.html}ivy-add-generated-resource-roots}}
 *--------*---------*
@@ -18,15 +18,18 @@ iar Lifecycle
 *--------*---------*
  compile           | org.apache.maven.plugins:maven-compiler-plugin:compile 
 *--------*---------*
+ process-test-resources | org.apache.maven.plugins:maven-resources-plugin:testResources\
+                       | ${project.groupId}:${project.artifactId}:{{{./report-components-mojo.html}report-components}}
+*--------*---------*
  test-compile      | org.apache.maven.plugins:maven-compiler-plugin:testCompile
 *--------*---------*
  test              | ${project.groupId}:${project.artifactId}:{{{./validateProject-mojo.html}validateProject}} 
                    | ${project.groupId}:${project.artifactId}:{{{./ivy-test-vm-runtime-mojo.html}ivy-test-vm-runtime}}\
                    | org.apache.maven.plugins:maven-surefire-plugin:test 
 *--------*---------*
- package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency-mojo}}\
-                   | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar-mojo}}
-                   | ${project.groupId}:${project.artifactId}:{{{./pack-app-mojo.html}pack-app-mojo}} 
+ package           | ${project.groupId}:${project.artifactId}:{{{./maven-dependency-mojo.html}maven-dependency}}\
+                   | ${project.groupId}:${project.artifactId}:{{{./pack-iar-mojo.html}pack-iar}}
+                   | ${project.groupId}:${project.artifactId}:{{{./pack-app-mojo.html}pack-app}} 
 *--------*---------*
  deploy            | org.apache.maven.plugins:maven-deploy-plugin:deploy 
 *--------*---------*
