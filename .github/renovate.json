@@ -2,10 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>axonivy/renovate-config",
+    ":disableRateLimiting",
     "schedule:weekends"
   ],
   "baseBranches": [
-    "master",
     "/^release\\/[0-9]{2}\\.[0-9]+/"
   ],
   "packageRules": [
