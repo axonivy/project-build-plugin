@@ -12,12 +12,9 @@ pipeline {
   }
 
   parameters {
-    string(name: 'engineListUrl',
-      description: 'Engine to use for build',
-      defaultValue: 'https://product.ivyteam.io')
-    string(name: 'qualifier',
-      description: "Optional qualifier (e.g. m7-SNAPSHOT for Sprint 7). Empty keeps the original project version.",
-      defaultValue: '')
+    booleanParam(name: 'dryRun', defaultValue: false, description: 'Whether the build should publish the SNAPSHOT. Non-release branches never publish.')
+    string(name: 'qualifier', defaultValue: '', description: 'Optional version qualifier (e.g. \'m42\'). Will be appended with \'-SNAPSHOT\'.')
+    string(name: 'engineSource', defaultValue: 'https://product.ivyteam.io', description: 'Engine page url.')
   }
 
   stages {
@@ -26,21 +23,22 @@ pipeline {
         script {
           setupGPGEnvironment()
           withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-            def args = "" +
-              "-Dgpg.skip=false " +
-              "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-              "-Divy.engine.list.url=${params.engineListUrl} " +
-              "-Dmaven.test.failure.ignore=true "
+            def args = [
+              '-Dgpg.skip=false',
+              "-Dgpg.project-build.password='${env.GPG_PWD}'",
+              "-Divy.engine.list.url=${params.engineSource}",
+              '-Dmaven.test.failure.ignore=true'
+            ]
             def qualifier = params.qualifier?.trim()
             if (qualifier) {
               applyVersionQualifier(qualifier)
-              if (!qualifier.endsWith("-SNAPSHOT")) {
-                args += "-PnexusDeploy "
-              }
+            }
+            if (params.dryRun) {
+              args.add('-DaltDeploymentRepository=local::file:./target/deploy')
             }
             def phase = isReleasingBranch() ? 'deploy' : 'verify'
-            maven cmd: "clean ${phase} ${args}"
-            if (isReleasingBranch()) {
+            maven cmd: "clean ${phase} " + args.join(' ')
+            if (!params.dryRun && isReleasingBranch()) {
               def version = sh (script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true)
               uploadBOM(projectName: 'project-build-plugin', projectVersion: version, bomFile: 'target/bom.json')
             }
@@ -52,7 +50,7 @@ pipeline {
 
     stage('deploy-site') {
       when {
-        expression { isReleasingBranch() && currentBuild.changeSets.size() > 0 }
+        expression { !params.dryRun && isReleasingBranch() && currentBuild.changeSets.size() > 0 }
       }
       steps {
         script {
@@ -80,7 +78,11 @@ def setupGPGEnvironment() {
 }
 
 def collectBuildArtifacts()  {
-  archiveArtifacts 'target/*.jar'
+  if (params.dryRun) {
+    archiveArtifacts artifacts: 'target/deploy/**/*', allowEmptyArchive: true
+  } else {
+    archiveArtifacts 'target/*.jar'
+  }
   archiveArtifacts 'target/its/**/build.log'
   archiveArtifacts artifacts: 'target/invoker-project-validation/**/build.log', allowEmptyArchive: true
   junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml, target/invoker-reports/**/TEST-*.xml'
@@ -94,7 +96,7 @@ def collectBuildArtifacts()  {
 
 def applyVersionQualifier(String qualifier) {
   def currentVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-  def qualified  = currentVersion.replaceFirst(/-SNAPSHOT$/, "-${qualifier}")
+  def qualified  = currentVersion.replaceFirst(/-SNAPSHOT$/, "-${qualifier}-SNAPSHOT")
   echo "Using version '${qualified}' for this build."
   maven cmd: "versions:set -DnewVersion=${qualified} -DgenerateBackupPoms=false"
 }

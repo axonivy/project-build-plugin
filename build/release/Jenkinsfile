@@ -6,79 +6,148 @@ pipeline {
   }
 
   parameters {
-    string(name: 'engineListUrl',
-      description: 'Engine to use for build',
-      defaultValue: 'https://product.ivyteam.io')
+    booleanParam(name: 'dryRun', defaultValue: true, description: 'Whether the build should publish the release.')
+    string(name: 'version', defaultValue: '', description: 'Version to release (e.g. \'14.0.2\').')
+    string(name: 'qualifier', defaultValue: '', description: 'Optional version qualifier (e.g. \'m42\').')
+    string(name: 'engineSource', defaultValue: 'https://product.ivyteam.io', description: 'Engine page url.')
   }
 
   stages {
-    stage('build') {
+    stage('Validate preparations') {
+      steps {
+        script {
+          def version = params.version
+          if (params.dryRun && !version) {
+            version = evaluateProjectVersion()
+          }
+          if (!params.dryRun) {
+            assertReleaseBranch()
+          }
+          assertReleaseVersionFormat(version)
+          assertReleaseVersionMatchesProjectVersion(version)
+
+          env.RELEASE_VERSION = params.qualifier ? "${version}-${params.qualifier}" : version
+          currentBuild.description = params.dryRun ? "Dry run (${env.RELEASE_VERSION})" : env.RELEASE_VERSION
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        script {
+          docker.build('maven').inside {
+            setVersion(env.RELEASE_VERSION)
+            setupGPGEnvironment()
+            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
+              def args = [
+                '-PnexusDeploy',
+                "-Divy.engine.list.url=${params.engineSource}",
+                "-Dgpg.project-build.password='${env.GPG_PWD}'",
+                '-Dgithub.site.skip=false'
+              ]
+              if (params.dryRun) {
+                args.add('-DaltDeploymentRepository=local::file:./target/deploy')
+              }
+              maven cmd: 'clean deploy site ' + args.join(' ')
+            }
+          }
+        }
+        script {
+          if (params.dryRun) {
+            archiveArtifacts 'target/deploy/**/*'
+          } else {
+            archiveArtifacts '**/target/*.jar'
+          }
+        }
+      }
+    }
+
+    stage('Publish to GitHub') {
       when {
-        expression { isReleaseBranch() }
+        expression { !params.dryRun }
       }
       steps {
         script {
           docker.build('maven').inside {
             def publishingUri = "https://nexus.axonivy.com/#browse/browse:maven-releases"
+            currentBuild.description = "<a href='${publishingUri}'>${env.RELEASE_VERSION}</a>"
+
             def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
             sh "git config --global user.name 'ivy-team'"
             sh "git config --global user.email 'info@ivyteam.ch'"
             sh "git checkout -b ${targetBranch}"
             sh "git tag -l | xargs git tag -d"
-            
-            def releasedVersion = version('-DremoveSnapshot=true')
-            sh "git add . ;git commit -m 'update versions for release ${releasedVersion}'"
-            sh "git tag \"v${releasedVersion}\" -a -m \"Official release ${releasedVersion}\""
-
-            setupGPGEnvironment()
-            withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
-              def args = "-PcentralDeploy " +
-                "-Divy.engine.list.url=${params.engineListUrl} " +
-                "-Dgpg.project-build.password='${env.GPG_PWD}' " +
-                "-Dgithub.site.skip=false ";
-              maven cmd: 'clean deploy site ' + args
-            }
-            currentBuild.description = "<a href='${publishingUri}'>publishing</a>"
+            sh "git add . ;git commit -m 'update versions for release ${env.RELEASE_VERSION}'"
+            sh "git tag \"v${env.RELEASE_VERSION}\" -a -m \"Official release ${env.RELEASE_VERSION}\""
 
             withEnv(['GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no']) {
               sshagent(credentials: ['github-axonivy']) {
-                def nextVersion=version('-DnextSnapshot=true')
-                sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
-                sh "git push origin --tags"
-                sh "git push -u origin ${targetBranch}"
-                
-                def title = "Prepare for next development cycle (${env.BRANCH_NAME})"
-                def message = ":warning: merge this PR only if you verified the artifact is published on [Axon Ivy Nexus](${publishingUri}) and the release is published on GitHub ([Releases](https://github.com/axonivy/project-build-plugin/releases))"
-                withCredentials([file(credentialsId: 'github-ivyteam-token-repo-manager', variable: 'tokenFile')]) {
-                  sh "gh auth login --with-token < ${tokenFile}"
-                  sh "gh pr create --title '${title}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
+                sh "git push origin v${env.RELEASE_VERSION}"
+                if (!params.qualifier) {
+                  sh 'git reset --hard HEAD~1'
+                  def nextVersion = setNextSnapshotVersion(params.version)
+                  sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
+                  sh "git push -u origin ${targetBranch}"
+
+                  def title = "Prepare for next development cycle (${env.BRANCH_NAME})"
+                  def message = ":warning: merge this PR only if you verified the artifact is published on [Axon Ivy Nexus](${publishingUri}) and the release is published on GitHub ([Releases](https://github.com/axonivy/project-build-plugin/releases))"
+                  withCredentials([file(credentialsId: 'github-ivyteam-token-repo-manager', variable: 'tokenFile')]) {
+                    sh "gh auth login --with-token < ${tokenFile}"
+                    sh "gh pr create --title '${title}' --body '${message}' --head ${targetBranch} --base ${env.BRANCH_NAME}"
+                  }
                 }
 
-                // publish site from 'mvn release' run
-                maven cmd: "site site:stage scm-publish:publish-scm -PcentralDeploy"
+                maven cmd: 'site site:stage scm-publish:publish-scm -PnexusDeploy'
               }
             }
           }
         }
-        archiveArtifacts '**/target/*.jar'
       }
     }
   }
 }
 
-def isReleaseBranch() {
-  return env.BRANCH_NAME.startsWith('release/') 
+def assertReleaseBranch() {
+  if (!isReleasingBranch()) {
+    error 'Releasing is only possible from a release branch.'
+  }
+}
+
+def assertReleaseVersionFormat(def version) {
+  if (!(version ==~ /\d+\.\d+\.\d+/)) {
+    error "Expected a valid release version, got '${version}'."
+  }
+}
+
+def assertReleaseVersionMatchesProjectVersion(def version) {
+  def sourceVersion = evaluateProjectVersion()
+  if (version != sourceVersion) {
+    error "Requested release ${version}, but pom.xml resolves to ${sourceVersion}."
+  }
+}
+
+def evaluateProjectVersion() {
+  def projectVersion
+  docker.build('maven').inside {
+    projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+  }
+  return projectVersion.replaceFirst(/-SNAPSHOT$/, '')
+}
+
+def setNextSnapshotVersion(def version) {
+  def versionParts = version.tokenize('.')
+  versionParts[2] = "${(versionParts[2] as int) + 1}-SNAPSHOT"
+  def nextVersion = versionParts.join('.')
+  setVersion(nextVersion)
+  return nextVersion
+}
+
+def setVersion(def version) {
+  maven cmd: "versions:set -DnewVersion=${version} -DgenerateBackupPoms=false"
 }
 
 def setupGPGEnvironment() {
   withCredentials([file(credentialsId: 'gpg.keystore', variable: 'GPG_FILE')]) {
     sh "gpg --batch --import ${env.GPG_FILE}"
   }
-}
-
-def version(def param) {
-  sh "mvn org.codehaus.mojo:versions-maven-plugin:2.18.0:set ${param} -DgenerateBackupPoms=false | grep '\\[.*' "
-  def evalCmd='mvn help:evaluate -Dexpression=\'project.version\' -q -DforceStdout'
-  def current = sh(script: evalCmd, returnStdout: true)
-  return current;
 }
