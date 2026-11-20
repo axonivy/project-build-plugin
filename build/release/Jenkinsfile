@@ -84,7 +84,6 @@ pipeline {
               sshagent(credentials: ['github-axonivy']) {
                 sh "git push origin v${env.RELEASE_VERSION}"
                 if (!params.qualifier) {
-                  sh 'git reset --hard HEAD~1'
                   def nextVersion = setNextSnapshotVersion(params.version)
                   sh "git add . ;git commit -m 'prepare next dev-cycle ${nextVersion}'"
                   sh "git push -u origin ${targetBranch}"
