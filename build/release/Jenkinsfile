@@ -5,6 +5,10 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '20'))
   }
 
+  triggers {
+    cron '@midnight'
+  }
+
   parameters {
     booleanParam(name: 'dryRun', defaultValue: true, description: 'Whether the build should publish the release.')
     string(name: 'version', defaultValue: '', description: 'Version to release (e.g. \'14.0.2\').')
