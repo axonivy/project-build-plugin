@@ -487,8 +487,16 @@
     </profile>
   </profiles>
 
+
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.axonivy.ivy.api</groupId>
+        <artifactId>ivy-api-bom</artifactId>
+        <version>${ivy.api}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
