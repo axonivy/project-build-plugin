@@ -37,20 +37,24 @@ class TestValidateProjectMojo {
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
+    assertThat(log.getWarnings()).hasSize(8);
     assertThat(log.getWarnings().toString())
         .contains("config/users.yaml:[Alex] User 'Alex' is configured to have role 'Gangster' which is not defined.")
         .contains("config/webservice-clients.yaml:[test.name] The web service client key 'test.name' is not sanitized. Use 'testname' instead to avoid potential issues")
         .contains("config/webservice-clients.yaml:[test name] The web service client key 'test name' is not sanitized. Use 'test-name' instead to avoid potential issues")
         .contains("config/rest-clients.yaml:[test.name] The REST client key 'test.name' is not sanitized. Use 'testname' instead to avoid potential issues.")
         .contains("dataclass/validation/BusinessProcessData.d.json:[Test] The name 'Test' does not follow the Data Class Attribute naming convention")
+        .contains("process/validation/TestIvyScript.p.json:[f7.output.code] Method expiryActivator of class ch.ivyteam.ivy.workflow.ITask is deprecated")
         .contains("config/rest-clients.yaml:[test name] The REST client key 'test name' is not sanitized. Use 'test-name' instead to avoid potential issues.")
         .contains("dialog/validation/TestDialog/TestDialog.xhtml:[9,9] Unknown element 'fooorm' in namespace 'h'");
 
+    assertThat(log.getErrors()).hasSize(19);
     assertThat(log.getErrors().toString())
         .contains("config/roles.yaml:[HR Manager] Role 'HR Manager' has an unknown parent 'Manager'")
         .contains("config/variables.yaml:[Test] Variable 'Test' is defined multiple times in variables.yaml")
         .contains("dataclass/validation/BusinessProcessData.d.json:[#class] The namespace 'invalid' does not match the directory of the Data Class")
         .contains("process/validation/TestProcess.p.json:[f0.signature] Invalid character in signature name at position 1")
+        .contains("process/validation/TestIvyScript.p.json:[f5.output.code] Variable 'wrong' cannot be resolved")        
         .contains("dialog/validation/TestForm/TestForm.f.json:[button1] Button action cannot be empty")
         .contains("config/databases.yaml:[testdb] The database connection key 'testdb' is duplicated in project 'empty-project'")
         .contains("dialog/validation/TestDialog/TestDialog.xhtml:[9,7] The element type \"h:form\" must be terminated by the matching end-tag \"</h:form>\"");
@@ -136,7 +140,7 @@ class TestValidateProjectMojo {
     assertThat(log.getErrors().toString())
         .contains("Project validation summary")
         .contains("Errors:    ")
-        .contains("Warnings:  7")
+        .contains("Warnings:  8")
         .contains("Info:      0")
         .contains("Total:     ");
     assertThat(log.getWarnings().toString()).doesNotContain("Project validation summary");
