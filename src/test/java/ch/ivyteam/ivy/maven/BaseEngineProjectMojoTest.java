@@ -32,12 +32,11 @@ import ch.ivyteam.ivy.maven.extension.LocalRepoTest;
 import ch.ivyteam.ivy.maven.util.PathUtils;
 
 public class BaseEngineProjectMojoTest {
-  protected static final String ENGINE_VERSION_TO_TEST = getTestEngineVersion();
   public static final String LOCAL_REPOSITORY = LocalRepoTest.path().toString();
   protected static final String CACHE_DIR = LOCAL_REPOSITORY + "/.cache/ivy-dev";
 
-  private static String getTestEngineVersion() {
-    return System.getProperty("ivy.engine.version", toRange(AbstractEngineMojo.DEFAULT_VERSION));
+  private static String getTestEngineVersion(AbstractEngineMojo mojo) {
+    return System.getProperty("ivy.engine.version", toRange(mojo.getDefaultVersion()));
   }
 
   private static String toRange(String version) {
@@ -56,7 +55,7 @@ public class BaseEngineProjectMojoTest {
   }
 
   private static final Path evalEngineDir(AbstractEngineMojo mojo) {
-    return mojo.engineCacheDirectory.resolve(System.getProperty("ivy.engine.version", AbstractEngineMojo.DEFAULT_VERSION));
+    return mojo.engineCacheDirectory.resolve(System.getProperty("ivy.engine.version", mojo.getDefaultVersion()));
   }
 
   private static final String TIMESTAMP_FILE_NAME = "downloadtimestamp";
@@ -67,7 +66,7 @@ public class BaseEngineProjectMojoTest {
       install.engineListPageUrl = URI.create(alternateEngineListPageUrl).toURL();
     }
     mojo.engineCacheDirectory = Path.of(CACHE_DIR);
-    mojo.ivyVersion = ENGINE_VERSION_TO_TEST;
+    mojo.ivyVersion = getTestEngineVersion(mojo);
     mojo.engineDirectory = evalEngineDir(mojo);
     if (mojo instanceof InstallEngineMojo install) {
       mojo.useLatestMinor = true;
@@ -119,7 +118,7 @@ public class BaseEngineProjectMojoTest {
   public static void configureMojo(AbstractEngineMojo newMojo) {
     newMojo.engineCacheDirectory = Path.of(CACHE_DIR);
     newMojo.engineDirectory = evalEngineDir(newMojo);
-    newMojo.ivyVersion = ENGINE_VERSION_TO_TEST;
+    newMojo.ivyVersion = getTestEngineVersion(newMojo);
   }
 
 }
