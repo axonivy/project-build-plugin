@@ -1,2 +1,4 @@
 # yaml-language-server: $schema=https://json-schema.axonivy.com/14.0/config/persistence.json
 Persistence:
+  Test:
+    DataSource: UNKNOWN

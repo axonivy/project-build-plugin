@@ -1,0 +1,30 @@
+# general
+Thumbs.db
+.DS_Store
+*~
+*.log
+
+# java
+*.class
+hs_err_pid*
+
+# maven
+target/
+!target/
+target/*
+!target/classes/
+target/classes/*
+!target/classes/invalid/
+target/classes/invalid/*
+!target/classes/invalid/BusinessProcessData.class
+!target/classes/validation/
+target/classes/validation/*
+!target/classes/validation/ProcessTestData.class
+
+# ivy
+classes/
+!target/classes/
+!target/classes/invalid/
+!target/classes/invalid/BusinessProcessData.class
+!target/classes/validation/
+!target/classes/validation/ProcessTestData.class

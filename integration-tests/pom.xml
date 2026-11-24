@@ -9,6 +9,7 @@
     <module>maven-libs</module>
     <module>codegen</module>
     <module>process-resources</module>
+    <module>project-ivyScript-validation</module>
   </modules>
 
   <build>
