@@ -37,6 +37,9 @@ pipeline {
         script {
           docker.build('maven').inside {
             setVersion(env.RELEASE_VERSION)
+            if (!params.dryRun) {
+              setIvyApiVersion(env.RELEASE_VERSION)
+            }
             setupGPGEnvironment()
             withCredentials([string(credentialsId: 'gpg.password', variable: 'GPG_PWD')]) {
               def args = [
@@ -143,6 +146,10 @@ def setNextSnapshotVersion(def version) {
 
 def setVersion(def version) {
   maven cmd: "versions:set -DnewVersion=${version} -DgenerateBackupPoms=false"
+}
+
+def setIvyApiVersion(def version) {
+  maven cmd: "versions:set-property -Dproperty=ivy.api -DnewVersion=${version} -DgenerateBackupPoms=false"
 }
 
 def setupGPGEnvironment() {
