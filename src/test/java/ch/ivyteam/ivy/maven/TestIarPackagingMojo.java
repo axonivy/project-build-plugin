@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.util.PathUtils;
+import ch.ivyteam.ivy.project.model.ProjectVersion;
 
 /**
  * @author Reguel Wermelinger
@@ -105,11 +107,13 @@ class TestIarPackagingMojo {
       assertThat(getProjectZipFileEntry(archive, "dialog")).isNull();
       assertThat(getProjectZipFileEntry(archive, "target/sampleOutput.txt"))
           .as("'target/sampleOutput.txt' should not be packed").isNull();
-      assertThat(getProjectZipFileEntry(archive, "target")).as("'target' must be packed because there are target/classes")
+      assertThat(getProjectZipFileEntry(archive, "target"))
+          .as("'target' must be packed because there are target/classes")
           .isNull();
       assertThat(getProjectZipFileEntry(archive, ".svn/svn.txt")).as("'.svn' folder should not be packed").isNull();
       assertThat(getProjectZipFileEntry(archive, ".svn")).as("'target'.svn should not be packed").isNull();
-      assertThat(getProjectZipFileEntry(archive, "classes/gugus.txt")).as("classes content should be included by default")
+      assertThat(getProjectZipFileEntry(archive, "classes/gugus.txt"))
+          .as("classes content should be included by default")
           .isNotNull();
       assertThat(getProjectZipFileEntry(archive, "target/classes/gugus.txt"))
           .as("target/classes content should be included by default").isNull();
@@ -117,6 +121,44 @@ class TestIarPackagingMojo {
           .as("target/classesAnother should not be packed by default").isNull();
       assertThat(getProjectZipFileEntry(archive, "target/anythingelse/gugus.txt"))
           .as("target/anythingelse should not be packed by default").isNull();
+    }
+  }
+
+  @Test
+  void archiveUsesPluginVersionWithoutChangingProjectFile() throws Exception {
+    var ivyProjectPath = mojo.project.getBasedir().toPath().resolve(".ivyproject");
+    Files.createDirectories(mojo.outputDirectory);
+
+    var project = load(ivyProjectPath);
+    project.put("version", "140000");
+    store(project, ivyProjectPath);
+
+    mojo.execute();
+
+    try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+      try (var input = archive.getInputStream(getProjectZipFileEntry(archive, ".ivyproject"))) {
+        String builtVersion = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(builtVersion)
+            .contains("version="+ProjectVersion.CURRENT);
+      }
+    }
+  }
+
+  private static Properties load(Path propertyFile){
+    var properties = new Properties();
+    try(var in = Files.newInputStream(propertyFile)) {
+      properties.load(in);
+    } catch (IOException ex) {
+      throw new RuntimeException("Failed to load "+propertyFile, ex);
+    }
+    return properties;
+  }
+
+  private static void store(Properties properties, Path propertyFile) {
+    try(var out = Files.newOutputStream(propertyFile)) {
+      properties.store(out, null);
+    } catch (IOException ex) {
+      throw new RuntimeException("Failed to write properties to "+propertyFile, ex);
     }
   }
 
@@ -131,11 +173,12 @@ class TestIarPackagingMojo {
     String filterCandidate = "private/notPublic.txt";
     assertThat(mojo.project.getBasedir().toPath().resolve(filterCandidate)).exists();
 
-    mojo.iarExcludes = new String[] {"private", "private/**/*"};
+    mojo.iarExcludes = new String[] { "private", "private/**/*", ".ivyproject" };
     mojo.execute();
     try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
       assertThat(getProjectZipFileEntry(archive, "private")).as("Custom exclusion must be filtered").isNull();
       assertThat(getProjectZipFileEntry(archive, filterCandidate)).as("Custom exclusion must be filtered").isNull();
+      assertThat(getProjectZipFileEntry(archive, ".ivyproject")).as("Custom exclusion must be filtered").isNull();
       assertThat(archive.size()).as("archive must contain content").isGreaterThan(40);
     }
   }
@@ -149,7 +192,7 @@ class TestIarPackagingMojo {
     String relativeCustomIncludePath = "target/" + customPomXml.getFileName().toString();
     FileSet fs = new FileSet();
     fs.setIncludes(List.of(relativeCustomIncludePath));
-    mojo.iarFileSets = new FileSet[] {fs};
+    mojo.iarFileSets = new FileSet[] { fs };
 
     mojo.execute();
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {
@@ -168,7 +211,7 @@ class TestIarPackagingMojo {
     FileSet fs = new FileSet();
     fs.setDirectory("target");
     fs.setIncludes(List.of(flatPomXML.getFileName().toString()));
-    mojo.iarFileSets = new FileSet[] {fs};
+    mojo.iarFileSets = new FileSet[] { fs };
 
     mojo.execute();
     try (ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile())) {

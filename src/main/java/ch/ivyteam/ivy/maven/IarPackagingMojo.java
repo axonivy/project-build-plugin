@@ -18,6 +18,7 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.util.AbstractScanner;
 
 import ch.ivyteam.ivy.maven.util.FileSetConverter;
+import ch.ivyteam.ivy.project.model.ProjectVersion;
 
 /**
  * Packs the compiled project as ivy-archive (IAR).
@@ -46,6 +48,7 @@ import ch.ivyteam.ivy.maven.util.FileSetConverter;
 @Mojo(name = IarPackagingMojo.GOAL, threadSafe = true)
 public class IarPackagingMojo extends AbstractMojo {
   public static final String GOAL = "pack-iar";
+  private static final String IVY_PROJECT = ".ivyproject";
 
   public interface Defaults {
     String[] INCLUDES = {"**/*"};
@@ -120,7 +123,7 @@ public class IarPackagingMojo extends AbstractMojo {
   }
 
   private Path getIarFile() {
-    var basedir = outputDirectory != null ? outputDirectory : Path.of(project.getBuild().getDirectory());
+    var basedir = getTargetDir();
     var resultFinalName = finalName != null ? finalName : project.getBuild().getFinalName();
     Objects.requireNonNull(basedir, "basedir is not allowed to be null");
     Objects.requireNonNull(resultFinalName, "finalName is not allowed to be null");
@@ -128,22 +131,42 @@ public class IarPackagingMojo extends AbstractMojo {
     return basedir.resolve(fileName);
   }
 
+  private Path getTargetDir() {
+    return outputDirectory != null ? outputDirectory : Path.of(project.getBuild().getDirectory());
+  }
+
   private void createIvyArchive(File projectDir, Path targetIar) throws MojoExecutionException {
     var archiver = new ZipArchiver();
     archiver.setDestFile(targetIar.toFile());
-    var fsConverter = new FileSetConverter(project.getBasedir().toPath());
-    for (var fs : fsConverter.toPlexusFileSets(iarFileSets)) {
-      fs.setPrefix(Defaults.PREFIX);
-      archiver.addFileSet(fs);
-    }
-    archiver.addFileSet(getIarFs_exceptTarget(projectDir));
-    archiver.addFileSet(getIarTargetFs(projectDir));
-    archiveClasses(projectDir.toPath(), archiver);
     try {
+      var fsConverter = new FileSetConverter(project.getBasedir().toPath());
+      for (var fs : fsConverter.toPlexusFileSets(iarFileSets)) {
+        fs.setPrefix(Defaults.PREFIX);
+        archiver.addFileSet(fs);
+      }
+      archiver.addFileSet(createFs(getIvyProject(projectDir).getParent().toFile())
+          .prefixed(Defaults.PREFIX)
+          .include(new String[] {IVY_PROJECT})
+          .exclude(iarExcludes));
+      archiver.addFileSet(getIarFs_exceptTarget(projectDir));
+      archiver.addFileSet(getIarTargetFs(projectDir));
+      archiveClasses(projectDir.toPath(), archiver);
       archiver.createArchive();
     } catch (ArchiverException | IOException ex) {
       throw new MojoExecutionException("Failed to create IAR: " + targetIar.toAbsolutePath(), ex);
     }
+  }
+
+  private Path getIvyProject(File projectDir) throws MojoExecutionException, IOException {
+    var ivyProject = projectDir.toPath().resolve(IVY_PROJECT);
+    String meta = Files.readString(ivyProject, StandardCharsets.UTF_8);
+    
+    var version = ProjectVersion.CURRENT;
+    var targetMeta = meta.replaceAll("(?m)^version=.*$", "version=" + version);
+    
+    var targetProject = getTargetDir().resolve(IVY_PROJECT);
+    Files.writeString(targetProject, targetMeta, StandardCharsets.UTF_8);
+    return targetProject;
   }
 
   private void archiveClasses(Path projectDir, ZipArchiver archiver) {
@@ -161,7 +184,7 @@ public class IarPackagingMojo extends AbstractMojo {
     return createFs(projectDir)
         .prefixed(Defaults.PREFIX)
         .include(Defaults.INCLUDES)
-        .exclude(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes));
+        .exclude(ArrayUtils.add(ArrayUtils.addAll(Defaults.EXCLUDES, iarExcludes), IVY_PROJECT));
   }
 
   private DefaultFileSet getIarTargetFs(File projectDir) {
