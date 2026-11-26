@@ -116,7 +116,11 @@ public class ValidateProjectMojo extends AbstractMojo {
 
     var version = ProjectVersion.of(projectCtx.project());
     if (!version.isLatest()) {
-      getLog().error("Project is outdated (version: " + version + "). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
+      if (version.isRunnable()) {
+        getLog().warn("Project is runnable (version: " + version + ") but not the latest version: " + ProjectVersion.CURRENT);
+      } else {
+        getLog().error("Project is outdated (version: " + version + "). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
+      }
       return;
     }
 
