@@ -363,6 +363,18 @@
                     <filter token="version" value="${pluginVersion.majorVersion}.${pluginVersion.minorVersion}" />
                   </filterset>
                 </copy>
+                <loadresource property="ivyApiDocVersion">
+                  <string value="${ivy.api}" />
+                  <filterchain>
+                    <tokenfilter>
+                      <replaceregex pattern="-SNAPSHOT$" replace="" />
+                    </tokenfilter>
+                  </filterchain>
+                </loadresource>
+                <replace dir="${project.build.directory}/site">
+                  <include name="**/*.html" />
+                  <replacefilter token="@ivy.api@" value="${ivyApiDocVersion}" />
+                </replace>
               </target>
             </configuration>
           </execution>
