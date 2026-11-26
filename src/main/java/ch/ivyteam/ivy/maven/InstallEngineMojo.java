@@ -54,9 +54,9 @@ import net.lingala.zip4j.ZipFile;
  * </p>
  *
  * <pre>
- * mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:installEngine
+ * mvn com.axonivy.ivy.ci:project-build-plugin:installEngine
  * -Divy.engine.directory=c:/axonviy/engine
- * -Divy.engine.version=13.1.0
+ * -Divy.engine.version=@ivy.api@
  * -Divy.engine.os.arch=Linux_x64
  * </pre>
  *
