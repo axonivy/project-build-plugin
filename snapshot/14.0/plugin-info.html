@@ -75,14 +75,14 @@
 <p>Command line invocation is supported.</p>
 <p>Local engine (using DIRECTORY deploy method):</p>
 <pre>
-mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
+mvn com.axonivy.ivy.ci:project-build-plugin:deploy-to-engine
 -Divy.deploy.file=myProject.iar
 -Divy.deploy.engine.dir=c:/axonivy/engine
 -Divy.deploy.engine.app=Portal
 </pre>
 <p>Remote Engine (using HTTP deploy method):</p>
 <pre>
-mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:deploy-to-engine
+mvn com.axonivy.ivy.ci:project-build-plugin:deploy-to-engine
 -Divy.deploy.file=myProject.iar
 -Divy.deploy.method=HTTP
 -Divy.deploy.server.id=AxonIvyEngine
@@ -138,9 +138,9 @@ Call <code>mvn ivy:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display
 <td><a href="./installEngine-mojo.html">ivy:installEngine</a></td>
 <td>Downloads an Axon Ivy Engine from the web if it does not yet exists in the correct version.
 <p>Command line invocation is supported. E.g.</p>
-<pre>mvn com.axonivy.ivy.ci:project-build-plugin:13.1.0:installEngine
+<pre>mvn com.axonivy.ivy.ci:project-build-plugin:installEngine
 -Divy.engine.directory=c:/axonviy/engine
--Divy.engine.version=13.1.0
+-Divy.engine.version=14.0.2
 -Divy.engine.os.arch=Linux_x64
 </pre></td></tr>
 <tr class="a">
