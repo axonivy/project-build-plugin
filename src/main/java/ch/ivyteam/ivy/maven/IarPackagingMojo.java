@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.model.FileSet;
@@ -159,10 +161,18 @@ public class IarPackagingMojo extends AbstractMojo {
 
   private Path getIvyProject(File projectDir) throws MojoExecutionException, IOException {
     var ivyProject = projectDir.toPath().resolve(IVY_PROJECT);
-    String meta = Files.readString(ivyProject, StandardCharsets.UTF_8);
+    String meta;
+    try{
+      meta = Files.readString(ivyProject, StandardCharsets.UTF_8);
+    } catch (IOException ex) {
+      meta = "project="+project.getArtifactId()+"\n";
+    }
     
     var version = ProjectVersion.CURRENT;
-    var targetMeta = meta.replaceAll("(?m)^version=.*$", "version=" + version);
+    var versionLess = meta.lines()
+      .filter(v -> !v.startsWith("version="));
+    var targetMeta = Stream.concat(versionLess, Stream.of("version="+version))
+      .collect(Collectors.joining("\n"));
     
     var targetProject = getTargetDir().resolve(IVY_PROJECT);
     Files.writeString(targetProject, targetMeta, StandardCharsets.UTF_8);
