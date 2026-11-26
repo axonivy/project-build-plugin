@@ -152,7 +152,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
   @Override
   public void execute() throws MojoExecutionException {
-    getLog().info("Provide engine for ivy version " + ivyVersion);
+    getLog().info("Provide engine for ivy version " + getIvyVersion());
     getLog().info("Engine download isLocked state: " + LOCK.isLocked());
     LOCK.lock();
     try {
@@ -186,14 +186,14 @@ public class InstallEngineMojo extends AbstractEngineMojo {
   }
 
   private void handleNoInstalledEngine() throws MojoExecutionException {
-    getLog().info("No installed engine found for version '" + ivyVersion + "'");
+    getLog().info("No installed engine found for version '" + getIvyVersion() + "'");
     boolean cleanEngineDir = false;
     downloadAndInstallEngine(cleanEngineDir);
   }
 
   private void handleWrongIvyVersion(ArtifactVersion installedEngineVersion) throws MojoExecutionException {
     getLog().info("Installed engine in '" + getRawEngineDirectory() + "' has version '"
-        + installedEngineVersion + "' instead of expected '" + ivyVersion + "'");
+        + installedEngineVersion + "' instead of expected '" + getIvyVersion() + "'");
     boolean cleanEngineDir = installedEngineVersion != null;
     downloadAndInstallEngine(cleanEngineDir);
   }
@@ -236,7 +236,7 @@ public class InstallEngineMojo extends AbstractEngineMojo {
       }
       if (!getIvyVersionRange().containsVersion(installedEngineVersion)) {
         throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
-            + "Downloaded version is '" + installedEngineVersion + "' but expecting '" + ivyVersion
+            + installedEngineVersion + "' but expecting '" + getIvyVersion()
             + "'.");
       }
     } else {
@@ -247,12 +247,12 @@ public class InstallEngineMojo extends AbstractEngineMojo {
 
   public EngineDownloader getDownloader() throws MojoExecutionException {
     if (downloadUsingMaven) {
-      return new MavenEngineDownloader(getLog(), ivyVersion, osArchitecture, pluginRepositories,
+      return new MavenEngineDownloader(getLog(), getIvyVersion(), osArchitecture, pluginRepositories,
           repositorySystem, repositorySession);
     }
 
     ProxyInfoProvider proxies = wagonManager::getProxy;
-    return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, ivyVersion,
+    return new URLEngineDownloader(engineDownloadUrl, engineListPageUrl, osArchitecture, getIvyVersion(),
         getIvyVersionRange(), getLog(), proxies);
   }
 

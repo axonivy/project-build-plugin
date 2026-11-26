@@ -19,12 +19,14 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.EngineVersionEvaluator;
@@ -42,7 +44,6 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * requirements
    */
   protected static final String MINIMAL_COMPATIBLE_VERSION = "14.0.1";
-  protected static final String DEFAULT_VERSION = "14.0.1";
 
   protected static final String ENGINE_DIRECTORY_PROPERTY = "ivy.engine.directory";
 
@@ -77,12 +78,15 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
    * <li>"<code>(6.0.0,]</code>" means ivyVersion &gt; 6.0.0</li>
    * </ul>
    */
-  @Parameter(property = "ivy.engine.version", defaultValue = DEFAULT_VERSION, required = true)
-  protected String ivyVersion;
+  @Parameter(property = "ivy.engine.version")
+  String ivyVersion;
 
   /** If set to true it will download the latest available minor version */
   @Parameter(property = "ivy.engine.version.latest.minor", defaultValue = "false")
   Boolean useLatestMinor;
+
+  @Parameter(defaultValue = "${plugin}", required = true, readonly = true)
+  PluginDescriptor plugin;
 
   /** testing only: avoid restriction to minimal version! */
   boolean restrictVersionToMinimalCompatible = true;
@@ -147,14 +151,15 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
   }
 
   protected final VersionRange getIvyVersionRange() throws MojoExecutionException {
+    String version = getIvyVersion();
     try {
-      VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(ivyVersion);
+      VersionRange ivyVersionRange = VersionRange.createFromVersionSpec(version);
       if (ivyVersionRange.getRecommendedVersion() != null) {
-        ivyVersionRange = VersionRange.createFromVersionSpec("[" + ivyVersion + "]");
+        ivyVersionRange = VersionRange.createFromVersionSpec("[" + version + "]");
       }
 
       if (useLatestMinor) {
-        ivyVersionRange = new LatestMinorVersionRange(DEFAULT_VERSION).get();
+        ivyVersionRange = new LatestMinorVersionRange(getDefaultVersion()).get();
       }
 
       if (restrictVersionToMinimalCompatible) {
@@ -162,7 +167,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
       }
       return ivyVersionRange;
     } catch (InvalidVersionSpecificationException ex) {
-      throw new MojoExecutionException("Invalid ivyVersion '" + ivyVersion + "'.", ex);
+      throw new MojoExecutionException("Invalid ivyVersion '" + version + "'.", ex);
     }
   }
 
@@ -177,6 +182,20 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
               + " '" + MINIMAL_COMPATIBLE_VERSION + "'.");
     }
     return restrictedIvyVersionRange;
+  }
+
+  protected final String getDefaultVersion() {
+    return getPluginVersion();
+  }
+
+  private String getPluginVersion() {
+    return PluginInfo.versionOf(plugin)
+      .map(v -> ""+v.major()+"."+v.minor()+"."+v.patch())
+      .orElse(MINIMAL_COMPATIBLE_VERSION);
+  }
+
+  protected String getIvyVersion() {
+    return Optional.ofNullable(ivyVersion).orElse(getPluginVersion());
   }
 
 }
