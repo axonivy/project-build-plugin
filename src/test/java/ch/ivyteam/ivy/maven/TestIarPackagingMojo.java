@@ -125,7 +125,7 @@ class TestIarPackagingMojo {
   }
 
   @Test
-  void archiveUsesPluginVersionWithoutChangingProjectFile() throws Exception {
+  void projectVersion_fingerprintFromIvyRuntime() throws Exception {
     var ivyProjectPath = mojo.project.getBasedir().toPath().resolve(".ivyproject");
     Files.createDirectories(mojo.outputDirectory);
 
@@ -140,6 +140,44 @@ class TestIarPackagingMojo {
         String builtVersion = new String(input.readAllBytes(), StandardCharsets.UTF_8);
         assertThat(builtVersion)
             .contains("version="+ProjectVersion.CURRENT);
+      }
+    }
+  }
+
+  @Test
+  void projectVersion_fringerprintMissing() throws Exception {
+    var ivyProjectPath = mojo.project.getBasedir().toPath().resolve(".ivyproject");
+    Files.createDirectories(mojo.outputDirectory);
+
+    var project = load(ivyProjectPath);
+    project.remove("version");
+    store(project, ivyProjectPath);
+
+    mojo.execute();
+
+    try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+      try (var input = archive.getInputStream(getProjectZipFileEntry(archive, ".ivyproject"))) {
+        String builtVersion = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(builtVersion)
+            .contains("version=" + ProjectVersion.CURRENT);
+      }
+    }
+  }
+
+  @Test
+  void projectVersion_noMeta() throws Exception {
+    var ivyProjectPath = mojo.project.getBasedir().toPath().resolve(".ivyproject");
+    Files.createDirectories(mojo.outputDirectory);
+    Files.deleteIfExists(ivyProjectPath);
+
+    mojo.execute();
+
+    try (var archive = new ZipFile(mojo.project.getArtifact().getFile())) {
+      try (var input = archive.getInputStream(getProjectZipFileEntry(archive, ".ivyproject"))) {
+        String builtVersion = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(builtVersion)
+          .contains("project=" + mojo.project.getArtifactId())
+          .contains("version=" + ProjectVersion.CURRENT);
       }
     }
   }
