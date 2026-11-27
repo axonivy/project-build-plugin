@@ -72,7 +72,7 @@ pipeline {
       steps {
         script {
           docker.build('maven').inside {
-            def publishingUri = "https://nexus.axonivy.com/#browse/browse:maven-releases"
+            def publishingUri = "https://nexus.axonivy.com/#browse/browse:maven-releases:com%2Faxonivy%2Fivy%2Fci%2Fproject-build-plugin%2F${env.RELEASE_VERSION}"
             currentBuild.description = "<a href='${publishingUri}'>${env.RELEASE_VERSION}</a>"
 
             def targetBranch = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
