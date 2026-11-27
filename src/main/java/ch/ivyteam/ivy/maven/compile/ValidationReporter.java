@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
+import ch.ivyteam.ivy.Advisor;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Message;
 import ch.ivyteam.ivy.project.validation.ProjectValidatorResult.Severity;
 
@@ -53,6 +54,8 @@ class ValidationReporter {
     logger.accept("  Total:     " + total());
     logger.accept("  Duration:  " + durationMs + " ms");
     logSkipped(logger, skippedValidators);
+    logger.accept("  Validation Codes: "
+        + Advisor.getAdvisor().getDocBaseUrl() + "/en/reference/validation/index.html");
     logger.accept(RULE);
   }
 

@@ -3,7 +3,10 @@ if (!logFile.isFile()) {
   throw new FileNotFoundException("project-validation log not found: ${logFile}")
 }
 
-def normalizedLog = logFile.getText('UTF-8').replace('\r\n', '\n').replaceAll('\\u001B\\[[;\\d]*m', '')
+def normalizedLog = logFile.getText('UTF-8')
+    .replace('\r\n', '\n')
+    .replaceAll('\\u001B\\[[;\\d]*m', '')
+    .replaceAll(" \\[ivy\\.[a-z0-9.-]+]", '')
 def expectedBlocks = [
   '''
   [WARNING] config/users.yaml:[Alex] User 'Alex' is also defined in project 'main.project'.

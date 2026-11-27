@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import ch.ivyteam.ivy.Advisor;
 import ch.ivyteam.ivy.maven.extension.ProjectExtension;
 import ch.ivyteam.ivy.maven.log.LogCollector;
 import ch.ivyteam.ivy.project.model.ProjectVersion;
@@ -138,7 +139,9 @@ class TestValidateProjectMojo {
         .contains("Errors:    ")
         .contains("Warnings:  7")
         .contains("Info:      0")
-        .contains("Total:     ");
+        .contains("Total:     ")
+        .contains("Validation Codes: "
+            + Advisor.getAdvisor().getDocBaseUrl() + "/en/reference/validation/index.html");
     assertThat(log.getWarnings().toString()).doesNotContain("Project validation summary");
     assertThat(log.getInfos().toString()).doesNotContain("Project validation summary");
   }
