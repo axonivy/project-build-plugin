@@ -107,6 +107,17 @@ Or set it directly from the command line as a comma-separated list, without touc
 <pre>mvn install -Divy.validation.excludeValidators=role,webservice
 </pre><br /><strong>User Property</strong>: <code>ivy.validation.excludeValidators</code></td></tr>
 <tr class="a">
+<td><a href="#failOnError"><code>&lt;failOnError&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>14.0.2</code></td>
+<td>Set to <code>true</code> to fail the build if project validation reports errors.<br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.validation.failOnError</code></td></tr>
+<tr class="b">
+<td><a href="#failOnWarning"><code>&lt;failOnWarning&gt;</code></a></td>
+<td><code>boolean</code></td>
+<td><code>14.0.2</code></td>
+<td>Set to <code>true</code> to fail the build if project validation reports warnings,<br />
+<strong>See also:</strong> failOnError<!-- no javadoc sites associated --><br /><strong>Default</strong>: <code>false</code><br /><strong>User Property</strong>: <code>ivy.validation.failOnWarning</code></td></tr>
+<tr class="a">
 <td><a href="#skipProjectValidation"><code>&lt;skipProjectValidation&gt;</code></a></td>
 <td><code>boolean</code></td>
 <td><code>14.0.0</code></td>
@@ -148,7 +159,24 @@ Or set it directly from the command line as a comma-separated list, without touc
 <li><strong>Type</strong>: <code>java.util.List&lt;java.lang.String&gt;</code></li>
 <li><strong>Since</strong>: <code>14.0.0</code></li>
 <li><strong>Required</strong>: <code>No</code></li>
-<li><strong>User Property</strong>: <code>ivy.validation.excludeValidators</code></li></ul><hr /></section><a id="skipProjectValidation"></a><section><a id="a.3CskipProjectValidation.3E"></a>
+<li><strong>User Property</strong>: <code>ivy.validation.excludeValidators</code></li></ul><hr /></section><a id="failOnError"></a><section><a id="a.3CfailOnError.3E"></a>
+<h3>&lt;failOnError&gt;</h3>
+<div>Set to <code>true</code> to fail the build if project validation reports errors.</div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Since</strong>: <code>14.0.2</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.validation.failOnError</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="failOnWarning"></a><section><a id="a.3CfailOnWarning.3E"></a>
+<h3>&lt;failOnWarning&gt;</h3>
+<div>Set to <code>true</code> to fail the build if project validation reports warnings,<br />
+<strong>See also:</strong> failOnError<!-- no javadoc sites associated --></div>
+<ul>
+<li><strong>Type</strong>: <code>boolean</code></li>
+<li><strong>Since</strong>: <code>14.0.2</code></li>
+<li><strong>Required</strong>: <code>No</code></li>
+<li><strong>User Property</strong>: <code>ivy.validation.failOnWarning</code></li>
+<li><strong>Default</strong>: <code>false</code></li></ul><hr /></section><a id="skipProjectValidation"></a><section><a id="a.3CskipProjectValidation.3E"></a>
 <h3>&lt;skipProjectValidation&gt;</h3>
 <div>Set to <code>true</code> to completely skip the project validation.</div>
 <ul>
