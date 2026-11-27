@@ -16,6 +16,7 @@
 
 package ch.ivyteam.ivy.maven;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.codehaus.plexus.components.io.resources.PlexusIoResource;
+import org.codehaus.plexus.components.io.resources.ResourceFactory;
 import org.codehaus.plexus.util.AbstractScanner;
 
 import ch.ivyteam.ivy.maven.util.FileSetConverter;
@@ -146,10 +149,8 @@ public class IarPackagingMojo extends AbstractMojo {
         fs.setPrefix(Defaults.PREFIX);
         archiver.addFileSet(fs);
       }
-      archiver.addFileSet(createFs(getIvyProject(projectDir).getParent().toFile())
-          .prefixed(Defaults.PREFIX)
-          .include(new String[] {IVY_PROJECT})
-          .exclude(iarExcludes));
+      var ivyProjectResource = getUpdateIvyProject(projectDir);
+      archiver.addResource(ivyProjectResource, Defaults.PREFIX + IVY_PROJECT, archiver.getFileMode());
       archiver.addFileSet(getIarFs_exceptTarget(projectDir));
       archiver.addFileSet(getIarTargetFs(projectDir));
       archiveClasses(projectDir.toPath(), archiver);
@@ -159,8 +160,25 @@ public class IarPackagingMojo extends AbstractMojo {
     }
   }
 
-  private Path getIvyProject(File projectDir) throws MojoExecutionException, IOException {
-    var ivyProject = projectDir.toPath().resolve(IVY_PROJECT);
+  /**
+   * @return Virtual .ivyproject with updated version. 
+   * Never on disk; to allow standalone CLI usage of pack-iar mojo. 
+   * Without creating any other file appart from the .iar in the target dir.
+   */
+  private PlexusIoResource getUpdateIvyProject(File projectDir) throws IOException {
+    var sourceIvyProject = projectDir.toPath().resolve(IVY_PROJECT);
+    var ivyProjectMeta = readUpdateVersion(sourceIvyProject);
+    var content = ivyProjectMeta.getBytes(StandardCharsets.UTF_8);
+    // Plexus uses the backing file for attributes; the supplied content is authoritative.
+    var ivyProjectResource = ResourceFactory.createResource(
+        sourceIvyProject.toFile().getCanonicalFile(),
+        IVY_PROJECT,
+        () -> new ByteArrayInputStream(content),
+        (_, input) -> input);
+    return ivyProjectResource;
+  }
+
+  private String readUpdateVersion(Path ivyProject) throws IOException {
     String meta;
     try{
       meta = Files.readString(ivyProject, StandardCharsets.UTF_8);
@@ -173,10 +191,7 @@ public class IarPackagingMojo extends AbstractMojo {
       .filter(v -> !v.startsWith("version="));
     var targetMeta = Stream.concat(versionLess, Stream.of("version="+version))
       .collect(Collectors.joining("\n"));
-    
-    var targetProject = getTargetDir().resolve(IVY_PROJECT);
-    Files.writeString(targetProject, targetMeta, StandardCharsets.UTF_8);
-    return targetProject;
+    return targetMeta;
   }
 
   private void archiveClasses(Path projectDir, ZipArchiver archiver) {
