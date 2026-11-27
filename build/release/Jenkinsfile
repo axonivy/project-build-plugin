@@ -25,6 +25,9 @@ pipeline {
           }
           assertReleaseVersionFormat(version)
           assertReleaseVersionMatchesProjectVersion(version)
+          if (env.BRANCH_NAME ==~ /^release\/\d+\.\d+$/) {
+            assertReleasePreparations(version)
+          }
 
           env.RELEASE_VERSION = params.qualifier ? "${version}-${params.qualifier}" : version
           currentBuild.description = params.dryRun ? "Dry run (${env.RELEASE_VERSION})" : env.RELEASE_VERSION
@@ -125,6 +128,44 @@ def assertReleaseVersionMatchesProjectVersion(def version) {
   def sourceVersion = evaluateProjectVersion()
   if (version != sourceVersion) {
     error "Requested release ${version}, but pom.xml resolves to ${sourceVersion}."
+  }
+}
+
+def assertReleasePreparations(def version) {
+  def branch = env.BRANCH_NAME =~ /^release\/(\d+)\.(\d+)$/
+  if (!branch.matches()) {
+    error "Expected a release branch named release/<major>.<minor>, got '${env.BRANCH_NAME}'."
+  }
+
+  def releaseParts = version.tokenize('.').collect { it as int }
+  def branchMajor = branch[0][1] as int
+  def branchMinor = branch[0][2] as int
+  if (releaseParts[0] != branchMajor || releaseParts[1] != branchMinor) {
+    error "Release version ${version} does not match release branch ${env.BRANCH_NAME}."
+  }
+
+  def engineMojo = readFile('src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java')
+  def minimumEngineMatch = engineMojo =~ /MINIMAL_COMPATIBLE_VERSION\s*=\s*"([^"]+)"/
+  if (!minimumEngineMatch.find()) {
+    error 'Could not find MINIMAL_COMPATIBLE_VERSION in AbstractEngineMojo.'
+  }
+  def minimumEngineVersion = minimumEngineMatch.group(1)
+  if (!(minimumEngineVersion ==~ /\d+\.\d+\.\d+/)) {
+    error "Invalid MINIMAL_COMPATIBLE_VERSION '${minimumEngineVersion}'."
+  }
+  def minimumEngineParts = minimumEngineVersion.tokenize('.').collect { it as int }
+  if (minimumEngineParts.size() != 3
+      || minimumEngineParts[0] != branchMajor
+      || minimumEngineParts[1] != branchMinor
+      || minimumEngineParts[2] > releaseParts[2]) {
+    error "Minimum compatible engine ${minimumEngineVersion} must be on release line ${branchMajor}.${branchMinor} and not newer than ${version}."
+  }
+
+  def projectPom = readFile('pom.xml')
+  def reportedEngineMatch = projectPom =~ /(?s)<requirements>.*?<name>ivy engine<\/name>\s*<value>([^<]+)<\/value>/
+  def reportedVersion = reportedEngineMatch.find() ? reportedEngineMatch.group(1).trim() : 'missing'
+  if (reportedVersion != "${branchMajor}.${branchMinor}") {
+    error "Reported ivy engine requirement ${reportedVersion} must match release line ${branchMajor}.${branchMinor}."
   }
 }
 

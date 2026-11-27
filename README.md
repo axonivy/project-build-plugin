@@ -13,11 +13,12 @@ Maven plugin for the automated building of Axon Ivy Projects.
 
 ### Preparation
 
-- Update the default engine version in:
-  - [pom.xml](pom.xml#L676)
-- Raise the minimum engine version when introducing a new minor or major version:
-  - [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L44)
+- The following version preparation is only needed when introducing a new major or minor release line. Patch releases on an existing line keep its current engine compatibility floor:
+  - Set the minimum compatible engine version in [AbstractEngineMojo](src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java#L46).
+  - Set the reported engine requirement in [pom.xml](pom.xml#L531) to the same major and minor version.
+  - The default engine version is derived from the plugin version and needs no manual update.
 - Create a release branch if it does not exist yet (e.g. `release/13.2`).
+- The release pipeline checks that the project version, minimum compatible engine version, and reported engine requirement match the release branch.
 
 ### Release
 

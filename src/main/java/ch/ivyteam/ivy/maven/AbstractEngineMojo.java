@@ -40,8 +40,8 @@ import ch.ivyteam.ivy.maven.engine.download.LatestMinorVersionRange;
  */
 public abstract class AbstractEngineMojo extends AbstractMojo {
   /**
-   * keep synch with pom.xml &gt; reporting &gt; maven-plugin-plugin &gt;
-   * requirements
+   * Keep the major/minor in sync with pom.xml &gt; reporting &gt;
+   * maven-plugin-plugin &gt; requirements.
    */
   protected static final String MINIMAL_COMPATIBLE_VERSION = "14.0.1";
 
@@ -91,12 +91,14 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
   /** testing only: avoid restriction to minimal version! */
   boolean restrictVersionToMinimalCompatible = true;
 
-  public AbstractEngineMojo() {}
+  public AbstractEngineMojo() {
+  }
 
   /**
    * <b style="color:red">Caution</b>: normally you should favor
    * {@link #identifyAndGetEngineDirectory()}. Otherwise the returned
    * 'directory' could be yet invalid!
+   * 
    * @return the raw engine directory
    */
   protected final Path getRawEngineDirectory() {
@@ -190,8 +192,8 @@ public abstract class AbstractEngineMojo extends AbstractMojo {
 
   private String getPluginVersion() {
     return PluginInfo.versionOf(plugin)
-      .map(v -> ""+v.major()+"."+v.minor()+"."+v.patch())
-      .orElse(MINIMAL_COMPATIBLE_VERSION);
+        .map(v -> "" + v.major() + "." + v.minor() + "." + v.patch())
+        .orElse(MINIMAL_COMPATIBLE_VERSION);
   }
 
   protected String getIvyVersion() {
