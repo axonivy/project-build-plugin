@@ -1,0 +1,103 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/14.0/project/process.json",
+  "id" : "1A2095AE32D1E043",
+  "config" : {
+    "data" : "validation.TestIvyScriptData"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f3" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 672, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "Script",
+      "name" : "Ivy Environment",
+      "config" : {
+        "output" : {
+          "code" : [
+            "// test all ivy environment variables ",
+            "ivy.case.toString();",
+            "ivy.cal.toString();",
+            "ivy.casemap.toString();",
+            "ivy.cm.toString();",
+            "ivy.cms.toString();",
+            "ivy.datacache.toString();",
+            "ivy.extensions.toString();",
+            "ivy.html.toString();",
+            "ivy.log.toString();",
+            "ivy.macro.toString();",
+            "ivy.persistence.toString();",
+            "ivy.persistence.Test.toString();",
+            "ivy.repo.toString();",
+            "ivy.request.toString();",
+            "ivy.response.toString();",
+            "ivy.rest.toString();",
+            "ivy.security.toString();",
+            "ivy.session.toString();",
+            "ivy.task.toString();",
+            "ivy.var.toString();",
+            "ivy.var.Test.toString();",
+            "ivy.wf.toString();"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f4", "to" : "f5", "color" : "default" }
+      ]
+    }, {
+      "id" : "f5",
+      "type" : "Script",
+      "name" : "Non Public API Application",
+      "config" : {
+        "output" : {
+          "code" : [
+            "//import ch.ivyteam.ivy.application.app.Application;",
+            "//Application app = Application.current();"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 384, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f7", "color" : "default" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "Script",
+      "name" : "Date and Time Operations",
+      "config" : {
+        "output" : {
+          "code" : [
+            "Duration duration = in.until - new DateTime();",
+            "Date date = new Date() - '1m';"
+
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 384, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f8", "to" : "f1", "color" : "default" }
+      ]
+    } ]
+}
