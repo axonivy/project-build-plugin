@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.maven.compile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.plugin.MojoFailureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,8 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void validate() {
+  void validate() throws MojoFailureException {
+    assertThat(mojo.failOnError).isFalse();
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -58,7 +61,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void validate_outdated() throws IOException {
+  void validate_outdated() throws IOException, MojoFailureException {
     var dir = mojo.project.getBasedir().toPath();
     Files.createDirectories(dir);
     var file = dir.resolve(".ivyproject");
@@ -73,11 +76,44 @@ class TestValidateProjectMojo {
     mojo.execute();
     assertThat(log.getErrors().toString())
         .contains("Project is outdated (version: 140013). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
+
+    mojo.failOnWarning = true;
+    mojo.execute();
+
+    mojo.failOnError = true;
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("Project is outdated");
   }
 
   @Test
-  void skip_completelySkipsValidation() {
+  void validate_runnableButNotLatest_failsOnlyWhenFailOnWarningIsEnabled() throws IOException, MojoFailureException {
+    var dir = mojo.project.getBasedir().toPath();
+    Files.createDirectories(dir);
+    Files.writeString(dir.resolve(".ivyproject"), """
+      name=validation
+      version=140099
+      """);
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    mojo.failOnError = true;
+    mojo.execute();
+    assertThat(log.getWarnings().toString())
+        .contains("Project is runnable (version: 140099) but not the latest version: " + ProjectVersion.CURRENT);
+    assertThat(log.getErrors()).isEmpty();
+
+    mojo.failOnWarning = true;
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("Project is runnable (version: 140099)");
+  }
+
+  @Test
+  void skip_completelySkipsValidation() throws MojoFailureException {
     mojo.skipProjectValidation = true;
+    mojo.failOnError = true;
+    mojo.failOnWarning = true;
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -89,8 +125,10 @@ class TestValidateProjectMojo {
 
   @SuppressWarnings("removal")
   @Test
-  void deprecatedSkipScriptValidation_stillSkipsEntireValidation() {
+  void deprecatedSkipScriptValidation_stillSkipsEntireValidation() throws MojoFailureException {
     mojo.skipScriptValidation = true;
+    mojo.failOnError = true;
+    mojo.failOnWarning = true;
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -102,7 +140,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void excludedValidators_excludesConfiguredValidatorByKeyword() {
+  void excludedValidators_excludesConfiguredValidatorByKeyword() throws MojoFailureException {
     mojo.excludeValidators = List.of("Role");
     var log = new LogCollector();
     mojo.setLog(log);
@@ -116,7 +154,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void excludedValidators_isCaseInsensitiveAndMatchesSimpleName() {
+  void excludedValidators_isCaseInsensitiveAndMatchesSimpleName() throws MojoFailureException {
     mojo.excludeValidators = List.of("role", "webServiceClient");
     var log = new LogCollector();
     mojo.setLog(log);
@@ -129,7 +167,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void summary_logsAtErrorLevel_whenErrorsArePresent() {
+  void summary_logsAtErrorLevel_whenErrorsArePresent() throws MojoFailureException {
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -147,7 +185,8 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void summary_logsAtWarnLevel_whenOnlyWarningsArePresent() {
+  void summary_logsAtWarnLevel_whenOnlyWarningsArePresent() throws MojoFailureException {
+    mojo.failOnError = true;
     mojo.excludeValidators = List.of("role", "variable", "dataclass", "process", "form", "database", "xhtml");
     var log = new LogCollector();
     mojo.setLog(log);
@@ -163,7 +202,9 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void summary_logsAtInfoLevel_whenNoErrorsOrWarningsArePresent() {
+  void summary_logsAtInfoLevel_whenNoErrorsOrWarningsArePresent() throws MojoFailureException {
+    mojo.failOnError = true;
+    mojo.failOnWarning = true;
     mojo.excludeValidators = List.of(
         "role", "database", "form", "dataclass", "process",
         "restclient", "webserviceclient", "variable", "user", "xhtml");
@@ -193,7 +234,7 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void summary_isPrecededByPlainInfoLine_soJenkinsDoesNotMisattributeTheFailure() {
+  void summary_isPrecededByPlainInfoLine_soJenkinsDoesNotMisattributeTheFailure() throws MojoFailureException {
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
@@ -204,12 +245,98 @@ class TestValidateProjectMojo {
   }
 
   @Test
-  void summary_doesNotListSkippedValidators_whenNoneAreExcluded() {
+  void summary_doesNotListSkippedValidators_whenNoneAreExcluded() throws MojoFailureException {
     var log = new LogCollector();
     mojo.setLog(log);
     mojo.execute();
 
     assertThat(log.getErrors().toString()).doesNotContain("Skipped validators");
+  }
+
+  @Test
+  void failOnError_failsWhenEnabled() {
+    mojo.failOnError = true;
+    mojo.excludeValidators = List.of("xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("validation errors");
+    assertThat(log.getErrors()).isNotEmpty();
+  }
+
+  @Test
+  void failOnWarning_failsWithoutErrors() {
+    mojo.failOnWarning = true;
+    mojo.excludeValidators = List.of("role", "variable", "dataclass", "process", "form", "database", "xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("validation warnings");
+    assertThat(log.getErrors()).isEmpty();
+    assertThat(log.getWarnings()).isNotEmpty();
+  }
+
+  @Test
+  void failOnWarning_doesNotFailForErrorsOnly() throws MojoFailureException {
+    mojo.failOnError = false;
+    mojo.failOnWarning = true;
+    mojo.excludeValidators = List.of(
+        "database", "form", "dataclass", "process", "restclient",
+        "webserviceclient", "variable", "user", "xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    mojo.execute();
+
+    assertThat(log.getWarnings()).isEmpty();
+    assertThat(log.getErrors()).isNotEmpty();
+  }
+
+  @Test
+  void failOnErrorAndWarning_failsWithBothEnabled() {
+    mojo.failOnError = true;
+    mojo.failOnWarning = true;
+    mojo.excludeValidators = List.of("xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("validation errors");
+    assertThat(log.getErrors()).isNotEmpty();
+    assertThat(log.getWarnings()).isNotEmpty();
+  }
+
+  @Test
+  void failOnError_doesNotFailByDefault() throws MojoFailureException {
+    mojo.excludeValidators = List.of("xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    mojo.execute();
+
+    assertThat(mojo.failOnError).isFalse();
+    assertThat(log.getErrors()).isNotEmpty();
+  }
+
+  @Test
+  void failOnWarning_failsWhenErrorsAreIgnored() {
+    mojo.failOnError = false;
+    mojo.failOnWarning = true;
+    mojo.excludeValidators = List.of("xhtml");
+    var log = new LogCollector();
+    mojo.setLog(log);
+
+    assertThatThrownBy(mojo::execute)
+        .isInstanceOf(MojoFailureException.class)
+        .hasMessageContaining("validation warnings");
+
+    assertThat(log.getErrors()).isNotEmpty();
+    assertThat(log.getWarnings()).isNotEmpty();
   }
 
 }

@@ -91,6 +91,10 @@ class ValidationReporter {
     return count(Severity.ERROR) > 0;
   }
 
+  boolean hasWarnings() {
+    return count(Severity.WARN) > 0;
+  }
+
   private int count(Severity severity) {
     return counts.getOrDefault(severity, 0);
   }

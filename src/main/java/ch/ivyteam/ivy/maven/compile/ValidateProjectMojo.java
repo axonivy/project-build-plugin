@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -32,6 +33,23 @@ public class ValidateProjectMojo extends AbstractMojo {
    */
   @Parameter(property = "ivy.validation.skip", defaultValue = "false")
   boolean skipProjectValidation;
+
+  /**
+   * Set to <code>true</code> to fail the build if project validation reports errors. 
+   * 
+   * @since 14.0.2
+   */
+  @Parameter(property = "ivy.validation.failOnError", defaultValue = "false")
+  boolean failOnError;
+
+  /**
+   * Set to <code>true</code> to fail the build if project validation reports warnings,
+   *
+   * @see #failOnError
+   * @since 14.0.2
+   */
+  @Parameter(property = "ivy.validation.failOnWarning", defaultValue = "false")
+  boolean failOnWarning;
 
   /**
    * Set to <code>false</code> to perform the validation of ivyScript code
@@ -93,7 +111,7 @@ public class ValidateProjectMojo extends AbstractMojo {
   ProjectBuilder projectBuilder;
 
   @Override
-  public void execute() {
+  public void execute() throws MojoFailureException {
     if (isSkip()) {
       getLog().info("Skipping ivy project validation");
       return;
@@ -110,16 +128,24 @@ public class ValidateProjectMojo extends AbstractMojo {
     return skipProjectValidation;
   }
 
-  private void validateProject() {
+  private void validateProject() throws MojoFailureException {
     var start = System.currentTimeMillis();
     var projectCtx = new ProjectContextFactory(project, session, projectBuilder, getLog()).create();
 
     var version = ProjectVersion.of(projectCtx.project());
     if (!version.isLatest()) {
       if (version.isRunnable()) {
-        getLog().warn("Project is runnable (version: " + version + ") but not the latest version: " + ProjectVersion.CURRENT);
+        var message = "Project is runnable (version: " + version + ") but not the latest version: " + ProjectVersion.CURRENT;
+        getLog().warn(message);
+        if (failOnWarning) {
+          throw new MojoFailureException(message);
+        }
       } else {
-        getLog().error("Project is outdated (version: " + version + "). Convert it to the current version (" + ProjectVersion.CURRENT + ").");
+        var message = "Project is outdated (version: " + version + "). Convert it to the current version (" + ProjectVersion.CURRENT + ").";
+        getLog().error(message);
+        if (failOnError) {
+          throw new MojoFailureException(message);
+        }
       }
       return;
     }
@@ -133,6 +159,12 @@ public class ValidateProjectMojo extends AbstractMojo {
       validator.validate(ctx).messages().forEach(reporter::report);
     }
     reporter.logSummary(project.getName(), System.currentTimeMillis() - start, filter.skipped());
+    if (failOnError && reporter.hasErrors()) {
+      throw new MojoFailureException("Project validation failed because of validation errors. See the validation summary above.");
+    }
+    if (failOnWarning && reporter.hasWarnings()) {
+      throw new MojoFailureException("Project validation failed because of validation warnings. See the validation summary above.");
+    }
   }
 
   private static ProjectValidatorContext validationContextOf(ProjectCtxt p) {
